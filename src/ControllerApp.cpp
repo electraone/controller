@@ -1,10 +1,14 @@
 #include "App.h"
 #include "MainComponent.h"
+#include "Preset.h"
+
+extern MemoryPool stringPool;
+extern BitmapPool bitmapPool;
 
 class Controller : public App
 {
 public:
-    HelloWorld()
+    Controller()
     {
         windowManager.setActiveWindow(&mainWindow);
     }
@@ -21,12 +25,22 @@ public:
 
     const char *getApplicationSandbox(void) const override
     {
-        return ("control");
+        return ("ctrlv2");
     }
 
     void initialise(void) override
     {
         logMessage("setup completed");
+		stringPool.assignStorageDriver(&Hardware::screen);
+        bitmapPool.assignStorageDriver(&Hardware::screen);
+
+		if (preset.load ("ctrlv2/p000.epr") == true)
+        {
+            logMessage("preset loaded");
+		}
+		else {
+			logMessage("preset load failed");
+		}
     }
 
     class MainWindow : public Window
@@ -41,6 +55,7 @@ public:
 
 private:
     MainWindow mainWindow;
+	Preset preset;
 };
 
 // This macro instructs main() routine to launch the app.
