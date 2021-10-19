@@ -1,184 +1,167 @@
 #include "Control.h"
 
-Control::Control () :
-	id (0), controlComponent (nullptr)
+Control::Control() : id(0), controlComponent(nullptr)
 {
-	pageId = 0;
-	type = (uint8_t) ControlType::none;
-	colour = (uint8_t) ElectraColours::white;
-	mode = (uint8_t) ControlMode::none;
-	controlSetId = 0;
-	variant = (uint8_t) Variant::automatic;
-	visible = (uint8_t) false;
-	name[0] = '\0';
+    pageId = 0;
+    type = (uint8_t)ControlType::none;
+    colour = (uint8_t)ElectraColours::white;
+    mode = (uint8_t)ControlMode::none;
+    controlSetId = 0;
+    variant = (uint8_t)Variant::automatic;
+    visible = (uint8_t) false;
+    name[0] = '\0';
 }
 
-Control::Control (uint16_t id, uint8_t newPageId, const char *newName,
-				  ControlType newType, ControlMode newMode, Colour newColour, uint8_t newControlSetId,
-				  Variant newVariant, bool newVisible) :
-	id (id), controlComponent (nullptr)
+Control::Control(uint16_t id,
+                 uint8_t newPageId,
+                 const char *newName,
+                 ControlType newType,
+                 ControlMode newMode,
+                 Colour newColour,
+                 uint8_t newControlSetId,
+                 Variant newVariant,
+                 bool newVisible)
+    : id(id), controlComponent(nullptr)
 {
-	copyString (name, newName, MaxNameLength);
-	pageId = newPageId;
-	type = (uint8_t) newType;
-	colour = (uint8_t) newColour;
-	mode = (uint8_t) newMode;
-	controlSetId = newControlSetId;
-	variant = (uint8_t) newVariant;
-	visible = (uint8_t) newVisible;
+    copyString(name, newName, MaxNameLength);
+    pageId = newPageId;
+    type = (uint8_t)newType;
+    colour = (uint8_t)newColour;
+    mode = (uint8_t)newMode;
+    controlSetId = newControlSetId;
+    variant = (uint8_t)newVariant;
+    visible = (uint8_t)newVisible;
 }
 
-Control::~Control ()
+Control::~Control()
 {
 }
 
-uint16_t Control::getId (void) const
+uint16_t Control::getId(void) const
 {
-	return (id);
+    return (id);
 }
 
-uint8_t Control::getPageId (void) const
+uint8_t Control::getPageId(void) const
 {
-	return ( pageId);
+    return (pageId);
 }
 
-ControlType Control::getType (void) const
+ControlType Control::getType(void) const
 {
-	return ((ControlType) type);
+    return ((ControlType)type);
 }
 
-ControlMode Control::getMode (void) const
+ControlMode Control::getMode(void) const
 {
-	return ((ControlMode) mode);
+    return ((ControlMode)mode);
 }
 
-Colour Control::getColour (void) const
+Colour Control::getColour(void) const
 {
-	return ( colour);
+    return (colour);
 }
 
-const char *Control::getName (void) const
+const char *Control::getName(void) const
 {
-	return (name);
+    return (name);
 }
 
-uint8_t Control::getControlSetId (void) const
+uint8_t Control::getControlSetId(void) const
 {
-	return ( controlSetId);
+    return (controlSetId);
 }
 
-Variant Control::getVariant (void) const
+Variant Control::getVariant(void) const
 {
-	return ((Variant) variant);
+    return ((Variant)variant);
 }
 
-bool Control::getVisible (void) const
+bool Control::getVisible(void) const
 {
-	return ((bool) visible);
+    return ((bool)visible);
 }
 
-Rectangle Control::getBounds (void) const
+Rectangle Control::getBounds(void) const
 {
-	return (bounds);
+    return (bounds);
 }
 
-void Control::setBounds (Rectangle newBounds)
+void Control::setBounds(Rectangle newBounds)
 {
-	bounds = newBounds;
+    bounds = newBounds;
 }
 
-void Control::setValues (std::vector<Value2> newValues)
+void Control::setValues(std::vector<Value2> newValues)
 {
-	values = newValues;
+    values = newValues;
 }
 
-void Control::assignControlComponent (ControlComponent *newControlComponent)
+void Control::assignControlComponent(ControlComponent *newControlComponent)
 {
-	controlComponent = newControlComponent;
+    controlComponent = newControlComponent;
 }
 
-ControlComponent *Control::getControlComponent (void)
+ControlComponent *Control::getControlComponent(void)
 {
-	return (controlComponent);
+    return (controlComponent);
 }
 
-Value2* Control::getValue (const char *valueId)
+Value2 *Control::getValue(const char *valueId)
 {
-	uint8_t handle = Value2::translateId (valueId);
+    uint8_t handle = Value2::translateId(valueId);
 
-	for (auto &value: values)
-	{
-		if (value.getHandle () == handle)
-		{
-			return (&value);
-		}
-	}
+    for (auto &value : values) {
+        if (value.getHandle() == handle) {
+            return (&value);
+        }
+    }
 
-	return (nullptr);
+    return (nullptr);
 }
 
-ControlType Control::translateControlType (const char *typeText)
+ControlType Control::translateControlType(const char *typeText)
 {
-	if (typeText)
-	{
-		if (strcmp (typeText, "fader") == 0)
-		{
-			return (ControlType::fader);
-		}
-		else if (strcmp (typeText, "vfader") == 0)
-		{
-			return (ControlType::vfader);
-		}
-		else if (strcmp (typeText, "list") == 0)
-		{
-			return (ControlType::list);
-		}
-		else if (strcmp (typeText, "pad") == 0)
-		{
-			return (ControlType::pad);
-		}
-		else if (strcmp (typeText, "adsr") == 0)
-		{
-			return (ControlType::adsr);
-		}
-		else if (strcmp (typeText, "adr") == 0)
-		{
-			return (ControlType::adr);
-		}
-		else if (strcmp (typeText, "dx7envelope") == 0)
-		{
-			return (ControlType::dx7envelope);
-		}
-	}
-	return (ControlType::none);
+    if (typeText) {
+        if (strcmp(typeText, "fader") == 0) {
+            return (ControlType::fader);
+        } else if (strcmp(typeText, "vfader") == 0) {
+            return (ControlType::vfader);
+        } else if (strcmp(typeText, "list") == 0) {
+            return (ControlType::list);
+        } else if (strcmp(typeText, "pad") == 0) {
+            return (ControlType::pad);
+        } else if (strcmp(typeText, "adsr") == 0) {
+            return (ControlType::adsr);
+        } else if (strcmp(typeText, "adr") == 0) {
+            return (ControlType::adr);
+        } else if (strcmp(typeText, "dx7envelope") == 0) {
+            return (ControlType::dx7envelope);
+        }
+    }
+    return (ControlType::none);
 }
 
-ControlMode Control::translateControlMode (const char *modeText)
+ControlMode Control::translateControlMode(const char *modeText)
 {
-	if (modeText)
-	{
-		if (strcmp (modeText, "momentary") == 0)
-		{
-			return (ControlMode::momentary);
-		}
-		else if (strcmp (modeText, "toggle") == 0)
-		{
-			return (ControlMode::toggle);
-		}
-	}
+    if (modeText) {
+        if (strcmp(modeText, "momentary") == 0) {
+            return (ControlMode::momentary);
+        } else if (strcmp(modeText, "toggle") == 0) {
+            return (ControlMode::toggle);
+        }
+    }
 
-	return (ControlMode::none);
+    return (ControlMode::none);
 }
 
-Variant Control::translateVariant (const char *variantText)
+Variant Control::translateVariant(const char *variantText)
 {
-	if (variantText)
-	{
-		if (strcmp (variantText, "fixedValuePosition") == 0)
-		{
-			return (Variant::fixedValuePosition);
-		}
-	}
+    if (variantText) {
+        if (strcmp(variantText, "fixedValuePosition") == 0) {
+            return (Variant::fixedValuePosition);
+        }
+    }
 
-	return (Variant::automatic);
+    return (Variant::automatic);
 }
