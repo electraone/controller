@@ -1,111 +1,103 @@
 #include "Overlays.h"
 
-Overlays::Overlays (MemoryPool& pool) :
-	stringPool (pool),
-	currentOffset (0)
+Overlays::Overlays(MemoryPool &pool) : stringPool(pool), currentOffset(0)
 {
 }
 
-void Overlays::reset (void)
+void Overlays::reset(void)
 {
-	currentOffset = 0;
+    currentOffset = 0;
 }
 
-Overlay *Overlays::create (uint8_t id)
+Overlay *Overlays::create(uint8_t id)
 {
-	if (id > maxNumOverlays)
-	{
-		logMessage ("Overlays::create: overlayId must be between 0 and %d",
-		    maxNumOverlays);
-		return (nullptr);
-	}
+    if (id > maxNumOverlays) {
+        logMessage("Overlays::create: overlayId must be between 0 and %d",
+                   maxNumOverlays);
+        return (nullptr);
+    }
 
-	overlays[id] = { this, currentOffset };
-	return (&overlays[id]);
+    overlays[id] = { this, currentOffset };
+    return (&overlays[id]);
 }
 
-Overlay *Overlays::get (uint8_t id)
+Overlay *Overlays::get(uint8_t id)
 {
-	return (&overlays[id]);
+    return (&overlays[id]);
 }
 
-Overlay::Overlay () :
-	offset (0), numItems (0)
-{
-}
-
-Overlay::Overlay (Overlays *overlayPool, uint16_t offset) :
-	offset (offset), numItems (0), overlayPool (overlayPool)
+Overlay::Overlay() : offset(0), numItems(0)
 {
 }
 
-bool Overlay::addItem (OverlayItem item)
+Overlay::Overlay(Overlays *overlayPool, uint16_t offset)
+    : offset(offset), numItems(0), overlayPool(overlayPool)
 {
-	if (overlayPool->currentOffset > Overlays::maxNumOverlayItems)
-	{
-		logMessage ("addItem: max number of overlay items reached");
-		return (false);
-	}
-
-	overlayPool->overlayItem[overlayPool->currentOffset] = item;
-	overlayPool->currentOffset++;
-	numItems++;
-
-	return (true);
 }
 
-uint8_t Overlay::getNumItems (void)
+bool Overlay::addItem(OverlayItem item)
 {
-	return (numItems);
+    if (overlayPool->currentOffset > Overlays::maxNumOverlayItems) {
+        logMessage("addItem: max number of overlay items reached");
+        return (false);
+    }
+
+    overlayPool->overlayItem[overlayPool->currentOffset] = item;
+    overlayPool->currentOffset++;
+    numItems++;
+
+    return (true);
 }
 
-address_t Overlay::getItemAddress (uint16_t index)
+uint8_t Overlay::getNumItems(void)
 {
-	if (index >= numItems)
-	{
-		return (0);
-	}
-	return (overlayPool->overlayItem[offset + index].item);
+    return (numItems);
 }
 
-void Overlay::getItem (uint16_t index, char *buffer, uint8_t MaxNameLength,
-	  Bitmap &bitmap)
+address_t Overlay::getItemAddress(uint16_t index)
 {
-	uint32_t bitmapAddress;
-
-	if (index >= numItems)
-	{
-		buffer[0] = '\0';
-		return;
-	}
-
-	overlayPool->stringPool.getItem (getItemAddress (index), buffer,
-	    MaxNameLength, &bitmapAddress);
-	bitmap.setAddress (bitmapAddress);
+    if (index >= numItems) {
+        return (0);
+    }
+    return (overlayPool->overlayItem[offset + index].item);
 }
 
-uint16_t Overlay::getValue (uint16_t index)
+void Overlay::getItem(uint16_t index,
+                      char *buffer,
+                      uint8_t MaxNameLength,
+                      Bitmap &bitmap)
 {
-	if (index >= numItems)
-	{
-		return (0);
-	}
-	return (overlayPool->overlayItem[offset + index].value);
+    uint32_t bitmapAddress;
+
+    if (index >= numItems) {
+        buffer[0] = '\0';
+        return;
+    }
+
+    overlayPool->stringPool.getItem(
+        getItemAddress(index), buffer, MaxNameLength, &bitmapAddress);
+    bitmap.setAddress(bitmapAddress);
 }
 
-uint16_t Overlay::getIndex (uint16_t value)
+uint16_t Overlay::getValue(uint16_t index)
 {
-	for (uint16_t index = 0; index < numItems; index++)
-	{
-		if (overlayPool->overlayItem[offset + index].value == value)
-		{
-			return (index);
-		}
-	}
-	return (notFound);
+    if (index >= numItems) {
+        return (0);
+    }
+    return (overlayPool->overlayItem[offset + index].value);
 }
 
-Overlays* Overlay::getOverlays (void)
+uint16_t Overlay::getIndex(uint16_t value)
 {
-	return (overlayPool);
+    for (uint16_t index = 0; index < numItems; index++) {
+        if (overlayPool->overlayItem[offset + index].value == value) {
+            return (index);
+        }
+    }
+    return (notFound);
+}
+
+Overlays *Overlay::getOverlays(void)
+{
+    return (overlayPool);
 }

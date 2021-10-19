@@ -2,92 +2,85 @@
 
 #include "helpers.h"
 
-
 class Group
 {
-	private:
-		static const uint8_t maxGroupNameLength = 40;
+private:
+    static const uint8_t maxGroupNameLength = 40;
 
-	public:
-		Group () :
-			id (0),
-			pageId (0),
-			colour (ElectraColours::white)
-			//groupGraphics (nullptr)
-		{
-		}
+public:
+    Group() : id(0), pageId(0), colour(ElectraColours::white)
+    {
+        *label = '\0';
+    }
 
-		Group (uint8_t newId,
-			   uint8_t newPageId,
-			   Rectangle newBounds,
-			   const char *newLabel,
-			   Colour newColour) :
-			id (newId),
-			pageId (newPageId),
-			colour (newColour),
-			bounds (newBounds)
-			//groupGraphics (nullptr)
-		{
-			setLabel (newLabel);
-		}
+    Group(uint8_t newId,
+          uint8_t newPageId,
+          const Rectangle &newBounds,
+          const char *newLabel,
+          Colour newColour)
+        : id(newId), pageId(newPageId), colour(newColour), bounds(newBounds)
+    {
+        setLabel(newLabel);
+    }
 
-		void setId (uint8_t newId)
-		{
-			id = newId;
-		}
+    void setId(uint8_t newId)
+    {
+        id = newId;
+    }
 
-		uint8_t getId (void) const
-		{
-			return (id);
-		}
+    uint8_t getId(void) const
+    {
+        return (id);
+    }
 
-		void setLabel (const char* newLabel)
-		{
-			copyString (label, newLabel, maxGroupNameLength);
-		}
+    void setLabel(const char *newLabel)
+    {
+        if (newLabel) {
+            copyString(label, newLabel, maxGroupNameLength);
+        } else {
+            *label = '\0';
+        }
+    }
 
-		const char* getLabel (void) const
-		{
-			return (label);
-		}
+    const char *getLabel(void) const
+    {
+        return (label);
+    }
 
-		uint8_t getPageId (void) const
-		{
-			return (pageId);
-		}
+    void setPageId(uint8_t newPageId)
+    {
+        pageId = newPageId;
+    }
 
-		void setColour (Colour newColour)
-		{
-			colour = newColour;
-		}
+    uint8_t getPageId(void) const
+    {
+        return (pageId);
+    }
 
-		Colour getColour (void) const
-		{
-			return (colour);
-		}
+    void setColour(Colour newColour)
+    {
+        colour = newColour;
+    }
 
-		Rectangle getBounds (void) const
-		{
-			return (bounds);
-		}
+    Colour getColour(void) const
+    {
+        return (colour);
+    }
 
-/*
-		void assignGroupGraphics (GroupGraphics* newGroupGraphics)
-		{
-			groupGraphics = newGroupGraphics;
-		}
+    void setBounds(const Rectangle &newBounds)
+    {
+        bounds = newBounds;
+    }
 
-		GroupGraphics* getGroupGraphics (void)
-		{
-			return (groupGraphics);
-		}
-*/
+    Rectangle getBounds(void) const
+    {
+        return (bounds);
+    }
 
-	private:
-		uint8_t id;
-		uint8_t pageId;
-		Colour colour;
-		char label[maxGroupNameLength + 1];
-		Rectangle bounds;
-		//GroupGraphics *groupGraphics;
+private:
+    uint8_t id;
+    char label[maxGroupNameLength + 1];
+    uint8_t pageId;
+    Colour colour;
+    Rectangle bounds;
 };

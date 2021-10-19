@@ -2,7 +2,6 @@
 
 #include "Component.h"
 
-
 class MainComponent : public Component
 {
 public:
