@@ -2,16 +2,19 @@
 
 #include <ArduinoJson.h>
 #include <vector>
-#include <array>
+#include <map>
 
+#include "PersistentStorage.h"
 #include "Page.h"
 #include "Device.h"
-#include "Overlays.h"
+#include "Overlay.h"
 #include "Group.h"
 #include "Control.h"
 
 #include "Rule.h"
 #include "Checksum.h"
+
+#include "Bitmap.h"
 
 class Preset
 {
@@ -28,7 +31,8 @@ public:
     const char *getProjectId(void);
 
     Page *getPage(uint8_t pageId);
-    Overlay *getOverlay(uint16_t id);
+    Device *getDevice(uint8_t deviceId);
+    Overlay *getOverlay(uint8_t id);
     Group *getGroup(uint8_t groupId);
     Control *getControl(uint16_t id);
 
@@ -48,6 +52,8 @@ private:
 
     // Main parser
     bool parse(File &file);
+    void resetRoot(void);
+    void resetControls(void);
 
     // Root Elements
     bool parseRoot(File &file);
@@ -81,7 +87,7 @@ private:
                                            uint8_t deviceId);
 
     // Overlays
-    bool parseOverlayItems(File &file, Overlay *overlay);
+    bool parseOverlayItems(File &file, Overlay &overlay);
 
     // Groups
     Group parseGroup(JsonObject jGroup, uint8_t groupId);
@@ -130,15 +136,15 @@ private:
 
     uint8_t version;
     char name[MaxNameLength + 1];
-    Overlays overlays;
     char projectId[MaxProjectIdLength + 1];
     bool valid;
 
 public: // Public on the purpose
-    std::array<Page, MaxNumPages> pages;
-    std::vector<Device> devices;
-    std::vector<Group> groups;
-    std::array<Control, MaxNumControls + 1> controls;
+    std::map<uint8_t, Page> pages;
+    std::map<uint8_t, Device> devices;
+    std::map<uint8_t, Group> groups;
+    std::map<int16_t, Control> controls;
+    std::map<uint8_t, Overlay> overlays;
     std::vector<String> luaFunctions;
 };
 

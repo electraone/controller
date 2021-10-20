@@ -6,6 +6,7 @@
 #include "Value2.h"
 #include "Input.h"
 #include "Rectangle.h"
+#include "Colours.h"
 
 enum class ControlType {
     none = 0,

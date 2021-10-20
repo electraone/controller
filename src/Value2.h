@@ -1,10 +1,13 @@
 #pragma once
 
+#include <cstdint>
+#include <cstring>
+#include <string>
+
 #include "ElectraMessage.h"
-#include "Overlays.h"
+#include "Overlay.h"
 #include "Message.h"
 #include "Macros.h"
-#include <stdint.h>
 
 class Control;
 
@@ -20,10 +23,11 @@ class Value2
 public:
     Value2()
         : handle(0),
+		  index(0),
           defaultValue(0),
           min(0),
           max(NOT_SET),
-          overlay(nullptr),
+		  overlayId(0),
           control(nullptr)
     {
     }
@@ -35,7 +39,6 @@ public:
            int16_t newMin,
            int16_t newMax,
            uint8_t newOverlayId,
-           Overlay *newOverlay,
            Message(newMessage),
            const char *newFormatter,
            const char *newFunction)
@@ -45,23 +48,18 @@ public:
           min(newMin),
           max(newMax),
           overlayId(newOverlayId),
-          message(newMessage),
-          formatter(newFormatter),
-          function(newFunction)
+          message(newMessage)
     {
+		if (newFormatter) {
+			formatter = newFormatter;
+		}
+
+		if (newFunction) {
+			function = newFunction;
+		}
+
         // translate the valueId to the numeric handle
         handle = translateId(newValueId);
-
-        // assign the overlay
-        if (newOverlay) {
-            uint16_t numItems = newOverlay->getNumItems();
-
-            if (numItems == 0) {
-                overlay = nullptr;
-            } else {
-                overlay = newOverlay;
-            }
-        }
     }
 
     Control *getControl(void) const
@@ -117,20 +115,6 @@ public:
     uint8_t getOverlayId(void) const
     {
         return (overlayId);
-    }
-
-    void setOverlayId(uint8_t overlayId)
-    {
-        Overlays *overlays = overlay->getOverlays();
-
-        if (overlays) {
-            overlay = overlays->get(overlayId);
-        }
-    }
-
-    Overlay *getOverlay(void) const
-    {
-        return (overlay);
     }
 
 	const char* getFunction(void) const
@@ -194,10 +178,9 @@ private:
     int16_t defaultValue;
     int16_t min;
     int16_t max;
-    Overlay *overlay;
     uint8_t overlayId;
-    String formatter;
-    String function;
+    std::string formatter;
+    std::string function;
     Control *control;
 
 public:

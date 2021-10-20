@@ -2,11 +2,13 @@
 #include "Hardware.h"
 #include "Colours.h"
 #include "Base64.h"
+#include "MemoryPool.h"
+#include "BitmapPool.h"
 
 MemoryPool stringPool(SDRAM_PAGE_1, SDRAM_PAGE_SIZE);
 BitmapPool bitmapPool(SDRAM_PAGE_2, SDRAM_PAGE_SIZE);
 
-Preset::Preset() : overlays(Overlays(stringPool)), valid(false)
+Preset::Preset() : valid(false)
 {
     reset();
 }
@@ -17,8 +19,7 @@ Preset::Preset() : overlays(Overlays(stringPool)), valid(false)
 bool Preset::load(const char *filename)
 {
     File file;
-
-    valid = false;
+    valid = false; // invalidate the preset
 
     logMessage("Preset::load: file: filename=%s", filename);
 
@@ -49,22 +50,38 @@ bool Preset::load(const char *filename)
  */
 void Preset::reset(void)
 {
+    resetRoot();
+    resetControls();
+
+    groups.clear();
+    devices.clear();
+    luaFunctions = std::vector<String>();
+    bitmapPool.clear();
+    overlays.clear();
+    pages.clear();
+}
+
+/** Reset all preset controls
+ *
+ */
+void Preset::resetRoot(void)
+{
     copyString(name, "NO NAME", MaxNameLength);
     version = 0;
     projectId[0] = '\0';
+}
 
-    for (auto &control : controls) {
+/** Reset all preset controls
+ *
+ */
+void Preset::resetControls(void)
+{
+    for (auto &[id, control] : controls) {
         control.inputs = std::vector<Input>();
         control.values = std::vector<Value2>();
     }
 
-    controls.fill(Control());
-    groups = std::vector<Group>();
-    devices = std::vector<Device>();
-    luaFunctions = std::vector<String>();
-    bitmapPool.clear();
-    overlays.reset();
-    pages.fill(Page());
+    controls.clear();
 }
 
 /*--------------------------------------------------------------------------*/
@@ -108,53 +125,72 @@ const char *Preset::getProjectId(void)
  */
 Page *Preset::getPage(uint8_t pageId)
 {
+    Page *page = nullptr;
     pageId--;
 
-    if ((0 <= pageId) && (pageId <= 11)) {
-        for (auto &page : pages) {
-            if (page.getId() == pageId) {
-                return (&page);
-            }
-        }
+    try {
+        page = &pages.at(pageId);
+    } catch (std::out_of_range const &) {
+        page = nullptr;
     }
-    return (nullptr);
+
+    return (page);
+}
+
+/** Get device pointer by the id
+ *
+ */
+Device *Preset::getDevice(uint8_t deviceId)
+{
+    Device *device = nullptr;
+
+    try {
+        device = &devices.at(deviceId);
+    } catch (std::out_of_range const &) {
+        device = nullptr;
+    }
+
+    return (device);
 }
 
 /** Get overlay pointer by the id
  *
  */
-Overlay *Preset::getOverlay(uint16_t id)
+Overlay *Preset::getOverlay(uint8_t id)
 {
-    return (overlays.get(id));
+    return (nullptr); //overlays.get(id));
 }
 
-/** Get Page by the pageId
+/** Get group pointer by the Id
  *
  */
 Group *Preset::getGroup(uint8_t groupId)
 {
-    if ((0 <= groupId) && (groupId < groups.size())) {
-        for (auto &group : groups) {
-            if (group.getId() == groupId) {
-                return (&group);
-            }
-        }
+    Group *group = nullptr;
+
+    try {
+        group = &groups.at(groupId);
+    } catch (std::out_of_range const &) {
+        group = nullptr;
     }
-    return (nullptr);
+
+    return (group);
 }
 
-/** Get Control by id
+/** Get Control pointer by id
  *
  */
-Control *Preset::getControl(uint16_t id)
+Control *Preset::getControl(uint16_t controlId)
 {
-    if ((1 <= id) && (id <= 432)) {
-        if (controls[id].getType() != ControlType::none) {
-            return (&controls[id]);
-        }
+    Control *control = nullptr;
+
+    try {
+        control = &controls.at(controlId);
+    } catch (std::out_of_range const &) {
+        control = nullptr;
     }
 
-    return (nullptr);
+    return (control);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -274,14 +310,14 @@ bool Preset::parse(File &file)
         return (false);
     }
 
-    if (!parseControls(file)) {
-        logMessage("Preset::parse: parseControls failed");
+    if (!parseGroups(file)) {
+        logMessage("Preset::parse: parseGroups failed");
         reset();
         return (false);
     }
 
-    if (!parseGroups(file)) {
-        logMessage("Preset::parse: parseGroups failed");
+    if (!parseControls(file)) {
+        logMessage("Preset::parse: parseControls failed");
         reset();
         return (false);
     }
@@ -451,7 +487,7 @@ bool Preset::parseDevices(File &file)
             parsePatches(file, startPosition, endPosition, &device);
             file.seek(endOfDevicePosition);
 
-            devices.push_back(device);
+            devices[device.getId()] = device;
             numDevices++;
 
             if (numDevices >= MaxNumDevices) {
@@ -490,10 +526,6 @@ bool Preset::parseOverlays(File &file)
         return (true);
     }
 
-    // always create an empty overlay with id 0
-    // It resolves situations when the overlay definition is missing
-    overlays.create(0);
-
     do {
         uint32_t pos = file.position();
         DeserializationError err =
@@ -511,18 +543,16 @@ bool Preset::parseOverlays(File &file)
 
         if (jOverlay) {
             uint8_t id = jOverlay["id"].as<uint8_t>();
-            //logMessage ("Preset::parseOverlays: id=%d", id);
-
-            /* register the overlayId in the Overlay storage */
-            Overlay *overlay = overlays.create(id);
+            overlays[id] = Overlay(id);
 
             file.seek(pos);
 
-            if (!this->parseOverlayItems(file, overlay)) {
+            if (!this->parseOverlayItems(file, overlays[id])) {
                 logMessage(
                     "Preset::parseOverlays: parsing of overlay items has failed");
                 return (false);
             }
+
         } else {
             break;
         }
@@ -566,7 +596,7 @@ bool Preset::parseGroups(File &file)
         JsonObject jGroup = doc.as<JsonObject>();
 
         if (jGroup) {
-            groups.push_back(parseGroup(jGroup, groupId));
+            groups[groupId] = parseGroup(jGroup, groupId);
         } else {
             break;
         }
@@ -878,7 +908,7 @@ std::vector<Message> Preset::parsePostMessages(JsonArray jPostPatch,
 /** Parse array of overlay items of given overlay
  *
  */
-bool Preset::parseOverlayItems(File &file, Overlay *overlay)
+bool Preset::parseOverlayItems(File &file, Overlay &overlay)
 {
     const size_t capacity = JSON_OBJECT_SIZE(3) + 256;
     StaticJsonDocument<capacity> doc;
@@ -927,11 +957,8 @@ bool Preset::parseOverlayItems(File &file, Overlay *overlay)
                 label,
                 bitmapLocation.isEmpty());
 
-            overlay->addItem(
-                { value,
-                  stringPool.saveItem(bitmapLocation.getAddress(), label) });
-            //overlay->addItem ({ value, (uint32_t)0 });
-
+            overlay.items[value] =
+                stringPool.saveItem(bitmapLocation.getAddress(), label);
         } else {
             break;
         }
@@ -948,7 +975,6 @@ bool Preset::parseOverlayItems(File &file, Overlay *overlay)
 Group Preset::parseGroup(JsonObject jGroup, uint8_t defaultGroupId)
 {
     uint8_t groupId = jGroup["groupId"] | defaultGroupId;
-    ;
     uint8_t pageId = jGroup["pageId"];
     Rectangle bounds = parseBounds(jGroup["bounds"]);
     ;
@@ -1217,9 +1243,6 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
         formatter,
         function);
 
-    /* TODO: make use overlay is null if nit defined and handle further down accordingly*/
-    Overlay *overlay = getOverlay(overlayId);
-
     return (Value2(control,
                    valueId,
                    valueIndex,
@@ -1227,7 +1250,6 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
                    min,
                    max,
                    overlayId,
-                   overlay,
                    message,
                    formatter,
                    function));
