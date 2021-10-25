@@ -44,6 +44,13 @@ public:
         hasObjects = shouldHaveObjects;
     }
 
+	void print(void) const
+	{
+	    logMessage("id: %d", getId());
+	    logMessage("name: %s", getName());
+	    logMessage("hasObjects: %d", getHasObjects());
+	}
+
 private:
     static constexpr uint8_t MaxNameLength = 20;
 

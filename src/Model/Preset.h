@@ -25,10 +25,10 @@ public:
     bool load(const char *filename);
     void reset(void);
 
-    bool isValid(void);
-    const char *getName(void);
-    uint8_t getVersion(void);
-    const char *getProjectId(void);
+    bool isValid(void) const;
+    const char *getName(void) const;
+    uint8_t getVersion(void) const;
+    const char *getProjectId(void) const;
 
     Page *getPage(uint8_t pageId);
     Device *getDevice(uint8_t deviceId);
@@ -42,6 +42,8 @@ public:
                            size_t maxPresetNameLength);
     void
         getPresetName(File &file, char *presetName, size_t maxPresetNameLength);
+
+    void print(void) const;
 
 private:
     static constexpr uint8_t MaxNumPages = 12;

@@ -4,6 +4,7 @@
 #include "SignMode.h"
 #include "Macros.h"
 #include <stdint.h>
+#include "helpers.h"
 
 class Message
 {
@@ -55,7 +56,7 @@ public:
         }
     }
 
-	void setDeviceId(uint8_t newDeviceId)
+    void setDeviceId(uint8_t newDeviceId)
     {
         deviceId = newDeviceId;
     }
@@ -66,49 +67,49 @@ public:
     }
 
     void setType(ElectraMessageType newType)
-	{
+    {
         type = (uint8_t)newType;
-	}
+    }
 
-	ElectraMessageType getType(void) const
-	{
-		return ((ElectraMessageType)type);
-	}
+    ElectraMessageType getType(void) const
+    {
+        return ((ElectraMessageType)type);
+    }
 
     void setMidiMin(int16_t newMin)
-	{
-		midiMin = newMin;
-	}
+    {
+        midiMin = newMin;
+    }
 
-	int16_t getMidiMin(void) const
-	{
-		return (midiMin);
-	}
+    int16_t getMidiMin(void) const
+    {
+        return (midiMin);
+    }
 
-	int16_t getMidiMax(void) const
-	{
-		return (midiMax);
-	}
+    int16_t getMidiMax(void) const
+    {
+        return (midiMax);
+    }
 
-	void setMidiMax(int16_t newMax)
-	{
-		midiMax = newMax;
-	}
+    void setMidiMax(int16_t newMax)
+    {
+        midiMax = newMax;
+    }
 
     void setParameterNumber(uint16_t newParameterNumber)
-	{
-	    parameterNumber = newParameterNumber;
-	}
+    {
+        parameterNumber = newParameterNumber;
+    }
 
-	uint16_t getParameterNumber(void) const
+    uint16_t getParameterNumber(void) const
     {
         return (parameterNumber);
     }
 
     void setValue(int16_t newValue)
-	{
-		value = newValue;
-	}
+    {
+        value = newValue;
+    }
 
     int16_t getValue(void) const
     {
@@ -116,9 +117,9 @@ public:
     }
 
     void setSignMode(SignMode newSignMode)
-	{
-	    signMode = (uint8_t)newSignMode;
-	}
+    {
+        signMode = (uint8_t)newSignMode;
+    }
 
     SignMode getSignMode(void) const
     {
@@ -126,19 +127,19 @@ public:
     }
 
     void setOffValue(int16_t newOffValue)
-	{
-	    offValue = newOffValue;
-	}
+    {
+        offValue = newOffValue;
+    }
 
     int16_t getOffValue(void) const
     {
         return (offValue);
     }
 
-	void setOnValue(int16_t newOnValue)
-	{
-	    onValue = newOnValue;
-	}
+    void setOnValue(int16_t newOnValue)
+    {
+        onValue = newOnValue;
+    }
 
     int16_t getOnValue(void) const
     {
@@ -146,9 +147,9 @@ public:
     }
 
     void setLsbFirst(bool newLsbFirst)
-	{
-	    lsbFirst = newLsbFirst;
-	}
+    {
+        lsbFirst = newLsbFirst;
+    }
 
     bool getLsbFirst(void) const
     {
@@ -156,14 +157,29 @@ public:
     }
 
     void setBitWidth(uint8_t newBitWidth)
-	{
+    {
         bitWidth = newBitWidth;
-	}
+    }
 
     uint8_t getBitWidth(void) const
     {
         return (bitWidth);
     }
+
+	void print(void) const
+	{
+	    logMessage("        deviceId: %d", getDeviceId());
+	    logMessage("        type: %d", getType());
+	    logMessage("        parameterNumber: %d", getParameterNumber());
+	    logMessage("        min: %d", getMidiMin());
+	    logMessage("        max: %d", getMidiMax());
+	    logMessage("        value: %d", getValue());
+	    logMessage("        onValue: %d", getOnValue());
+	    logMessage("        offValue: %d", getOffValue());
+	    logMessage("        signMode: %d", getSignMode());
+	    logMessage("        lsbFirst: %d", getLsbFirst());
+	    logMessage("        bitWidth: %d", getBitWidth());
+	}
 
     std::vector<uint8_t> data;
 

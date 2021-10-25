@@ -26,6 +26,12 @@ public:
         return (handleIndex);
     }
 
+	void print(void) const
+	{
+	    logMessage("    potId: %d", getPotId());
+	    logMessage("    valueId: %d", getValueId());
+	}
+
 private:
     uint8_t handleIndex;
     uint8_t potId;

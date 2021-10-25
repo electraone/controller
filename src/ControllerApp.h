@@ -5,13 +5,15 @@
 #include "MemoryPool.h"
 #include "BitmapPool.h"
 
+#include "Ui.h"
+
 extern MemoryPool stringPool;
 extern BitmapPool bitmapPool;
 
 class Controller : public App
 {
 public:
-    Controller()
+    Controller() : mainWindow(MainWindow(preset))
     {
         windowManager.setActiveWindow(&mainWindow);
     }
@@ -42,63 +44,25 @@ public:
         } else {
             logMessage("preset load failed");
         }
-
-        logMessage("--[Preset]-------------------------------------");
-        logMessage("name: %s", preset.getName());
-        logMessage("projectId: %s", preset.getProjectId());
-        logMessage("version: %d", preset.getVersion());
-        logMessage("isvalid: %d", preset.isValid());
-
-        logMessage("--[Pages]--------------------------------------");
-        for (const auto &[id, page] : preset.pages) {
-            printPage(page);
-        }
-
-        logMessage("--[Devices]------------------------------------");
-        for (const auto &[id, device] : preset.devices) {
-            printDevice(device);
-        }
-
-        logMessage("--[Overlays]-----------------------------------");
-        for (const auto &[id, overlay] : preset.overlays) {
-            printOverlay(overlay);
-        }
-
-        logMessage("--[Groups]-------------------------------------");
-        for (const auto &[id, group] : preset.groups) {
-            printGroup(group);
-        }
-
-        logMessage("--[Controls]-----------------------------------");
-        for (const auto &[id, control] : preset.controls) {
-            printControl(control);
-        }
-
-        logMessage("--[end]----------------------------------------");
     }
 
     class MainWindow : public Window
     {
     public:
-        MainWindow()
+        explicit MainWindow(Preset &preset)
         {
-            setOwnedContent(new MainComponent());
+            setOwnedContent(new MainComponent(preset));
             setVisible(true);
         }
     };
 
 private:
-    void printBounds(const Rectangle &bounds);
-    void printPage(const Page &page);
-    void printDevice(const Device &device);
-    void printOverlay(const Overlay &overlay);
-    void printGroup(const Group &group);
-    void printInput(const Input &input);
-    void printInputs(const std::vector<Input> &inputs);
-    void printValue(const Value2 &value);
-    void printValues(const std::vector<Value2> &values);
-    void printControl(const Control &control);
-    void printMessage(const Message &message);
+    void printPreset(const Preset &preset) const;
+    void printBounds(const Rectangle &bounds) const;
+    void printPage(const Page &page) const;
+    void printDevice(const Device &device) const;
+    void printOverlay(const Overlay &overlay) const;
+    void printGroup(const Group &group) const;
 
     MainWindow mainWindow;
     Preset preset;

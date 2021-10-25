@@ -1,6 +1,6 @@
 #include "Control.h"
 
-Control::Control() : id(0), controlComponent(nullptr)
+Control::Control() : id(0)
 {
     pageId = 0;
     type = (uint8_t)ControlType::none;
@@ -21,7 +21,7 @@ Control::Control(uint16_t id,
                  uint8_t newControlSetId,
                  Variant newVariant,
                  bool newVisible)
-    : id(id), controlComponent(nullptr)
+    : id(id)
 {
     copyString(name, newName, MaxNameLength);
     pageId = newPageId;
@@ -97,16 +97,6 @@ void Control::setValues(std::vector<Value2> newValues)
     values = newValues;
 }
 
-void Control::assignControlComponent(ControlComponent *newControlComponent)
-{
-    controlComponent = newControlComponent;
-}
-
-ControlComponent *Control::getControlComponent(void)
-{
-    return (controlComponent);
-}
-
 Value2 *Control::getValue(const char *valueId)
 {
     uint8_t handle = Value2::translateId(valueId);
@@ -164,4 +154,38 @@ Variant Control::translateVariant(const char *variantText)
     }
 
     return (Variant::automatic);
+}
+
+void Control::print(void) const
+{
+    if (getId() != 0) {
+        logMessage("id: %d", getId());
+        logMessage("type: %d", getType());
+        logMessage("mode: %d", getMode());
+        logMessage("variant: %d", getVariant());
+        logMessage("visible: %d", getVisible());
+        logMessage("name: %s", getName());
+        logMessage("pageId: %d", getPageId());
+        logMessage("colour: %d", getColour());
+        logMessage("controlSetId: %d", getControlSetId());
+        getBounds().print();
+        printInputs();
+        printValues();
+    }
+}
+
+void Control::printValues(void) const
+{
+    logMessage("    --[Values]------------------------------------");
+    for (const auto &value : values) {
+        value.print();
+    }
+}
+
+void Control::printInputs(void) const
+{
+    logMessage("    --[Inputs]------------------------------------");
+    for (const auto &input : inputs) {
+        input.print();
+    }
 }

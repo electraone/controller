@@ -23,8 +23,6 @@ enum class ControlMode { none = 0, momentary = 1, toggle = 2 };
 
 enum class Variant { automatic = 0, fixedValuePosition = 1 };
 
-class ControlComponent;
-
 class Control
 {
 public:
@@ -53,18 +51,19 @@ public:
     void setBounds(Rectangle bounds);
     void setValues(std::vector<Value2> values);
     Value2 *getValue(const char *valueId);
-    void assignControlComponent(ControlComponent *newControlComponent);
-    ControlComponent *getControlComponent(void);
 
     static ControlType translateControlType(const char *typeText);
     static ControlMode translateControlMode(const char *modeText);
     static Variant translateVariant(const char *variantText);
 
+	void print(void) const;
+    void printValues(void) const;
+    void printInputs(void) const;
+	
 private:
     static const int MaxNameLength = 15;
 
     Rectangle bounds;
-    ControlComponent *controlComponent;
 
     struct {
         uint16_t id : 9;

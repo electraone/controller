@@ -89,7 +89,7 @@ void Preset::resetControls(void)
 /** Indicates if the preset is loaded and valid.
  *
  */
-bool Preset::isValid(void)
+bool Preset::isValid(void) const
 {
     return (valid);
 }
@@ -97,7 +97,7 @@ bool Preset::isValid(void)
 /** Returns the name of the preset.
  *
  */
-const char *Preset::getName(void)
+const char *Preset::getName(void) const
 {
     return (name);
 }
@@ -105,7 +105,7 @@ const char *Preset::getName(void)
 /** Returns the preset version.
  *
  */
-uint8_t Preset::getVersion(void)
+uint8_t Preset::getVersion(void) const
 {
     return (version);
 }
@@ -113,7 +113,7 @@ uint8_t Preset::getVersion(void)
 /** Returns the project Identifier of the preset.
  *
  */
-const char *Preset::getProjectId(void)
+const char *Preset::getProjectId(void) const
 {
     return (projectId);
 }
@@ -1553,7 +1553,7 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
 Rectangle Preset::parseBounds(JsonArray jBounds)
 {
     return (Rectangle(jBounds[0].as<uint16_t>() + 13,
-                      jBounds[1].as<uint16_t>() + 24,
+                      jBounds[1].as<uint16_t>(),// + 24,
                       jBounds[2].as<uint16_t>(),
                       jBounds[3].as<uint16_t>()));
 }
@@ -1633,9 +1633,6 @@ uint8_t Preset::translateValueId(ControlType type, const char *valueId)
         } else if (strcmp(valueId, "decay") == 0) {
             return (1);
         } else if (strcmp(valueId, "sustain") == 0) {
-            return (2);
-        } else if ((type == ControlType::adr)
-                   && (strcmp(valueId, "release") == 0)) {
             return (2);
         } else if (strcmp(valueId, "release") == 0) {
             return (3);
@@ -1760,4 +1757,40 @@ bool isElementEmpty(File &file)
 
     file.seek(pos);
     return (rc);
+}
+
+void Preset::print(void) const
+{
+    logMessage("--[Preset]-------------------------------------");
+    logMessage("name: %s", getName());
+    logMessage("projectId: %s", getProjectId());
+    logMessage("version: %d", getVersion());
+    logMessage("isvalid: %d", isValid());
+
+    logMessage("--[Pages]--------------------------------------");
+    for (const auto &[id, page] : pages) {
+        page.print();
+    }
+
+    logMessage("--[Devices]------------------------------------");
+    for (const auto &[id, device] : devices) {
+        device.print();
+    }
+
+    logMessage("--[Overlays]-----------------------------------");
+    for (const auto &[id, overlay] : overlays) {
+        overlay.print();
+    }
+
+    logMessage("--[Groups]-------------------------------------");
+    for (const auto &[id, group] : groups) {
+        group.print();
+    }
+
+    logMessage("--[Controls]-----------------------------------");
+    for (const auto &[id, control] : controls) {
+        control.print();
+    }
+
+    logMessage("--[end]----------------------------------------");
 }

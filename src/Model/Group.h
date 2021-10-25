@@ -78,6 +78,15 @@ public:
         return (bounds);
     }
 
+	void print(void) const
+	{
+	    logMessage("id: %d", getId());
+	    logMessage("label: %s", getLabel());
+	    logMessage("pageId: %d", getPageId());
+	    logMessage("colour: %d", getColour());
+	    getBounds().print();
+	}
+
 private:
     uint8_t id;
     char label[maxGroupNameLength + 1];

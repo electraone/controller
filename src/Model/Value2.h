@@ -8,6 +8,7 @@
 #include "Overlay.h"
 #include "Message.h"
 #include "Macros.h"
+#include "helpers.h"
 
 class Control;
 
@@ -23,11 +24,11 @@ class Value2
 public:
     Value2()
         : handle(0),
-		  index(0),
+          index(0),
           defaultValue(0),
           min(0),
           max(NOT_SET),
-		  overlayId(0),
+          overlayId(0),
           control(nullptr)
     {
     }
@@ -50,13 +51,13 @@ public:
           overlayId(newOverlayId),
           message(newMessage)
     {
-		if (newFormatter) {
-			formatter = newFormatter;
-		}
+        if (newFormatter) {
+            formatter = newFormatter;
+        }
 
-		if (newFunction) {
-			function = newFunction;
-		}
+        if (newFunction) {
+            function = newFunction;
+        }
 
         // translate the valueId to the numeric handle
         handle = translateId(newValueId);
@@ -117,15 +118,15 @@ public:
         return (overlayId);
     }
 
-	const char* getFunction(void) const
-	{
-		return (function.c_str());
-	}
+    const char *getFunction(void) const
+    {
+        return (function.c_str());
+    }
 
-	const char* getFormatter(void) const
-	{
-		return (formatter.c_str());
-	}
+    const char *getFormatter(void) const
+    {
+        return (formatter.c_str());
+    }
 
     void callFormat(int16_t value, char *buffer, size_t length)
     {
@@ -168,6 +169,20 @@ public:
         }
         return (0);
     }
+
+	void print(void) const
+	{
+	    logMessage("    id: %s", getId());
+	    logMessage("    handle: %d", getHandle());
+	    logMessage("    index: %d", getIndex());
+	    logMessage("    default: %d", getDefault());
+	    logMessage("    min: %d", getMin());
+	    logMessage("    max: %d", getMax());
+	    logMessage("    overlayId: %d", getOverlayId());
+	    logMessage("    function: %s", getFunction());
+	    logMessage("    formatter: %s", getFormatter());
+	    message.print();
+	}
 
     /*
 	 * attributes
