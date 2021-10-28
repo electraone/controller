@@ -142,11 +142,11 @@ private:
     bool valid;
 
 public: // Public on the purpose
-    std::map<uint8_t, Page> pages;
-    std::map<uint8_t, Device> devices;
-    std::map<uint8_t, Group> groups;
-    std::map<int16_t, Control> controls;
-    std::map<uint8_t, Overlay> overlays;
+    Pages pages;
+    Devices devices;
+    Groups groups;
+    Controls controls;
+    Overlays overlays;
     std::vector<String> luaFunctions;
 };
 

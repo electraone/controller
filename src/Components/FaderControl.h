@@ -18,7 +18,7 @@ public:
     void paint(Graphics &g) override
     {
         Rectangle sliderBounds = getBounds();
-        sliderBounds.setHeight(sliderBounds.getHeight() / 2);
+        sliderBounds.setHeight(23);
         LookAndFeel::paintBarHorizontal(g,
                                         sliderBounds,
                                         colour,

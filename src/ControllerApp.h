@@ -1,11 +1,13 @@
 #include "App.h"
-#include "MainComponent.h"
+#include "MainWindow.h"
+#include "PageView.h"
 #include "Preset.h"
 
 #include "MemoryPool.h"
 #include "BitmapPool.h"
 
 #include "Ui.h"
+#include "UiDelegate.h"
 
 extern MemoryPool stringPool;
 extern BitmapPool bitmapPool;
@@ -13,9 +15,8 @@ extern BitmapPool bitmapPool;
 class Controller : public App
 {
 public:
-    Controller() : mainWindow(MainWindow(preset))
+    Controller() : mainWindow(MainWindow(preset)), delegate(nullptr)
     {
-        windowManager.setActiveWindow(&mainWindow);
     }
 
     const char *getApplicationName(void) const override
@@ -33,39 +34,15 @@ public:
         return ("ctrlv2");
     }
 
-    void initialise(void) override
-    {
-        logMessage("setup completed");
-        stringPool.assignStorageDriver(&Hardware::screen);
-        bitmapPool.assignStorageDriver(&Hardware::screen);
-
-        if (preset.load("ctrlv2/p000.epr") == true) {
-            logMessage("preset loaded");
-        } else {
-            logMessage("preset load failed");
-        }
-    }
-
-    class MainWindow : public Window
-    {
-    public:
-        explicit MainWindow(Preset &preset)
-        {
-            setOwnedContent(new MainComponent(preset));
-            setVisible(true);
-        }
-    };
+    void initialise(void) override;
 
 private:
-    void printPreset(const Preset &preset) const;
-    void printBounds(const Rectangle &bounds) const;
-    void printPage(const Page &page) const;
-    void printDevice(const Device &device) const;
-    void printOverlay(const Overlay &overlay) const;
-    void printGroup(const Group &group) const;
+    // Delegated functions ---------------------------------------------------
+    void displayDefaultPage(void);
 
     MainWindow mainWindow;
     Preset preset;
+    UiDelegate *delegate;
 };
 
 // This macro instructs main() routine to launch the app.

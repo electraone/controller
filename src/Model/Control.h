@@ -56,10 +56,10 @@ public:
     static ControlMode translateControlMode(const char *modeText);
     static Variant translateVariant(const char *variantText);
 
-	void print(void) const;
+    void print(void) const;
     void printValues(void) const;
     void printInputs(void) const;
-	
+
 private:
     static const int MaxNameLength = 15;
 
@@ -82,3 +82,5 @@ public:
     std::vector<Value2> values;
     std::vector<Input> inputs;
 };
+
+typedef std::map<int16_t, Control> Controls;

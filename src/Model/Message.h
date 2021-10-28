@@ -166,20 +166,20 @@ public:
         return (bitWidth);
     }
 
-	void print(void) const
-	{
-	    logMessage("        deviceId: %d", getDeviceId());
-	    logMessage("        type: %d", getType());
-	    logMessage("        parameterNumber: %d", getParameterNumber());
-	    logMessage("        min: %d", getMidiMin());
-	    logMessage("        max: %d", getMidiMax());
-	    logMessage("        value: %d", getValue());
-	    logMessage("        onValue: %d", getOnValue());
-	    logMessage("        offValue: %d", getOffValue());
-	    logMessage("        signMode: %d", getSignMode());
-	    logMessage("        lsbFirst: %d", getLsbFirst());
-	    logMessage("        bitWidth: %d", getBitWidth());
-	}
+    void print(void) const
+    {
+        logMessage("        deviceId: %d", getDeviceId());
+        logMessage("        type: %d", getType());
+        logMessage("        parameterNumber: %d", getParameterNumber());
+        logMessage("        min: %d", getMidiMin());
+        logMessage("        max: %d", getMidiMax());
+        logMessage("        value: %d", getValue());
+        logMessage("        onValue: %d", getOnValue());
+        logMessage("        offValue: %d", getOffValue());
+        logMessage("        signMode: %d", getSignMode());
+        logMessage("        lsbFirst: %d", getLsbFirst());
+        logMessage("        bitWidth: %d", getBitWidth());
+    }
 
     std::vector<uint8_t> data;
 

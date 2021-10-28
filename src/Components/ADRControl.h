@@ -12,15 +12,15 @@ public:
         setMax(ADR::attack, control.values[0].getMax());
         setValue(ADR::attack, control.values[0].getDefault());
 
-		setMin(ADR::decay, control.values[1].getMin());
+        setMin(ADR::decay, control.values[1].getMin());
         setMax(ADR::decay, control.values[1].getMax());
         setValue(ADR::decay, control.values[1].getDefault());
 
-		setMin(ADR::release, control.values[2].getMin());
+        setMin(ADR::release, control.values[2].getMin());
         setMax(ADR::release, control.values[2].getMax());
         setValue(ADR::release, control.values[2].getDefault());
 
-		setActiveSegment(ADR::attack);
+        setActiveSegment(ADR::attack);
 
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
     }
@@ -31,7 +31,7 @@ public:
     {
         Rectangle envBounds = getBounds();
         envBounds.setHeight(envBounds.getHeight() / 2);
-		computePoints(envBounds);
+        computePoints(envBounds);
         LookAndFeel::paintEnvelope(g, envBounds, colour, baselineY, points);
 
         g.printText(0,

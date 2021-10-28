@@ -44,12 +44,12 @@ public:
         hasObjects = shouldHaveObjects;
     }
 
-	void print(void) const
-	{
-	    logMessage("id: %d", getId());
-	    logMessage("name: %s", getName());
-	    logMessage("hasObjects: %d", getHasObjects());
-	}
+    void print(void) const
+    {
+        logMessage("id: %d", getId());
+        logMessage("name: %s", getName());
+        logMessage("hasObjects: %d", getHasObjects());
+    }
 
 private:
     static constexpr uint8_t MaxNameLength = 20;
@@ -58,3 +58,5 @@ private:
     char name[MaxNameLength + 1];
     bool hasObjects;
 };
+
+typedef std::map<uint8_t, Page> Pages;

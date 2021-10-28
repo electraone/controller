@@ -78,14 +78,14 @@ public:
         return (bounds);
     }
 
-	void print(void) const
-	{
-	    logMessage("id: %d", getId());
-	    logMessage("label: %s", getLabel());
-	    logMessage("pageId: %d", getPageId());
-	    logMessage("colour: %d", getColour());
-	    getBounds().print();
-	}
+    void print(void) const
+    {
+        logMessage("id: %d", getId());
+        logMessage("label: %s", getLabel());
+        logMessage("pageId: %d", getPageId());
+        logMessage("colour: %d", getColour());
+        getBounds().print();
+    }
 
 private:
     uint8_t id;
@@ -94,3 +94,5 @@ private:
     Colour colour;
     Rectangle bounds;
 };
+
+typedef std::map<uint8_t, Group> Groups;

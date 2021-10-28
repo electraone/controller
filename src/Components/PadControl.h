@@ -25,10 +25,6 @@ public:
                     getWidth(),
                     TextAlign::center,
                     2);
-
-		g.setColour(Colours::white);
-		auto bounds = getBounds();
-		g.drawRect(0, 0, bounds.getWidth(), bounds.getHeight());
     }
 
 private:

@@ -170,19 +170,19 @@ public:
         return (0);
     }
 
-	void print(void) const
-	{
-	    logMessage("    id: %s", getId());
-	    logMessage("    handle: %d", getHandle());
-	    logMessage("    index: %d", getIndex());
-	    logMessage("    default: %d", getDefault());
-	    logMessage("    min: %d", getMin());
-	    logMessage("    max: %d", getMax());
-	    logMessage("    overlayId: %d", getOverlayId());
-	    logMessage("    function: %s", getFunction());
-	    logMessage("    formatter: %s", getFormatter());
-	    message.print();
-	}
+    void print(void) const
+    {
+        logMessage("    id: %s", getId());
+        logMessage("    handle: %d", getHandle());
+        logMessage("    index: %d", getIndex());
+        logMessage("    default: %d", getDefault());
+        logMessage("    min: %d", getMin());
+        logMessage("    max: %d", getMax());
+        logMessage("    overlayId: %d", getOverlayId());
+        logMessage("    function: %s", getFunction());
+        logMessage("    formatter: %s", getFormatter());
+        message.print();
+    }
 
     /*
 	 * attributes

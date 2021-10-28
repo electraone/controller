@@ -21,13 +21,13 @@ public:
         return (id);
     }
 
-	void print(void) const
-	{
-	    logMessage("id: %d", getId());
-	    for (const auto &[midiValue, address] : items) {
-	        logMessage("    midiValue: %d, address: %s", midiValue, address);
-	    }
-	}
+    void print(void) const
+    {
+        logMessage("id: %d", getId());
+        for (const auto &[midiValue, address] : items) {
+            logMessage("    midiValue: %d, address: %s", midiValue, address);
+        }
+    }
 
 private:
     uint8_t id;
@@ -35,3 +35,5 @@ private:
 public:
     std::map<uint16_t, uint32_t> items;
 };
+
+typedef std::map<uint8_t, Overlay> Overlays;

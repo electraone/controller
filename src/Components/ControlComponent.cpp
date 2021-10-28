@@ -25,10 +25,11 @@ Component *ControlComponent::createControlComponent(const Control &control)
     }
 
     if (c) {
-	    c->setBounds(control.getBounds());
-	    c->setName(control.getName());
-		c->assignPot(control.inputs[0].getPotId());
-	    c->setVisible(control.getVisible());
+        c->setBounds(control.getBounds());
+        c->setName(control.getName());
+        c->setId(control.getId());
+        c->assignPot(control.inputs[0].getPotId());
+        c->setVisible(control.getVisible());
     }
 
     return (c);

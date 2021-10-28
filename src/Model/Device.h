@@ -94,17 +94,17 @@ public:
         return (0);
     }
 
-	void print(void) const
-	{
-	    logMessage("id: %d", getId());
-	    logMessage("name: %s", getName());
-	    logMessage("port: %d", getPort());
-	    logMessage("channel: %d", getChannel());
-	    logMessage("rate: %d", getRate());
-	    logMessage("requests: %d", requests.size());
-	    logMessage("responses: %d", responses.size());
-	    logMessage("postMessages: %d", postMessages.size());
-	}
+    void print(void) const
+    {
+        logMessage("id: %d", getId());
+        logMessage("name: %s", getName());
+        logMessage("port: %d", getPort());
+        logMessage("channel: %d", getChannel());
+        logMessage("rate: %d", getRate());
+        logMessage("requests: %d", requests.size());
+        logMessage("responses: %d", responses.size());
+        logMessage("postMessages: %d", postMessages.size());
+    }
 
 private:
     static constexpr uint8_t MaxNameLength = 20;
@@ -121,3 +121,5 @@ public:
     std::vector<std::vector<uint8_t>> requests;
     std::vector<Response> responses;
 };
+
+typedef std::map<uint8_t, Device>  Devices;
