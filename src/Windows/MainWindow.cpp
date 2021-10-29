@@ -9,7 +9,6 @@ void MainWindow::onButtonDown(uint8_t buttonId)
         pageSelectionWindow->onWindowClose = [this]() {
             logMessage("page selection was closed");
         };
-
     }
 }
 

@@ -27,10 +27,9 @@ PageSelection::PageSelection(Pages pages,
         if (pages[i].getHasObjects()) {
             label->setLabel(pages[i].getName());
             label->assignPot(i);
-		}
-		else {
-			label->setLabel(".");
-		}
+        } else {
+            label->setLabel(".");
+        }
 
         if (activePage == i) {
             label->setActive(true);
@@ -51,25 +50,12 @@ PageSelection::~PageSelection()
 
 void PageSelection::paint(Graphics &g)
 {
+    setActivePageLabel(activePage);
+
     g.dim(0, 0, getWidth(), getHeight(), 0x0000);
     g.dim(0, 0, getWidth(), getHeight(), 0x0003);
 
-	g.setColour(0x0003);
-	g.fillRect(0, 0, getWidth(), 25);
-    setActivePageLabel(activePage);
-
-	g.setColour(Colours::white);
-	g.drawRect(16, 5, 10, 13);
-	g.fillRect(21, 8, 10, 13);
-
-	g.printText(40,
-				8,
-				"Pages",
-				TextStyle::smallTransparent,
-				getWidth(),
-				TextAlign::left);
-
-
+    paintTitleBar(g, "Pages", getWidth(), 0x0003);
 }
 
 void PageSelection::resized(void)
@@ -94,5 +80,26 @@ void PageSelection::setActivePage(uint8_t newActivePage)
         delegate->setPage(activePage);
     }
 
-	repaint();
+    repaint();
+}
+
+void PageSelection::paintTitleBar(Graphics &g,
+                                  const char *title,
+                                  uint16_t width,
+                                  uint32_t colour)
+{
+    g.setColour(colour);
+    g.fillRect(0, 0, width, 25);
+
+    paintIconPages(g, 16, 5);
+
+    g.printText(
+        40, 8, title, TextStyle::smallTransparent, width, TextAlign::left);
+}
+
+void PageSelection::paintIconPages(Graphics &g, uint16_t x, uint16_t y)
+{
+	g.setColour(Colours::white);
+	g.drawRect(x, y, 10, 13);
+	g.fillRect(x + 5, y + 3, 10, 13);
 }
