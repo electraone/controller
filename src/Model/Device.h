@@ -122,4 +122,4 @@ public:
     std::vector<Response> responses;
 };
 
-typedef std::map<uint8_t, Device>  Devices;
+typedef std::map<uint8_t, Device> Devices;

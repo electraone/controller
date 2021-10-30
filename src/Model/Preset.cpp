@@ -156,9 +156,17 @@ Device *Preset::getDevice(uint8_t deviceId)
 /** Get overlay pointer by the id
  *
  */
-Overlay *Preset::getOverlay(uint8_t id)
+Overlay *Preset::getOverlay(uint8_t overlayId)
 {
-    return (nullptr); //overlays.get(id));
+	Overlay *overlay = nullptr;
+
+	try {
+		overlay = &overlays.at(overlayId);
+	} catch (std::out_of_range const &) {
+		overlay = nullptr;
+	}
+
+	return (overlay);
 }
 
 /** Get group pointer by the Id
@@ -552,6 +560,8 @@ bool Preset::parseOverlays(File &file)
                     "Preset::parseOverlays: parsing of overlay items has failed");
                 return (false);
             }
+
+            overlays[id].print();
 
         } else {
             break;
@@ -957,8 +967,7 @@ bool Preset::parseOverlayItems(File &file, Overlay &overlay)
                 label,
                 bitmapLocation.isEmpty());
 
-            overlay.items[value] =
-                stringPool.saveItem(bitmapLocation.getAddress(), label);
+            overlay.addItem(value, label);
         } else {
             break;
         }
@@ -1168,7 +1177,7 @@ Value2 Preset::parseValue(File &file, size_t startPosition, Control *control)
 Value2 Preset::parseValue(Control *control, JsonObject jValue)
 {
     int16_t defaultValue = 0;
-    int16_t min = 0;
+    std::optional<int16_t> min;
     int16_t max = 0;
     const char *defaultValueText = "";
 
@@ -1190,7 +1199,7 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
     }
 
     if (jValue["min"]) {
-        min = jValue["min"].as<int16_t>();
+        *min = jValue["min"].as<int16_t>();
     } else {
         minNotDefined = true;
     }
@@ -1205,7 +1214,7 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
 
     /* If value does not define min or max, take it from the message */
     if (minNotDefined) {
-        min = message.getMidiMin();
+        *min = message.getMidiMin();
     }
 
     if (maxNotDefined) {
@@ -1219,8 +1228,8 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
         && (controlType != ControlType::list)) {
         if (defaultValue > max) {
             defaultValue = max;
-        } else if (defaultValue < min) {
-            defaultValue = min;
+        } else if (defaultValue < *min) {
+            defaultValue = *min;
         }
     } else {
         if (defaultValueText) {
@@ -1232,12 +1241,23 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
         }
     }
 
+    if (controlType == ControlType::list) {
+        *min = 0;
+        max = 1;
+
+        if (overlayId > 0) {
+            if (Overlay *o = getOverlay(overlayId)) {
+                max = o->getNumItems();
+            }
+        }
+    }
+
     logMessage(
         "parseValue: id=%s, index=%d, defaultValue=%d, min=%d, max=%d, overlayId=%d, formatter=%s, function=%s",
         valueId,
         valueIndex,
         defaultValue,
-        min,
+        *min,
         max,
         overlayId,
         formatter,
@@ -1247,7 +1267,7 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
                    valueId,
                    valueIndex,
                    defaultValue,
-                   min,
+                   *min,
                    max,
                    overlayId,
                    message,

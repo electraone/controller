@@ -1,39 +1,18 @@
 #pragma once
 
 #include "helpers.h"
-#include <cstdint>
-#include <string>
-#include <map>
+#include "ListData.h"
 
-class Overlay
+class Overlay : public ListData
 {
 public:
-    Overlay() : id(0)
+    Overlay() : ListData(0)
     {
     }
 
-    explicit Overlay(uint8_t newId) : id(newId)
+    explicit Overlay(uint8_t newId) : ListData(newId)
     {
     }
-
-    uint8_t getId(void) const
-    {
-        return (id);
-    }
-
-    void print(void) const
-    {
-        logMessage("id: %d", getId());
-        for (const auto &[midiValue, address] : items) {
-            logMessage("    midiValue: %d, address: %s", midiValue, address);
-        }
-    }
-
-private:
-    uint8_t id;
-
-public:
-    std::map<uint16_t, uint32_t> items;
 };
 
 typedef std::map<uint8_t, Overlay> Overlays;

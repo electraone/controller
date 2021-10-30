@@ -32,9 +32,9 @@ public:
 
     Page *getPage(uint8_t pageId);
     Device *getDevice(uint8_t deviceId);
-    Overlay *getOverlay(uint8_t id);
+    Overlay *getOverlay(uint8_t overlayId);
     Group *getGroup(uint8_t groupId);
-    Control *getControl(uint16_t id);
+    Control *getControl(uint16_t controlId);
 
     // \todo do we need these?
     bool getPresetNameFast(File &file,

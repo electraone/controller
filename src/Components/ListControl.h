@@ -8,7 +8,6 @@ class ListControl : public List
 public:
     explicit ListControl(const Control &control)
     {
-        assignListItems(fakeList);
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
     }
 
@@ -29,5 +28,5 @@ public:
     }
 
 private:
-    static std::vector<ListItem> fakeList;
+    static Overlay empty;
 };

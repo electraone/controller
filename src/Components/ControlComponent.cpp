@@ -1,10 +1,4 @@
 #include "ControlComponent.h"
-#include "FaderControl.h"
-#include "ListControl.h"
-#include "PadControl.h"
-#include "ADSRControl.h"
-#include "ADRControl.h"
-#include "DX7EnvControl.h"
 
 Component *ControlComponent::createControlComponent(const Control &control)
 {
@@ -28,7 +22,9 @@ Component *ControlComponent::createControlComponent(const Control &control)
         c->setBounds(control.getBounds());
         c->setName(control.getName());
         c->setId(control.getId());
-        c->assignPot(control.inputs[0].getPotId());
+        logMessage("STEPS: %d", control.values[0].getNumSteps());
+        c->assignPot(control.inputs[0].getPotId(),
+                     control.values[0].getNumSteps());
         c->setVisible(control.getVisible());
     }
 

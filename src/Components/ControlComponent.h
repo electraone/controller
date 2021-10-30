@@ -1,7 +1,12 @@
 #pragma once
 
 #include "Component.h"
-#include "Control.h"
+#include "FaderControl.h"
+#include "ListControl.h"
+#include "PadControl.h"
+#include "ADSRControl.h"
+#include "ADRControl.h"
+#include "DX7EnvControl.h"
 
 class ControlComponent
 {

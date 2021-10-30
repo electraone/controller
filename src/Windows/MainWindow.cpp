@@ -45,5 +45,5 @@ void MainWindow::setPage(uint8_t pageId)
 
     logMessage("Page switched: page=%d", currentPageId);
 
-    repaint();
+    display();
 }

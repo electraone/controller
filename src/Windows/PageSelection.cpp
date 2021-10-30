@@ -99,7 +99,7 @@ void PageSelection::paintTitleBar(Graphics &g,
 
 void PageSelection::paintIconPages(Graphics &g, uint16_t x, uint16_t y)
 {
-	g.setColour(Colours::white);
-	g.drawRect(x, y, 10, 13);
-	g.fillRect(x + 5, y + 3, 10, 13);
+    g.setColour(Colours::white);
+    g.drawRect(x, y, 10, 13);
+    g.fillRect(x + 5, y + 3, 10, 13);
 }

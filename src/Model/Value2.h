@@ -118,6 +118,11 @@ public:
         return (overlayId);
     }
 
+    uint16_t getNumSteps(void) const
+    {
+        return (max - min);
+    }
+
     const char *getFunction(void) const
     {
         return (function.c_str());
