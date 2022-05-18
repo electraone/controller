@@ -7,7 +7,9 @@ void MainWindow::onButtonDown(uint8_t buttonId)
             preset.pages, currentPageId, this);
 
         pageSelectionWindow->onWindowClose = [this]() {
+#ifdef DEBUG
             logMessage("page selection was closed");
+#endif
         };
     }
 }

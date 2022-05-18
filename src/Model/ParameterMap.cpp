@@ -294,7 +294,7 @@ bool ParameterMap::load(const char *filename)
 {
     logMessage("ParameterMap::load: file: filename=%s", filename);
 
-    File file = Hardware::sdcard.createOutputStream(filename, FILE_READ);
+    File file = Hardware::sdcard.createInputStream(filename);
 
     if (!file) {
         logMessage("ParameterMap::load: cannot open setup file: %s", filename);
