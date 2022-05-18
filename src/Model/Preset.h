@@ -14,6 +14,9 @@
 #include "Rule.h"
 #include "Checksum.h"
 
+#define NR_OF_PRESETS 12
+#define MAX_PRESET_NAME_LENGTH 20
+
 class Preset
 {
 public:
@@ -182,12 +185,5 @@ public: // Public on the purpose
     Overlays overlays;
     std::vector<String> luaFunctions;
 };
-
-/* functions to read JSON file */
-bool findElement(File &file,
-                 const char *elementName,
-                 ElementType elementType,
-                 size_t endPosition = 0);
-bool isElementEmpty(File &file);
 
 #define MAX_POT_ID 12
