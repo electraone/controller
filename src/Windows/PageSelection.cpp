@@ -90,9 +90,7 @@ void PageSelection::paintTitleBar(Graphics &g,
 {
     g.setColour(colour);
     g.fillRect(0, 0, width, 25);
-
     paintIconPages(g, 16, 5);
-
     g.printText(
         40, 8, title, TextStyle::smallTransparent, width, TextAlign::left);
 }

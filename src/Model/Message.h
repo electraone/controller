@@ -3,7 +3,7 @@
 #include "ElectraMessage.h"
 #include "SignMode.h"
 #include "Macros.h"
-#include <stdint.h>
+#include <cstdint>
 #include "helpers.h"
 
 class Message
@@ -55,6 +55,8 @@ public:
             onValue = 127; // 0 for note off and 127 for note on.
         }
     }
+
+    virtual ~Message() = default;
 
     void setDeviceId(uint8_t newDeviceId)
     {

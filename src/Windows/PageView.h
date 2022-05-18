@@ -7,7 +7,7 @@ class PageView : public Component
 {
 public:
     PageView(const Preset &preset, uint8_t pageId);
-    ~PageView() override;
+    virtual ~PageView() override;
 
     void paint(Graphics &g) override;
     void resized(void) override;

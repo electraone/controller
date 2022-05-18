@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ElectraMessage.h"
-#include <stdint.h>
+#include <cstdint>
 
 class Rule
 {
@@ -10,24 +10,24 @@ public:
         : electraMessageType(ElectraMessageType::invalid),
           parameterNumber(0),
           byte(0),
-          pPos(0),
-          bPos(0),
-          size(0)
+          parameterBitPosition(0),
+          byteBitPosition(0),
+          bitWidth(0)
     {
     }
 
-    Rule(ElectraMessageType electraMessageType,
-         uint16_t parameterNumber,
-         uint16_t byte,
-         uint8_t pPos,
-         uint8_t bPos,
-         uint8_t size)
-        : electraMessageType(electraMessageType),
-          parameterNumber(parameterNumber),
-          byte(byte),
-          pPos(pPos),
-          bPos(bPos),
-          size(size)
+    Rule(ElectraMessageType newElectraMessageType,
+         uint16_t newParameterNumber,
+         uint16_t newByte,
+         uint8_t newParameterBitPosition,
+         uint8_t newByteBitPosition,
+         uint8_t newBitWidth)
+        : electraMessageType(newElectraMessageType),
+          parameterNumber(newParameterNumber),
+          byte(newByte),
+          parameterBitPosition(newParameterBitPosition),
+          byteBitPosition(newByteBitPosition),
+          bitWidth(newBitWidth)
     {
     }
 
@@ -38,17 +38,17 @@ public:
 
     uint8_t getParameterBitPosition(void)
     {
-        return (pPos);
+        return (parameterBitPosition);
     }
 
     uint8_t getByteBitPosition(void)
     {
-        return (bPos);
+        return (byteBitPosition);
     }
 
     uint8_t getBitWidth(void)
     {
-        return (size);
+        return (bitWidth);
     }
 
     uint16_t getParameterNumber(void)
@@ -66,8 +66,8 @@ private:
     uint16_t parameterNumber;
     uint16_t byte;
     struct {
-        uint8_t pPos : 4;
-        uint8_t bPos : 4;
-        uint8_t size : 4;
+        uint8_t parameterBitPosition : 4;
+        uint8_t byteBitPosition : 4;
+        uint8_t bitWidth : 4;
     };
 };

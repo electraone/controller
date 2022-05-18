@@ -10,21 +10,7 @@ PageView::PageView(const Preset &preset, uint8_t pageId) : model(preset)
     for (const auto &[id, control] : model.controls) {
         if (control.getPageId() == pageId) {
             Component *c = ControlComponent::createControlComponent(control);
-
-            if (c) {
-                if (List *l = dynamic_cast<List *>(c)) {
-                    auto overlayId = control.values[0].getOverlayId();
-
-                    try {
-                        preset.overlays.at(overlayId).print();
-                        l->assignListData(preset.overlays.at(overlayId));
-                    } catch (std::out_of_range const &) {
-                        logMessage("overlay does not exist");
-                    }
-                }
-
-                addAndMakeVisible(c);
-            }
+            addAndMakeVisible(c);
         }
     }
 

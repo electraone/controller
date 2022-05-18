@@ -2,15 +2,8 @@
 #include "MainWindow.h"
 #include "PageView.h"
 #include "Preset.h"
-
-#include "MemoryPool.h"
-#include "BitmapPool.h"
-
 #include "Ui.h"
 #include "UiDelegate.h"
-
-extern MemoryPool stringPool;
-extern BitmapPool bitmapPool;
 
 class Controller : public App
 {

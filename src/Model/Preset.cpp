@@ -1,12 +1,6 @@
 #include "Preset.h"
 #include "Hardware.h"
 #include "Colours.h"
-#include "Base64.h"
-#include "MemoryPool.h"
-#include "BitmapPool.h"
-
-MemoryPool stringPool(SDRAM_PAGE_1, SDRAM_PAGE_SIZE);
-BitmapPool bitmapPool(SDRAM_PAGE_2, SDRAM_PAGE_SIZE);
 
 Preset::Preset() : valid(false)
 {
@@ -21,7 +15,9 @@ bool Preset::load(const char *filename)
     File file;
     valid = false; // invalidate the preset
 
+#ifdef DEBUG
     logMessage("Preset::load: file: filename=%s", filename);
+#endif /* DEBUG */
 
     file = Hardware::sdcard.createInputStream(filename);
 
@@ -36,10 +32,9 @@ bool Preset::load(const char *filename)
         logMessage("Preset::load: cannot parse preset: filename=%s", filename);
         file.close();
         return (false);
-    } else {
-        file.close();
     }
 
+    file.close();
     valid = true;
 
     return (true);
@@ -56,7 +51,6 @@ void Preset::reset(void)
     groups.clear();
     devices.clear();
     luaFunctions = std::vector<String>();
-    bitmapPool.clear();
     overlays.clear();
     pages.clear();
 }
@@ -158,15 +152,15 @@ Device *Preset::getDevice(uint8_t deviceId)
  */
 Overlay *Preset::getOverlay(uint8_t overlayId)
 {
-	Overlay *overlay = nullptr;
+    Overlay *overlay = nullptr;
 
-	try {
-		overlay = &overlays.at(overlayId);
-	} catch (std::out_of_range const &) {
-		overlay = nullptr;
-	}
+    try {
+        overlay = &overlays.at(overlayId);
+    } catch (std::out_of_range const &) {
+        overlay = nullptr;
+    }
 
-	return (overlay);
+    return (overlay);
 }
 
 /** Get group pointer by the Id
@@ -199,85 +193,6 @@ Control *Preset::getControl(uint16_t controlId)
     }
 
     return (control);
-}
-
-/*--------------------------------------------------------------------------*/
-
-bool Preset::getPresetNameFast(File &file,
-                               char *presetName,
-                               size_t maxPresetNameLength)
-{
-    const size_t capacity = JSON_OBJECT_SIZE(1) + 100;
-    StaticJsonDocument<capacity> doc;
-
-    const char *name = NULL;
-
-    if (file.seek(0) == false) {
-        return (false);
-    }
-
-    if (findElement(file, "\"name\"", ELEMENT, 100) == false) {
-        return (false);
-    }
-
-    DeserializationError err = deserializeJson(doc, file);
-
-    if (err) {
-        logMessage("Preset::getPresetName: parsing failed: %s", err.c_str());
-    }
-
-    name = doc.as<char *>();
-    copyString(presetName, name, maxPresetNameLength);
-    logMessage("Preset::getPresetName: name=%s", name);
-
-    return (true);
-}
-
-/** Get preset name out of the file
- * TODO: speed up, this is too slow
- */
-void Preset::getPresetName(File &file,
-                           char *presetName,
-                           size_t maxPresetNameLength)
-{
-    if (getPresetNameFast(file, presetName, maxPresetNameLength)) {
-        return;
-    }
-
-    const size_t capacity = 128;
-    const size_t capacityFilter = 64;
-    StaticJsonDocument<capacity> doc;
-    StaticJsonDocument<capacityFilter> filter;
-
-    *presetName = '\0';
-
-    filter["name"] = true;
-
-    const char *name = NULL;
-
-    if (file.seek(0) == false) {
-        logMessage("Preset::getPresetName: cannot rewind the file");
-        return;
-    }
-
-    DeserializationError err =
-        deserializeJson(doc, file, DeserializationOption::Filter(filter));
-
-    if (err) {
-        logMessage("Preset::getPresetName: parsing failed: %s", err.c_str());
-        return;
-    }
-
-    name = doc["name"].as<char *>();
-
-    if (!name) {
-        logMessage("Preset::getPresetName: name not present");
-        return;
-    }
-
-    copyString(
-        presetName, (*name == '\0') ? "NO NAME" : name, maxPresetNameLength);
-    logMessage("Preset::getPresetName: name=%s", name);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -330,9 +245,11 @@ bool Preset::parse(File &file)
         return (false);
     }
 
-    logMessage("Preset::parse: successfully loaded preset: name=%s, version=%d",
-               this->name,
-               this->version);
+#ifdef DEBUG
+    logMessage("Preset::parse: successfully parsed preset: name=%s, version=%d",
+               name,
+               version);
+#endif /* DEBUG */
 
     return (true);
 }
@@ -342,23 +259,17 @@ bool Preset::parse(File &file)
  */
 bool Preset::parseRoot(File &file)
 {
-    const size_t capacity = 256;
-    const size_t capacityFilter = 64;
-    StaticJsonDocument<capacity> doc;
-    StaticJsonDocument<capacityFilter> filter;
-
-    filter["name"] = true;
-    filter["version"] = true;
-    filter["projectId"] = true;
-
-    const char *name = NULL;
-    const char *projectId = NULL;
-    uint8_t version;
-
     if (file.seek(0) == false) {
         logMessage("Preset::parseRoot: cannot rewind the file");
         return (false);
     }
+
+    StaticJsonDocument<256> doc;
+    StaticJsonDocument<64> filter;
+
+    filter["name"] = true;
+    filter["version"] = true;
+    filter["projectId"] = true;
 
     DeserializationError err =
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
@@ -368,28 +279,22 @@ bool Preset::parseRoot(File &file)
         return (false);
     }
 
-    name = doc["name"].as<char *>();
-    version = doc["version"].as<uint8_t>();
-    projectId = doc["projectId"].as<char *>();
+    const char *name = doc["name"] | "No name";
+    const char *projectId = doc["projectId"] | "";
+    uint8_t version = doc["version"];
 
-    if (!name) {
-        logMessage("Preset::parseRoot: name not present");
-        return (false);
-    }
-
-    copyString(this->name, (*name == '\0') ? "NO NAME" : name, MaxNameLength);
+    // "this" is used here on purpose
+    copyString(this->name, name, MaxNameLength);
+    copyString(this->projectId, projectId, MaxProjectIdLength);
     this->version = version;
 
-    if (projectId) {
-        copyString(this->projectId, projectId, MaxProjectIdLength);
-    } else {
-        this->projectId[0] = '\0';
-    }
-
+#ifdef DEBUG
     logMessage("Preset::parseRoot: name=%s, version=%d, projectId=%s",
                name,
                version,
                projectId);
+#endif /* DEBUG */
+
     return (true);
 }
 
@@ -398,9 +303,6 @@ bool Preset::parseRoot(File &file)
  */
 bool Preset::parsePages(File &file)
 {
-    const size_t capacity = 64;
-    StaticJsonDocument<capacity> doc;
-
     if (file.seek(0) == false) {
         logMessage("Preset::parsePages: cannot rewind the file");
         return (false);
@@ -416,8 +318,10 @@ bool Preset::parsePages(File &file)
         return (true);
     }
 
+    StaticJsonDocument<64> doc;
+
     do {
-        DeserializationError err = deserializeJson(doc, file);
+        auto err = deserializeJson(doc, file);
 
         if (err) {
             logMessage("Preset::parsePages: deserializeJson() failed: %s",
@@ -448,23 +352,11 @@ bool Preset::parsePages(File &file)
  */
 bool Preset::parseDevices(File &file)
 {
-    const size_t capacity = 256;
-    const size_t capacityFilter = 128;
-    StaticJsonDocument<capacity> doc;
-    StaticJsonDocument<capacityFilter> filter;
-
-    filter["id"] = true;
-    filter["port"] = true;
-    filter["channel"] = true;
-    filter["name"] = true;
-    filter["rate"] = true;
-
-    uint8_t numDevices = 0;
-
     if (file.seek(0) == false) {
         logMessage("Preset::parseDevices: cannot rewind the file");
         return (false);
     }
+
     if (findElement(file, "\"devices\"", ARRAY) == false) {
         logMessage("Preset::parseDevices: devices array not found");
         return (false);
@@ -475,11 +367,23 @@ bool Preset::parseDevices(File &file)
         return (true);
     }
 
+    StaticJsonDocument<256> doc;
+    StaticJsonDocument<128> filter;
+
+    filter["id"] = true;
+    filter["port"] = true;
+    filter["channel"] = true;
+    filter["name"] = true;
+    filter["rate"] = true;
+
+    uint8_t numDevices = 0;
+
     do {
         size_t startPosition = file.position();
-        DeserializationError err =
+        auto err =
             deserializeJson(doc, file, DeserializationOption::Filter(filter));
         size_t endPosition = file.position();
+
         if (err) {
             if (err.code() != DeserializationError::TooDeep) {
                 logMessage("Preset::parseDevices: deserializeJson() failed: %s",
@@ -489,11 +393,18 @@ bool Preset::parseDevices(File &file)
         }
 
         JsonObject jDevice = doc.as<JsonObject>();
+
         if (jDevice) {
             Device device = this->parseDevice(jDevice);
+
             size_t endOfDevicePosition = file.position();
             parsePatches(file, startPosition, endPosition, &device);
-            file.seek(endOfDevicePosition);
+
+            if (file.seek(endOfDevicePosition) == false) {
+                logMessage(
+                    "Preset::parseDevices: cannot rewind the end position");
+                return (false);
+            }
 
             devices[device.getId()] = device;
             numDevices++;
@@ -516,9 +427,6 @@ bool Preset::parseDevices(File &file)
  */
 bool Preset::parseOverlays(File &file)
 {
-    const size_t capacity = 64;
-    StaticJsonDocument<capacity> doc;
-
     if (file.seek(0) == false) {
         logMessage("Preset::parseOverlays: cannot rewind the file");
         return (false);
@@ -534,9 +442,11 @@ bool Preset::parseOverlays(File &file)
         return (true);
     }
 
+    StaticJsonDocument<64> doc;
+
     do {
-        uint32_t pos = file.position();
-        DeserializationError err =
+        uint32_t startPosition = file.position();
+        auto err =
             deserializeJson(doc, file, DeserializationOption::NestingLimit(1));
 
         if (err && (err.code() != DeserializationError::TooDeep)
@@ -546,14 +456,17 @@ bool Preset::parseOverlays(File &file)
             return (false);
         }
 
-        /* parse Overlay object */
         JsonObject jOverlay = doc.as<JsonObject>();
 
         if (jOverlay) {
-            uint8_t id = jOverlay["id"].as<uint8_t>();
+            uint8_t id = jOverlay["id"];
             overlays[id] = Overlay(id);
 
-            file.seek(pos);
+            if (file.seek(startPosition) == false) {
+                logMessage(
+                    "Preset::parseOverlays: cannot rewind the start position");
+                return (false);
+            }
 
             if (!this->parseOverlayItems(file, overlays[id])) {
                 logMessage(
@@ -562,7 +475,6 @@ bool Preset::parseOverlays(File &file)
             }
 
             overlays[id].print();
-
         } else {
             break;
         }
@@ -576,14 +488,11 @@ bool Preset::parseOverlays(File &file)
  */
 bool Preset::parseGroups(File &file)
 {
-    uint8_t groupId = 0;
-    const size_t capacity = 256;
-    StaticJsonDocument<capacity> doc;
-
     if (file.seek(0) == false) {
         logMessage("Preset::parseGroups: cannot rewind the file");
         return (false);
     }
+
     if (findElement(file, "\"groups\"", ARRAY) == false) {
         logMessage("Preset::parseGroups: groups array not found");
         return (true);
@@ -594,8 +503,11 @@ bool Preset::parseGroups(File &file)
         return (true);
     }
 
+    uint8_t groupId = 1;
+    StaticJsonDocument<256> doc;
+
     do {
-        DeserializationError err = deserializeJson(doc, file);
+        auto err = deserializeJson(doc, file);
 
         if (err && (err.code() != DeserializationError::InvalidInput)) {
             logMessage("Preset::parseGroups: deserializeJson() failed: %s",
@@ -606,7 +518,8 @@ bool Preset::parseGroups(File &file)
         JsonObject jGroup = doc.as<JsonObject>();
 
         if (jGroup) {
-            groups[groupId] = parseGroup(jGroup, groupId);
+            Group group = parseGroup(jGroup, groupId);
+            groups[group.getId()] = group;
         } else {
             break;
         }
@@ -622,10 +535,23 @@ bool Preset::parseGroups(File &file)
  */
 bool Preset::parseControls(File &file)
 {
-    const size_t capacity = 1024;
-    const size_t capacityFilter = 256;
-    StaticJsonDocument<capacity> doc;
-    StaticJsonDocument<capacityFilter> filter;
+    if (file.seek(0) == false) {
+        logMessage("Preset::parseControls: cannot rewind the file");
+        return (false);
+    }
+
+    if (findElement(file, "\"controls\"", ARRAY) == false) {
+        logMessage("Preset::parseControls: controls array not found");
+        return (true);
+    }
+
+    if (isElementEmpty(file)) {
+        logMessage("Preset::parseControls: no controls defined");
+        return (true);
+    }
+
+    StaticJsonDocument<1024> doc;
+    StaticJsonDocument<256> filter;
 
     /* filter root elements only */
     filter["id"] = true;
@@ -637,25 +563,11 @@ bool Preset::parseControls(File &file)
     filter["color"] = true;
     filter["variant"] = true;
     filter["visible"] = true;
-
-    if (file.seek(0) == false) {
-        logMessage("Preset::parseControls: cannot rewind the file");
-        return (false);
-    }
-
-    if (findElement(file, "\"controls\"", ARRAY) == false) {
-        logMessage("Preset::parseControls: controls array not found");
-        return (false);
-    }
-
-    if (isElementEmpty(file)) {
-        logMessage("Preset::parseControls: no controls defined");
-        return (true);
-    }
+    filter["bounds"] = true;
 
     do {
         uint32_t controlStartPosition = file.position();
-        DeserializationError err =
+        auto err =
             deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
         if (err) {
@@ -672,30 +584,25 @@ bool Preset::parseControls(File &file)
             Control control = parseControl(jControl);
 
             uint16_t controlId = control.getId();
-
             controls[controlId] = control;
 
-            if ((controlId >= 1) && (controlId <= MaxNumControls)) {
-                controls[controlId].setBounds(parseBounds(
-                    file, controlStartPosition, controlEndPosition));
-                controls[controlId].values = parseValues(file,
-                                                         controlStartPosition,
-                                                         controlEndPosition,
-                                                         &controls[controlId]);
-                controls[controlId].inputs = parseInputs(file,
-                                                         controlStartPosition,
-                                                         controlEndPosition,
-                                                         control.getType());
-                pages[controls[controlId].getPageId()].setHasObjects(true);
-            } else {
-                logMessage(
-                    "Preset::parseControls: control cannot be inserted: controlId=%d",
-                    controlId);
-            }
+            controls[controlId].values = parseValues(file,
+                                                     controlStartPosition,
+                                                     controlEndPosition,
+                                                     &controls[controlId]);
+            controls[controlId].inputs = parseInputs(file,
+                                                     controlStartPosition,
+                                                     controlEndPosition,
+                                                     control.getType());
+            pages[controls[controlId].getPageId()].setHasObjects(true);
         } else {
             break;
         }
-        file.seek(controlEndPosition);
+
+        if (file.seek(controlEndPosition) == false) {
+            logMessage("Preset::parseControls: cannot rewind the end position");
+            return (false);
+        }
 
     } while (file.findUntil(",", "]"));
 
@@ -709,17 +616,12 @@ bool Preset::parseControls(File &file)
  */
 Page Preset::parsePage(JsonObject jPage)
 {
-    uint8_t id;
-    const char *name;
+    uint8_t id = constrainPageId(jPage["id"]);
+    const char *name = jPage["name"] | "No name";
 
-    id = jPage["id"].as<int>();
-    name = jPage["name"].as<char *>();
-
-    logMessage("parsePage: page created: id=%d name=%s", id, name);
-
-    if (id > 0) {
-        id--;
-    }
+#ifdef DEBUG
+    logMessage("parsePage: page created: id=%d, name=%s", id, name);
+#endif /* DEBUG */
 
     return (Page(id, name));
 }
@@ -731,29 +633,23 @@ Page Preset::parsePage(JsonObject jPage)
  */
 Device Preset::parseDevice(JsonObject jDevice)
 {
-    uint8_t id = jDevice["id"];
-    uint8_t port = jDevice["port"];
-    uint8_t channel = jDevice["channel"];
-    uint16_t rate = jDevice["name"];
-    const char *name = jDevice["rate"];
+    uint8_t id = constrainDeviceId(jDevice["id"]);
+    uint8_t port = constrainPort(jDevice["port"]);
+    uint8_t channel = constrainChannel(jDevice["channel"]);
+    const char *name = jDevice["name"];
+    uint16_t rate = constrainRate(jDevice["rate"]);
 
-    if (port > 2) {
-        port = 2;
-    }
+#ifdef DEBUG
+    logMessage(
+        "parseDevice: device created: id=%d, port=%d, channel=%d, name=%s, rate=%d",
+        id,
+        port,
+        channel,
+        name,
+        rate);
+#endif /* DEBUG */
 
-    if (channel > 16) {
-        channel = 16;
-    }
-
-    if (channel < 1) {
-        channel = 1;
-    }
-
-    if ((rate < 10) || (rate > 1000)) {
-        rate = 0;
-    }
-
-    return (Device(id, name, port - 1, channel, rate));
+    return (Device(id, name, port, channel, rate));
 }
 
 /** Parse array of Patches within a file
@@ -764,7 +660,10 @@ void Preset::parsePatches(File &file,
                           size_t endPosition,
                           Device *device)
 {
-    file.seek(startPosition);
+    if (file.seek(startPosition) == false) {
+        logMessage("Preset::parsePatches: cannot rewind the file");
+        return;
+    }
 
     if (findElement(file, "\"patch\"", ARRAY, endPosition)) {
         do {
@@ -782,16 +681,18 @@ void Preset::parsePatch(File &file,
                         size_t endPosition,
                         Device *device)
 {
-    const size_t capacity = 4096;
-    const size_t capacityFilter = JSON_OBJECT_SIZE(20);
-    StaticJsonDocument<capacity> doc;
-    StaticJsonDocument<capacityFilter> filter;
+    if (file.seek(startPosition) == false) {
+        logMessage("Preset::parsePatch: cannot rewind the file");
+        return;
+    }
+
+    StaticJsonDocument<4096> doc;
+    StaticJsonDocument<JSON_OBJECT_SIZE(20)> filter;
 
     filter["post"] = true;
     filter["request"] = true;
 
-    file.seek(startPosition);
-    DeserializationError err =
+    auto err =
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
@@ -823,22 +724,22 @@ void Preset::parseResponses(File &file,
                             size_t endPosition,
                             Device *device)
 {
-    file.seek(startPosition);
+    if (file.seek(startPosition) == false) {
+        logMessage("Preset::parseResponses: cannot rewind the start position");
+        return;
+    }
 
     if (findElement(file, "\"responses\"", ARRAY, endPosition)) {
         do {
             size_t responseStartPosition = file.position();
-
-            const size_t capacity = 1024;
-            const size_t capacityFilter = 128;
-            StaticJsonDocument<capacity> doc;
-            StaticJsonDocument<capacityFilter> filter;
+            StaticJsonDocument<1024> doc;
+            StaticJsonDocument<128> filter;
 
             filter["id"] = true;
             filter["length"] = true;
             filter["header"] = true;
 
-            DeserializationError err = deserializeJson(
+            auto err = deserializeJson(
                 doc, file, DeserializationOption::Filter(filter));
 
             if (err) {
@@ -850,11 +751,12 @@ void Preset::parseResponses(File &file,
 
             Response response;
 
-            response.id = doc["id"].as<uint8_t>();
-            response.length = doc["length"].as<uint16_t>();
+            response.id = doc["id"];
             response.headers = parseResponseHeader(doc["header"]);
 
-            //logMessage ("parseResponses: id=%d, length=%d", response.id, response.length);
+#ifdef DEBUG
+            logMessage("parseResponses: id=%d", response.id);
+#endif /* DEBUG */
 
             response.rules =
                 parseRules(file, responseStartPosition, endPosition);
@@ -864,7 +766,7 @@ void Preset::parseResponses(File &file,
 }
 
 /** Parse response header JSON array
- *
+ *  input numbers are considered to be Dec notation, strings are Hex
  */
 std::vector<uint8_t> Preset::parseResponseHeader(JsonArray jResponseHeader)
 {
@@ -880,9 +782,30 @@ std::vector<uint8_t> Preset::parseResponseHeader(JsonArray jResponseHeader)
         }
     }
 
-    //logData (headerBytes, "parseResponseHeader: parsed data:");
+#ifdef DEBUG
+    logData(headerBytes, "parseResponseHeader: parsed data:");
+#endif /* DEBUG */
 
     return (headerBytes);
+}
+
+uint8_t Preset::registerFunction(const char *functionName)
+{
+    int8_t index = -1;
+
+    for (uint8_t i = 0; i < luaFunctions.size(); i++) {
+        if (luaFunctions[i] == functionName) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        luaFunctions.push_back(functionName);
+        index = luaFunctions.size() - 1;
+    }
+
+    return (index);
 }
 
 /** Parse request data JSON array
@@ -890,10 +813,7 @@ std::vector<uint8_t> Preset::parseResponseHeader(JsonArray jResponseHeader)
  */
 std::vector<uint8_t> Preset::parseRequest(JsonArray jRequest, uint8_t deviceId)
 {
-    std::vector<uint8_t> request =
-        parseData(jRequest, deviceId, ElectraMessageType::sysex);
-
-    return (request);
+    return (parseData(jRequest, deviceId, ElectraMessageType::sysex));
 }
 
 /** Parse Post patch messages
@@ -920,20 +840,15 @@ std::vector<Message> Preset::parsePostMessages(JsonArray jPostPatch,
  */
 bool Preset::parseOverlayItems(File &file, Overlay &overlay)
 {
-    const size_t capacity = JSON_OBJECT_SIZE(3) + 256;
-    StaticJsonDocument<capacity> doc;
-
-    uint16_t value;
-    const char *label;
-    const char *bitmap;
-
     if (findElement(file, "\"items\"", ARRAY) == false) {
         logMessage("Preset::parseOverlayItems: items array not found");
         return (false);
     }
 
+    StaticJsonDocument<JSON_OBJECT_SIZE(3) + 256> doc;
+
     do {
-        DeserializationError err = deserializeJson(doc, file);
+        auto err = deserializeJson(doc, file);
 
         if (err && (err.code() != DeserializationError::InvalidInput)) {
             logMessage(
@@ -945,29 +860,19 @@ bool Preset::parseOverlayItems(File &file, Overlay &overlay)
         JsonObject item = doc.as<JsonObject>();
 
         if (item) {
-            value = item["value"].as<uint16_t>();
-            label = item["label"].as<char *>();
-            bitmap = item["bitmap"].as<char *>();
+            uint16_t value = item["value"];
+            const char *label = item["label"] | "";
+            const char *bitmap = item["bitmap"];
 
-            Bitmap bitmapLocation;
-
-            if (bitmap) {
-                bitmapLocation = parseBitmap(bitmap);
-            } else {
-                bitmapLocation.setX(NOT_SET_11);
-            }
-
-            if (!label) {
-                label = "";
-            }
-
+#ifdef DEBUG
             logMessage(
-                "Preset::parseOverlayItems: value=%d, label=%s, bitmap.empty=%d",
+                "Preset::parseOverlayItems: value=%d, label=%s, bitmap=%s",
                 value,
                 label,
-                bitmapLocation.isEmpty());
+                bitmap);
+#endif /* DEBUG */
 
-            overlay.addItem(value, label);
+            overlay.addItem(value, label, bitmap);
         } else {
             break;
         }
@@ -979,22 +884,18 @@ bool Preset::parseOverlayItems(File &file, Overlay &overlay)
 /*--------------------------------------------------------------------------*/
 
 /** parse Group JSON object
+ * The defaultGroupId is used if the groupId is not in JSON.
+ * This is here for backwards compatibility.
  *
  */
 Group Preset::parseGroup(JsonObject jGroup, uint8_t defaultGroupId)
 {
-    uint8_t groupId = jGroup["groupId"] | defaultGroupId;
-    uint8_t pageId = jGroup["pageId"];
+    uint8_t groupId = jGroup["id"] | defaultGroupId;
+    uint8_t pageId = constrainPageId(jGroup["pageId"]);
     Rectangle bounds = parseBounds(jGroup["bounds"]);
-    ;
     const char *name = jGroup["name"];
-    const char *rgb565Colour = jGroup["color"];
-
-    Colour colour = ElectraColours::translateColour(rgb565Colour);
-
-    if (pageId > 0) {
-        pageId--;
-    }
+    Colour colour =
+        ElectraColours::translateColour(jGroup["color"].as<const char *>());
 
     return (Group(groupId, pageId, bounds, name, colour));
 }
@@ -1007,32 +908,21 @@ Group Preset::parseGroup(JsonObject jGroup, uint8_t defaultGroupId)
 Control Preset::parseControl(JsonObject jControl)
 {
     uint16_t id = jControl["id"];
-    uint8_t pageId = jControl["pageId"];
+    uint8_t pageId = constrainPageId(jControl["pageId"]);
     const char *name = jControl["name"];
-    const char *type = jControl["type"];
-    const char *mode = jControl["mode"];
-    const char *rgb565Colour = jControl["color"];
-    const char *variant = jControl["variant"];
-    uint8_t controlSetId = jControl["controlSetId"];
+    Rectangle bounds = parseBounds(jControl["bounds"]);
+    ControlType controlType = Control::translateControlType(jControl["type"]);
+    ControlMode controlMode = Control::translateControlMode(jControl["mode"]);
+    Colour colour =
+        ElectraColours::translateColour(jControl["color"].as<const char *>());
+    Variant variantType = Control::translateVariant(jControl["variant"]);
+    uint8_t controlSetId = constrainControlSetId(jControl["controlSetId"]);
     bool visible = jControl["visible"] | true;
-
-    ControlType controlType = Control::translateControlType(type);
-    Colour colour = ElectraColours::translateColour(rgb565Colour);
-    ControlMode controlMode = Control::translateControlMode(mode);
-    Variant variantType = Control::translateVariant(variant);
-
-    /* TODO: shift the ids down by one, this could be done better */
-    if (pageId > 0) {
-        pageId--;
-    }
-
-    if (controlSetId > 0) {
-        controlSetId--;
-    }
 
     return (Control(id,
                     pageId,
                     name,
+                    bounds,
                     controlType,
                     controlMode,
                     colour,
@@ -1053,7 +943,10 @@ std::vector<Input> Preset::parseInputs(File &file,
 {
     std::vector<Input> inputs;
 
-    file.seek(startPosition);
+    if (file.seek(startPosition) == false) {
+        logMessage("Preset::parseInputs: cannot rewind the start position");
+        return (inputs);
+    }
 
     if (findElement(file, "\"inputs\"", ARRAY, endPosition)) {
         do {
@@ -1073,23 +966,28 @@ Input Preset::parseInput(File &file,
                          size_t startPosition,
                          ControlType controlType)
 {
-    Input input;
-    const size_t capacity = 128;
-    StaticJsonDocument<capacity> doc;
+    if (file.seek(startPosition) == false) {
+        logMessage("Preset::parseInput: cannot rewind the start position");
+        return (Input());
+    }
 
-    file.seek(startPosition);
-
-    DeserializationError err = deserializeJson(doc, file);
+    StaticJsonDocument<128> doc;
+    auto err = deserializeJson(doc, file);
 
     if (err) {
         logMessage("Preset::parseInput: deserializeJson() failed: %s",
                    err.c_str());
+        return (Input());
+    }
+
+    size_t inputEndPosition = file.position();
+
+    Input input = parseInput(controlType, doc.as<JsonObject>());
+
+    if (file.seek(inputEndPosition) == false) {
+        logMessage("Preset::parseInput: cannot rewind the end position");
         return (input);
     }
-    size_t valueEndPosition = file.position();
-
-    input = parseInput(controlType, doc.as<JsonObject>());
-    file.seek(valueEndPosition);
 
     return (input);
 }
@@ -1099,19 +997,8 @@ Input Preset::parseInput(File &file,
  */
 Input Preset::parseInput(ControlType controlType, JsonObject jInput)
 {
-    uint8_t potId = jInput["potId"];
-    const char *valueId = jInput["valueId"] | "";
-
-    uint8_t valueIndex = translateValueId(controlType, valueId);
-
-    if (potId > 0) {
-        potId--;
-    }
-
-    if (potId >= MAX_POT_ID) {
-        logMessage("parseInput: invalid pot: potId=%d", potId);
-        potId = 0;
-    }
+    uint8_t potId = constrainPotId(jInput["potId"]);
+    uint8_t valueIndex = translateValueId(controlType, jInput["valueId"] | "");
 
     return (Input(valueIndex, potId));
 }
@@ -1126,9 +1013,13 @@ std::vector<Value2> Preset::parseValues(File &file,
                                         size_t endPosition,
                                         Control *control)
 {
+    // Set the initial size of vector according to the type of Control
     std::vector<Value2> values(Preset::getNumValues(control->getType()));
 
-    file.seek(startPosition);
+    if (file.seek(startPosition) == false) {
+        logMessage("Preset::parseValues: cannot rewind the start position");
+        return (values);
+    }
 
     if (findElement(file, "\"values\"", ARRAY, endPosition)) {
         do {
@@ -1147,26 +1038,26 @@ std::vector<Value2> Preset::parseValues(File &file,
  */
 Value2 Preset::parseValue(File &file, size_t startPosition, Control *control)
 {
-    Value2 value;
+    if (file.seek(startPosition) == false) {
+        logMessage("Preset::parseValue: cannot rewind the start position");
+        return (Value2());
+    }
 
-    file.seek(startPosition);
-
-    const size_t capacity = 2048;
-    StaticJsonDocument<capacity> doc;
-
-    DeserializationError err = deserializeJson(doc, file);
+    StaticJsonDocument<2048> doc;
+    auto err = deserializeJson(doc, file);
 
     if (err) {
         logMessage("Preset::parseValue: deserializeJson() failed: %s",
                    err.c_str());
-        return (value);
+        return (Value2());
     }
 
     size_t valueEndPosition = file.position();
+    Value2 value = parseValue(control, doc.as<JsonObject>());
 
-    /* parse value JSON */
-    value = parseValue(control, doc.as<JsonObject>());
-    file.seek(valueEndPosition);
+    if (file.seek(valueEndPosition) == false) {
+        logMessage("Preset::parseValue: cannot rewind to the end position");
+    }
 
     return (value);
 }
@@ -1177,7 +1068,7 @@ Value2 Preset::parseValue(File &file, size_t startPosition, Control *control)
 Value2 Preset::parseValue(Control *control, JsonObject jValue)
 {
     int16_t defaultValue = 0;
-    std::optional<int16_t> min;
+    int16_t min = 0;
     int16_t max = 0;
     const char *defaultValueText = "";
 
@@ -1199,7 +1090,7 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
     }
 
     if (jValue["min"]) {
-        *min = jValue["min"].as<int16_t>();
+        min = jValue["min"].as<int16_t>();
     } else {
         minNotDefined = true;
     }
@@ -1214,7 +1105,7 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
 
     /* If value does not define min or max, take it from the message */
     if (minNotDefined) {
-        *min = message.getMidiMin();
+        min = message.getMidiMin();
     }
 
     if (maxNotDefined) {
@@ -1228,8 +1119,8 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
         && (controlType != ControlType::list)) {
         if (defaultValue > max) {
             defaultValue = max;
-        } else if (defaultValue < *min) {
-            defaultValue = *min;
+        } else if (defaultValue < min) {
+            defaultValue = min;
         }
     } else {
         if (defaultValueText) {
@@ -1241,38 +1132,44 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
         }
     }
 
+    Overlay *overlay = getOverlay(overlayId);
+
     if (controlType == ControlType::list) {
-        *min = 0;
+        min = 0;
         max = 1;
 
         if (overlayId > 0) {
-            if (Overlay *o = getOverlay(overlayId)) {
-                max = o->getNumItems();
+            if (overlay != nullptr) {
+                max = overlay->getNumItems();
             }
         }
     }
 
+#ifdef DEBUG
     logMessage(
-        "parseValue: id=%s, index=%d, defaultValue=%d, min=%d, max=%d, overlayId=%d, formatter=%s, function=%s",
+        "parseValue: id=%s, index=%d, defaultValue=%d, min=%d, max=%d, overlayId=%d, formatter=%s, function=%s, overlay=%x",
         valueId,
         valueIndex,
         defaultValue,
-        *min,
+        min,
         max,
         overlayId,
         formatter,
-        function);
+        function,
+        overlay);
+#endif /* DEBUG */
 
     return (Value2(control,
                    valueId,
                    valueIndex,
                    defaultValue,
-                   *min,
+                   min,
                    max,
                    overlayId,
                    message,
                    formatter,
-                   function));
+                   function,
+                   overlay));
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1358,14 +1255,15 @@ std::vector<Rule>
 {
     std::vector<Rule> rules;
 
-    file.seek(startPosition);
+    if (file.seek(startPosition) == false) {
+        logMessage("Preset::parseRules: cannot rewind to the end position");
+        return (rules);
+    }
 
     if (findElement(file, "\"rules\"", ARRAY, endPosition)) {
         do {
             size_t valueStartPosition = file.position();
-
             rules.push_back(parseRule(file, valueStartPosition));
-
         } while (file.findUntil(",", "]"));
     }
 
@@ -1377,25 +1275,28 @@ std::vector<Rule>
  */
 Rule Preset::parseRule(File &file, size_t startPosition)
 {
-    Rule rule;
-
-    file.seek(startPosition);
+    if (file.seek(startPosition) == false) {
+        logMessage("Preset::parseRule: cannot rewind to the end position");
+        return (Rule());
+    }
 
     const size_t capacity = 256;
     StaticJsonDocument<capacity> doc;
 
-    DeserializationError err = deserializeJson(doc, file);
+    auto err = deserializeJson(doc, file);
 
     if (err) {
         logMessage("Preset::parseRule: deserializeJson() failed: %s",
                    err.c_str());
-        return (rule);
+        return (Rule());
     }
 
-    size_t valueEndPosition = file.position();
+    size_t ruleEndPosition = file.position();
+    Rule rule = parseRule(doc.as<JsonObject>());
 
-    rule = parseRule(doc.as<JsonObject>());
-    file.seek(valueEndPosition);
+    if (file.seek(ruleEndPosition) == false) {
+        logMessage("Preset::parseRule: cannot rewind to the end position");
+    }
 
     return (rule);
 }
@@ -1457,7 +1358,17 @@ Rule Preset::parseRule(JsonObject jRule)
             pPos,
             size);
     }
-    //logMessage ("parseRule: rule: type=%d, parameterNumber=%d, byte=%d, parameterBitPosition=%d, byteBitPosition=%d, bitWidth=%d", electraMessageType, parameterNumber, byte, pPos, bPos, size);
+
+#ifdef DEBUG
+    logMessage(
+        "parseRule: rule: type=%d, parameterNumber=%d, byte=%d, parameterBitPosition=%d, byteBitPosition=%d, bitWidth=%d",
+        electraMessageType,
+        parameterNumber,
+        byte,
+        pPos,
+        bPos,
+        size);
+#endif /* DEBUG */
 
     return (Rule(electraMessageType, parameterNumber, byte, pPos, bPos, size));
 }
@@ -1530,12 +1441,12 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
                     data.push_back(length);
                 } else if (strcmp(type, "function") == 0) {
                     const char *functionName = jByte["name"].as<char *>();
-                    luaFunctions.push_back(functionName);
+
                     data.push_back(LUAFUNCTION);
                     data.push_back((uint8_t)electraMessageType);
                     data.push_back(parameterNumber & 0x7F);
                     data.push_back(parameterNumber >> 7);
-                    data.push_back(luaFunctions.size() - 1);
+                    data.push_back(registerFunction(functionName));
                 }
             }
         } else {
@@ -1586,15 +1497,17 @@ Rectangle
 {
     Rectangle bounds;
 
-    file.seek(startPosition);
+    if (file.seek(startPosition) == false) {
+        logMessage("Preset::parseBounds: cannot rewind the start position");
+        return (bounds);
+    }
 
     if (findElement(file, "\"bounds\"", ELEMENT, endPosition)) {
         const size_t capacity = JSON_ARRAY_SIZE(4) + 20;
         StaticJsonDocument<capacity> doc;
 
-        DeserializationError err = deserializeJson(doc, file);
-        bounds = parseBounds(doc.as<JsonArray>());
-        //logMessage ("parseBounds: bounds=[%d %d %d %d]", bounds.x, bounds.y, bounds.width, bounds.height);
+        auto err = deserializeJson(doc, file);
+        Rectangle bounds = parseBounds(doc.as<JsonArray>());
 
         if (err) {
             logMessage(
@@ -1602,23 +1515,94 @@ Rectangle
                 err.c_str());
             return (bounds);
         }
+
+#ifdef DEBUG
+        logMessage("parseBounds: bounds=[%d %d %d %d]",
+                   bounds.x,
+                   bounds.y,
+                   bounds.width,
+                   bounds.height);
+#endif /* DEBUG */
     }
+
     return (bounds);
 }
 
 /*--------------------------------------------------------------------------*/
 
-/** Parse bitmap data
- *
- */
-Bitmap Preset::parseBitmap(const char *bitmap)
+bool Preset::getPresetNameFast(File &file,
+                               char *presetName,
+                               size_t maxPresetNameLength)
 {
-    uint8_t bytes[255] = {};
+    const size_t capacity = JSON_OBJECT_SIZE(1) + 100;
+    StaticJsonDocument<capacity> doc;
+    *presetName = '\0';
 
-    base64_decode((char *)bytes, (char *)bitmap, strlen(bitmap));
+    if (file.seek(0) == false) {
+        logMessage("Preset::getPresetNameFast: cannot rewind the file");
+        return (false);
+    }
 
-    return (bitmapPool.saveBitmap(bytes));
+    if (findElement(file, "\"name\"", ELEMENT, 100) == false) {
+        return (false);
+    }
+
+    auto err = deserializeJson(doc, file);
+
+    if (err) {
+        logMessage("Preset::getPresetNameFast: parsing failed: %s",
+                   err.c_str());
+        return (false);
+    }
+
+    copyString(presetName, doc.as<char *>(), maxPresetNameLength);
+
+#ifdef DEBUG
+    logMessage("Preset::getPresetNameFast: name=%s", name);
+#endif /* DEBUG */
+
+    return (true);
 }
+
+/** Get preset name out of the file
+ * TODO: speed up, this is too slow
+ */
+void Preset::getPresetName(File &file,
+                           char *presetName,
+                           size_t maxPresetNameLength)
+{
+    if (getPresetNameFast(file, presetName, maxPresetNameLength)) {
+        return;
+    }
+
+    StaticJsonDocument<128> doc;
+    StaticJsonDocument<64> filter;
+    *presetName = '\0';
+
+    filter["name"] = true;
+
+    if (file.seek(0) == false) {
+        logMessage("Preset::getPresetName: cannot rewind the file");
+        return;
+    }
+
+    DeserializationError err =
+        deserializeJson(doc, file, DeserializationOption::Filter(filter));
+
+    if (err) {
+        logMessage("Preset::getPresetName: parsing failed: %s", err.c_str());
+        return;
+    }
+
+    const char *name = doc["name"] | "No name";
+    copyString(presetName, name, maxPresetNameLength);
+
+#ifdef DEBUG
+    logMessage("Preset::getPresetName: name=%s", name);
+#endif /* DEBUG */
+}
+
+/*--------------------------------------------------------------------------*/
 
 /** Translate checksum algorithm to the Enum type
  *
@@ -1775,7 +1759,10 @@ bool isElementEmpty(File &file)
         rc = true;
     }
 
-    file.seek(pos);
+    if (file.seek(pos) == false) {
+        logMessage("Preset::isElementEmpty: rewind to original position");
+    }
+
     return (rc);
 }
 

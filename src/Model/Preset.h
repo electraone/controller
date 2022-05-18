@@ -14,13 +14,11 @@
 #include "Rule.h"
 #include "Checksum.h"
 
-#include "Bitmap.h"
-
 class Preset
 {
 public:
     Preset();
-    ~Preset() = default;
+    virtual ~Preset() = default;
 
     bool load(const char *filename);
     void reset(void);
@@ -51,6 +49,8 @@ private:
     static constexpr uint16_t MaxNumControls = 432;
     static constexpr uint8_t MaxProjectIdLength = 20;
     static constexpr uint8_t MaxNumDevices = 32;
+    static constexpr uint8_t MaxNumControlSets = 3;
+    static constexpr uint8_t MaxNumPots = 12;
 
     // Main parser
     bool parse(File &file);
@@ -119,6 +119,7 @@ private:
         parseRules(File &file, size_t startPosition, size_t endPosition);
     Rule parseRule(File &file, size_t startPosition);
     Rule parseRule(JsonObject jRule);
+    uint8_t registerFunction(const char *functionName);
     std::vector<uint8_t> parseData(JsonArray jData,
                                    int16_t parameterNumber,
                                    ElectraMessageType electraMessageType);
@@ -127,14 +128,46 @@ private:
     Rectangle parseBounds(File &file, size_t startPosition, size_t endPosition);
     Rectangle parseBounds(JsonArray jBounds);
 
-    // Bitmaps
-    Bitmap parseBitmap(const char *bitmap);
-
     // Static functions
     static ChecksumAlgorithm translateAlgorithm(const char *algorithm);
     static uint8_t translateValueId(ControlType type, const char *valueId);
     static uint8_t getNumValues(ControlType type);
     static uint8_t getDefaultbitWidth(ElectraMessageType electraMessageType);
+
+    static uint8_t constrainPageId(uint8_t pageId)
+    {
+        return (constrain(pageId, 1, MaxNumPages) - 1);
+    }
+
+    static uint8_t constrainControlSetId(uint8_t controlSetId)
+    {
+        return (constrain(controlSetId, 1, MaxNumControlSets) - 1);
+    }
+
+    static uint8_t constrainPotId(uint8_t potId)
+    {
+        return (constrain(potId, 1, MaxNumPots) - 1);
+    }
+
+    static uint8_t constrainPort(uint8_t port)
+    {
+        return (constrain(port, 1, 2) - 1);
+    }
+
+    static uint8_t constrainChannel(uint8_t channel)
+    {
+        return (constrain(channel, 1, 16));
+    }
+
+    static uint16_t constrainRate(uint16_t rate)
+    {
+        return (constrain(rate, 10, 1000));
+    }
+
+    static uint8_t constrainDeviceId(uint8_t deviceId)
+    {
+        return (constrain(deviceId, 1, MaxNumDevices) - 1);
+    }
 
     uint8_t version;
     char name[MaxNameLength + 1];

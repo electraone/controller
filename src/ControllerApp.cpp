@@ -2,10 +2,6 @@
 
 void Controller::initialise(void)
 {
-    // Assign the storage drivers.
-    stringPool.assignStorageDriver(&Hardware::screen);
-    bitmapPool.assignStorageDriver(&Hardware::screen);
-
     // Load the default preset.
     if (preset.load("ctrlv2/p000.epr") == true) {
         logMessage("Default preset loaded");
@@ -13,6 +9,7 @@ void Controller::initialise(void)
         // \todo what should be done?
         logMessage("Default preset load failed");
     }
+    preset.print();
 
     // Set UI delegate.
     delegate = &mainWindow;

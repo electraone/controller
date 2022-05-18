@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include "Response.h"
 #include "Message.h"
@@ -26,6 +26,8 @@ public:
     {
         setName(newName);
     }
+
+    virtual ~Device() = default;
 
     uint8_t getId(void) const
     {
@@ -117,9 +119,9 @@ private:
     uint32_t tsLastMessage;
 
 public:
-    std::vector<Message> postMessages;
     std::vector<std::vector<uint8_t>> requests;
     std::vector<Response> responses;
+    std::vector<Message> postMessages;
 };
 
 typedef std::map<uint8_t, Device> Devices;

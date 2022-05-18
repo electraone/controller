@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stdint.h"
+#include <cstdint>
 
 enum class ChecksumAlgorithm { UNKNOWN = 0, ROLAND, WALDORF, FRACTALAUDIO };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
 #include "ElectraMessage.h"
 #include "Value2.h"
@@ -30,13 +31,15 @@ public:
     Control(uint16_t id,
             uint8_t pageId,
             const char *name,
+            const Rectangle &bounds,
             ControlType type,
             ControlMode mode,
             Colour colour,
             uint8_t controlSetId,
             Variant variant,
             bool visible);
-    ~Control();
+
+    virtual ~Control() = default;
 
     uint16_t getId(void) const;
     uint8_t getPageId(void) const;
@@ -48,7 +51,7 @@ public:
     Variant getVariant(void) const;
     bool getVisible(void) const;
     Rectangle getBounds(void) const;
-    void setBounds(Rectangle bounds);
+    void setBounds(const Rectangle &bounds);
     void setValues(std::vector<Value2> values);
     Value2 *getValue(const char *valueId);
 
@@ -63,8 +66,6 @@ public:
 private:
     static const int MaxNameLength = 15;
 
-    Rectangle bounds;
-
     struct {
         uint16_t id : 9;
         uint8_t pageId : 4;
@@ -76,6 +77,7 @@ private:
         uint8_t visible : 1;
     };
 
+    Rectangle bounds;
     char name[MaxNameLength + 1];
 
 public:
@@ -83,4 +85,4 @@ public:
     std::vector<Input> inputs;
 };
 
-typedef std::map<int16_t, Control> Controls;
+typedef std::map<uint16_t, Control> Controls;

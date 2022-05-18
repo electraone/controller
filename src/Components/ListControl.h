@@ -7,6 +7,7 @@ class ListControl : public List
 {
 public:
     explicit ListControl(const Control &control)
+        : List(control.values[0].getOverlay())
     {
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
     }
@@ -15,9 +16,11 @@ public:
 
     void paint(Graphics &g) override
     {
+        logMessage("paint list");
+
         Rectangle sliderBounds = getBounds();
         sliderBounds.setHeight(sliderBounds.getHeight() / 2);
-        LookAndFeel::paintList(g, sliderBounds, colour, items, index);
+        LookAndFeel::paintList(g, sliderBounds, colour, getList(), index);
         g.printText(0,
                     getHeight() - 20,
                     getName(),

@@ -15,6 +15,8 @@ public:
         setName(newName);
     }
 
+    virtual ~Page() = default;
+
     uint8_t getId(void) const
     {
         return (id);

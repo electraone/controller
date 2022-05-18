@@ -13,6 +13,8 @@ public:
     explicit Overlay(uint8_t newId) : ListData(newId)
     {
     }
+
+    virtual ~Overlay() = default;
 };
 
 typedef std::map<uint8_t, Overlay> Overlays;

@@ -29,7 +29,8 @@ public:
           min(0),
           max(NOT_SET),
           overlayId(0),
-          control(nullptr)
+          control(nullptr),
+          overlay(nullptr)
     {
     }
 
@@ -42,14 +43,16 @@ public:
            uint8_t newOverlayId,
            Message(newMessage),
            const char *newFormatter,
-           const char *newFunction)
+           const char *newFunction,
+           Overlay *newOverlay)
         : control(newControl),
           index(newIndex),
           defaultValue(newDefaultValue),
           min(newMin),
           max(newMax),
           overlayId(newOverlayId),
-          message(newMessage)
+          message(newMessage),
+          overlay(newOverlay)
     {
         if (newFormatter) {
             formatter = newFormatter;
@@ -62,6 +65,8 @@ public:
         // translate the valueId to the numeric handle
         handle = translateId(newValueId);
     }
+
+    virtual ~Value2() = default;
 
     Control *getControl(void) const
     {
@@ -116,6 +121,11 @@ public:
     uint8_t getOverlayId(void) const
     {
         return (overlayId);
+    }
+
+    Overlay *getOverlay(void) const
+    {
+        return (overlay);
     }
 
     uint16_t getNumSteps(void) const
@@ -186,6 +196,8 @@ public:
         logMessage("    overlayId: %d", getOverlayId());
         logMessage("    function: %s", getFunction());
         logMessage("    formatter: %s", getFormatter());
+        logMessage("    overlay: %x", getOverlay());
+        logMessage("    control: %x", getControl());
         message.print();
     }
 
@@ -202,6 +214,7 @@ private:
     std::string formatter;
     std::string function;
     Control *control;
+    Overlay *overlay;
 
 public:
     Message message;

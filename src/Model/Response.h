@@ -1,11 +1,18 @@
 #pragma once
 
 #include "Rule.h"
-#include <stdint.h>
+#include <cstdint>
 
-struct Response {
+class Response
+{
+public:
+    Response(){};
+
+    virtual ~Response() = default;
+
     uint8_t id;
-    uint16_t length;
     std::vector<uint8_t> headers;
     std::vector<Rule> rules;
+
+private:
 };

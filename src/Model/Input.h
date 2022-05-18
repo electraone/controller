@@ -1,20 +1,20 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 class Input
 {
 public:
-    Input() : handleIndex(0), potId(0)
+    Input() : valueId(0), potId(0)
     {
     }
 
-    Input(uint8_t newHandleIndex, uint8_t newPotId)
-        : handleIndex(newHandleIndex), potId(newPotId)
+    Input(uint8_t newValueId, uint8_t newPotId)
+        : valueId(newValueId), potId(newPotId)
     {
     }
 
-    ~Input() = default;
+    virtual ~Input() = default;
 
     uint8_t getPotId(void) const
     {
@@ -23,7 +23,7 @@ public:
 
     uint8_t getValueId(void) const
     {
-        return (handleIndex);
+        return (valueId);
     }
 
     void print(void) const
@@ -33,6 +33,6 @@ public:
     }
 
 private:
-    uint8_t handleIndex;
+    uint8_t valueId;
     uint8_t potId;
 };

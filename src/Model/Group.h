@@ -6,12 +6,12 @@
 class Group
 {
 private:
-    static const uint8_t maxGroupNameLength = 40;
+    static constexpr uint8_t maxLabelLength = 40;
 
 public:
     Group() : id(0), pageId(0), colour(ElectraColours::white)
     {
-        *label = '\0';
+        setLabel(nullptr);
     }
 
     Group(uint8_t newId,
@@ -23,6 +23,8 @@ public:
     {
         setLabel(newLabel);
     }
+
+    virtual ~Group() = default;
 
     void setId(uint8_t newId)
     {
@@ -37,7 +39,7 @@ public:
     void setLabel(const char *newLabel)
     {
         if (newLabel) {
-            copyString(label, newLabel, maxGroupNameLength);
+            copyString(label, newLabel, maxLabelLength);
         } else {
             *label = '\0';
         }
@@ -63,7 +65,7 @@ public:
         colour = newColour;
     }
 
-    Colour getColour(void) const
+    uint8_t getColour(void) const
     {
         return (colour);
     }
@@ -89,9 +91,9 @@ public:
 
 private:
     uint8_t id;
-    char label[maxGroupNameLength + 1];
+    char label[maxLabelLength + 1];
     uint8_t pageId;
-    Colour colour;
+    uint8_t colour;
     Rectangle bounds;
 };
 

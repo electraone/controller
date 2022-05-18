@@ -1,8 +1,7 @@
 #include "Control.h"
 
-Control::Control() : id(0)
+Control::Control() : id(0), pageId(0)
 {
-    pageId = 0;
     type = (uint8_t)ControlType::none;
     colour = (uint8_t)ElectraColours::white;
     mode = (uint8_t)ControlMode::none;
@@ -15,26 +14,24 @@ Control::Control() : id(0)
 Control::Control(uint16_t id,
                  uint8_t newPageId,
                  const char *newName,
+                 const Rectangle &newBounds,
                  ControlType newType,
                  ControlMode newMode,
                  Colour newColour,
                  uint8_t newControlSetId,
                  Variant newVariant,
                  bool newVisible)
-    : id(id)
+    : id(id),
+      pageId(newPageId),
+      bounds(newBounds),
+      controlSetId(newControlSetId)
 {
     copyString(name, newName, MaxNameLength);
-    pageId = newPageId;
     type = (uint8_t)newType;
     colour = (uint8_t)newColour;
     mode = (uint8_t)newMode;
-    controlSetId = newControlSetId;
     variant = (uint8_t)newVariant;
     visible = (uint8_t)newVisible;
-}
-
-Control::~Control()
-{
 }
 
 uint16_t Control::getId(void) const
@@ -87,9 +84,11 @@ Rectangle Control::getBounds(void) const
     return (bounds);
 }
 
-void Control::setBounds(Rectangle newBounds)
+void Control::setBounds(const Rectangle &newBounds)
 {
     bounds = newBounds;
+    logMessage("xxxxxxxx");
+    bounds.print();
 }
 
 void Control::setValues(std::vector<Value2> newValues)
