@@ -16,8 +16,6 @@ public:
 
     void paint(Graphics &g) override
     {
-        logMessage("paint list");
-
         Rectangle sliderBounds = getBounds();
         sliderBounds.setHeight(sliderBounds.getHeight() / 2);
         LookAndFeel::paintList(g, sliderBounds, colour, getList(), index);
