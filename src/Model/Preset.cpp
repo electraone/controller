@@ -475,7 +475,9 @@ bool Preset::parseOverlays(File &file)
                 return (false);
             }
 
+#ifdef DEBUG
             overlays[id].print();
+#endif
         } else {
             break;
         }

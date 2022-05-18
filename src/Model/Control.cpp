@@ -87,8 +87,6 @@ Rectangle Control::getBounds(void) const
 void Control::setBounds(const Rectangle &newBounds)
 {
     bounds = newBounds;
-    logMessage("xxxxxxxx");
-    bounds.print();
 }
 
 void Control::setValues(std::vector<Value2> newValues)

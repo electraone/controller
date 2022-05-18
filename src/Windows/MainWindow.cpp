@@ -35,6 +35,7 @@ void MainWindow::setPage(uint8_t pageId)
     if (newPageView) {
         setOwnedContent(newPageView);
         currentPageId = pageId;
+        pageView = newPageView;
 
         if (pageViewToDelete) {
             delete pageViewToDelete;
