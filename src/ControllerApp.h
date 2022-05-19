@@ -41,6 +41,8 @@ public:
     void initialise(void) override;
 
 private:
+    static constexpr uint8_t NumPresetsInBank = 12;
+
     // Delegated functions ---------------------------------------------------
     void displayDefaultPage(void);
 
@@ -65,7 +67,7 @@ private:
     ParameterMap parameterMap;
 
     // App state
-    char presetNames[NR_OF_PRESETS][MAX_PRESET_NAME_LENGTH + 1];
+    char presetNames[NumPresetsInBank][Preset::MaxNameLength + 1];
     uint8_t currentPage;
     uint8_t currentPresetBank;
     uint8_t currentPreset;

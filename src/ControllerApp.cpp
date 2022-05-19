@@ -188,7 +188,7 @@ void Controller::assignPresetNames(uint8_t presetBankId)
         File file = Hardware::sdcard.createInputStream(filename);
 
         if (file) {
-            preset.getPresetName(file, presetNames[i], MAX_PRESET_NAME_LENGTH);
+            preset.getPresetName(file, presetNames[i], Preset::MaxNameLength);
             logMessage("preset name: %s", presetNames[i]);
             file.close();
         } else {

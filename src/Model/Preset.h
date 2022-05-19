@@ -14,8 +14,6 @@
 #include "Rule.h"
 #include "Checksum.h"
 
-#define NR_OF_PRESETS 12
-#define MAX_PRESET_NAME_LENGTH 20
 
 class Preset
 {
@@ -46,11 +44,13 @@ public:
 
     void print(void) const;
 
+public:
+    static constexpr uint8_t MaxNameLength = 20;
+    static constexpr uint8_t MaxProjectIdLength = 20;
+
 private:
     static constexpr uint8_t MaxNumPages = 12;
-    static constexpr uint8_t MaxNameLength = 20;
     static constexpr uint16_t MaxNumControls = 432;
-    static constexpr uint8_t MaxProjectIdLength = 20;
     static constexpr uint8_t MaxNumDevices = 32;
     static constexpr uint8_t MaxNumControlSets = 3;
     static constexpr uint8_t MaxNumPots = 12;
