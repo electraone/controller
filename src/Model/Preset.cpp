@@ -3,6 +3,8 @@
 #include "Colours.h"
 #include "JsonTools.h"
 
+Page Preset::pageUndefined;
+
 Preset::Preset() : valid(false)
 {
     reset();
@@ -118,18 +120,15 @@ const char *Preset::getProjectId(void) const
 /** Get Page by the pageId
  *
  */
-Page *Preset::getPage(uint8_t pageId)
+const Page &Preset::getPage(uint8_t pageId) const
 {
-    Page *page = nullptr;
-    pageId--;
-
     try {
-        page = &pages.at(pageId);
+        return pages.at(pageId);
     } catch (std::out_of_range const &) {
-        page = nullptr;
+        logMessage("getPage: page does not exist: pageId=%d", pageId);
     }
 
-    return (page);
+    return (Preset::pageUndefined);
 }
 
 /** Get device pointer by the id

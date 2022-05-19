@@ -2,7 +2,8 @@
 #include "ControlComponent.h"
 #include "GroupControl.h"
 
-PageView::PageView(const Preset &preset, uint8_t pageId) : model(preset)
+PageView::PageView(const Preset &preset, uint8_t newPageId)
+    : model(preset), pageId(newPageId)
 {
     setBounds(0, 0, 1024, 575);
     setName("PageView");
@@ -38,7 +39,7 @@ void PageView::paint(Graphics &g)
     g.drawLine(5, getHeight() - 20, getWidth() - 10, getHeight() - 20);
     g.printText(0,
                 getHeight() - 16,
-                "Page 1",
+                model.getPage(pageId).getName(),
                 TextStyle::smallTransparent,
                 getWidth(),
                 TextAlign::center);

@@ -52,6 +52,7 @@ void Controller::initialise(void)
     // Display the preset if valid.
     if (preset.isValid()) {
         displayDefaultPage();
+        preset.print();
     }
 
     // Finalise the initialisation

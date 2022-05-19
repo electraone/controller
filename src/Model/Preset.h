@@ -14,7 +14,6 @@
 #include "Rule.h"
 #include "Checksum.h"
 
-
 class Preset
 {
 public:
@@ -29,7 +28,7 @@ public:
     uint8_t getVersion(void) const;
     const char *getProjectId(void) const;
 
-    Page *getPage(uint8_t pageId);
+    const Page &getPage(uint8_t pageId) const;
     Device *getDevice(uint8_t deviceId);
     Overlay *getOverlay(uint8_t overlayId);
     Group *getGroup(uint8_t groupId);
@@ -176,6 +175,8 @@ private:
     char name[MaxNameLength + 1];
     char projectId[MaxProjectIdLength + 1];
     bool valid;
+
+    static Page pageUndefined;
 
 public: // Public on the purpose
     Pages pages;

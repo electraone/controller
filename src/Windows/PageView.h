@@ -14,4 +14,5 @@ public:
 
 private:
     const Preset &model;
+    uint8_t pageId;
 };
