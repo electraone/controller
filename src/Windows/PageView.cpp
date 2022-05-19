@@ -1,6 +1,7 @@
 #include "PageView.h"
 #include "ControlComponent.h"
 #include "GroupControl.h"
+#include "BottomBar.h"
 
 PageView::PageView(const Preset &preset, uint8_t newPageId)
     : model(preset), pageId(newPageId)
@@ -11,7 +12,9 @@ PageView::PageView(const Preset &preset, uint8_t newPageId)
     for (const auto &[id, control] : model.controls) {
         if (control.getPageId() == pageId) {
             Component *c = ControlComponent::createControlComponent(control);
-            addAndMakeVisible(c);
+            if (c) {
+                addAndMakeVisible(c);
+            }
         }
     }
 
@@ -24,6 +27,14 @@ PageView::PageView(const Preset &preset, uint8_t newPageId)
             }
         }
     }
+
+    BottomBar *bottomBar =
+        new BottomBar(model.getName(), model.getPage(pageId).getName());
+    bottomBar->setBounds(0, 555, 1024, 19);
+
+    if (bottomBar) {
+        addAndMakeVisible(bottomBar);
+    }
 }
 
 PageView::~PageView()
@@ -33,16 +44,6 @@ PageView::~PageView()
 void PageView::paint(Graphics &g)
 {
     g.fillAll(Colours::black);
-
-    // \todo bottom bar
-    g.setColour(0x2104);
-    g.drawLine(5, getHeight() - 20, getWidth() - 10, getHeight() - 20);
-    g.printText(0,
-                getHeight() - 16,
-                model.getPage(pageId).getName(),
-                TextStyle::smallTransparent,
-                getWidth(),
-                TextAlign::center);
 }
 
 void PageView::resized(void)
