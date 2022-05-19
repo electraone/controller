@@ -23,6 +23,7 @@ public:
     void onButtonUp(uint8_t buttonId) override;
 
     void setPage(uint8_t pageId);
+    void setControlSet(uint8_t controlSetId);
 
 private:
     const Preset &preset;

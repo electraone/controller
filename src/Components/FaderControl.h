@@ -65,6 +65,10 @@ private:
         g.fillRect(0, padding, bounds.getWidth(), barHeight);
 
         // Paint the active bar
+        g.setColour(colourTrack);
+        g.fillRect(barX, padding - 16, barWidth, 16);
+
+        // Paint the active bar
         g.setColour(colour);
         g.fillRect(barX, padding, barWidth, barHeight);
 

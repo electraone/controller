@@ -22,8 +22,6 @@ Component *ControlComponent::createControlComponent(const Control &control)
         c->setBounds(control.getBounds());
         c->setName(control.getName());
         c->setId(control.getId());
-        c->assignPot(control.inputs[0].getPotId(),
-                     control.values[0].getNumSteps());
         c->setVisible(control.getVisible());
     }
 

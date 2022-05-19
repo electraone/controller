@@ -2,7 +2,9 @@
 
 void MainWindow::onButtonDown(uint8_t buttonId)
 {
-    if (buttonId == 5) {
+    if (0 <= buttonId && buttonId <= 2) {
+        setControlSet(buttonId);
+    } else if (buttonId == 5) {
         pageSelectionWindow = PageSelectionWindow::createPageSelectionWindow(
             preset.pages, currentPageId, this);
 
@@ -14,7 +16,6 @@ void MainWindow::onButtonDown(uint8_t buttonId)
     }
 }
 
-//#include "Hardware.h"
 void MainWindow::onButtonUp(uint8_t buttonId)
 {
     if (buttonId == 5) {
@@ -47,6 +48,29 @@ void MainWindow::setPage(uint8_t pageId)
     setVisible(true);
 
     logMessage("Page switched: page=%d", currentPageId);
+
+    display();
+}
+
+void MainWindow::setControlSet(uint8_t controlSetId)
+{
+    setVisible(false);
+
+    PageView *pageViewToDelete = pageView;
+    PageView *newPageView = new PageView(preset, currentPageId, controlSetId);
+
+    if (newPageView) {
+        setOwnedContent(newPageView);
+        pageView = newPageView;
+
+        if (pageViewToDelete) {
+            delete pageViewToDelete;
+        }
+    }
+
+    setVisible(true);
+
+    logMessage("controlSet switched: controlSetId=%d", controlSetId);
 
     display();
 }

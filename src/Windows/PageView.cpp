@@ -3,7 +3,9 @@
 #include "GroupControl.h"
 #include "BottomBar.h"
 
-PageView::PageView(const Preset &preset, uint8_t newPageId)
+PageView::PageView(const Preset &preset,
+                   uint8_t newPageId,
+                   uint8_t activeControlSetId)
     : model(preset), pageId(newPageId)
 {
     setBounds(0, 0, 1024, 575);
@@ -12,6 +14,15 @@ PageView::PageView(const Preset &preset, uint8_t newPageId)
     for (const auto &[id, control] : model.controls) {
         if (control.getPageId() == pageId) {
             Component *c = ControlComponent::createControlComponent(control);
+
+            if (control.getControlSetId() != activeControlSetId) {
+                c->setDimmed(true);
+            }
+            else {
+              c->assignPot(control.inputs[0].getPotId(),
+                           control.values[0].getNumSteps());
+            }
+
             if (c) {
                 addAndMakeVisible(c);
             }
