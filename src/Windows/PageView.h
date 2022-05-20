@@ -15,6 +15,12 @@ public:
     void resized(void) override;
 
 private:
+    void addControls(const Controls &controls,
+                     uint8_t pageId,
+                     uint8_t activeControlSetId);
+    void addGroups(const Groups &groups,
+                   uint8_t pageId,
+                   uint8_t activeControlSetId);
+    void addBottomBar(const char *presetName, const char *pageName);
     const Preset &model;
-    uint8_t pageId;
 };
