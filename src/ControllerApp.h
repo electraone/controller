@@ -9,6 +9,7 @@
 #include "ParameterMap.h"
 #include "Ui.h"
 #include "UiDelegate.h"
+#include "Midi.h"
 
 class Controller : public App, private MidiInputCallback
 {
@@ -19,7 +20,8 @@ public:
           currentPage(0),
           currentPreset(0),
           currentPresetBank(0),
-          readyForPresetSwitch(true)
+          readyForPresetSwitch(true),
+          midi(preset)
     {
     }
 
@@ -36,6 +38,11 @@ public:
     const char *getApplicationSandbox(void) const override
     {
         return ("ctrlv2");
+    }
+
+    Window *getMainWindow(void) override
+    {
+        return (&mainWindow);
     }
 
     void initialise(void) override;
@@ -64,7 +71,9 @@ private:
 
     // Model
     Preset preset;
-    ParameterMap parameterMap;
+
+    // Midi
+    Midi midi;
 
     // App state
     char presetNames[NumPresetsInBank][Preset::MaxNameLength + 1];
@@ -73,6 +82,8 @@ private:
     uint8_t currentPreset;
     bool readyForPresetSwitch;
 };
+
+void repaintParameterMap(void);
 
 // This macro instructs main() routine to launch the app.
 START_ELECTRA_APPLICATION(Controller)

@@ -3,6 +3,7 @@
 #include "ElectraMessage.h"
 #include "SignMode.h"
 #include "Macros.h"
+#include "Event.h"
 #include <cstdint>
 #include "helpers.h"
 
@@ -16,7 +17,8 @@ public:
           midiMax(NOT_SET),
           value(NOT_SET),
           offValue(0),
-          onValue(NOT_SET)
+          onValue(NOT_SET),
+          event(0)
     {
         type = (uint8_t)ElectraMessageType::invalid;
         lsbFirst = false;
@@ -43,7 +45,8 @@ public:
           value(newValue),
           offValue(newOffValue),
           onValue(newOnValue),
-          data(newData)
+          data(newData),
+          event(0)
     {
         type = (uint8_t)newType;
         lsbFirst = newLsbFirst;
@@ -168,6 +171,16 @@ public:
         return (bitWidth);
     }
 
+    void setEvent(Event newEvent)
+    {
+        event = (uint8_t)newEvent;
+    }
+
+    Event getEvent(void) const
+    {
+        return ((Event)event);
+    }
+
     void print(void) const
     {
         logMessage("        deviceId: %d", getDeviceId());
@@ -199,5 +212,6 @@ private:
         bool lsbFirst : 1;
         uint8_t signMode : 2;
         uint8_t bitWidth : 4;
+        uint8_t event : 2;
     };
 };

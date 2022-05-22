@@ -25,6 +25,8 @@ public:
     void setPage(uint8_t pageId);
     void setControlSet(uint8_t controlSetId);
 
+    PageView *getPageView(void);
+
 private:
     const Preset &preset;
     PageView *pageView;

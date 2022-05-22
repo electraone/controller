@@ -1,6 +1,7 @@
 #pragma once
 
 #include "luaHooks.h"
+#include "luaParameterMap.h"
 #include "luaLE.h"
 
 void loadLuaLibs();

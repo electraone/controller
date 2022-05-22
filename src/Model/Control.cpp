@@ -1,6 +1,6 @@
 #include "Control.h"
 
-Control::Control() : id(0), pageId(0)
+Control::Control() : id(0), pageId(0), controlSetId(0)
 {
     type = (uint8_t)ControlType::none;
     colour = (uint8_t)ElectraColours::white;

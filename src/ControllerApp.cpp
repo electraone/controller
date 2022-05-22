@@ -1,6 +1,9 @@
 #include "ControllerApp.h"
 #include "MidiInputCallback.h"
 #include "lualibs.h"
+#include "FaderControl.h"
+
+Task taskRepaintParameterMap(40000, TASK_FOREVER, &repaintParameterMap);
 
 void Controller::initialise(void)
 {
@@ -32,6 +35,18 @@ void Controller::initialise(void)
 
     // Read preset names and assign them to preset seletion knobs
     assignPresetNames(currentPresetBank);
+
+    // Register ParameterMap onChange callback
+    parameterMap.onChange = [this](LookupEntry *entry, Origin origin) {
+        // Execute only if Lua is loaded
+        if (L && entry) {
+            parameterMap_onChange(entry, origin);
+        }
+    };
+
+    // Enable task for monitoring the ParameterMap
+    System::tasks.addTask(taskRepaintParameterMap);
+    taskRepaintParameterMap.enable();
 
     // load the default preset
     if (System::context.getLoadDefaultFiles()) {
@@ -76,6 +91,11 @@ void Controller::displayDefaultPage(void)
 void Controller::handleIncomingMidiMessage(const MidiInput &midiInput,
                                            const MidiMessage &midiMessage)
 {
+    if (System::context.getMidiLearn()) {
+        //midi.processMidiLearn(device, midiInput, midiMessage);
+    } else {
+        midi.processMidi(midiInput, midiMessage);
+    }
 }
 
 /** Incoming control file received handler.
@@ -135,11 +155,63 @@ bool Controller::loadPreset(LocalFile file)
         return (false);
     }
 
+    //electraMidi.registerLuaFunctions(&preset.luaFunctions);
+
     // Set UI delegate.
     delegate = &mainWindow;
 
     // Display the preset if valid.
     if (preset.isValid()) {
+        // Initialise the parameterMap
+        for (auto &[id, control] : preset.controls) {
+            for (auto &value : control.values) {
+                MessageDestination messageDestination(&control, &value);
+
+                if (value.message.getType() == ElectraMessageType::start) {
+                    parameterMap.getOrCreate(0xff, value.message.getType(), 0)
+                        ->messageDestination.push_back(messageDestination);
+                } else if (value.message.getType()
+                           == ElectraMessageType::stop) {
+                    parameterMap.getOrCreate(0xff, value.message.getType(), 0)
+                        ->messageDestination.push_back(messageDestination);
+                } else if (value.message.getType()
+                           == ElectraMessageType::tune) {
+                    parameterMap.getOrCreate(0xff, value.message.getType(), 0)
+                        ->messageDestination.push_back(messageDestination);
+                } else {
+                    LookupEntry *lookupEntry = parameterMap.getOrCreate(
+                        value.message.getDeviceId(),
+                        value.message.getType(),
+                        value.message.getParameterNumber());
+
+                    lookupEntry->messageDestination.push_back(
+                        messageDestination);
+
+                    int16_t midiValue = 0;
+
+                    if (control.getType() == ControlType::pad) {
+                        midiValue = value.getDefault();
+                    } else {
+                        midiValue = translateValueToMidiValue(
+                            value.message.getSignMode(),
+                            value.message.getBitWidth(),
+                            value.getDefault(),
+                            value.getMin(),
+                            value.getMax(),
+                            value.message.getMidiMin(),
+                            value.message.getMidiMax());
+                    }
+                    parameterMap.setValue(value.message.getDeviceId(),
+                                          value.message.getType(),
+                                          value.message.getParameterNumber(),
+                                          midiValue,
+                                          Origin::internal);
+                }
+            }
+        }
+
+        parameterMap.print();
+
         displayDefaultPage();
     }
 
@@ -161,7 +233,7 @@ void Controller::reset(void)
     preset.reset();
 
     // Reset parameterMap
-    //parameterMap.reset();
+    parameterMap.reset();
 
     // Clear all windows
     /*for (uint i = 0; i < MaxNumberOfPageWindows; i++) {
@@ -255,5 +327,60 @@ void Controller::runPresetLuaScript(void)
 
         // assign Lua callbacks
         assignLuaCallbacks();
+    }
+}
+
+/*
+ * Scheduller task to repaint dirty parameters
+ */
+void repaintParameterMap(void)
+{
+    MainWindow *mw = dynamic_cast<MainWindow *>(App::get()->getMainWindow());
+
+    if (mw) {
+        PageView *pageView = mw->getPageView();
+
+        if (pageView) {
+            for (auto &mapEntry : parameterMap.entries) {
+                if (mapEntry.dirty) {
+#ifdef DEBUG
+                    logMessage(
+                        "repaintParameterMap: dirty entry found: device=%d, type=%d, "
+                        "parameterNumber=%d, midiValue=%d",
+                        getDeviceId(mapEntry.hash),
+                        getType(mapEntry.hash),
+                        getParameterNumber(mapEntry.hash),
+                        mapEntry.midiValue,
+                        mapEntry.dirty);
+#endif
+
+                    for (auto &messageDestination :
+                         mapEntry.messageDestination) {
+                        // \todo this could be made better and more efficient
+                        Component *c = pageView->findChildById(
+                            messageDestination.control->getId());
+
+                        if (c) {
+                            logMessage(
+                                "repaintParameterMap: repainting component: component: %s, controlId=%d, value=%s",
+                                c->getName(),
+                                messageDestination.control->getId(),
+                                messageDestination.value->getId());
+
+                            ControlComponent *cc =
+                                dynamic_cast<ControlComponent *>(c);
+
+                            if (cc) {
+                                cc->messageMatched(
+                                    messageDestination.value,
+                                    mapEntry.midiValue,
+                                    messageDestination.value->getHandle());
+                            }
+                        }
+                    }
+                    mapEntry.dirty = false;
+                }
+            }
+        }
     }
 }

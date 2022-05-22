@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Control.h"
+#include "ControlComponent.h"
 #include "List.h"
 
-class ListControl : public List
+class ListControl : public ControlComponent, public List
 {
 public:
     explicit ListControl(const Control &control)
@@ -13,6 +14,21 @@ public:
     }
 
     virtual ~ListControl() = default;
+
+    void messageMatched(Value2 *value,
+                        int16_t midiValue,
+                        uint8_t handle = 1) override
+    {
+        auto list = getList();
+
+        if (list) {
+            int16_t index = list->getIndex(midiValue);
+
+            if (index >= 0) {
+                setIndex(index);
+            }
+        }
+    }
 
     void paint(Graphics &g) override
     {

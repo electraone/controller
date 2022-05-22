@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Control.h"
+#include "ControlComponent.h"
 #include "ADR.h"
 
-class ADRControl : public ADR
+class ADRControl : public ControlComponent, public ADR
 {
 public:
     explicit ADRControl(const Control &control)
@@ -26,6 +27,30 @@ public:
     }
 
     virtual ~ADRControl() = default;
+
+    void messageMatched(Value2 *value,
+                        int16_t midiValue,
+                        uint8_t handle = 1) override
+    {
+        int16_t newDisplayValue =
+            translateMidiValueToValue(value->message.getSignMode(),
+                                      value->message.getBitWidth(),
+                                      midiValue,
+                                      value->message.getMidiMin(),
+                                      value->message.getMidiMax(),
+                                      value->getMin(),
+                                      value->getMax());
+
+        // The if construct is left here on purpose as mapping of handles
+        // to envelope segments is not always 1:1
+        if (handle == ADR::attack) {
+            setValue(ADR::attack, newDisplayValue);
+        } else if (handle == ADR::decay) {
+            setValue(ADR::decay, newDisplayValue);
+        } else if (handle == 4) { // a compatibility thing \todo resolve that
+            setValue(ADR::release, newDisplayValue);
+        }
+    }
 
     void paint(Graphics &g) override
     {

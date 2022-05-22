@@ -3,7 +3,8 @@
 #include "Colours.h"
 #include "JsonTools.h"
 
-Page Preset::pageUndefined;
+Page Preset::pageNotFound;
+Device Preset::deviceNotFound;
 
 Preset::Preset() : valid(false)
 {
@@ -128,23 +129,35 @@ const Page &Preset::getPage(uint8_t pageId) const
         logMessage("getPage: page does not exist: pageId=%d", pageId);
     }
 
-    return (Preset::pageUndefined);
+    return (Preset::pageNotFound);
 }
 
-/** Get device pointer by the id
+/** Get Device by the id
  *
  */
-Device *Preset::getDevice(uint8_t deviceId)
+const Device &Preset::getDevice(uint8_t deviceId) const
 {
-    Device *device = nullptr;
-
     try {
-        device = &devices.at(deviceId);
+        return devices.at(deviceId);
     } catch (std::out_of_range const &) {
-        device = nullptr;
+        logMessage("getDevice: device does not exist: deviceId=%d", deviceId);
     }
 
-    return (device);
+    return (Preset::deviceNotFound);
+}
+
+/** Get the Device by the port and channel
+ *
+ */
+const Device &Preset::getDevice(uint8_t port, uint8_t channel) const
+{
+    for (auto &[id, device] : devices) {
+        if ((device.getPort() == port) && (device.getChannel() == channel)) {
+            return (device);
+        }
+    }
+
+    return (Preset::deviceNotFound);
 }
 
 /** Get overlay pointer by the id
@@ -641,7 +654,7 @@ Device Preset::parseDevice(JsonObject jDevice)
     const char *name = jDevice["name"];
     uint16_t rate = constrainRate(jDevice["rate"]);
 
-#ifdef DEBUG
+    //#ifdef DEBUG
     logMessage(
         "parseDevice: device created: id=%d, port=%d, channel=%d, name=%s, rate=%d",
         id,
@@ -649,7 +662,7 @@ Device Preset::parseDevice(JsonObject jDevice)
         channel,
         name,
         rate);
-#endif /* DEBUG */
+    //#endif /* DEBUG */
 
     return (Device(id, name, port, channel, rate));
 }

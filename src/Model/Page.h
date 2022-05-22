@@ -17,6 +17,11 @@ public:
 
     virtual ~Page() = default;
 
+    bool isValid(void) const
+    {
+        return (id != 0);
+    }
+
     uint8_t getId(void) const
     {
         return (id);

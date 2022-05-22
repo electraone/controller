@@ -127,6 +127,15 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
                                     uint16_t midiValue,
                                     Origin origin)
 {
+#ifdef DEBUG
+    logMessage(
+        "ParameterMap::setValue: deviceId=%d, type=%d, parameterNumber=%d, midiValue=%d, origin=%d",
+        deviceId,
+        type,
+        parameterNumber,
+        midiValue,
+        origin);
+#endif
     uint32_t hash = calculateHash(deviceId, type, parameterNumber);
     LookupEntry *entry = findAndCache(hash);
 
@@ -211,6 +220,7 @@ void ParameterMap::reset(void)
  */
 void ParameterMap::print(void)
 {
+    logMessage("--<Parameter Map:start>--");
     for (auto &entry : entries) {
         logMessage(
             "ParameterMap entry: deviceId: %d, type=%d, parameterNumber=%d,"
@@ -221,6 +231,7 @@ void ParameterMap::print(void)
             entry.midiValue,
             entry.messageDestination.size());
     }
+    logMessage("--<Parameter Map:end>--");
 }
 
 /*

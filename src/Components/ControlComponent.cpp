@@ -1,4 +1,14 @@
 #include "ControlComponent.h"
+#include "FaderControl.h"
+#include "ListControl.h"
+#include "PadControl.h"
+#include "ADSRControl.h"
+#include "ADRControl.h"
+#include "DX7EnvControl.h"
+
+ControlComponent::ControlComponent()
+{
+}
 
 Component *ControlComponent::createControlComponent(const Control &control)
 {

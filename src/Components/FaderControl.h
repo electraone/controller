@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Control.h"
+#include "ControlComponent.h"
 #include "BarHorizontal.h"
 #include "AssignableList.h"
 
-class FaderControl : public BarHorizontal
+class FaderControl : public ControlComponent, public BarHorizontal
 {
 public:
     explicit FaderControl(const Control &control)
@@ -16,6 +17,21 @@ public:
     }
 
     virtual ~FaderControl() = default;
+
+    void messageMatched(Value2 *value,
+                        int16_t midiValue,
+                        uint8_t handle = 1) override
+    {
+        int16_t newDisplayValue =
+            translateMidiValueToValue(value->message.getSignMode(),
+                                      value->message.getBitWidth(),
+                                      midiValue,
+                                      value->message.getMidiMin(),
+                                      value->message.getMidiMax(),
+                                      value->getMin(),
+                                      value->getMax());
+        setValue(newDisplayValue);
+    }
 
     void paint(Graphics &g) override
     {

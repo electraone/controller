@@ -2,8 +2,10 @@
 
 #include <cstdint>
 #include <vector>
+#include <map>
 #include "Response.h"
 #include "Message.h"
+#include "core_pins.h"
 
 class Device
 {
@@ -28,6 +30,11 @@ public:
     }
 
     virtual ~Device() = default;
+
+    bool isValid(void) const
+    {
+        return (id != 0);
+    }
 
     uint8_t getId(void) const
     {

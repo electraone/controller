@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Control.h"
+#include "ControlComponent.h"
 #include "Env5Seg.h"
 
-class Dx7EnvControl : public Env5Seg
+class Dx7EnvControl : public ControlComponent, public Env5Seg
 {
 public:
     explicit Dx7EnvControl(const Control &control)
@@ -46,6 +47,41 @@ public:
     }
 
     virtual ~Dx7EnvControl() = default;
+
+    void messageMatched(Value2 *value,
+                        int16_t midiValue,
+                        uint8_t handle = 1) override
+    {
+        logMessage("handle: %d", handle);
+        int16_t newDisplayValue =
+            translateMidiValueToValue(value->message.getSignMode(),
+                                      value->message.getBitWidth(),
+                                      midiValue,
+                                      value->message.getMidiMin(),
+                                      value->message.getMidiMax(),
+                                      value->getMin(),
+                                      value->getMax());
+
+        // The if construct is left here on purpose as mapping of handles
+        // to envelope segments is not always 1:1
+        if (handle == 5) {
+            setValue(Env5Seg::level1, newDisplayValue);
+        } else if (handle == 6) {
+            setValue(Env5Seg::rate1, newDisplayValue);
+        } else if (handle == 7) {
+            setValue(Env5Seg::level2, newDisplayValue);
+        } else if (handle == 8) {
+            setValue(Env5Seg::rate2, newDisplayValue);
+        } else if (handle == 9) {
+            setValue(Env5Seg::level3, newDisplayValue);
+        } else if (handle == 10) {
+            setValue(Env5Seg::rate3, newDisplayValue);
+        } else if (handle == 11) {
+            setValue(Env5Seg::level4, newDisplayValue);
+        } else if (handle == 12) {
+            setValue(Env5Seg::rate4, newDisplayValue);
+        }
+    }
 
     void paint(Graphics &g) override
     {

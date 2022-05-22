@@ -52,6 +52,11 @@ void MainWindow::setPage(uint8_t pageId)
     display();
 }
 
+PageView *MainWindow::getPageView(void)
+{
+    return (pageView);
+}
+
 void MainWindow::setControlSet(uint8_t controlSetId)
 {
     setVisible(false);

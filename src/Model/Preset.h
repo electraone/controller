@@ -29,7 +29,8 @@ public:
     const char *getProjectId(void) const;
 
     const Page &getPage(uint8_t pageId) const;
-    Device *getDevice(uint8_t deviceId);
+    const Device &getDevice(uint8_t deviceId) const;
+    const Device &getDevice(uint8_t port, uint8_t channel) const;
     Overlay *getOverlay(uint8_t overlayId);
     Group *getGroup(uint8_t groupId);
     Control *getControl(uint16_t controlId);
@@ -168,15 +169,13 @@ private:
 
     static uint8_t constrainDeviceId(uint8_t deviceId)
     {
-        return (constrain(deviceId, 1, MaxNumDevices) - 1);
+        return (constrain(deviceId, 1, MaxNumDevices));
     }
 
     uint8_t version;
     char name[MaxNameLength + 1];
     char projectId[MaxProjectIdLength + 1];
     bool valid;
-
-    static Page pageUndefined;
 
 public: // Public on the purpose
     Pages pages;
@@ -185,6 +184,9 @@ public: // Public on the purpose
     Controls controls;
     Overlays overlays;
     std::vector<String> luaFunctions;
+
+    static Page pageNotFound;
+    static Device deviceNotFound;
 };
 
 #define MAX_POT_ID 12

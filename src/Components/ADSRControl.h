@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Control.h"
+#include "ControlComponent.h"
 #include "ADSR.h"
 
-class ADSRControl : public ADSR
+class ADSRControl : public ControlComponent, public ADSR
 {
 public:
     explicit ADSRControl(const Control &control)
@@ -30,6 +31,24 @@ public:
     }
 
     virtual ~ADSRControl() = default;
+
+    void messageMatched(Value2 *value,
+                        int16_t midiValue,
+                        uint8_t handle = 1) override
+    {
+        int16_t newDisplayValue =
+            translateMidiValueToValue(value->message.getSignMode(),
+                                      value->message.getBitWidth(),
+                                      midiValue,
+                                      value->message.getMidiMin(),
+                                      value->message.getMidiMax(),
+                                      value->getMin(),
+                                      value->getMax());
+
+        if (1 <= handle && handle <= 4) {
+            setValue(handle, newDisplayValue);
+        }
+    }
 
     void paint(Graphics &g) override
     {

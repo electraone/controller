@@ -1,9 +1,11 @@
+#pragma once
 
 #include <ArduinoJson.h>
 #include <functional>
 #include "Control.h"
 #include "LocalFile.h"
 #include "Origin.h"
+#include "Event.h"
 
 struct MessageDestination {
     MessageDestination() : control(nullptr), value(nullptr){};

@@ -3,7 +3,9 @@
 
 void loadLuaLibs(void)
 {
-    static const luaL_Reg ctrlv2libs[] = { { NULL, NULL } };
+    static const luaL_Reg ctrlv2libs[] = {
+        { "parameterMap", luaopen_parameterMap }, { NULL, NULL }
+    };
 
     luaLE_openEoslibs(L, ctrlv2libs);
 
