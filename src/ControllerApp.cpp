@@ -143,7 +143,7 @@ bool Controller::loadPreset(LocalFile file)
     const char *presetFile = file.getFilepath();
 
     // clear all entries in the frame buffer
-    App::get()->clearRepaintGraphics();
+    System::tasks.clearRepaintGraphics();
 
     // Free current preset
     reset();

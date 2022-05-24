@@ -2,9 +2,10 @@
 
 #include "Window.h"
 #include "ButtonListener.h"
+#include "PageView.h"
 #include "PageSelectionWindow.h"
 #include "UiDelegate.h"
-#include "PageView.h"
+
 
 class MainWindow : public Window, public UiDelegate, public ButtonListener
 {

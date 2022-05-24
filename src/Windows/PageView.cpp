@@ -3,6 +3,7 @@
 #include "GroupControl.h"
 #include "BottomBar.h"
 
+
 PageView::PageView(const Preset &preset,
                    uint8_t pageId,
                    uint8_t activeControlSetId)
@@ -20,7 +21,10 @@ PageView::PageView(const Preset &preset,
 
 PageView::~PageView()
 {
+    System::tasks.disableRepaintGraphics();
     disableRepaintParameterMap();
+    System::tasks.flushRepaintGraphics();
+    System::tasks.enableRepaintGraphics();
 }
 
 void PageView::paint(Graphics &g)
