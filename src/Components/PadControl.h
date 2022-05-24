@@ -15,6 +15,69 @@ public:
 
     virtual ~PadControl() = default;
 
+    void onTouchDown(const TouchEvent &touchEvent) override
+    {
+        uint16_t midiValue = control.values[0].message.getOnValue();
+
+        if (control.getMode() == ControlMode::toggle) {
+            midiValue = (state == false)
+                            ? control.values[0].message.getOnValue()
+                            : control.values[0].message.getOffValue();
+        }
+
+        parameterMap.setValue(control.values[0].message.getDeviceId(),
+                              control.values[0].message.getType(),
+                              control.values[0].message.getParameterNumber(),
+                              midiValue,
+                              Origin::internal);
+    }
+
+    void onTouchUp(const TouchEvent &touchEvent) override
+    {
+        if (control.getMode() == ControlMode::momentary) {
+            parameterMap.setValue(
+                control.values[0].message.getDeviceId(),
+                control.values[0].message.getType(),
+                control.values[0].message.getParameterNumber(),
+                control.values[0].message.getOffValue(),
+                Origin::internal);
+        }
+    }
+
+    void onPotChange(const PotEvent &potEvent) override
+    {
+        int16_t delta = potEvent.getAcceleratedChange();
+        int8_t step = (delta < 0) - (delta > 0);
+
+        if (step < 0 && state != true) {
+            parameterMap.setValue(
+                control.values[0].message.getDeviceId(),
+                control.values[0].message.getType(),
+                control.values[0].message.getParameterNumber(),
+                control.values[0].message.getOnValue(),
+                Origin::internal);
+        } else if (step > 0 && state != false) {
+            parameterMap.setValue(
+                control.values[0].message.getDeviceId(),
+                control.values[0].message.getType(),
+                control.values[0].message.getParameterNumber(),
+                control.values[0].message.getOffValue(),
+                Origin::internal);
+        }
+    }
+
+    void onPotTouchUp(const PotEvent &potEvent) override
+    {
+        if (control.getMode() == ControlMode::momentary) {
+            parameterMap.setValue(
+                control.values[0].message.getDeviceId(),
+                control.values[0].message.getType(),
+                control.values[0].message.getParameterNumber(),
+                control.values[0].message.getOffValue(),
+                Origin::internal);
+        }
+    }
+
     void onMidiValueChange(const ControlValue &value,
                            int16_t midiValue,
                            uint8_t handle = 1) override

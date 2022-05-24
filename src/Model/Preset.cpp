@@ -1159,6 +1159,9 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
                 max = overlay->getNumItems();
             }
         }
+    } else if (controlType == ControlType::pad) {
+        min = 0;
+        max = 1;
     }
 
 #ifdef DEBUG
