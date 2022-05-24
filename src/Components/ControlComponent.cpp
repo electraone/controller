@@ -5,10 +5,18 @@
 #include "ADSRControl.h"
 #include "ADRControl.h"
 #include "DX7EnvControl.h"
+#include "MainWindow.h"
 
 ControlComponent::ControlComponent(const Control &controlToAssign)
     : control(controlToAssign)
 {
+}
+
+void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
+{
+    if (MainWindow *window = dynamic_cast<MainWindow *>(getWindow())) {
+        window->displayDetail(getId());
+    }
 }
 
 Component *ControlComponent::createControlComponent(const Control &control)

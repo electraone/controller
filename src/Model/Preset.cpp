@@ -5,6 +5,7 @@
 
 Page Preset::pageNotFound;
 Device Preset::deviceNotFound;
+Control Preset::controlNotFound;
 
 Preset::Preset() : valid(false)
 {
@@ -192,20 +193,19 @@ Group *Preset::getGroup(uint8_t groupId)
     return (group);
 }
 
-/** Get Control pointer by id
+/** Get Control by the controlId
  *
  */
-Control *Preset::getControl(uint16_t controlId)
+const Control &Preset::getControl(uint16_t controlId) const
 {
-    Control *control = nullptr;
-
     try {
-        control = &controls.at(controlId);
+        return controls.at(controlId);
     } catch (std::out_of_range const &) {
-        control = nullptr;
+        logMessage("getControl: control does not exist: controlId=%d",
+                   controlId);
     }
 
-    return (control);
+    return (Preset::controlNotFound);
 }
 
 /*--------------------------------------------------------------------------*/

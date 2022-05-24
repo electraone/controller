@@ -49,11 +49,6 @@ void MainWindow::setPage(uint8_t pageId)
     display();
 }
 
-PageView *MainWindow::getPageView(void)
-{
-    return (pageView);
-}
-
 void MainWindow::setControlSet(uint8_t controlSetId)
 {
     setVisible(false);
@@ -72,4 +67,16 @@ void MainWindow::setControlSet(uint8_t controlSetId)
     logMessage("controlSet switched: controlSetId=%d", controlSetId);
 
     display();
+}
+
+void MainWindow::displayDetail(uint16_t controlId)
+{
+    detailWindow =
+        DetailWindow::createDetailWindow(preset.getControl(controlId), this);
+
+    detailWindow->onWindowClose = [this]() {
+#ifdef DEBUG
+        logMessage("detail window was closed");
+#endif
+    };
 }

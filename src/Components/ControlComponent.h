@@ -4,12 +4,13 @@
 #include "Component.h"
 #include "ParameterMap.h"
 
-class ControlComponent
+class ControlComponent : virtual public Component
 {
 public:
     ControlComponent(const Control &controlToAssign);
     virtual ~ControlComponent() = default;
 
+    void onTouchLongHold(const TouchEvent &touchEvent) override;
     virtual void onMidiValueChange(const ControlValue &value,
                                    int16_t midiValue,
                                    uint8_t handle = 1) = 0;

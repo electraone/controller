@@ -33,7 +33,7 @@ public:
     const Device &getDevice(uint8_t port, uint8_t channel) const;
     Overlay *getOverlay(uint8_t overlayId);
     Group *getGroup(uint8_t groupId);
-    Control *getControl(uint16_t controlId);
+    const Control &getControl(uint16_t controlId) const;
 
     // \todo do we need these?
     bool getPresetNameFast(File &file,
@@ -187,6 +187,7 @@ public: // Public on the purpose
 
     static Page pageNotFound;
     static Device deviceNotFound;
+    static Control controlNotFound;
 };
 
 #define MAX_POT_ID 12

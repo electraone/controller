@@ -3,7 +3,6 @@
 #include "GroupControl.h"
 #include "BottomBar.h"
 
-
 PageView::PageView(const Preset &preset,
                    uint8_t pageId,
                    uint8_t activeControlSetId)
