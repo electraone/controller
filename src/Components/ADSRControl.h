@@ -7,7 +7,8 @@
 class ADSRControl : public ControlComponent, public ADSR
 {
 public:
-    explicit ADSRControl(const Control &control) : ControlComponent(control)
+    explicit ADSRControl(const Control &control)
+        : ControlComponent(control), activeHandle(1)
     {
         setMin(ADSR::attack, control.values[0].getMin());
         setMax(ADSR::attack, control.values[0].getMax());
@@ -31,6 +32,68 @@ public:
     }
 
     virtual ~ADSRControl() = default;
+
+    void onTouchMove(const TouchEvent &touchEvent) override
+    {
+        int16_t max = values[activeHandle].getMax();
+        int16_t min = values[activeHandle].getMin();
+
+        float step = getWidth() / (float)(max - min);
+        int16_t newDisplayValue =
+            constrain(ceil(touchEvent.getX() / step + min), min, max);
+
+        uint16_t midiValue = translateValueToMidiValue(
+            control.values[activeHandle - 1].message.getSignMode(),
+            control.values[activeHandle - 1].message.getBitWidth(),
+            newDisplayValue,
+            control.values[activeHandle - 1].getMin(),
+            control.values[activeHandle - 1].getMax(),
+            control.values[activeHandle - 1].message.getMidiMin(),
+            control.values[activeHandle - 1].message.getMidiMax());
+
+        parameterMap.setValue(
+            control.values[activeHandle - 1].message.getDeviceId(),
+            control.values[activeHandle - 1].message.getType(),
+            control.values[activeHandle - 1].message.getParameterNumber(),
+            midiValue,
+            Origin::internal);
+
+#ifdef DEBUG
+        logMessage(
+            "onTouchMove: display=%d, midi=%d", newDisplayValue, midiValue);
+#endif
+    }
+
+    void onPotChange(const PotEvent &potEvent) override
+    {
+        if (potEvent.getRelativeChange()) {
+            int16_t delta = potEvent.getAcceleratedChange();
+            int16_t newDisplayValue = getValue(activeHandle) + delta;
+
+            uint16_t midiValue = translateValueToMidiValue(
+                control.values[activeHandle - 1].message.getSignMode(),
+                control.values[activeHandle - 1].message.getBitWidth(),
+                newDisplayValue,
+                control.values[activeHandle - 1].getMin(),
+                control.values[activeHandle - 1].getMax(),
+                control.values[activeHandle - 1].message.getMidiMin(),
+                control.values[activeHandle - 1].message.getMidiMax());
+
+            parameterMap.setValue(
+                control.values[activeHandle - 1].message.getDeviceId(),
+                control.values[activeHandle - 1].message.getType(),
+                control.values[activeHandle - 1].message.getParameterNumber(),
+                midiValue,
+                Origin::internal);
+
+#ifdef DEBUG
+            logMessage("onPotChange: display=%d, midi=%d, delta=%d",
+                       newDisplayValue,
+                       midiValue,
+                       potEvent.getRelativeChange());
+#endif
+        }
+    }
 
     void onMidiValueChange(const ControlValue &value,
                            int16_t midiValue,
@@ -67,4 +130,5 @@ public:
     }
 
 private:
+    uint8_t activeHandle;
 };
