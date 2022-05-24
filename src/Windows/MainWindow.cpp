@@ -32,17 +32,14 @@ void MainWindow::setPage(uint8_t pageId)
 {
     setVisible(false);
 
-    PageView *pageViewToDelete = pageView;
+    delete pageView;
+
     PageView *newPageView = new PageView(preset, pageId);
 
     if (newPageView) {
         setOwnedContent(newPageView);
         currentPageId = pageId;
         pageView = newPageView;
-
-        if (pageViewToDelete) {
-            delete pageViewToDelete;
-        }
     }
 
     setVisible(true);
@@ -61,16 +58,13 @@ void MainWindow::setControlSet(uint8_t controlSetId)
 {
     setVisible(false);
 
-    PageView *pageViewToDelete = pageView;
+    delete pageView;
+
     PageView *newPageView = new PageView(preset, currentPageId, controlSetId);
 
     if (newPageView) {
         setOwnedContent(newPageView);
         pageView = newPageView;
-
-        if (pageViewToDelete) {
-            delete pageViewToDelete;
-        }
     }
 
     setVisible(true);

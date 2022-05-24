@@ -89,14 +89,14 @@ void Control::setBounds(const Rectangle &newBounds)
     bounds = newBounds;
 }
 
-void Control::setValues(std::vector<Value2> newValues)
+void Control::setValues(std::vector<ControlValue> newValues)
 {
     values = newValues;
 }
 
-Value2 *Control::getValue(const char *valueId)
+ControlValue *Control::getValue(const char *valueId)
 {
-    uint8_t handle = Value2::translateId(valueId);
+    uint8_t handle = ControlValue::translateId(valueId);
 
     for (auto &value : values) {
         if (value.getHandle() == handle) {

@@ -7,7 +7,7 @@
 class ADRControl : public ControlComponent, public ADR
 {
 public:
-    explicit ADRControl(const Control &control)
+    explicit ADRControl(const Control &control) : ControlComponent(control)
     {
         setMin(ADR::attack, control.values[0].getMin());
         setMax(ADR::attack, control.values[0].getMax());
@@ -28,18 +28,18 @@ public:
 
     virtual ~ADRControl() = default;
 
-    void messageMatched(Value2 *value,
-                        int16_t midiValue,
-                        uint8_t handle = 1) override
+    void onMidiValueChange(const ControlValue &value,
+                           int16_t midiValue,
+                           uint8_t handle = 1) override
     {
         int16_t newDisplayValue =
-            translateMidiValueToValue(value->message.getSignMode(),
-                                      value->message.getBitWidth(),
+            translateMidiValueToValue(value.message.getSignMode(),
+                                      value.message.getBitWidth(),
                                       midiValue,
-                                      value->message.getMidiMin(),
-                                      value->message.getMidiMax(),
-                                      value->getMin(),
-                                      value->getMax());
+                                      value.message.getMidiMin(),
+                                      value.message.getMidiMax(),
+                                      value.getMin(),
+                                      value.getMax());
 
         // The if construct is left here on purpose as mapping of handles
         // to envelope segments is not always 1:1

@@ -5,10 +5,10 @@
 #include "BarHorizontal.h"
 #include "AssignableList.h"
 
-class FaderControl : public ControlComponent, public BarHorizontal
+class FaderControl final : public ControlComponent, public BarHorizontal
 {
 public:
-    explicit FaderControl(const Control &control)
+    explicit FaderControl(const Control &control) : ControlComponent(control)
     {
         setMinimum(control.values[0].getMin());
         setMaximum(control.values[0].getMax());
@@ -18,18 +18,84 @@ public:
 
     virtual ~FaderControl() = default;
 
-    void messageMatched(Value2 *value,
-                        int16_t midiValue,
-                        uint8_t handle = 1) override
+    void onTouchMove(const TouchEvent &touchEvent) override
+    {
+        int16_t max = value.getMax();
+        int16_t min = value.getMin();
+
+        float step = getWidth() / (float)(max - min);
+        int16_t newDisplayValue =
+            constrain(ceil(touchEvent.getX() / step + min), min, max);
+
+        uint16_t midiValue =
+            translateValueToMidiValue(control.values[0].message.getSignMode(),
+                                      control.values[0].message.getBitWidth(),
+                                      newDisplayValue,
+                                      control.values[0].getMin(),
+                                      control.values[0].getMax(),
+                                      control.values[0].message.getMidiMin(),
+                                      control.values[0].message.getMidiMax());
+
+        parameterMap.setValue(control.values[0].message.getDeviceId(),
+                              control.values[0].message.getType(),
+                              control.values[0].message.getParameterNumber(),
+                              midiValue,
+                              Origin::internal);
+
+#ifdef DEBUG
+        logMessage(
+            "onTouchMove: display=%d, midi=%d", newDisplayValue, midiValue);
+#endif
+    }
+
+    void onPotChange(const PotEvent &potEvent) override
+    {
+        if (potEvent.getRelativeChange()) {
+            int16_t delta = potEvent.getAcceleratedChange();
+            int16_t newDisplayValue = getValue() + delta;
+
+            uint16_t midiValue = translateValueToMidiValue(
+                control.values[0].message.getSignMode(),
+                control.values[0].message.getBitWidth(),
+                newDisplayValue,
+                control.values[0].getMin(),
+                control.values[0].getMax(),
+                control.values[0].message.getMidiMin(),
+                control.values[0].message.getMidiMax());
+
+            parameterMap.setValue(
+                control.values[0].message.getDeviceId(),
+                control.values[0].message.getType(),
+                control.values[0].message.getParameterNumber(),
+                midiValue,
+                Origin::internal);
+
+#ifdef DEBUG
+            logMessage("onPotChange: display=%d, midi=%d, delta=%d",
+                       newDisplayValue,
+                       midiValue,
+                       potEvent.getRelativeChange());
+#endif
+        }
+    }
+
+    void onMidiValueChange(const ControlValue &value,
+                           int16_t midiValue,
+                           uint8_t handle = 1) override
     {
         int16_t newDisplayValue =
-            translateMidiValueToValue(value->message.getSignMode(),
-                                      value->message.getBitWidth(),
+            translateMidiValueToValue(value.message.getSignMode(),
+                                      value.message.getBitWidth(),
                                       midiValue,
-                                      value->message.getMidiMin(),
-                                      value->message.getMidiMax(),
-                                      value->getMin(),
-                                      value->getMax());
+                                      value.message.getMidiMin(),
+                                      value.message.getMidiMax(),
+                                      value.getMin(),
+                                      value.getMax());
+#ifdef DEBUG
+        logMessage("onMidiValueChange: display=%d, midi=%d",
+                   newDisplayValue,
+                   midiValue);
+#endif
         setValue(newDisplayValue);
     }
 

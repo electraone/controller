@@ -6,7 +6,8 @@
 #include "ADRControl.h"
 #include "DX7EnvControl.h"
 
-ControlComponent::ControlComponent()
+ControlComponent::ControlComponent(const Control &controlToAssign)
+    : control(controlToAssign)
 {
 }
 

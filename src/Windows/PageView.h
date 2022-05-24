@@ -2,6 +2,7 @@
 
 #include "Component.h"
 #include "Preset.h"
+#include "System.h"
 
 class PageView : public Component
 {
@@ -22,5 +23,11 @@ private:
                    uint8_t pageId,
                    uint8_t activeControlSetId);
     void addBottomBar(const char *presetName, const char *pageName);
+
+    void repaintParameterMap(void);
+    void enableRepaintParameterMap(void);
+    void disableRepaintParameterMap(void);
+
     const Preset &model;
+    Task repaintParameterMapTask;
 };

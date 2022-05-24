@@ -76,7 +76,7 @@ void Preset::resetControls(void)
 {
     for (auto &[id, control] : controls) {
         control.inputs = std::vector<Input>();
-        control.values = std::vector<Value2>();
+        control.values = std::vector<ControlValue>();
     }
 
     controls.clear();
@@ -1023,13 +1023,13 @@ Input Preset::parseInput(ControlType controlType, JsonObject jInput)
 /** Parse array of Value objects in the Control
  *
  */
-std::vector<Value2> Preset::parseValues(File &file,
-                                        size_t startPosition,
-                                        size_t endPosition,
-                                        Control *control)
+std::vector<ControlValue> Preset::parseValues(File &file,
+                                              size_t startPosition,
+                                              size_t endPosition,
+                                              Control *control)
 {
     // Set the initial size of vector according to the type of Control
-    std::vector<Value2> values(Preset::getNumValues(control->getType()));
+    std::vector<ControlValue> values(Preset::getNumValues(control->getType()));
 
     if (file.seek(startPosition) == false) {
         logMessage("Preset::parseValues: cannot rewind the start position");
@@ -1040,7 +1040,7 @@ std::vector<Value2> Preset::parseValues(File &file,
         do {
             size_t valueStartPosition = file.position();
 
-            Value2 value = parseValue(file, valueStartPosition, control);
+            ControlValue value = parseValue(file, valueStartPosition, control);
             values[value.getIndex()] = value;
         } while (file.findUntil(",", "]"));
     }
@@ -1051,11 +1051,12 @@ std::vector<Value2> Preset::parseValues(File &file,
 /* Parse individual Value out of the Value Array
  *
  */
-Value2 Preset::parseValue(File &file, size_t startPosition, Control *control)
+ControlValue
+    Preset::parseValue(File &file, size_t startPosition, Control *control)
 {
     if (file.seek(startPosition) == false) {
         logMessage("Preset::parseValue: cannot rewind the start position");
-        return (Value2());
+        return (ControlValue());
     }
 
     StaticJsonDocument<2048> doc;
@@ -1064,11 +1065,11 @@ Value2 Preset::parseValue(File &file, size_t startPosition, Control *control)
     if (err) {
         logMessage("Preset::parseValue: deserializeJson() failed: %s",
                    err.c_str());
-        return (Value2());
+        return (ControlValue());
     }
 
     size_t valueEndPosition = file.position();
-    Value2 value = parseValue(control, doc.as<JsonObject>());
+    ControlValue value = parseValue(control, doc.as<JsonObject>());
 
     if (file.seek(valueEndPosition) == false) {
         logMessage("Preset::parseValue: cannot rewind to the end position");
@@ -1080,7 +1081,7 @@ Value2 Preset::parseValue(File &file, size_t startPosition, Control *control)
 /** Parse Value JSON object
  *
  */
-Value2 Preset::parseValue(Control *control, JsonObject jValue)
+ControlValue Preset::parseValue(Control *control, JsonObject jValue)
 {
     int16_t defaultValue = 0;
     int16_t min = 0;
@@ -1174,17 +1175,17 @@ Value2 Preset::parseValue(Control *control, JsonObject jValue)
         overlay);
 #endif /* DEBUG */
 
-    return (Value2(control,
-                   valueId,
-                   valueIndex,
-                   defaultValue,
-                   min,
-                   max,
-                   overlayId,
-                   message,
-                   formatter,
-                   function,
-                   overlay));
+    return (ControlValue(control,
+                         valueId,
+                         valueIndex,
+                         defaultValue,
+                         min,
+                         max,
+                         overlayId,
+                         message,
+                         formatter,
+                         function,
+                         overlay));
 }
 
 /*--------------------------------------------------------------------------*/

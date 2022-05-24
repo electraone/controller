@@ -7,7 +7,7 @@
 class PadControl : public ControlComponent, public Pad
 {
 public:
-    explicit PadControl(const Control &control)
+    explicit PadControl(const Control &control) : ControlComponent(control)
     {
         setState(false);
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
@@ -15,11 +15,11 @@ public:
 
     virtual ~PadControl() = default;
 
-    void messageMatched(Value2 *value,
-                        int16_t midiValue,
-                        uint8_t handle = 1) override
+    void onMidiValueChange(const ControlValue &value,
+                           int16_t midiValue,
+                           uint8_t handle = 1) override
     {
-        if (value->message.getOnValue() == midiValue) {
+        if (value.message.getOnValue() == midiValue) {
             setState(true);
         } else {
             setState(false);

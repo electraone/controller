@@ -7,7 +7,7 @@
 class Dx7EnvControl : public ControlComponent, public Env5Seg
 {
 public:
-    explicit Dx7EnvControl(const Control &control)
+    explicit Dx7EnvControl(const Control &control) : ControlComponent(control)
     {
         values[Env5Seg::level1].setMin(control.values[0].getMin());
         values[Env5Seg::level1].setMax(control.values[0].getMax());
@@ -48,19 +48,18 @@ public:
 
     virtual ~Dx7EnvControl() = default;
 
-    void messageMatched(Value2 *value,
-                        int16_t midiValue,
-                        uint8_t handle = 1) override
+    void onMidiValueChange(const ControlValue &value,
+                           int16_t midiValue,
+                           uint8_t handle = 1) override
     {
-        logMessage("handle: %d", handle);
         int16_t newDisplayValue =
-            translateMidiValueToValue(value->message.getSignMode(),
-                                      value->message.getBitWidth(),
+            translateMidiValueToValue(value.message.getSignMode(),
+                                      value.message.getBitWidth(),
                                       midiValue,
-                                      value->message.getMidiMin(),
-                                      value->message.getMidiMax(),
-                                      value->getMin(),
-                                      value->getMax());
+                                      value.message.getMidiMin(),
+                                      value.message.getMidiMax(),
+                                      value.getMin(),
+                                      value.getMax());
 
         // The if construct is left here on purpose as mapping of handles
         // to envelope segments is not always 1:1

@@ -7,7 +7,7 @@
 class ADSRControl : public ControlComponent, public ADSR
 {
 public:
-    explicit ADSRControl(const Control &control)
+    explicit ADSRControl(const Control &control) : ControlComponent(control)
     {
         setMin(ADSR::attack, control.values[0].getMin());
         setMax(ADSR::attack, control.values[0].getMax());
@@ -32,18 +32,18 @@ public:
 
     virtual ~ADSRControl() = default;
 
-    void messageMatched(Value2 *value,
-                        int16_t midiValue,
-                        uint8_t handle = 1) override
+    void onMidiValueChange(const ControlValue &value,
+                           int16_t midiValue,
+                           uint8_t handle = 1) override
     {
         int16_t newDisplayValue =
-            translateMidiValueToValue(value->message.getSignMode(),
-                                      value->message.getBitWidth(),
+            translateMidiValueToValue(value.message.getSignMode(),
+                                      value.message.getBitWidth(),
                                       midiValue,
-                                      value->message.getMidiMin(),
-                                      value->message.getMidiMax(),
-                                      value->getMin(),
-                                      value->getMax());
+                                      value.message.getMidiMin(),
+                                      value.message.getMidiMax(),
+                                      value.getMin(),
+                                      value.getMax());
 
         if (1 <= handle && handle <= 4) {
             setValue(handle, newDisplayValue);

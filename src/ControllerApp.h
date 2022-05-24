@@ -6,7 +6,6 @@
 #include "MidiCallbacks.h"
 #include "PageView.h"
 #include "Preset.h"
-#include "ParameterMap.h"
 #include "Ui.h"
 #include "UiDelegate.h"
 #include "Midi.h"
@@ -82,8 +81,6 @@ private:
     uint8_t currentPreset;
     bool readyForPresetSwitch;
 };
-
-void repaintParameterMap(void);
 
 // This macro instructs main() routine to launch the app.
 START_ELECTRA_APPLICATION(Controller)

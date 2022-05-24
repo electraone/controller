@@ -1,9 +1,6 @@
 #include "ControllerApp.h"
 #include "MidiInputCallback.h"
 #include "lualibs.h"
-#include "FaderControl.h"
-
-Task taskRepaintParameterMap(40000, TASK_FOREVER, &repaintParameterMap);
 
 void Controller::initialise(void)
 {
@@ -38,15 +35,19 @@ void Controller::initialise(void)
 
     // Register ParameterMap onChange callback
     parameterMap.onChange = [this](LookupEntry *entry, Origin origin) {
+        if (origin != Origin::midi) {
+            // \todo taking the first message destination might not be ok
+            // in some situations
+            Message message = entry->messageDestination[0].value->message;
+            message.setValue(entry->midiValue);
+            midi.sendMessage(message);
+        }
+
         // Execute only if Lua is loaded
         if (L && entry) {
             parameterMap_onChange(entry, origin);
         }
     };
-
-    // Enable task for monitoring the ParameterMap
-    System::tasks.addTask(taskRepaintParameterMap);
-    taskRepaintParameterMap.enable();
 
     // load the default preset
     if (System::context.getLoadDefaultFiles()) {
@@ -67,7 +68,7 @@ void Controller::initialise(void)
     // Display the preset if valid.
     if (preset.isValid()) {
         displayDefaultPage();
-        preset.print();
+        //preset.print();
     }
 
     // Finalise the initialisation
@@ -327,60 +328,5 @@ void Controller::runPresetLuaScript(void)
 
         // assign Lua callbacks
         assignLuaCallbacks();
-    }
-}
-
-/*
- * Scheduller task to repaint dirty parameters
- */
-void repaintParameterMap(void)
-{
-    MainWindow *mw = dynamic_cast<MainWindow *>(App::get()->getMainWindow());
-
-    if (mw) {
-        PageView *pageView = mw->getPageView();
-
-        if (pageView) {
-            for (auto &mapEntry : parameterMap.entries) {
-                if (mapEntry.dirty) {
-#ifdef DEBUG
-                    logMessage(
-                        "repaintParameterMap: dirty entry found: device=%d, type=%d, "
-                        "parameterNumber=%d, midiValue=%d",
-                        getDeviceId(mapEntry.hash),
-                        getType(mapEntry.hash),
-                        getParameterNumber(mapEntry.hash),
-                        mapEntry.midiValue,
-                        mapEntry.dirty);
-#endif
-
-                    for (auto &messageDestination :
-                         mapEntry.messageDestination) {
-                        // \todo this could be made better and more efficient
-                        Component *c = pageView->findChildById(
-                            messageDestination.control->getId());
-
-                        if (c) {
-                            logMessage(
-                                "repaintParameterMap: repainting component: component: %s, controlId=%d, value=%s",
-                                c->getName(),
-                                messageDestination.control->getId(),
-                                messageDestination.value->getId());
-
-                            ControlComponent *cc =
-                                dynamic_cast<ControlComponent *>(c);
-
-                            if (cc) {
-                                cc->messageMatched(
-                                    messageDestination.value,
-                                    mapEntry.midiValue,
-                                    messageDestination.value->getHandle());
-                            }
-                        }
-                    }
-                    mapEntry.dirty = false;
-                }
-            }
-        }
     }
 }

@@ -10,11 +10,11 @@
 struct MessageDestination {
     MessageDestination() : control(nullptr), value(nullptr){};
 
-    MessageDestination(Control *newControl, Value2 *newValue)
+    MessageDestination(Control *newControl, ControlValue *newValue)
         : control(newControl), value(newValue){};
 
     Control *control;
-    Value2 *value;
+    ControlValue *value;
 };
 
 struct LookupEntry {

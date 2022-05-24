@@ -7,167 +7,82 @@
 /** Constructor
  *
  */
-Midi::Midi(const Preset &preset)
-    : luaFunctions(nullptr),
-      device1(MidiInterface::Type::MidiUsbDev, 0),
-      model(preset)
+Midi::Midi(const Preset &preset) : luaFunctions(nullptr), model(preset)
 {
-}
-
-void Midi::sendMessage(Message *message)
-{
-    MidiMessage cc = MidiMessage::controllerEvent(1, 1, 10);
-    device1.sendMessageNow(cc);
 }
 
 /** Send Electra message to Midi outputs.
  *
  */
-void Midi::sendMessageNow(Message *message)
+void Midi::sendMessage(const Message &message)
 {
-    uint16_t midiValue = message->getValue();
-    Event event = message->getEvent();
+    Device device = model.getDevice(message.getDeviceId());
 
-    /*
-    Device *device = device1.getDevice(message->getDeviceId());
-
-    if (!device) {
+    if (!device.isValid()) {
         return;
     }
 
-    uint8_t channel = device->getChannel();
-    uint8_t port = device->getPort();
+    uint8_t channel = device.getChannel();
+    uint8_t port = device.getPort();
+    uint16_t midiValue = message.getValue();
+    Event event = message.getEvent();
 
     // Set the timestamp of device last message to current time
-    device->setTsLastMessage();
-*/
-
-    uint8_t channel = 1;
-    uint8_t port = 0;
+    device.setTsLastMessage();
 
     // Send the particular MIDI message
-    if (message->getType() == ElectraMessageType::cc7) {
-        if (midiValue < MIDI_VALUE_TO_IGNORE) {
-            logMessage(
-                "sendMessage: port=%d, channel=%d, type=cc7, parameterNumber=%d,"
-                " midiValue=%d",
-                port,
-                channel,
-                message->getParameterNumber(),
-                midiValue);
-            device1.sendControlChange(MidiInterface::Type::MidiUsbDev,
-                                      port,
-                                      channel,
-                                      message->getParameterNumber(),
-                                      midiValue);
-        }
-    } else if (message->getType() == ElectraMessageType::cc14) {
-        if (midiValue < MIDI_VALUE_TO_IGNORE) {
-            logMessage(
-                "sendMessage: port=%d, channel=%d, type=cc14, parameterNumber=%d,"
-                " midiValue=%d",
-                port,
-                channel,
-                message->getParameterNumber(),
-                midiValue);
-            device1.sendControlChange14Bit(MidiInterface::Type::MidiUsbDev,
-                                           port,
-                                           channel,
-                                           message->getParameterNumber(),
-                                           midiValue,
-                                           message->getLsbFirst());
-        }
-    } else if (message->getType() == ElectraMessageType::nrpn) {
-        if (midiValue < MIDI_VALUE_TO_IGNORE) {
-            logMessage(
-                "sendMessage: port=%d, channel=%d, type=nrpn, parameterNumber=%d,"
-                " midiValue=%d",
-                port,
-                channel,
-                message->getParameterNumber(),
-                midiValue);
-            device1.sendNrpn(MidiInterface::Type::MidiUsbDev,
-                             port,
-                             channel,
-                             message->getParameterNumber(),
-                             midiValue,
-                             message->getLsbFirst());
-        }
-    } else if (message->getType() == ElectraMessageType::rpn) {
-        if (midiValue < MIDI_VALUE_TO_IGNORE) {
-            logMessage(
-                "sendMessage: port=%d, channel=%d, type=rpn, parameterNumber=%d,"
-                " midiValue=%d",
-                port,
-                channel,
-                message->getParameterNumber(),
-                midiValue);
-            device1.sendRpn(MidiInterface::Type::MidiUsbDev,
-                            port,
-                            channel,
-                            message->getParameterNumber(),
-                            midiValue);
-        }
-    } else if (message->getType() == ElectraMessageType::note) {
-        if (event == Event::press) {
-            logMessage("sendMessage: port=%d, channel=%d, type=noteOn,"
-                       " parameterNumber=%d, midiValue=%d",
-                       port,
-                       channel,
-                       message->getParameterNumber(),
-                       midiValue);
-            device1.sendNoteOn(MidiInterface::Type::MidiUsbDev,
-                               port,
+    if (message.getType() == ElectraMessageType::cc7) {
+        sendControlChange(
+            port, channel, message.getParameterNumber(), midiValue);
+    } else if (message.getType() == ElectraMessageType::cc14) {
+        sendControlChange14Bit(port,
                                channel,
-                               message->getParameterNumber(),
-                               127); //midiValue);
+                               message.getParameterNumber(),
+                               midiValue,
+                               message.getLsbFirst());
+    } else if (message.getType() == ElectraMessageType::nrpn) {
+        sendNrpn(port,
+                 channel,
+                 message.getParameterNumber(),
+                 midiValue,
+                 message.getLsbFirst());
+    } else if (message.getType() == ElectraMessageType::rpn) {
+        sendRpn(port, channel, message.getParameterNumber(), midiValue);
+    } else if (message.getType() == ElectraMessageType::program) {
+        sendProgramChange(port, channel, midiValue);
+    } else if (message.getType() == ElectraMessageType::note) {
+        if (event == Event::press) {
+            sendNoteOff(port,
+                        channel,
+                        message.getParameterNumber(),
+                        127); //midiValue);
         } else {
-            logMessage("sendMessage: port=%d, channel=%d, type=noteOff,"
-                       " parameterNumber=%d, midiValue=%d",
-                       port,
-                       channel,
-                       message->getParameterNumber(),
-                       midiValue);
-            device1.sendNoteOff(MidiInterface::Type::MidiUsbDev,
-                                port,
-                                channel,
-                                message->getParameterNumber(),
-                                127); //midiValue);
+            sendNoteOff(port,
+                        channel,
+                        message.getParameterNumber(),
+                        127); //midiValue);
         }
-    } else if (message->getType() == ElectraMessageType::start) {
+    } else if (message.getType() == ElectraMessageType::start) {
         if (event == Event::press) {
-            logMessage("sendMessage: port=%d, type=Start", port);
-            device1.sendStart(MidiInterface::Type::MidiUsbDev, port);
+            sendStart(port);
         }
-    } else if (message->getType() == ElectraMessageType::stop) {
+    } else if (message.getType() == ElectraMessageType::stop) {
         if (event == Event::press) {
-            logMessage("sendMessage: port=%d, type=Stop", port);
-            device1.sendStop(MidiInterface::Type::MidiUsbDev, port);
+            sendStop(port);
         }
-    } else if (message->getType() == ElectraMessageType::tune) {
+    } else if (message.getType() == ElectraMessageType::tune) {
         if (event == Event::press) {
-            logMessage("sendMessage: port=%d, type=tuneRequest", port);
-            device1.sendTuneRequest(MidiInterface::Type::MidiUsbDev, port);
+            sendTuneRequest(port);
         }
-    } else if (message->getType() == ElectraMessageType::program) {
-        logMessage(
-            "sendMessage: port=%d, channel=%d, type=programChange, programNumber=%d",
-            port,
-            channel,
-            midiValue);
-        device1.sendProgramChange(
-            MidiInterface::Type::MidiUsbDev, port, channel, midiValue);
-    } else if (message->getType() == ElectraMessageType::sysex) {
-        if (midiValue < MIDI_VALUE_TO_IGNORE) {
-            //sendTemplatedSysex(device, message->data);
-        }
+    } else if (message.getType() == ElectraMessageType::sysex) {
+        sendTemplatedSysex(device, message.data);
     }
 }
 
 /** Send a SysEx message with the placeholder substituted
  *
  */
-void Midi::sendTemplatedSysex(Device *device, std::vector<uint8_t> data)
+void Midi::sendTemplatedSysex(const Device &device, std::vector<uint8_t> data)
 {
     static const int maxSysexSize = 512;
 
@@ -176,10 +91,11 @@ void Midi::sendTemplatedSysex(Device *device, std::vector<uint8_t> data)
         uint8_t sysexDataLength = 0;
 
         sysexDataLength = transformMessage(device, data, sysexData);
-        device1.sendSysEx(MidiInterface::Type::MidiUsbDev,
-                          device->getPort(),
-                          sysexData,
-                          sysexDataLength);
+
+        MidiOutput::sendSysEx(MidiInterface::Type::MidiUsbDev,
+                              device.getPort(),
+                              sysexData,
+                              sysexDataLength);
     } else {
         logMessage(
             "sendTemplatedSysex: message exceeds allowed maximum length: %d",
@@ -190,7 +106,7 @@ void Midi::sendTemplatedSysex(Device *device, std::vector<uint8_t> data)
 /** Replace substitution variables with values
  *
  */
-uint8_t Midi::transformMessage(Device *device,
+uint8_t Midi::transformMessage(const Device &device,
                                std::vector<uint8_t> data,
                                uint8_t *dataOut)
 {
@@ -228,9 +144,8 @@ uint8_t Midi::transformMessage(Device *device,
                 mask = createMask(pPos, size);
 
                 parameterValue =
-                    ((parameterMap.getValue(device->getId(),
-                                            (ElectraMessageType)type,
-                                            parameterId)
+                    ((parameterMap.getValue(
+                          device.getId(), (ElectraMessageType)type, parameterId)
                       & mask)
                      >> pPos)
                     << bPos;
@@ -281,12 +196,12 @@ uint8_t Midi::transformMessage(Device *device,
 
             parameterId = parameterIdLSB + (parameterIdMSB * 128);
             parameterValue = parameterMap.getValue(
-                device->getId(), (ElectraMessageType)type, parameterId);
+                device.getId(), (ElectraMessageType)type, parameterId);
 
             if (L && luaFunctions) {
                 byteToSend =
                     runTemplateFunction((*luaFunctions)[functionId].c_str(),
-                                        device,
+                                        (void *)&device,
                                         parameterValue);
             }
 
@@ -441,4 +356,103 @@ void Midi::processProgramChange(uint8_t deviceId, uint8_t programNumber)
     logMessage("Midi::processMidi: program message: program=%d", programNumber);
     parameterMap.setValue(
         deviceId, ElectraMessageType::program, 0, programNumber, Origin::midi);
+}
+
+void Midi::sendControlChange(uint8_t port,
+                             uint8_t channel,
+                             uint8_t parameterNumber,
+                             uint8_t value)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendControlChange(
+            interfaceType, port, channel, parameterNumber, value);
+    }
+}
+
+void Midi::sendControlChange14Bit(uint8_t port,
+                                  uint8_t channel,
+                                  uint16_t parameterNumber,
+                                  uint16_t midiValue,
+                                  bool lsbFirst)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendControlChange14Bit(
+            interfaceType, port, channel, parameterNumber, midiValue, lsbFirst);
+    }
+}
+
+void Midi::sendNrpn(uint8_t port,
+                    uint8_t channel,
+                    uint16_t parameterNumber,
+                    uint16_t midiValue,
+                    bool lsbFirst)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendNrpn(
+            interfaceType, port, channel, parameterNumber, midiValue, lsbFirst);
+    }
+}
+
+void Midi::sendRpn(uint8_t port,
+                   uint8_t channel,
+                   uint16_t parameterNumber,
+                   uint16_t midiValue)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendRpn(
+            interfaceType, port, channel, parameterNumber, midiValue);
+    }
+}
+
+void Midi::sendProgramChange(uint8_t port,
+                             uint8_t channel,
+                             uint8_t programNumber)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendProgramChange(
+            interfaceType, port, channel, programNumber);
+    }
+}
+
+void Midi::sendNoteOn(uint8_t port,
+                      uint8_t channel,
+                      uint8_t noteNumber,
+                      uint8_t velocity)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendNoteOn(
+            interfaceType, port, channel, noteNumber, velocity);
+    }
+}
+
+void Midi::sendNoteOff(uint8_t port,
+                       uint8_t channel,
+                       uint8_t noteNumber,
+                       uint8_t velocity)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendNoteOff(
+            interfaceType, port, channel, noteNumber, velocity);
+    }
+}
+
+void Midi::sendStart(uint8_t port)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendStart(interfaceType, port);
+    }
+}
+
+void Midi::sendStop(uint8_t port)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendStop(interfaceType, port);
+    }
+}
+
+void Midi::sendTuneRequest(uint8_t port)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendTuneRequest(interfaceType, port);
+    }
 }

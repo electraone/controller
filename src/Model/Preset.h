@@ -109,12 +109,12 @@ private:
     Input parseInput(ControlType controlType, JsonObject jInput);
 
     // Values
-    std::vector<Value2> parseValues(File &file,
-                                    size_t startPosition,
-                                    size_t endPosition,
-                                    Control *control);
-    Value2 parseValue(File &file, size_t startPosition, Control *control);
-    Value2 parseValue(Control *control, JsonObject jValue);
+    std::vector<ControlValue> parseValues(File &file,
+                                          size_t startPosition,
+                                          size_t endPosition,
+                                          Control *control);
+    ControlValue parseValue(File &file, size_t startPosition, Control *control);
+    ControlValue parseValue(Control *control, JsonObject jValue);
 
     // Messages
     Message parseMessage(JsonObject jMessage);

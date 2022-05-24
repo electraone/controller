@@ -59,20 +59,30 @@ uint16_t getUnsignedMidiValue(int16_t value,
                               uint16_t midiMin,
                               uint16_t midiMax)
 {
-    // Add 1 to midiMax when parity differs
-    uint16_t midiValue = map(
-        value,
-        minValue,
-        maxValue,
-        midiMin,
-        midiMax + (((maxValue - minValue) % 2) != ((midiMax - midiMin) % 2)));
+    float fMidiValue = map((float)value,
+                           (float)minValue,
+                           (float)maxValue,
+                           (float)midiMin,
+                           (float)midiMax);
+
+    int16_t midiValue = round(fMidiValue);
 
     /* Make sure the output midiValue is within the range given by midiMin and
 	 * midiMax
 	 */
     midiValue = constrain(midiValue, midiMin, midiMax);
-    // logMessage ("unsigned: value=%d, minValue=%d, maxValue=%d, midiMin=%d,"
-    // " midiMax=%d results in midiValue=%d", value, minValue, maxValue, midiMin, midiMax, midiValue);
+#ifdef DEBUG
+    logMessage(
+        "getUnsignedMidiValue: value=%d, minValue=%d, maxValue=%d, midiMin=%d,"
+        " midiMax=%d results in midiValue=%d (%f)",
+        value,
+        minValue,
+        maxValue,
+        midiMin,
+        midiMax,
+        midiValue,
+        fMidiValue);
+#endif
     return (midiValue);
 }
 
@@ -146,7 +156,29 @@ int16_t getUnsignedValue(uint16_t midiValue,
 	 * the permitted range
 	 */
     midiValue = constrain(midiValue, midiMin, midiMax);
-    return (map(midiValue, midiMin, midiMax, minValue, maxValue));
+
+    float fValue = map((float)midiValue,
+                       (float)midiMin,
+                       (float)midiMax,
+                       (float)minValue,
+                       (float)maxValue);
+
+    int16_t value = round(fValue);
+
+#ifdef DEBUG
+    logMessage(
+        "getUnsignedValue: midiValue=%d, minValue=%d, maxValue=%d, midiMin=%d,"
+        " midiMax=%d results in value=%d (%f)",
+        midiValue,
+        minValue,
+        maxValue,
+        midiMin,
+        midiMax,
+        value,
+        fValue);
+#endif
+
+    return (value);
 }
 
 int16_t translateMidiValueToValue(SignMode signMode,

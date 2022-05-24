@@ -19,10 +19,10 @@ static const char *valueIds[MAX_NUM_VALUE_IDS] = {
     "l2",    "r2",     "l3",    "r3",      "l4",      "r4"
 };
 
-class Value2
+class ControlValue
 {
 public:
-    Value2()
+    ControlValue()
         : handle(0),
           index(0),
           defaultValue(0),
@@ -34,17 +34,17 @@ public:
     {
     }
 
-    Value2(Control *newControl,
-           const char *newValueId,
-           uint8_t newIndex,
-           int16_t newDefaultValue,
-           int16_t newMin,
-           int16_t newMax,
-           uint8_t newOverlayId,
-           Message(newMessage),
-           const char *newFormatter,
-           const char *newFunction,
-           Overlay *newOverlay)
+    ControlValue(Control *newControl,
+                 const char *newValueId,
+                 uint8_t newIndex,
+                 int16_t newDefaultValue,
+                 int16_t newMin,
+                 int16_t newMax,
+                 uint8_t newOverlayId,
+                 Message(newMessage),
+                 const char *newFormatter,
+                 const char *newFunction,
+                 Overlay *newOverlay)
         : control(newControl),
           index(newIndex),
           defaultValue(newDefaultValue),
@@ -66,7 +66,7 @@ public:
         handle = translateId(newValueId);
     }
 
-    virtual ~Value2() = default;
+    virtual ~ControlValue() = default;
 
     Control *getControl(void) const
     {

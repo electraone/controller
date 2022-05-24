@@ -4,7 +4,7 @@
 #include <map>
 
 #include "ElectraMessage.h"
-#include "Value2.h"
+#include "ControlValue.h"
 #include "Input.h"
 #include "Rectangle.h"
 #include "Colours.h"
@@ -52,8 +52,8 @@ public:
     bool getVisible(void) const;
     Rectangle getBounds(void) const;
     void setBounds(const Rectangle &bounds);
-    void setValues(std::vector<Value2> values);
-    Value2 *getValue(const char *valueId);
+    void setValues(std::vector<ControlValue> values);
+    ControlValue *getValue(const char *valueId);
 
     static ControlType translateControlType(const char *typeText);
     static ControlMode translateControlMode(const char *modeText);
@@ -81,7 +81,7 @@ private:
     char name[MaxNameLength + 1];
 
 public:
-    std::vector<Value2> values;
+    std::vector<ControlValue> values;
     std::vector<Input> inputs;
 };
 
