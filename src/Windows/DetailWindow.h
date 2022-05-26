@@ -1,14 +1,15 @@
 #pragma once
 
-#include "Window.h"
+#include "ParameterMapWindow.h"
 #include "Detail.h"
 #include "Model/Page.h"
 #include "UiDelegate.h"
 
-class DetailWindow : public Window
+class DetailWindow : public ParameterMapWindow
 {
 public:
     DetailWindow(const Control &control, UiDelegate *newDelegate)
+        : delegate(newDelegate)
     {
         Detail *detail = new Detail(control, newDelegate);
 
@@ -16,12 +17,26 @@ public:
             setOwnedContent(detail);
             setVisible(true);
         }
+
+        setName("detailWindow");
     }
 
     ~DetailWindow()
     {
-        if (onWindowClose) {
-            onWindowClose();
+        delegate->closeDetail();
+    }
+
+    void onButtonDown(uint8_t buttonId) override
+    {
+        if (buttonId == 3) {
+            logMessage("callback from detailWindow");
+            System::windowManager.listWindows();
+        } else if (buttonId == 4) {
+            logMessage("callback from detailWindow");
+            buttonBroadcaster.listListeners();
+        } else if (buttonId == 5) {
+            logMessage("callback from detailWindow");
+            delete this;
         }
     }
 
@@ -38,8 +53,6 @@ public:
         return (detailWindow);
     }
 
-    // \todo Do we need this?
-    std::function<void(void)> onWindowClose;
-
 private:
+    UiDelegate *delegate;
 };

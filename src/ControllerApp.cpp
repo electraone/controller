@@ -216,6 +216,8 @@ bool Controller::loadPreset(LocalFile file)
         displayDefaultPage();
     }
 
+    parameterMap.enable();
+
     return (true);
 }
 
@@ -224,6 +226,9 @@ bool Controller::loadPreset(LocalFile file)
  */
 void Controller::reset(void)
 {
+    // Disable the ParameterMap sync
+    parameterMap.disable();
+
     // Reset Lua callbacks
     resetMidiCallbacks();
 

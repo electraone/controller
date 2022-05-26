@@ -1,4 +1,6 @@
 #include "ParameterMap.h"
+#include "ParameterMapWindow.h"
+#include "ControlComponent.h"
 #include "JsonTools.h"
 
 ParameterMap parameterMap;
@@ -384,4 +386,114 @@ bool ParameterMap::parseParameters(File &file)
     } while (file.findUntil(",", "]"));
 
     return (true);
+}
+
+bool ParameterMap::addWindow(ParameterMapWindow *windowToAdd)
+{
+    logMessage("Pmap: addWindow: window=%s, address=%x",
+               windowToAdd->getName(),
+               windowToAdd);
+    windows.push_back(windowToAdd);
+    return (true);
+}
+
+void ParameterMap::removeWindow(ParameterMapWindow *windowToRemove)
+{
+    logMessage("Pmap: removeWindow: window=%s, address=%x",
+               windowToRemove->getName(),
+               windowToRemove);
+
+    for (auto i = windows.begin(); i != windows.end(); i++) {
+        if (*i == windowToRemove) {
+            windows.erase(i);
+            logMessage("Pmap: window removed");
+            // note: iterator is invalid!
+            return;
+        }
+    }
+}
+
+/**
+ * List all registered windows
+ */
+void ParameterMap::listWindows(void)
+{
+    uint8_t index = 0;
+
+    for (const auto &window : windows) {
+        logMessage("Pmap: listWindows: index=%d, name=%s, address=%x",
+                   index,
+                   window->getName(),
+                   window);
+        index++;
+    }
+}
+
+void ParameterMap::enable(void)
+{
+    TaskClassCallback<void(void)>::callbackFunction =
+        std::bind(&ParameterMap::repaintParameterMap, this);
+    TaskCallback repaintTaskCallback =
+        static_cast<TaskCallback>(TaskClassCallback<void(void)>::callback);
+
+    System::tasks.addTask(repaintParameterMapTask);
+    repaintParameterMapTask.set(40000, TASK_FOREVER, repaintTaskCallback);
+    repaintParameterMapTask.enable();
+}
+
+void ParameterMap::disable(void)
+{
+    System::tasks.disableRepaintGraphics();
+    System::tasks.deleteTask(repaintParameterMapTask);
+    System::tasks.flushRepaintGraphics();
+    System::tasks.enableRepaintGraphics();
+}
+
+/*
+ * Scheduller task to repaint dirty parameters
+ */
+void ParameterMap::repaintParameterMap(void)
+{
+    for (auto &mapEntry : entries) {
+        if (mapEntry.dirty) {
+#ifdef DEBUG
+            logMessage(
+                "repaintParameterMap: dirty entry found: device=%d, type=%d, "
+                "parameterNumber=%d, midiValue=%d",
+                getDeviceId(mapEntry.hash),
+                getType(mapEntry.hash),
+                getParameterNumber(mapEntry.hash),
+                mapEntry.midiValue,
+                mapEntry.dirty);
+#endif
+
+            for (auto &messageDestination : mapEntry.messageDestination) {
+                for (const auto &window: windows) {
+                    Component *rc = window->getOwnedContent();
+                    Component *c =
+                        rc->findChildById(messageDestination.control->getId());
+
+                    if (c) {
+#ifdef DEBUG
+                        logMessage(
+                            "repaintParameterMap: repainting component: component: %s, controlId=%d, value=%s",
+                            c->getName(),
+                            messageDestination.control->getId(),
+                            messageDestination.value->getId());
+#endif
+                        ControlComponent *cc =
+                            dynamic_cast<ControlComponent *>(c);
+
+                        if (cc) {
+                            cc->onMidiValueChange(
+                                *messageDestination.value,
+                                mapEntry.midiValue,
+                                messageDestination.value->getHandle());
+                        }
+                    }
+                }
+            }
+            mapEntry.dirty = false;
+        }
+    }
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Window.h"
+#include "ParameterMapWindow.h"
 #include "ButtonListener.h"
 #include "PageSelectionWindow.h"
 #include "DetailWindow.h"
@@ -8,31 +8,35 @@
 #include "UiDelegate.h"
 #include "Model/Preset.h"
 
-class MainWindow : public Window, public UiDelegate, public ButtonListener
+#include "System.h"
+
+class MainWindow : public ParameterMapWindow, public UiDelegate
 {
 public:
-    explicit MainWindow(const Preset &newPreset)
-        : preset(newPreset),
-          pageView(nullptr),
-          pageSelectionWindow(nullptr),
-          detailWindow(nullptr),
-          currentPageId(0)
-    {
-        setName("mainWindow");
-        assignAllButtons();
-    }
+    explicit MainWindow(const Preset &newPreset);
+    ~MainWindow();
 
     void onButtonDown(uint8_t buttonId) override;
     void onButtonUp(uint8_t buttonId) override;
 
     void setPage(uint8_t pageId) override;
     void setControlSet(uint8_t controlSetId) override;
-    void displayDetail(uint16_t controlId) override;
+    void openDetail(uint16_t controlId) override;
+    void closeDetail(void) override;
+    void openPageSelection(void) override;
+    void closePageSelection(void) override;
 
 private:
+    void repaintParameterMap(void);
+    void enableRepaintParameterMap(void);
+    void disableRepaintParameterMap(void);
+
+    // MainWindow data
     const Preset &preset;
     PageView *pageView;
+    uint8_t currentPageId;
+
+    // Sub-windows
     PageSelectionWindow *pageSelectionWindow;
     DetailWindow *detailWindow;
-    uint8_t currentPageId;
 };

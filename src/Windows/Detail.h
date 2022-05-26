@@ -2,6 +2,7 @@
 
 #include "Component.h"
 #include "Model/Control.h"
+#include "System.h"
 #include "UiDelegate.h"
 
 class Detail : public Component

@@ -1,31 +1,40 @@
 #include "MainWindow.h"
+#include "ControlComponent.h"
+
+MainWindow::MainWindow(const Preset &newPreset)
+    : preset(newPreset),
+      pageView(nullptr),
+      pageSelectionWindow(nullptr),
+      detailWindow(nullptr),
+      currentPageId(0)
+{
+    setName("mainWindow");
+    assignAllButtons();
+}
+
+MainWindow::~MainWindow()
+{
+}
 
 void MainWindow::onButtonDown(uint8_t buttonId)
 {
     if (0 <= buttonId && buttonId <= 2) {
         setControlSet(buttonId);
+    } else if (buttonId == 3) {
+        logMessage("callback from mainWindow");
+        System::windowManager.listWindows();
+    } else if (buttonId == 4) {
+        logMessage("callback from mainWindow");
+        buttonBroadcaster.listListeners();
     } else if (buttonId == 5) {
-        pageSelectionWindow = PageSelectionWindow::createPageSelectionWindow(
-            preset.pages, currentPageId, this);
-
-        pageSelectionWindow->onWindowClose = [this]() {
-#ifdef DEBUG
-            logMessage("page selection was closed");
-#endif
-        };
+        logMessage("callback from mainWindow");
+        parameterMap.listWindows();
+        openPageSelection();
     }
 }
 
 void MainWindow::onButtonUp(uint8_t buttonId)
 {
-    if (buttonId == 5) {
-        if (pageSelectionWindow) {
-            delete pageSelectionWindow;
-            pageSelectionWindow = nullptr;
-            repaint();
-        }
-    }
-    //logMessage("heap: %d", Hardware::ram.heap_used());
 }
 
 void MainWindow::setPage(uint8_t pageId)
@@ -69,14 +78,34 @@ void MainWindow::setControlSet(uint8_t controlSetId)
     display();
 }
 
-void MainWindow::displayDetail(uint16_t controlId)
+void MainWindow::openDetail(uint16_t controlId)
 {
     detailWindow =
         DetailWindow::createDetailWindow(preset.getControl(controlId), this);
+}
 
-    detailWindow->onWindowClose = [this]() {
-#ifdef DEBUG
-        logMessage("detail window was closed");
-#endif
-    };
+void MainWindow::closeDetail(void)
+{
+    if (detailWindow) {
+        detailWindow = nullptr;
+        buttonBroadcaster.resumeListener(this);
+        resetActiveTouch();
+        repaint();
+    }
+}
+
+void MainWindow::openPageSelection(void)
+{
+    pageSelectionWindow = PageSelectionWindow::createPageSelectionWindow(
+        preset.pages, currentPageId, this);
+}
+
+void MainWindow::closePageSelection(void)
+{
+    if (pageSelectionWindow) {
+        pageSelectionWindow = nullptr;
+        buttonBroadcaster.resumeListener(this);
+        resetActiveTouch();
+        repaint();
+    }
 }

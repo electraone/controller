@@ -42,6 +42,8 @@ PageSelection::PageSelection(Pages pages,
 
         addAndMakeVisible(label);
     }
+
+    System::windowManager.listWindows();
 }
 
 PageSelection::~PageSelection()

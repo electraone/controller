@@ -91,11 +91,11 @@ public:
                                       value.message.getMidiMax(),
                                       value.getMin(),
                                       value.getMax());
-#ifdef DEBUG
+        //#ifdef DEBUG
         logMessage("onMidiValueChange: display=%d, midi=%d",
                    newDisplayValue,
                    midiValue);
-#endif
+        //#endif
         setValue(newDisplayValue);
     }
 

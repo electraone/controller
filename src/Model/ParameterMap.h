@@ -7,6 +7,10 @@
 #include "Origin.h"
 #include "Event.h"
 
+#include "System.h"
+
+class ParameterMapWindow;
+
 struct MessageDestination {
     MessageDestination() : control(nullptr), value(nullptr){};
 
@@ -78,18 +82,28 @@ public:
     bool parse(File &file);
     bool parseParameters(File &file);
 
+    bool addWindow(ParameterMapWindow *windowToAdd);
+    void removeWindow(ParameterMapWindow *windowToRemove);
+    void listWindows(void);
+
+    void repaintParameterMap(void);
+    void enable(void);
+    void disable(void);
+
     /** Event handlers
-		 *
-		 */
+    *
+    */
     std::function<void(LookupEntry *entry, Origin origin)> onChange;
 
-    /** Internal variables
-		 *
-		 */
+private:
     std::vector<LookupEntry> entries;
     uint16_t lastRead;
     uint16_t lastWritten;
     char projectId[20 + 1];
+
+    std::vector<ParameterMapWindow *> windows;
+
+    Task repaintParameterMapTask;
 };
 
 extern ParameterMap parameterMap;

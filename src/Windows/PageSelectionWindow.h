@@ -11,6 +11,7 @@ public:
     PageSelectionWindow(Pages pages,
                         uint8_t newActivePage,
                         UiDelegate *newDelegate)
+        : delegate(newDelegate)
     {
         PageSelection *ps =
             new PageSelection(pages, newActivePage, newDelegate);
@@ -19,12 +20,30 @@ public:
             setOwnedContent(ps);
             setVisible(true);
         }
+
+        setName("pageSelectionWindow");
     }
 
     ~PageSelectionWindow()
     {
-        if (onWindowClose) {
-            onWindowClose();
+        delegate->closePageSelection();
+    }
+
+    void onButtonDown(uint8_t buttonId) override
+    {
+        if (buttonId == 3) {
+            logMessage("callback from pageSelectionWindow");
+            System::windowManager.listWindows();
+        } else if (buttonId == 4) {
+            logMessage("callback from pageSelectionWindow");
+            buttonBroadcaster.listListeners();
+        }
+    }
+
+    void onButtonUp(uint8_t buttonId)
+    {
+        if (buttonId == 5) {
+            delete this;
         }
     }
 
@@ -44,8 +63,6 @@ public:
         return (psw);
     }
 
-    // \todo Do we need this?
-    std::function<void(void)> onWindowClose;
-
 private:
+    UiDelegate *delegate;
 };
