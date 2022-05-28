@@ -468,7 +468,7 @@ void ParameterMap::repaintParameterMap(void)
 #endif
 
             for (auto &messageDestination : mapEntry.messageDestination) {
-                for (const auto &window: windows) {
+                for (const auto &window : windows) {
                     Component *rc = window->getOwnedContent();
                     Component *c =
                         rc->findChildById(messageDestination.control->getId());

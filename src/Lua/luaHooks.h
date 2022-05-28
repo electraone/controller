@@ -9,9 +9,11 @@ extern "C" {
 #include "luaLE.h"
 
 void runFormatter(const char *formatter,
-                  void *object,
+                  const void *object,
                   int16_t value,
                   char *buffer,
                   int maxLength);
-void runFunction(const char *function, void *object, int16_t value);
-uint8_t runTemplateFunction(const char *function, void *object, int16_t value);
+void runFunction(const char *function, const void *object, int16_t value);
+uint8_t runTemplateFunction(const char *function,
+                            const void *object,
+                            int16_t value);

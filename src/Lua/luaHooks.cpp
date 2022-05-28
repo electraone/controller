@@ -1,7 +1,7 @@
 #include "luaHooks.h"
 
 void runFormatter(const char *formatter,
-                  void *object,
+                  const void *object,
                   int16_t value,
                   char *buffer,
                   int maxLength)
@@ -37,7 +37,7 @@ void runFormatter(const char *formatter,
     luaLE_postFunctionCleanUp(L);
 }
 
-void runFunction(const char *function, void *object, int16_t value)
+void runFunction(const char *function, const void *object, int16_t value)
 {
     lua_getglobal(L, function);
 
@@ -57,7 +57,8 @@ void runFunction(const char *function, void *object, int16_t value)
     luaLE_postFunctionCleanUp(L);
 }
 
-uint8_t runTemplateFunction(const char *function, void *object, int16_t value)
+uint8_t
+    runTemplateFunction(const char *function, const void *object, int16_t value)
 {
     int stackSize = lua_gettop(L);
     uint8_t dataOut = 0;

@@ -211,6 +211,7 @@ bool Controller::loadPreset(LocalFile file)
             }
         }
 
+        preset.print();
         parameterMap.print();
 
         displayDefaultPage();

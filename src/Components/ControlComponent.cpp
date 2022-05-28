@@ -19,6 +19,30 @@ void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
     }
 }
 
+void ControlComponent::emitValueChange(int16_t newDisplayValue,
+                                       const ControlValue &cv)
+{
+    uint16_t midiValue = translateValueToMidiValue(cv.message.getSignMode(),
+                                                   cv.message.getBitWidth(),
+                                                   newDisplayValue,
+                                                   cv.getMin(),
+                                                   cv.getMax(),
+                                                   cv.message.getMidiMin(),
+                                                   cv.message.getMidiMax());
+
+    parameterMap.setValue(cv.message.getDeviceId(),
+                          cv.message.getType(),
+                          cv.message.getParameterNumber(),
+                          midiValue,
+                          Origin::internal);
+
+    cv.callFunction(newDisplayValue);
+#ifdef DEBUG
+    logMessage(
+        "emitValueChange: display=%d, midi=%d", newDisplayValue, midiValue);
+#endif
+}
+
 Component *ControlComponent::createControlComponent(const Control &control)
 {
     Component *c = nullptr;

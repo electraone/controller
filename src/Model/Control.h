@@ -53,7 +53,8 @@ public:
     Rectangle getBounds(void) const;
     void setBounds(const Rectangle &bounds);
     void setValues(std::vector<ControlValue> values);
-    ControlValue *getValue(const char *valueId);
+    //ControlValue *getValue(const char *valueId);
+    const ControlValue &getValue(uint8_t index) const;
 
     static ControlType translateControlType(const char *typeText);
     static ControlMode translateControlMode(const char *modeText);

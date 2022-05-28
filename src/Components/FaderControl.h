@@ -27,25 +27,7 @@ public:
         int16_t newDisplayValue =
             constrain(ceil(touchEvent.getX() / step + min), min, max);
 
-        uint16_t midiValue =
-            translateValueToMidiValue(control.values[0].message.getSignMode(),
-                                      control.values[0].message.getBitWidth(),
-                                      newDisplayValue,
-                                      control.values[0].getMin(),
-                                      control.values[0].getMax(),
-                                      control.values[0].message.getMidiMin(),
-                                      control.values[0].message.getMidiMax());
-
-        parameterMap.setValue(control.values[0].message.getDeviceId(),
-                              control.values[0].message.getType(),
-                              control.values[0].message.getParameterNumber(),
-                              midiValue,
-                              Origin::internal);
-
-#ifdef DEBUG
-        logMessage(
-            "onTouchMove: display=%d, midi=%d", newDisplayValue, midiValue);
-#endif
+        emitValueChange(newDisplayValue, control.getValue(0));
     }
 
     void onPotChange(const PotEvent &potEvent) override
@@ -54,28 +36,7 @@ public:
             int16_t delta = potEvent.getAcceleratedChange();
             int16_t newDisplayValue = getValue() + delta;
 
-            uint16_t midiValue = translateValueToMidiValue(
-                control.values[0].message.getSignMode(),
-                control.values[0].message.getBitWidth(),
-                newDisplayValue,
-                control.values[0].getMin(),
-                control.values[0].getMax(),
-                control.values[0].message.getMidiMin(),
-                control.values[0].message.getMidiMax());
-
-            parameterMap.setValue(
-                control.values[0].message.getDeviceId(),
-                control.values[0].message.getType(),
-                control.values[0].message.getParameterNumber(),
-                midiValue,
-                Origin::internal);
-
-#ifdef DEBUG
-            logMessage("onPotChange: display=%d, midi=%d, delta=%d",
-                       newDisplayValue,
-                       midiValue,
-                       potEvent.getRelativeChange());
-#endif
+            emitValueChange(newDisplayValue, control.getValue(0));
         }
     }
 
@@ -167,7 +128,12 @@ private:
                         TextAlign::center);
         } else {
             char stringValue[10];
-            snprintf(stringValue, sizeof(stringValue), formatString, val);
+            if (!control.getValue(0).getFormatter().empty()) {
+                control.getValue(0).callFormatter(
+                    val, stringValue, sizeof(stringValue));
+            } else {
+                snprintf(stringValue, sizeof(stringValue), formatString, val);
+            }
             g.printText(0,
                         0,
                         stringValue,

@@ -27,23 +27,7 @@ public:
                 uint16_t newIndex =
                     constrain(index + step, 0, list->getMaxIndex());
 
-                int16_t midiValue = list->getValueByIndex(newIndex);
-
-                parameterMap.setValue(
-                    control.values[0].message.getDeviceId(),
-                    control.values[0].message.getType(),
-                    control.values[0].message.getParameterNumber(),
-                    midiValue,
-                    Origin::internal);
-
-#ifdef DEBUG
-                logMessage(
-                    "onTouchMove: newIndex=%d, midiValue=%d, step=%d, delta=%d",
-                    newIndex,
-                    midiValue,
-                    step,
-                    delta);
-#endif
+                emitValueChange(newIndex, control.getValue(0));
             }
         }
     }
@@ -55,19 +39,8 @@ public:
                 constrain(index + potEvent.getAcceleratedChange(),
                           0,
                           list->getMaxIndex());
-            int16_t midiValue = list->getValueByIndex(newIndex);
 
-            parameterMap.setValue(
-                control.values[0].message.getDeviceId(),
-                control.values[0].message.getType(),
-                control.values[0].message.getParameterNumber(),
-                midiValue,
-                Origin::internal);
-
-#ifdef DEBUG
-            logMessage(
-                "onPotChange: newIndex=%d, midiValue=%d", newIndex, midiValue);
-#endif
+            emitValueChange(newIndex, control.getValue(0));
         }
     }
 
@@ -96,6 +69,26 @@ public:
                     getWidth(),
                     TextAlign::center,
                     2);
+    }
+
+    void emitValueChange(int16_t newIndex, const ControlValue &cv)
+    {
+        if (auto list = getList()) {
+            int16_t midiValue = list->getValueByIndex(newIndex);
+
+            parameterMap.setValue(
+                control.values[0].message.getDeviceId(),
+                control.values[0].message.getType(),
+                control.values[0].message.getParameterNumber(),
+                midiValue,
+                Origin::internal);
+
+            cv.callFunction(newIndex);
+#ifdef DEBUG
+            logMessage(
+                "emitValueChange: index=%d, midi=%d", newIndex, midiValue);
+#endif
+        }
     }
 
 private:

@@ -93,7 +93,7 @@ void Control::setValues(std::vector<ControlValue> newValues)
 {
     values = newValues;
 }
-
+/*
 ControlValue *Control::getValue(const char *valueId)
 {
     uint8_t handle = ControlValue::translateId(valueId);
@@ -105,6 +105,11 @@ ControlValue *Control::getValue(const char *valueId)
     }
 
     return (nullptr);
+}
+*/
+const ControlValue &Control::getValue(uint8_t index) const
+{
+    return (values[index]);
 }
 
 ControlType Control::translateControlType(const char *typeText)

@@ -1759,5 +1759,10 @@ void Preset::print(void) const
         control.print();
     }
 
+    logMessage("--[Lua Functions]------------------------------");
+    for (const auto &function : luaFunctions) {
+        logMessage("function: %s", function);
+    }
+
     logMessage("--[end]----------------------------------------");
 }

@@ -48,6 +48,7 @@ public:
     {
         int16_t delta = potEvent.getAcceleratedChange();
         int8_t step = (delta < 0) - (delta > 0);
+        const ControlValue cv = control.getValue(0);
 
         if (step < 0 && state != true) {
             parameterMap.setValue(
@@ -69,12 +70,13 @@ public:
     void onPotTouchUp(const PotEvent &potEvent) override
     {
         if (control.getMode() == ControlMode::momentary) {
-            parameterMap.setValue(
-                control.values[0].message.getDeviceId(),
-                control.values[0].message.getType(),
-                control.values[0].message.getParameterNumber(),
-                control.values[0].message.getOffValue(),
-                Origin::internal);
+            const ControlValue cv = control.getValue(0);
+
+            parameterMap.setValue(cv.message.getDeviceId(),
+                                  cv.message.getType(),
+                                  cv.message.getParameterNumber(),
+                                  cv.message.getOffValue(),
+                                  Origin::internal);
         }
     }
 
@@ -100,6 +102,11 @@ public:
                     getWidth(),
                     TextAlign::center,
                     2);
+    }
+
+    void emitValueChange(int16_t newDisplayValue, const ControlValue &cv)
+    {
+        // left empty on pupose. The logic is handled in the Pad component
     }
 
 private:

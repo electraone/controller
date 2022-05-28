@@ -9,6 +9,7 @@
 #include "Message.h"
 #include "Macros.h"
 #include "helpers.h"
+#include "luahooks.h"
 
 class Control;
 
@@ -138,33 +139,23 @@ public:
         return (function.c_str());
     }
 
-    const char *getFormatter(void) const
+    std::string getFormatter(void) const
     {
-        return (formatter.c_str());
+        return formatter;
     }
 
-    void callFormat(int16_t value, char *buffer, size_t length)
+    void callFormatter(int16_t value, char *buffer, size_t length) const
     {
-        /*
-			if (L && formatter)
-			{
-				runFormatter (formatter.c_str (), this, value, buffer, length);
-			}
-			else
-			{
-				itoa (value, buffer, 10); // this is a default format
-			}
-			*/
+        if (L != nullptr && !formatter.empty()) {
+            runFormatter(formatter.c_str(), this, value, buffer, length);
+        }
     }
 
-    void callFunction(int16_t value)
+    void callFunction(int16_t value) const
     {
-        /*
-			if (L && function)
-			{
-				runFunction (function.c_str (), this, value);
-			}
-			*/
+        if (L != nullptr && !function.empty()) {
+            runFunction(function.c_str(), this, value);
+        }
     }
 
     static const char *translateId(uint8_t id)

@@ -42,26 +42,8 @@ public:
         int16_t newDisplayValue =
             constrain(ceil(touchEvent.getX() / step + min), min, max);
 
-        uint16_t midiValue = translateValueToMidiValue(
-            control.values[activeHandle - 1].message.getSignMode(),
-            control.values[activeHandle - 1].message.getBitWidth(),
-            newDisplayValue,
-            control.values[activeHandle - 1].getMin(),
-            control.values[activeHandle - 1].getMax(),
-            control.values[activeHandle - 1].message.getMidiMin(),
-            control.values[activeHandle - 1].message.getMidiMax());
-
-        parameterMap.setValue(
-            control.values[activeHandle - 1].message.getDeviceId(),
-            control.values[activeHandle - 1].message.getType(),
-            control.values[activeHandle - 1].message.getParameterNumber(),
-            midiValue,
-            Origin::internal);
-
-#ifdef DEBUG
-        logMessage(
-            "onTouchMove: display=%d, midi=%d", newDisplayValue, midiValue);
-#endif
+        // \todo values are zero-based index while handles start with 1
+        emitValueChange(newDisplayValue, control.getValue(activeHandle - 1));
     }
 
     void onPotChange(const PotEvent &potEvent) override
@@ -70,28 +52,9 @@ public:
             int16_t delta = potEvent.getAcceleratedChange();
             int16_t newDisplayValue = getValue(activeHandle) + delta;
 
-            uint16_t midiValue = translateValueToMidiValue(
-                control.values[activeHandle - 1].message.getSignMode(),
-                control.values[activeHandle - 1].message.getBitWidth(),
-                newDisplayValue,
-                control.values[activeHandle - 1].getMin(),
-                control.values[activeHandle - 1].getMax(),
-                control.values[activeHandle - 1].message.getMidiMin(),
-                control.values[activeHandle - 1].message.getMidiMax());
-
-            parameterMap.setValue(
-                control.values[activeHandle - 1].message.getDeviceId(),
-                control.values[activeHandle - 1].message.getType(),
-                control.values[activeHandle - 1].message.getParameterNumber(),
-                midiValue,
-                Origin::internal);
-
-#ifdef DEBUG
-            logMessage("onPotChange: display=%d, midi=%d, delta=%d",
-                       newDisplayValue,
-                       midiValue,
-                       potEvent.getRelativeChange());
-#endif
+            // \todo values are zero-based index while handles start with 1
+            emitValueChange(newDisplayValue,
+                            control.getValue(activeHandle - 1));
         }
     }
 
