@@ -16,10 +16,6 @@ PageView::PageView(const Preset &preset,
     addBottomBar(model.getName(), model.getPage(pageId).getName());
 }
 
-PageView::~PageView()
-{
-}
-
 void PageView::paint(Graphics &g)
 {
     g.fillAll(Colours::black);

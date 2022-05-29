@@ -12,10 +12,6 @@ MainWindow::MainWindow(const Preset &newPreset)
     assignAllButtons();
 }
 
-MainWindow::~MainWindow()
-{
-}
-
 void MainWindow::onButtonDown(uint8_t buttonId)
 {
     if (0 <= buttonId && buttonId <= 2) {

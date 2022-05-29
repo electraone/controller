@@ -5,6 +5,8 @@
 #include "ADSRControl.h"
 #include "ADRControl.h"
 #include "DX7EnvControl.h"
+#include "FaderDetailControl.h"
+#include "ListDetailControl.h"
 #include "MainWindow.h"
 
 ControlComponent::ControlComponent(const Control &controlToAssign)
@@ -43,22 +45,31 @@ void ControlComponent::emitValueChange(int16_t newDisplayValue,
 #endif
 }
 
-Component *ControlComponent::createControlComponent(const Control &control)
+Component *ControlComponent::createControlComponent(const Control &control,
+                                                    bool detail)
 {
     Component *c = nullptr;
 
-    if (control.getType() == ControlType::fader) {
-        c = new FaderControl(control);
-    } else if (control.getType() == ControlType::list) {
-        c = new ListControl(control);
-    } else if (control.getType() == ControlType::pad) {
-        c = new PadControl(control);
-    } else if (control.getType() == ControlType::adsr) {
-        c = new ADSRControl(control);
-    } else if (control.getType() == ControlType::adr) {
-        c = new ADRControl(control);
-    } else if (control.getType() == ControlType::dx7envelope) {
-        c = new Dx7EnvControl(control);
+    if (detail == true) {
+        if (control.getType() == ControlType::fader) {
+            c = new FaderDetailControl(control);
+        } else if (control.getType() == ControlType::list) {
+            c = new ListDetailControl(control);
+        }
+    } else {
+        if (control.getType() == ControlType::fader) {
+            c = new FaderControl(control);
+        } else if (control.getType() == ControlType::list) {
+            c = new ListControl(control);
+        } else if (control.getType() == ControlType::pad) {
+            c = new PadControl(control);
+        } else if (control.getType() == ControlType::adsr) {
+            c = new ADSRControl(control);
+        } else if (control.getType() == ControlType::adr) {
+            c = new ADRControl(control);
+        } else if (control.getType() == ControlType::dx7envelope) {
+            c = new Dx7EnvControl(control);
+        }
     }
 
     if (c) {

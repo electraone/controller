@@ -5,7 +5,7 @@
 #include "BarHorizontal.h"
 #include "AssignableList.h"
 
-class FaderControl final : public ControlComponent, public BarHorizontal
+class FaderControl : public ControlComponent, public BarHorizontal
 {
 public:
     explicit FaderControl(const Control &control) : ControlComponent(control)

@@ -24,7 +24,7 @@ public:
         setName("pageSelectionWindow");
     }
 
-    ~PageSelectionWindow()
+    ~PageSelectionWindow() override
     {
         delegate->closePageSelection();
     }

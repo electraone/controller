@@ -21,7 +21,7 @@ public:
         setName("detailWindow");
     }
 
-    ~DetailWindow()
+    ~DetailWindow() override
     {
         delegate->closeDetail();
     }

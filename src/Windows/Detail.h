@@ -9,7 +9,7 @@ class Detail : public Component
 {
 public:
     Detail(const Control &control, UiDelegate *newDelegate);
-    ~Detail() override;
+    virtual ~Detail() = default;
 
     void paint(Graphics &g) override;
     void resized(void) override;

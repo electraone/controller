@@ -8,7 +8,7 @@ class PageSelection : public Component
 {
 public:
     PageSelection(Pages pages, uint8_t newActivePage, UiDelegate *newDelegate);
-    ~PageSelection() override;
+    virtual ~PageSelection() = default;
 
     void paint(Graphics &g) override;
     void resized(void) override;

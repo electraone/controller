@@ -4,20 +4,22 @@
 Detail::Detail(const Control &controlToDisplay, UiDelegate *newDelegate)
     : control(controlToDisplay), delegate(newDelegate)
 {
-    setBounds(100, 100, 824, 400);
     setName("detail");
 
-    Component *c = ControlComponent::createControlComponent(control);
-    c->setBounds(100, 100, 624, 200);
-    c->setName("cc in detail");
+    Component *c = ControlComponent::createControlComponent(control, true);
+
+    if (control.getType() == ControlType::fader) {
+        setBounds(8, 195, 1008, 210);
+        c->setBounds(58, 45, 908, 120);
+    } else if (control.getType() == ControlType::list) {
+        uint16_t xPosition = (control.getBounds().getX() > 510) ? 8 : 677;
+        setBounds(xPosition, 0, 336, 556);
+        c->setBounds(8, 8, getWidth() - 16, getHeight() - 10);
+    }
 
     if (c) {
         addAndMakeVisible(c);
     }
-}
-
-Detail::~Detail()
-{
 }
 
 void Detail::paint(Graphics &g)
@@ -25,12 +27,6 @@ void Detail::paint(Graphics &g)
     g.fillAll(Colours::black);
     g.setColour(Colours::darkgrey);
     g.drawRect(0, 0, getWidth(), getHeight());
-    g.printText(0,
-                getHeight() / 2,
-                control.getName(),
-                TextStyle::largeTransparent,
-                getWidth(),
-                TextAlign::center);
 }
 
 void Detail::resized(void)

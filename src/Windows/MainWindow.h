@@ -14,7 +14,7 @@ class MainWindow : public ParameterMapWindow, public UiDelegate
 {
 public:
     explicit MainWindow(const Preset &newPreset);
-    ~MainWindow();
+    virtual ~MainWindow() = default;
 
     void onButtonDown(uint8_t buttonId) override;
     void onButtonUp(uint8_t buttonId) override;

@@ -12,7 +12,7 @@ public:
         parameterMap.listWindows();
     }
 
-    virtual ~ParameterMapWindow()
+    virtual ~ParameterMapWindow() override
     {
         parameterMap.removeWindow(this);
         parameterMap.listWindows();

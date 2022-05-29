@@ -46,10 +46,6 @@ PageSelection::PageSelection(Pages pages,
     System::windowManager.listWindows();
 }
 
-PageSelection::~PageSelection()
-{
-}
-
 void PageSelection::paint(Graphics &g)
 {
     setActivePageLabel(activePage);
