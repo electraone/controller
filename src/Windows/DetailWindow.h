@@ -7,23 +7,46 @@
 
 class DetailWindow : public ParameterMapWindow
 {
-public:
-    DetailWindow(const Control &control, UiDelegate *newDelegate)
-        : delegate(newDelegate)
+private:
+    DetailWindow(const Control &controlToDisplay, UiDelegate *newDelegate)
+        : control(controlToDisplay), delegate(newDelegate), detail(nullptr)
     {
-        Detail *detail = new Detail(control, newDelegate);
+        // Create the root component
+        detail = new Detail(control, newDelegate);
+
+        // Determine placement and size of the window
+        if (control.getType() == ControlType::fader) {
+            setBounds(8, 217, 1008, 210);
+        } else if (control.getType() == ControlType::list) {
+            uint16_t xPosition = (control.getBounds().getX() > 510) ? 8 : 677;
+            setBounds(xPosition, 22, 336, 556);
+        }
 
         if (detail) {
             setOwnedContent(detail);
             setVisible(true);
         }
-
-        setName("detailWindow");
     }
 
+public:
     ~DetailWindow() override
     {
         delegate->closeDetail();
+    }
+
+    void resized(void) override
+    {
+        if (control.getType() == ControlType::fader) {
+            detail->setBounds(0, 0, 1008, 210);
+        } else if (control.getType() == ControlType::list) {
+            detail->setBounds(0, 0, 336, 556);
+        }
+    }
+
+    void onTouchOutside(void) override
+    {
+        logMessage("closing detail");
+        delete this;
     }
 
     void onButtonDown(uint8_t buttonId) override
@@ -35,7 +58,7 @@ public:
             logMessage("callback from detailWindow");
             buttonBroadcaster.listListeners();
         } else if (buttonId == 5) {
-            logMessage("callback from detailWindow");
+            logMessage("closing detail");
             delete this;
         }
     }
@@ -54,5 +77,7 @@ public:
     }
 
 private:
+    const Control &control;
     UiDelegate *delegate;
+    Detail *detail;
 };

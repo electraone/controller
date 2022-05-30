@@ -17,4 +17,5 @@ public:
 private:
     const Control &control;
     UiDelegate *delegate;
+    Component *component;
 };

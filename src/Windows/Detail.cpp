@@ -6,19 +6,10 @@ Detail::Detail(const Control &controlToDisplay, UiDelegate *newDelegate)
 {
     setName("detail");
 
-    Component *c = ControlComponent::createControlComponent(control, true);
+    component = ControlComponent::createControlComponent(control, true);
 
-    if (control.getType() == ControlType::fader) {
-        setBounds(8, 195, 1008, 210);
-        c->setBounds(58, 45, 908, 120);
-    } else if (control.getType() == ControlType::list) {
-        uint16_t xPosition = (control.getBounds().getX() > 510) ? 8 : 677;
-        setBounds(xPosition, 0, 336, 556);
-        c->setBounds(8, 8, getWidth() - 16, getHeight() - 10);
-    }
-
-    if (c) {
-        addAndMakeVisible(c);
+    if (component) {
+        addAndMakeVisible(component);
     }
 }
 
@@ -31,4 +22,9 @@ void Detail::paint(Graphics &g)
 
 void Detail::resized(void)
 {
+    if (control.getType() == ControlType::fader) {
+        component->setBounds(58, 45, 908, 120);
+    } else if (control.getType() == ControlType::list) {
+        component->setBounds(8, 8, getWidth() - 16, getHeight() - 10);
+    }
 }
