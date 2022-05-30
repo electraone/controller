@@ -26,5 +26,11 @@ void Detail::resized(void)
         component->setBounds(58, 45, 908, 120);
     } else if (control.getType() == ControlType::list) {
         component->setBounds(8, 8, getWidth() - 16, getHeight() - 10);
+    } else if (control.getType() == ControlType::adsr) {
+        component->setBounds(50, 50, 700, 300);
+    } else if (control.getType() == ControlType::adr) {
+        component->setBounds(50, 50, 700, 300);
+    } else if (control.getType() == ControlType::dx7envelope) {
+        component->setBounds(50, 50, 700, 300);
     }
 }

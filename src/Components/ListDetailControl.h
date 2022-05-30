@@ -87,6 +87,10 @@ public:
         }
     }
 
+    void onTouchLongHold(const TouchEvent &touchEvent)
+    {
+    }
+
     void onPotTouchUp(const PotEvent &potEvent) override
     {
         logMessage("need to close if not pinned");

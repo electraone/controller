@@ -17,5 +17,9 @@ public:
         BarHorizontal::paint(g);
     }
 
+    void onTouchLongHold(const TouchEvent &touchEvent)
+    {
+    }
+    
 private:
 };

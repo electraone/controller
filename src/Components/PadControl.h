@@ -109,5 +109,11 @@ public:
         // left empty on pupose. The logic is handled in the Pad component
     }
 
+    void onTouchLongHold(const TouchEvent &touchEvent)
+    {
+       // left empty on pupose. It overrides the long hold of ControlComponent
+       // which defaults to displaying the detail.
+    }
+
 private:
 };

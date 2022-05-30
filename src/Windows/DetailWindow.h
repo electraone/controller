@@ -11,16 +11,9 @@ private:
     DetailWindow(const Control &controlToDisplay, UiDelegate *newDelegate)
         : control(controlToDisplay), delegate(newDelegate), detail(nullptr)
     {
-        // Create the root component
         detail = new Detail(control, newDelegate);
 
-        // Determine placement and size of the window
-        if (control.getType() == ControlType::fader) {
-            setBounds(8, 217, 1008, 210);
-        } else if (control.getType() == ControlType::list) {
-            uint16_t xPosition = (control.getBounds().getX() > 510) ? 8 : 677;
-            setBounds(xPosition, 22, 336, 556);
-        }
+        setWindowBounds(control.getType());
 
         if (detail) {
             setOwnedContent(detail);
@@ -36,11 +29,7 @@ public:
 
     void resized(void) override
     {
-        if (control.getType() == ControlType::fader) {
-            detail->setBounds(0, 0, 1008, 210);
-        } else if (control.getType() == ControlType::list) {
-            detail->setBounds(0, 0, 336, 556);
-        }
+        detail->setBounds(0, 0, getWidth(), getHeight());
     }
 
     void onTouchOutside(void) override
@@ -77,6 +66,23 @@ public:
     }
 
 private:
+    void setWindowBounds(ControlType type)
+    {
+        // Determine placement and size of the window
+        if (type == ControlType::fader) {
+            setBounds(8, 217, 1008, 210);
+        } else if (type == ControlType::list) {
+            uint16_t xPosition = (control.getBounds().getX() > 510) ? 8 : 677;
+            setBounds(xPosition, 22, 336, 556);
+        } else if (type == ControlType::adsr) {
+            setBounds(100, 92, 800, 430);
+        } else if (type == ControlType::adr) {
+            setBounds(100, 92, 800, 430);
+        } else if (type == ControlType::dx7envelope) {
+            setBounds(100, 92, 800, 430);
+        }
+    }
+
     const Control &control;
     UiDelegate *delegate;
     Detail *detail;

@@ -7,6 +7,9 @@
 #include "DX7EnvControl.h"
 #include "FaderDetailControl.h"
 #include "ListDetailControl.h"
+#include "ADSRDetailControl.h"
+#include "ADRDetailControl.h"
+#include "Dx7EnvDetailControl.h"
 #include "MainWindow.h"
 
 ControlComponent::ControlComponent(const Control &controlToAssign)
@@ -16,6 +19,7 @@ ControlComponent::ControlComponent(const Control &controlToAssign)
 
 void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
 {
+    logMessage("opeing detail");
     if (MainWindow *window = dynamic_cast<MainWindow *>(getWindow())) {
         window->openDetail(getId());
     }
@@ -55,6 +59,12 @@ Component *ControlComponent::createControlComponent(const Control &control,
             c = new FaderDetailControl(control);
         } else if (control.getType() == ControlType::list) {
             c = new ListDetailControl(control);
+        } else if (control.getType() == ControlType::adsr) {
+            c = new ADSRDetailControl(control);
+        } else if (control.getType() == ControlType::adr) {
+            c = new ADRDetailControl(control);
+        } else if (control.getType() == ControlType::dx7envelope) {
+            c = new Dx7EnvDetailControl(control);
         }
     } else {
         if (control.getType() == ControlType::fader) {
