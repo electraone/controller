@@ -11,10 +11,10 @@ public:
           valueChosen(false),
           offsetY(0),
           prevTouchY(0),
-          yDelta(0),
           listItemWidth(getWidth()),
           listItemHeight(80),
-          maxItemsInViewport(7)
+          maxItemsInViewport(7),
+          itemTop(offsetY / listItemHeight)
     {
     }
 
@@ -54,25 +54,22 @@ public:
             return;
         }
 
-        if (prevTouchY == touchEvent.getY()) {
-            return;
-        } else {
-            yDelta = prevTouchY - touchEvent.getY();
+        if (prevTouchY != touchEvent.getY()) {
+            offsetY += prevTouchY - touchEvent.getY();
+
+            if (offsetY < 0) {
+                offsetY = 0;
+            } else if (offsetY > ((numItems * listItemHeight)
+                                  - (listItemHeight * maxItemsInViewport))) {
+                offsetY = (numItems * listItemHeight)
+                          - (listItemHeight * maxItemsInViewport);
+            }
+
+            prevTouchY = touchEvent.getY();
+            itemTop = offsetY / listItemHeight;
+
+            repaint();
         }
-
-        offsetY += yDelta;
-
-        if (offsetY < 0) {
-            offsetY = 0;
-        } else if (offsetY > ((numItems * listItemHeight)
-                              - (listItemHeight * maxItemsInViewport))) {
-            offsetY = (numItems * listItemHeight)
-                      - (listItemHeight * maxItemsInViewport);
-        }
-
-        prevTouchY = touchEvent.getY();
-
-        repaint();
     }
 
     void onTouchClick(const TouchEvent &touchEvent) override
@@ -104,13 +101,6 @@ public:
 
             if (index >= 0) {
                 setIndex(index);
-
-                if (index < maxItemsInViewport) {
-                    offsetY = 0;
-                } else {
-                    offsetY = index * listItemHeight
-                              - (listItemHeight * (maxItemsInViewport - 1));
-                }
                 determineOffsetY();
             }
         }
@@ -189,22 +179,14 @@ private:
 
         if (numItems < maxItemsInViewport) {
             offsetY = 0;
-        } else {
-            int realOffset = (index * listItemHeight);
-
-            if ((realOffset - offsetY)
-                > (listItemHeight * (maxItemsInViewport - 1))) {
-                offsetY += listItemHeight;
-            } else if ((realOffset - offsetY) < 0) {
-                offsetY -= listItemHeight;
-            } else if (offsetY < 0) {
-                offsetY = 0;
-            } else if ((index == (numItems - 1))
-                       && (realOffset - offsetY)
-                              > (listItemHeight * (maxItemsInViewport - 2))) {
-                offsetY = (numItems * listItemHeight)
-                          - (listItemHeight * maxItemsInViewport);
+        } else if (index <= itemTop
+                   || index >= (itemTop + maxItemsInViewport)) {
+            if (index < itemTop) {
+                itemTop = index;
+            } else if (index >= (itemTop + maxItemsInViewport)) {
+                itemTop = index - maxItemsInViewport + 1;
             }
+            offsetY = itemTop * listItemHeight;
         }
     }
 
@@ -212,9 +194,10 @@ private:
     bool valueChosen;
     int16_t offsetY;
     int16_t prevTouchY;
-    int16_t yDelta;
 
     uint16_t listItemWidth;
     uint16_t listItemHeight;
     uint16_t maxItemsInViewport;
+
+    uint16_t itemTop;
 };
