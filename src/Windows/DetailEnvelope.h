@@ -26,6 +26,7 @@ public:
     {
         component->setBounds(50, 50, 808, 278);
         lock->setBounds(58, getHeight() - 100, 80, 80);
+        dimmedSection->setBounds(138, getHeight() - 120, getWidth() - 138, 120);
     }
 
 private:

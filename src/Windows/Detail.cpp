@@ -32,6 +32,16 @@ Detail::Detail(const Control &newControl, UiDelegate *newDelegate)
             }
         };
     }
+
+    dimmedSection = new VoidSpace();
+
+    if (dimmedSection) {
+        addAndMakeVisible(dimmedSection);
+
+        dimmedSection->onClick = [this] {
+            delegate->closeDetail();
+        };
+    }
 }
 
 void Detail::setLocked(void)

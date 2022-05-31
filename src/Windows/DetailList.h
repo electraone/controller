@@ -37,9 +37,12 @@ public:
         if (delegate->isDetailOnTheLeft()) {
             component->setBounds(8, 8, getWidth() - 116, getHeight() - 10);
             lock->setBounds(getWidth() - 90, getHeight() - 100, 80, 80);
+            dimmedSection->setBounds(
+                getWidth() - 100, 0, 100, getHeight() - 100);
         } else {
             component->setBounds(108, 8, getWidth() - 116, getHeight() - 10);
             lock->setBounds(0, getHeight() - 100, 80, 80);
+            dimmedSection->setBounds(0, 0, 100, getHeight() - 100);
         }
     }
 

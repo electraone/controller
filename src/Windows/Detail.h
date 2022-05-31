@@ -2,6 +2,7 @@
 
 #include "Component.h"
 #include "Lock.h"
+#include "VoidSpace.h"
 #include "Model/Control.h"
 #include "ControlComponent.h"
 #include "System.h"
@@ -31,5 +32,6 @@ protected:
     UiDelegate *delegate;
     Component *component;
     Lock *lock;
+    VoidSpace *dimmedSection;
     bool locked;
 };
