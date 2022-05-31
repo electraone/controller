@@ -6,7 +6,7 @@
 class ListDetailControl : public ListControl
 {
 public:
-    explicit ListDetailControl(const Control &control)
+    explicit ListDetailControl(const Control &control, UiDelegate *newDelegate)
         : ListControl(control),
           valueChosen(false),
           offsetY(0),
@@ -14,7 +14,8 @@ public:
           listItemWidth(getWidth()),
           listItemHeight(80),
           maxItemsInViewport(7),
-          itemTop(offsetY / listItemHeight)
+          itemTop(offsetY / listItemHeight),
+          delegate(newDelegate)
     {
     }
 
@@ -83,7 +84,9 @@ public:
     void onTouchUp(const TouchEvent &touchEvent) override
     {
         if (valueChosen) {
-            logMessage("need to close if not pinned");
+            if (!delegate->isDetailLocked()) {
+                delegate->closeDetail();
+            }
         }
     }
 
@@ -93,7 +96,9 @@ public:
 
     void onPotTouchUp(const PotEvent &potEvent) override
     {
-        logMessage("need to close if not pinned");
+        if (!delegate->isDetailLocked()) {
+            delegate->closeDetail();
+        }
     }
 
     void onMidiValueChange(const ControlValue &value,
@@ -194,6 +199,8 @@ private:
         }
     }
 
+    std::function<void(void)> emit;
+
 private:
     bool valueChosen;
     int16_t offsetY;
@@ -204,4 +211,6 @@ private:
     uint16_t maxItemsInViewport;
 
     uint16_t itemTop;
+
+    UiDelegate *delegate;
 };

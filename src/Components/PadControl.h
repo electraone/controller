@@ -111,8 +111,8 @@ public:
 
     void onTouchLongHold(const TouchEvent &touchEvent)
     {
-       // left empty on pupose. It overrides the long hold of ControlComponent
-       // which defaults to displaying the detail.
+        // left empty on pupose. It overrides the long hold of ControlComponent
+        // which defaults to displaying the detail.
     }
 
 private:

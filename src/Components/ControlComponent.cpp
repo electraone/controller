@@ -49,37 +49,22 @@ void ControlComponent::emitValueChange(int16_t newDisplayValue,
 #endif
 }
 
-Component *ControlComponent::createControlComponent(const Control &control,
-                                                    bool detail)
+Component *ControlComponent::createControlComponent(const Control &control)
 {
     Component *c = nullptr;
 
-    if (detail == true) {
-        if (control.getType() == ControlType::fader) {
-            c = new FaderDetailControl(control);
-        } else if (control.getType() == ControlType::list) {
-            c = new ListDetailControl(control);
-        } else if (control.getType() == ControlType::adsr) {
-            c = new ADSRDetailControl(control);
-        } else if (control.getType() == ControlType::adr) {
-            c = new ADRDetailControl(control);
-        } else if (control.getType() == ControlType::dx7envelope) {
-            c = new Dx7EnvDetailControl(control);
-        }
-    } else {
-        if (control.getType() == ControlType::fader) {
-            c = new FaderControl(control);
-        } else if (control.getType() == ControlType::list) {
-            c = new ListControl(control);
-        } else if (control.getType() == ControlType::pad) {
-            c = new PadControl(control);
-        } else if (control.getType() == ControlType::adsr) {
-            c = new ADSRControl(control);
-        } else if (control.getType() == ControlType::adr) {
-            c = new ADRControl(control);
-        } else if (control.getType() == ControlType::dx7envelope) {
-            c = new Dx7EnvControl(control);
-        }
+    if (control.getType() == ControlType::fader) {
+        c = new FaderControl(control);
+    } else if (control.getType() == ControlType::list) {
+        c = new ListControl(control);
+    } else if (control.getType() == ControlType::pad) {
+        c = new PadControl(control);
+    } else if (control.getType() == ControlType::adsr) {
+        c = new ADSRControl(control);
+    } else if (control.getType() == ControlType::adr) {
+        c = new ADRControl(control);
+    } else if (control.getType() == ControlType::dx7envelope) {
+        c = new Dx7EnvControl(control);
     }
 
     if (c) {
@@ -87,6 +72,32 @@ Component *ControlComponent::createControlComponent(const Control &control,
         c->setName(control.getName());
         c->setId(control.getId());
         c->setVisible(control.getVisible());
+    }
+
+    return (c);
+}
+
+Component *
+    ControlComponent::createDetailControlComponent(const Control &control,
+                                                   UiDelegate *newDelegate)
+{
+    Component *c = nullptr;
+
+    if (control.getType() == ControlType::fader) {
+        c = new FaderDetailControl(control, newDelegate);
+    } else if (control.getType() == ControlType::list) {
+        c = new ListDetailControl(control, newDelegate);
+    } else if (control.getType() == ControlType::adsr) {
+        c = new ADSRDetailControl(control, newDelegate);
+    } else if (control.getType() == ControlType::adr) {
+        c = new ADRDetailControl(control, newDelegate);
+    } else if (control.getType() == ControlType::dx7envelope) {
+        c = new Dx7EnvDetailControl(control, newDelegate);
+    }
+
+    if (c) {
+        c->setName(control.getName());
+        c->setId(control.getId());
     }
 
     return (c);

@@ -3,6 +3,7 @@
 #include "Control.h"
 #include "Component.h"
 #include "ParameterMap.h"
+#include "UiDelegate.h"
 
 class ControlComponent : virtual public Component
 {
@@ -18,8 +19,9 @@ public:
     virtual void emitValueChange(int16_t newDisplayValue,
                                  const ControlValue &cv);
 
-    static Component *createControlComponent(const Control &control,
-                                             bool detail = false);
+    static Component *createControlComponent(const Control &control);
+    static Component *createDetailControlComponent(const Control &control,
+                                                   UiDelegate *newDelegate);
 
 protected:
     const Control &control;

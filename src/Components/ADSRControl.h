@@ -33,7 +33,7 @@ public:
 
     virtual ~ADSRControl() = default;
 
-    void onTouchMove(const TouchEvent &touchEvent) override
+    virtual void onTouchMove(const TouchEvent &touchEvent) override
     {
         int16_t max = values[activeHandle].getMax();
         int16_t min = values[activeHandle].getMin();
@@ -46,7 +46,7 @@ public:
         emitValueChange(newDisplayValue, control.getValue(activeHandle - 1));
     }
 
-    void onPotChange(const PotEvent &potEvent) override
+    virtual void onPotChange(const PotEvent &potEvent) override
     {
         if (potEvent.getRelativeChange()) {
             int16_t delta = potEvent.getAcceleratedChange();
@@ -58,9 +58,9 @@ public:
         }
     }
 
-    void onMidiValueChange(const ControlValue &value,
-                           int16_t midiValue,
-                           uint8_t handle = 1) override
+    virtual void onMidiValueChange(const ControlValue &value,
+                                   int16_t midiValue,
+                                   uint8_t handle = 1) override
     {
         int16_t newDisplayValue =
             translateMidiValueToValue(value.message.getSignMode(),
@@ -76,7 +76,7 @@ public:
         }
     }
 
-    void paint(Graphics &g) override
+    virtual void paint(Graphics &g) override
     {
         Rectangle envBounds = getBounds();
         envBounds.setHeight(envBounds.getHeight() / 2);

@@ -7,7 +7,7 @@
 
 class PageSelectionWindow : public Window
 {
-public:
+private:
     PageSelectionWindow(Pages pages,
                         uint8_t newActivePage,
                         UiDelegate *newDelegate)
@@ -24,10 +24,8 @@ public:
         setName("pageSelectionWindow");
     }
 
-    ~PageSelectionWindow() override
-    {
-        delegate->closePageSelection();
-    }
+public:
+    virtual ~PageSelectionWindow() = default;
 
     void onButtonDown(uint8_t buttonId) override
     {
@@ -43,7 +41,7 @@ public:
     void onButtonUp(uint8_t buttonId)
     {
         if (buttonId == 5) {
-            delete this;
+            delegate->closePageSelection();
         }
     }
 

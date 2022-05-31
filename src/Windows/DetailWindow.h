@@ -11,9 +11,7 @@ private:
     DetailWindow(const Control &controlToDisplay, UiDelegate *newDelegate)
         : control(controlToDisplay), delegate(newDelegate), detail(nullptr)
     {
-        detail = new Detail(control, newDelegate);
-
-        setWindowBounds(control.getType());
+        detail = Detail::createDetail(control, delegate);
 
         if (detail) {
             setOwnedContent(detail);
@@ -22,10 +20,7 @@ private:
     }
 
 public:
-    ~DetailWindow() override
-    {
-        delegate->closeDetail();
-    }
+    virtual ~DetailWindow() = default;
 
     void resized(void) override
     {
@@ -34,8 +29,7 @@ public:
 
     void onTouchOutside(void) override
     {
-        logMessage("closing detail");
-        delete this;
+        delegate->closeDetail();
     }
 
     void onButtonDown(uint8_t buttonId) override
@@ -48,8 +42,18 @@ public:
             buttonBroadcaster.listListeners();
         } else if (buttonId == 5) {
             logMessage("closing detail");
-            delete this;
+            delegate->closeDetail();
         }
+    }
+
+    void setLocked(void)
+    {
+        detail->setLocked();
+    }
+
+    bool isLocked(void)
+    {
+        return (detail->isLocked());
     }
 
     static DetailWindow *createDetailWindow(const Control &control,
@@ -61,28 +65,10 @@ public:
             detailWindow->setName("detailWindow");
             detailWindow->repaint();
         }
-
         return (detailWindow);
     }
 
 private:
-    void setWindowBounds(ControlType type)
-    {
-        // Determine placement and size of the window
-        if (type == ControlType::fader) {
-            setBounds(8, 217, 1008, 210);
-        } else if (type == ControlType::list) {
-            uint16_t xPosition = (control.getBounds().getX() > 510) ? 8 : 677;
-            setBounds(xPosition, 22, 336, 556);
-        } else if (type == ControlType::adsr) {
-            setBounds(100, 92, 800, 430);
-        } else if (type == ControlType::adr) {
-            setBounds(100, 92, 800, 430);
-        } else if (type == ControlType::dx7envelope) {
-            setBounds(100, 92, 800, 430);
-        }
-    }
-
     const Control &control;
     UiDelegate *delegate;
     Detail *detail;

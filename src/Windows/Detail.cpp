@@ -1,36 +1,72 @@
 #include "Detail.h"
-#include "ControlComponent.h"
+#include "DetailFader.h"
+#include "DetailList.h"
+#include "DetailEnvelope.h"
 
-Detail::Detail(const Control &controlToDisplay, UiDelegate *newDelegate)
-    : control(controlToDisplay), delegate(newDelegate)
+Detail::Detail(const Control &newControl, UiDelegate *newDelegate)
+    : control(newControl),
+      delegate(newDelegate),
+      component(nullptr),
+      lock(nullptr),
+      locked(false)
 {
     setName("detail");
 
-    component = ControlComponent::createControlComponent(control, true);
+    component =
+        ControlComponent::createDetailControlComponent(control, delegate);
 
     if (component) {
         addAndMakeVisible(component);
     }
-}
 
-void Detail::paint(Graphics &g)
-{
-    g.fillAll(Colours::black);
-    g.setColour(Colours::darkgrey);
-    g.drawRect(0, 0, getWidth(), getHeight());
-}
+    lock = new Lock(locked);
 
-void Detail::resized(void)
-{
-    if (control.getType() == ControlType::fader) {
-        component->setBounds(58, 45, 908, 120);
-    } else if (control.getType() == ControlType::list) {
-        component->setBounds(8, 8, getWidth() - 16, getHeight() - 10);
-    } else if (control.getType() == ControlType::adsr) {
-        component->setBounds(50, 50, 700, 300);
-    } else if (control.getType() == ControlType::adr) {
-        component->setBounds(50, 50, 700, 300);
-    } else if (control.getType() == ControlType::dx7envelope) {
-        component->setBounds(50, 50, 700, 300);
+    if (lock) {
+        addAndMakeVisible(lock);
+
+        lock->onClick = [this] {
+            if (!locked) {
+                delegate->lockDetail();
+            } else {
+                delegate->closeDetail();
+            }
+        };
     }
+}
+
+void Detail::setLocked(void)
+{
+    locked = true;
+    lock->setLocked(true);
+}
+
+bool Detail::isLocked(void)
+{
+    return (locked);
+}
+
+Detail *Detail::createDetail(const Control &control, UiDelegate *newDelegate)
+{
+    Detail *detail = nullptr;
+
+    switch (control.getType()) {
+        case ControlType::fader:
+            detail = new DetailFader(control, newDelegate);
+            break;
+
+        case ControlType::list:
+            detail = new DetailList(control, newDelegate);
+            break;
+
+        case ControlType::adsr:
+        case ControlType::adr:
+        case ControlType::dx7envelope:
+            detail = new DetailEnvelope(control, newDelegate);
+            break;
+
+        default:
+            break;
+    }
+
+    return (detail);
 }

@@ -76,13 +76,23 @@ void MainWindow::setControlSet(uint8_t controlSetId)
 
 void MainWindow::openDetail(uint16_t controlId)
 {
-    detailWindow =
-        DetailWindow::createDetailWindow(preset.getControl(controlId), this);
+    const Control &control = preset.getControl(controlId);
+    detailWindow = DetailWindow::createDetailWindow(control, this);
+    detailWindow->setBounds(getDetailBounds(control));
 }
 
+void MainWindow::lockDetail(void)
+{
+    logMessage("delegate lock window");
+    if (detailWindow) {
+        detailWindow->setLocked();
+    }
+}
 void MainWindow::closeDetail(void)
 {
+    logMessage("delegate close window");
     if (detailWindow) {
+        delete detailWindow;
         detailWindow = nullptr;
         buttonBroadcaster.resumeListener(this);
         resetActiveTouch();
@@ -104,4 +114,36 @@ void MainWindow::closePageSelection(void)
         resetActiveTouch();
         repaint();
     }
+}
+
+void MainWindow::ping(void)
+{
+    logMessage("delegate ping");
+}
+
+bool MainWindow::isDetailLocked(void)
+{
+    if (detailWindow) {
+        return detailWindow->isLocked();
+    }
+    return false;
+}
+
+bool MainWindow::isDetailOnTheLeft(void)
+{
+    if (detailWindow) {
+        return (detailWindow->getX() < 512);
+    }
+    return false;
+}
+
+Rectangle MainWindow::getDetailBounds(const Control &control)
+{
+    if (control.getType() == ControlType::fader) {
+        return Rectangle(8, 217, 1008, 330);
+    } else if (control.getType() == ControlType::list) {
+        uint16_t xPosition = (control.getBounds().getX() > 510) ? 8 : 577;
+        return Rectangle(xPosition, 22, 436, 556);
+    }
+    return Rectangle(58, 60, 908, 480);
 }
