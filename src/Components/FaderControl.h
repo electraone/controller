@@ -52,11 +52,6 @@ public:
                                       value.message.getMidiMax(),
                                       value.getMin(),
                                       value.getMax());
-        //#ifdef DEBUG
-        logMessage("onMidiValueChange: display=%d, midi=%d",
-                   newDisplayValue,
-                   midiValue);
-        //#endif
         setValue(newDisplayValue);
     }
 

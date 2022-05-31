@@ -84,10 +84,6 @@ public:
                 Origin::internal);
 
             cv.callFunction(newIndex);
-#ifdef DEBUG
-            logMessage(
-                "emitValueChange: index=%d, midi=%d", newIndex, midiValue);
-#endif
         }
     }
 

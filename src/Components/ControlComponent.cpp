@@ -19,7 +19,6 @@ ControlComponent::ControlComponent(const Control &controlToAssign)
 
 void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
 {
-    logMessage("opeing detail");
     if (MainWindow *window = dynamic_cast<MainWindow *>(getWindow())) {
         window->openDetail(getId());
     }

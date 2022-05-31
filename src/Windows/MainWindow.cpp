@@ -83,14 +83,12 @@ void MainWindow::openDetail(uint16_t controlId)
 
 void MainWindow::lockDetail(void)
 {
-    logMessage("delegate lock window");
     if (detailWindow) {
         detailWindow->setLocked();
     }
 }
 void MainWindow::closeDetail(void)
 {
-    logMessage("delegate close window");
     if (detailWindow) {
         delete detailWindow;
         detailWindow = nullptr;
