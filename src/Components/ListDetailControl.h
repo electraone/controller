@@ -17,6 +17,8 @@ public:
           itemTop(offsetY / listItemHeight),
           delegate(newDelegate)
     {
+        assignPot(control.inputs[0].getPotId(),
+                  control.values[0].getNumSteps());
     }
 
     ~ListDetailControl() = default;

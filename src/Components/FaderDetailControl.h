@@ -8,6 +8,8 @@ public:
     explicit FaderDetailControl(const Control &control, UiDelegate *newDelegate)
         : FaderControl(control), delegate(newDelegate)
     {
+        assignPot(control.inputs[0].getPotId(),
+                  control.values[0].getNumSteps());
     }
 
     virtual ~FaderDetailControl() = default;
