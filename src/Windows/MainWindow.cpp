@@ -9,7 +9,6 @@ MainWindow::MainWindow(const Preset &newPreset)
       currentPageId(0)
 {
     setName("mainWindow");
-    assignAllButtons();
 }
 
 void MainWindow::onButtonDown(uint8_t buttonId)
