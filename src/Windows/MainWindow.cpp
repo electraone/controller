@@ -107,6 +107,7 @@ void MainWindow::openPageSelection(void)
 void MainWindow::closePageSelection(void)
 {
     if (pageSelectionWindow) {
+        delete pageSelectionWindow;
         pageSelectionWindow = nullptr;
         buttonBroadcaster.resumeListener(this);
         resetActiveTouch();
