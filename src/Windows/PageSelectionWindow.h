@@ -11,7 +11,7 @@ private:
     PageSelectionWindow(Pages pages,
                         uint8_t newActivePage,
                         UiDelegate *newDelegate)
-        : delegate(newDelegate)
+        : delegate(newDelegate), ps(nullptr)
     {
         PageSelection *ps =
             new PageSelection(pages, newActivePage, newDelegate);
@@ -63,4 +63,5 @@ public:
 
 private:
     UiDelegate *delegate;
+    PageSelection *ps;
 };

@@ -1,49 +1,45 @@
 #include "PageSelection.h"
-#include "Label.h"
 #include "Window.h"
-#include "System.h" // we do not want this here
 #include "PageView.h"
 
-PageSelection::PageSelection(Pages pages,
+PageSelection::PageSelection(Pages newPages,
                              uint8_t newActivePage,
                              UiDelegate *newDelegate)
-    : activePage(newActivePage), delegate(newDelegate)
+    : pages(newPages),
+      activePage(newActivePage),
+      delegate(newDelegate),
+      label{ nullptr }
 {
-    setBounds(0, 460, 1024, 115);
+    logMessage("PageSelection start");
     setName("pageSelection");
 
-    uint16_t segmentWidth = getWidth() / 6;
-    uint16_t segmentHeight = (getHeight() - topPadding) / 2;
-
     for (uint8_t i = 0; i < 12; i++) {
-        Label *label = new Label();
+        label[i] = new Label();
 
-        uint16_t x = (i % 6) * segmentWidth;
-        uint16_t y = ((i < 6) ? 0 : segmentHeight + 10) + topPadding;
+        if (label[i]) {
+            label[i]->setId(i);
 
-        label->setBounds({ x, y, segmentWidth, segmentHeight });
-        label->setId(i);
+            if (pages[i].getHasObjects()) {
+                label[i]->setLabel(pages[i].getName());
+                label[i]->assignPot(i);
+            } else {
+                label[i]->setLabel(".");
+            }
 
-        if (pages[i].getHasObjects()) {
-            label->setLabel(pages[i].getName());
-            label->assignPot(i);
-        } else {
-            label->setLabel(".");
+            if (activePage == i) {
+                label[i]->setActive(true);
+            }
+
+            label[i]->onClick = [this, i]() {
+                setActivePage(i);
+                return (true);
+            };
+
+            addAndMakeVisible(label[i]);
         }
-
-        if (activePage == i) {
-            label->setActive(true);
-        }
-
-        label->onClick = [this, i]() {
-            setActivePage(i);
-            return (true);
-        };
-
-        addAndMakeVisible(label);
     }
-
-    System::windowManager.listWindows();
+    setBounds(0, 460, 1024, 115);
+    logMessage("PageSelection end");
 }
 
 void PageSelection::paint(Graphics &g)
@@ -58,6 +54,15 @@ void PageSelection::paint(Graphics &g)
 
 void PageSelection::resized(void)
 {
+    uint16_t segmentWidth = getWidth() / 6;
+    uint16_t segmentHeight = (getHeight() - topPadding) / 2;
+
+    for (uint8_t i = 0; i < 12; i++) {
+        uint16_t x = (i % 6) * segmentWidth;
+        uint16_t y = ((i < 6) ? 0 : segmentHeight + 10) + topPadding;
+
+        label[i]->setBounds({ x, y, segmentWidth, segmentHeight });
+    }
 }
 
 void PageSelection::setActivePageLabel(uint8_t newActivePage)

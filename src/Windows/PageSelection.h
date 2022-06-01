@@ -3,11 +3,14 @@
 #include "Component.h"
 #include "Model/Page.h"
 #include "UiDelegate.h"
+#include "Label.h"
 
 class PageSelection : public Component
 {
 public:
-    PageSelection(Pages pages, uint8_t newActivePage, UiDelegate *newDelegate);
+    PageSelection(Pages newPages,
+                  uint8_t newActivePage,
+                  UiDelegate *newDelegate);
     virtual ~PageSelection() = default;
 
     void paint(Graphics &g) override;
@@ -24,8 +27,11 @@ private:
     // Delegated functions ---------------------------------------------------
     void setActivePage(uint8_t newActivePage);
 
+    Pages pages;
     uint8_t activePage;
     UiDelegate *delegate;
+
+    Label *label[12];
 
     static constexpr uint8_t topPadding = 50;
 };
