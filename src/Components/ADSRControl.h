@@ -12,23 +12,17 @@ public:
     {
         setMin(ADSR::attack, control.values[0].getMin());
         setMax(ADSR::attack, control.values[0].getMax());
-        setValue(ADSR::attack, control.values[0].getDefault());
-
         setMin(ADSR::decay, control.values[1].getMin());
         setMax(ADSR::decay, control.values[1].getMax());
-        setValue(ADSR::decay, control.values[1].getDefault());
-
         setMin(ADSR::sustain, control.values[2].getMin());
         setMax(ADSR::sustain, control.values[2].getMax());
-        setValue(ADSR::sustain, control.values[2].getDefault());
-
         setMin(ADSR::release, control.values[3].getMin());
         setMax(ADSR::release, control.values[3].getMax());
-        setValue(ADSR::release, control.values[3].getDefault());
 
         setActiveSegment(ADSR::sustain);
 
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
+        updateValueFromParameterMap();
     }
 
     virtual ~ADSRControl() = default;
@@ -42,8 +36,7 @@ public:
         int16_t newDisplayValue =
             constrain(ceil(touchEvent.getX() / step + min), min, max);
 
-        // \todo values are zero-based index while handles start with 1
-        emitValueChange(newDisplayValue, control.getValue(activeHandle - 1));
+        emitValueChange(newDisplayValue, control.getValue(activeHandle));
     }
 
     virtual void onPotChange(const PotEvent &potEvent) override
@@ -52,15 +45,13 @@ public:
             int16_t delta = potEvent.getAcceleratedChange();
             int16_t newDisplayValue = getValue(activeHandle) + delta;
 
-            // \todo values are zero-based index while handles start with 1
-            emitValueChange(newDisplayValue,
-                            control.getValue(activeHandle - 1));
+            emitValueChange(newDisplayValue, control.getValue(activeHandle));
         }
     }
 
     virtual void onMidiValueChange(const ControlValue &value,
                                    int16_t midiValue,
-                                   uint8_t handle = 1) override
+                                   uint8_t handle = 0) override
     {
         int16_t newDisplayValue =
             translateMidiValueToValue(value.message.getSignMode(),
@@ -71,7 +62,7 @@ public:
                                       value.getMin(),
                                       value.getMax());
 
-        if (1 <= handle && handle <= 4) {
+        if (0 <= handle && handle <= 3) {
             setValue(handle, newDisplayValue);
         }
     }

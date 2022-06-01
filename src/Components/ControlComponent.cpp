@@ -24,6 +24,18 @@ void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
     }
 }
 
+void ControlComponent::updateValueFromParameterMap(void)
+{
+    for (const auto &value : control.values) {
+        const auto &message = value.message;
+        uint16_t midiValue =
+            parameterMap.getValue(message.getDeviceId(),
+                                  message.getType(),
+                                  message.getParameterNumber());
+        onMidiValueChange(value, midiValue, value.getHandle());
+    }
+}
+
 void ControlComponent::emitValueChange(int16_t newDisplayValue,
                                        const ControlValue &cv)
 {

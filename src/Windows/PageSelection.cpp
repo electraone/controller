@@ -10,7 +10,6 @@ PageSelection::PageSelection(Pages newPages,
       delegate(newDelegate),
       label{ nullptr }
 {
-    logMessage("PageSelection start");
     setName("pageSelection");
 
     for (uint8_t i = 0; i < 12; i++) {
@@ -39,7 +38,6 @@ PageSelection::PageSelection(Pages newPages,
         }
     }
     setBounds(0, 460, 1024, 115);
-    logMessage("PageSelection end");
 }
 
 void PageSelection::paint(Graphics &g)

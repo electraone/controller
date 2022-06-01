@@ -13,8 +13,8 @@ public:
 
     virtual void onMidiValueChange(const ControlValue &value,
                                    int16_t midiValue,
-                                   uint8_t handle = 1) = 0;
-
+                                   uint8_t handle = 0) = 0;
+    virtual void updateValueFromParameterMap(void);
     virtual void onTouchLongHold(const TouchEvent &touchEvent) override;
     virtual void emitValueChange(int16_t newDisplayValue,
                                  const ControlValue &cv);

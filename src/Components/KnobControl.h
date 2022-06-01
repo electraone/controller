@@ -2,48 +2,39 @@
 
 #include "Control.h"
 #include "ControlComponent.h"
-#include "ADR.h"
+#include "Knob.h"
 
-class ADRControl : public ControlComponent, public ADR
+class KnobControl : public ControlComponent, public Knob
 {
 public:
-    explicit ADRControl(const Control &control)
-        : ControlComponent(control), activeHandle(1)
+    explicit KnobControl(const Control &control) : ControlComponent(control)
     {
-        setMin(ADR::attack, control.values[0].getMin());
-        setMax(ADR::attack, control.values[0].getMax());
-        setMin(ADR::decay, control.values[1].getMin());
-        setMax(ADR::decay, control.values[1].getMax());
-        setMin(ADR::release, control.values[2].getMin());
-        setMax(ADR::release, control.values[2].getMax());
-
-        setActiveSegment(ADR::attack);
-
+        setMinimum(control.values[0].getMin());
+        setMaximum(control.values[0].getMax());
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
-        updateValueFromParameterMap();
     }
 
-    virtual ~ADRControl() = default;
+    virtual ~KnobControl() = default;
 
     void onTouchMove(const TouchEvent &touchEvent) override
     {
-        int16_t max = values[activeHandle].getMax();
-        int16_t min = values[activeHandle].getMin();
+        int16_t max = value.getMax();
+        int16_t min = value.getMin();
 
         float step = getWidth() / (float)(max - min);
         int16_t newDisplayValue =
             constrain(ceil(touchEvent.getX() / step + min), min, max);
 
-        emitValueChange(newDisplayValue, control.getValue(activeHandle));
+        emitValueChange(newDisplayValue, control.getValue(0));
     }
 
     void onPotChange(const PotEvent &potEvent) override
     {
         if (potEvent.getRelativeChange()) {
             int16_t delta = potEvent.getAcceleratedChange();
-            int16_t newDisplayValue = getValue(activeHandle) + delta;
+            int16_t newDisplayValue = getValue() + delta;
 
-            emitValueChange(newDisplayValue, control.getValue(activeHandle));
+            emitValueChange(newDisplayValue, control.getValue(0));
         }
     }
 
@@ -59,18 +50,14 @@ public:
                                       value.message.getMidiMax(),
                                       value.getMin(),
                                       value.getMax());
-
-        if (0 <= handle && handle <= 2) {
-            setValue(handle, newDisplayValue);
-        }
+        setValue(newDisplayValue);
     }
 
     void paint(Graphics &g) override
     {
-        Rectangle envBounds = getBounds();
-        envBounds.setHeight(envBounds.getHeight() / 2);
-        computePoints(envBounds);
-        LookAndFeel::paintEnvelope(g, envBounds, colour, baselineY, points);
+        Rectangle knobBounds = getBounds();
+
+        Knob::paint(g);
 
         g.printText(0,
                     getHeight() - 20,
@@ -82,5 +69,4 @@ public:
     }
 
 private:
-    uint8_t activeHandle;
 };

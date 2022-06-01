@@ -105,7 +105,7 @@ public:
 
     void onMidiValueChange(const ControlValue &value,
                            int16_t midiValue,
-                           uint8_t handle = 1) override
+                           uint8_t handle = 0) override
     {
         if (auto list = getList()) {
             int16_t index = list->getIndexByValue(midiValue);

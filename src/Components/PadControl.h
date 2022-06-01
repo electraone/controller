@@ -9,8 +9,8 @@ class PadControl : public ControlComponent, public Pad
 public:
     explicit PadControl(const Control &control) : ControlComponent(control)
     {
-        setState(false);
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
+        updateValueFromParameterMap();
     }
 
     virtual ~PadControl() = default;
@@ -82,7 +82,7 @@ public:
 
     void onMidiValueChange(const ControlValue &value,
                            int16_t midiValue,
-                           uint8_t handle = 1) override
+                           uint8_t handle = 0) override
     {
         if (value.message.getOnValue() == midiValue) {
             setState(true);

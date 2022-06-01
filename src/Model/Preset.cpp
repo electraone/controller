@@ -1164,7 +1164,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
         max = 1;
     }
 
-#ifdef DEBUG
+    //#ifdef DEBUG
     logMessage(
         "parseValue: id=%s, index=%d, defaultValue=%d, min=%d, max=%d, overlayId=%d, formatter=%s, function=%s, overlay=%x",
         valueId,
@@ -1176,7 +1176,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
         formatter,
         function,
         overlay);
-#endif /* DEBUG */
+    //#endif /* DEBUG */
 
     return (ControlValue(control,
                          valueId,

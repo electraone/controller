@@ -10,10 +10,14 @@ class FaderControl : public ControlComponent, public BarHorizontal
 public:
     explicit FaderControl(const Control &control) : ControlComponent(control)
     {
-        setMinimum(control.values[0].getMin());
-        setMaximum(control.values[0].getMax());
+        const auto &controlValue = control.getValue(0);
+
+        setMinimum(controlValue.getMin());
+        setMaximum(controlValue.getMax());
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
-        list.assignListData(control.values[0].getOverlay());
+        list.assignListData(controlValue.getOverlay());
+
+        updateValueFromParameterMap();
     }
 
     virtual ~FaderControl() = default;
@@ -42,7 +46,7 @@ public:
 
     void onMidiValueChange(const ControlValue &value,
                            int16_t midiValue,
-                           uint8_t handle = 1) override
+                           uint8_t handle = 0) override
     {
         int16_t newDisplayValue =
             translateMidiValueToValue(value.message.getSignMode(),

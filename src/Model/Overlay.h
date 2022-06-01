@@ -1,7 +1,7 @@
 #pragma once
 
-#include "helpers.h"
 #include "ListData.h"
+#include <map>
 
 class Overlay : public ListData
 {
