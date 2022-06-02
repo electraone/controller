@@ -36,7 +36,9 @@ public:
 
     void onTouchUp(const TouchEvent &touchEvent) override
     {
-        setHighlighted(false);
+        if (highlighted) {
+            setHighlighted(false);
+        }
 
         if (!locked) {
             setLocked(true);
