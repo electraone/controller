@@ -16,6 +16,15 @@ PageView::PageView(const Preset &preset,
     addBottomBar(model.getName(), model.getPage(pageId).getName());
 }
 
+PageView::~PageView(void)
+{
+    parameterMap.disable();
+    System::tasks.disableRepaintGraphics();
+    System::tasks.clearRepaintGraphics();
+    System::tasks.enableRepaintGraphics();
+    parameterMap.enable();
+}
+
 void PageView::paint(Graphics &g)
 {
     g.fillAll(Colours::black);

@@ -11,10 +11,9 @@ bool Cc14Detector::parseControllerMessage(int deviceId,
                                           uint8_t controllerValue,
                                           MidiCc14Message &result)
 {
-    assert(deviceId >= 0 && deviceId < 33);
-    assert(controllerNumber >= 0 && controllerNumber < 128);
-    assert(controllerValue >= 0 && controllerValue < 128);
-
+    if (!((0<= deviceId) && (deviceId <= 32))) {
+        return (false);
+    }
     return (devices[deviceId].handleController(
         deviceId, controllerNumber, controllerValue, result));
 }

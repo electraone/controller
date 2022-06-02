@@ -304,6 +304,7 @@ void Midi::processCc(uint8_t deviceId,
         ElectraMessageType electraMessageType = (midiRpnMessage.isNrpn)
                                                     ? ElectraMessageType::nrpn
                                                     : ElectraMessageType::rpn;
+
         parameterMap.setValue(deviceId,
                               electraMessageType,
                               midiRpnMessage.parameterNumber,

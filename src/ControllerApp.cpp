@@ -143,6 +143,8 @@ bool Controller::loadPreset(LocalFile file)
     const char *presetFile = file.getFilepath();
 
     // clear all entries in the frame buffer
+    parameterMap.disable();
+    System::tasks.disableRepaintGraphics();
     System::tasks.clearRepaintGraphics();
 
     // Free current preset
@@ -217,6 +219,7 @@ bool Controller::loadPreset(LocalFile file)
         displayDefaultPage();
     }
 
+    System::tasks.enableRepaintGraphics();
     parameterMap.enable();
 
     return (true);

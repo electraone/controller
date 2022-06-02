@@ -9,7 +9,7 @@ public:
     PageView(const Preset &preset,
              uint8_t pageId,
              uint8_t activeControlSetId = 0);
-    virtual ~PageView() = default;
+    virtual ~PageView();
 
     void paint(Graphics &g) override;
     void resized(void) override;
