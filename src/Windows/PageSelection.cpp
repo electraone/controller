@@ -8,36 +8,33 @@ PageSelection::PageSelection(Pages newPages,
     : pages(newPages),
       activePage(newActivePage),
       delegate(newDelegate),
-      label{ nullptr }
+      pageButton{ nullptr }
 {
     setName("pageSelection");
 
     for (uint8_t i = 0; i < 12; i++) {
-        label[i] = new Label();
+        pageButton[i] = new PageButton();
 
-        if (label[i]) {
-            label[i]->setId(i);
+        if (pageButton[i]) {
+            pageButton[i]->setId(i);
 
             if (pages[i].getHasObjects()) {
-                label[i]->setLabel(pages[i].getName());
-                label[i]->assignPot(i);
-            } else {
-                label[i]->setLabel(".");
+                pageButton[i]->setLabel(pages[i].getName());
+                pageButton[i]->assignPot(i);
+                pageButton[i]->onClick = [this, i]() {
+                    setActivePage(i);
+                    return (true);
+                };
             }
 
             if (activePage == i) {
-                label[i]->setActive(true);
+                pageButton[i]->setSelected(true);
             }
 
-            label[i]->onClick = [this, i]() {
-                setActivePage(i);
-                return (true);
-            };
-
-            addAndMakeVisible(label[i]);
+            addAndMakeVisible(pageButton[i]);
         }
     }
-    setBounds(0, 460, 1024, 115);
+    setBounds(0, 365, 1024, 210);
 }
 
 void PageSelection::paint(Graphics &g)
@@ -45,28 +42,27 @@ void PageSelection::paint(Graphics &g)
     setActivePageLabel(activePage);
 
     g.dim(0, 0, getWidth(), getHeight(), 0x0000);
-    g.dim(0, 0, getWidth(), getHeight(), 0x0003);
+    g.dim(0, 0, getWidth(), getHeight(), 0x0001);
 
-    paintTitleBar(g, "Pages", getWidth(), 0x0003);
+    paintTitleBar(g, "Pages", getWidth(), 0x0002);
 }
 
 void PageSelection::resized(void)
 {
-    uint16_t segmentWidth = getWidth() / 6;
-    uint16_t segmentHeight = (getHeight() - topPadding) / 2;
+    uint16_t segmentWidth = getWidth() / 6 - 2;
+    uint16_t segmentHeight = (getHeight() - topPadding) / 2 - 10;
 
     for (uint8_t i = 0; i < 12; i++) {
         uint16_t x = (i % 6) * segmentWidth;
         uint16_t y = ((i < 6) ? 0 : segmentHeight + 10) + topPadding;
-
-        label[i]->setBounds({ x, y, segmentWidth, segmentHeight });
+        pageButton[i]->setBounds(x + 12, y, segmentWidth - 10, segmentHeight);
     }
 }
 
 void PageSelection::setActivePageLabel(uint8_t newActivePage)
 {
     for (Component *c : getChildren()) {
-        if (Label *l = dynamic_cast<Label *>(c)) {
+        if (PageButton *l = dynamic_cast<PageButton *>(c)) {
             // fragile, relies on the ids
             l->setActive((l->getId() == newActivePage) ? true : false);
         }
@@ -75,11 +71,15 @@ void PageSelection::setActivePageLabel(uint8_t newActivePage)
 
 void PageSelection::setActivePage(uint8_t newActivePage)
 {
+    pageButton[activePage]->setSelected(false);
+
     activePage = newActivePage;
 
     if (delegate) {
         delegate->setPage(activePage);
     }
+
+    pageButton[activePage]->setSelected(true);
 
     repaint();
 }

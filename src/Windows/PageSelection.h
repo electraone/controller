@@ -3,7 +3,7 @@
 #include "Component.h"
 #include "Model/Page.h"
 #include "UiDelegate.h"
-#include "Label.h"
+#include "PageButton.h"
 
 class PageSelection : public Component
 {
@@ -24,14 +24,13 @@ private:
                               uint32_t colour);
     static void paintIconPages(Graphics &g, uint16_t x, uint16_t y);
 
-    // Delegated functions ---------------------------------------------------
     void setActivePage(uint8_t newActivePage);
 
     Pages pages;
     uint8_t activePage;
     UiDelegate *delegate;
 
-    Label *label[12];
+    PageButton *pageButton[12];
 
     static constexpr uint8_t topPadding = 50;
 };
