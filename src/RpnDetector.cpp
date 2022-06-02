@@ -11,11 +11,11 @@ bool RpnDetector::parseControllerMessage(int deviceId,
                                          uint8_t controllerValue,
                                          MidiRpnMessage &result)
 {
-    if (!((0<= deviceId) && (deviceId <= 32))) {
+    if (!((0 <= deviceId) && (deviceId <= 32))) {
         return (false);
     }
 
-    return(devices[deviceId].handleController(
+    return (devices[deviceId].handleController(
         deviceId, controllerNumber, controllerValue, result));
 }
 
