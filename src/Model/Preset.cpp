@@ -331,7 +331,7 @@ bool Preset::parsePages(File &file)
         return (true);
     }
 
-    StaticJsonDocument<64> doc;
+    StaticJsonDocument<256> doc;
 
     do {
         auto err = deserializeJson(doc, file);
@@ -633,12 +633,17 @@ Page Preset::parsePage(JsonObject jPage)
 {
     uint8_t id = constrainPageId(jPage["id"]);
     const char *name = jPage["name"] | "No name";
+    uint8_t defaultControlSetId = jPage["defaultControlSetId"] | 0;
 
 #ifdef DEBUG
-    logMessage("parsePage: page created: id=%d, name=%s", id, name);
+    logMessage(
+        "parsePage: page created: id=%d, name=%s, defaultControlSetId=%d",
+        id,
+        name,
+        defaultControlSetId);
 #endif /* DEBUG */
 
-    return (Page(id, name));
+    return (Page(id, name, defaultControlSetId));
 }
 
 /*--------------------------------------------------------------------------*/

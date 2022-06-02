@@ -20,7 +20,7 @@ public:
     void onButtonUp(uint8_t buttonId) override;
 
     // Actions
-    void setPage(uint8_t pageId) override;
+    void setPage(uint8_t pageId, uint8_t controlSetId) override;
     void setControlSet(uint8_t controlSetId) override;
     void openDetail(uint16_t controlId) override;
     void lockDetail(void) override;

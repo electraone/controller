@@ -10,7 +10,8 @@ public:
         *name = '\0';
     }
 
-    Page(uint8_t id, const char *newName) : id(id)
+    Page(uint8_t id, const char *newName, uint8_t newDefaultControlSetId)
+        : id(id), defaultControlSetId(newDefaultControlSetId)
     {
         setName(newName);
     }
@@ -41,6 +42,16 @@ public:
         return (name);
     }
 
+    void setDefaultControlSetId(uint8_t newDefaultControlSetId)
+    {
+        defaultControlSetId = newDefaultControlSetId;
+    }
+
+    uint8_t getDefaultControlSetId(void) const
+    {
+        return (defaultControlSetId);
+    }
+
     bool getHasObjects(void) const
     {
         return (hasObjects);
@@ -63,6 +74,7 @@ private:
 
     uint8_t id;
     char name[MaxNameLength + 1];
+    uint8_t defaultControlSetId;
     bool hasObjects;
 };
 

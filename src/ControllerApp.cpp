@@ -81,7 +81,7 @@ void Controller::initialise(void)
 void Controller::displayDefaultPage(void)
 {
     if (delegate) {
-        delegate->setPage(0);
+        delegate->setPage(0, preset.getPage(0).getDefaultControlSetId());
     }
 }
 

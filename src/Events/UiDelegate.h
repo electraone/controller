@@ -4,7 +4,7 @@ class UiDelegate
 {
 public:
     // Actions
-    virtual void setPage(uint8_t pageId) = 0;
+    virtual void setPage(uint8_t pageId, uint8_t controlSetId) = 0;
     virtual void setControlSet(uint8_t controlSetId) = 0;
     virtual void openDetail(uint16_t controlId) = 0;
     virtual void lockDetail(void) = 0;

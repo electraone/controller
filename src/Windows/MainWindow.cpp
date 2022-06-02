@@ -32,13 +32,13 @@ void MainWindow::onButtonUp(uint8_t buttonId)
 {
 }
 
-void MainWindow::setPage(uint8_t pageId)
+void MainWindow::setPage(uint8_t pageId, uint8_t controlSetId)
 {
     setVisible(false);
 
     delete pageView;
 
-    PageView *newPageView = new PageView(preset, pageId);
+    PageView *newPageView = new PageView(preset, pageId, controlSetId);
 
     if (newPageView) {
         setOwnedContent(newPageView);
