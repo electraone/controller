@@ -17,30 +17,32 @@ public:
 
     void onTouchDown(const TouchEvent &touchEvent) override
     {
-        uint16_t midiValue = control.values[0].message.getOnValue();
+        const ControlValue cv = control.getValue(0);
+        uint16_t midiValue = cv.message.getOnValue();
 
         if (control.getMode() == ControlMode::toggle) {
-            midiValue = (state == false)
-                            ? control.values[0].message.getOnValue()
-                            : control.values[0].message.getOffValue();
+            midiValue = (state == false) ? cv.message.getOnValue()
+                                         : cv.message.getOffValue();
         }
 
-        parameterMap.setValue(control.values[0].message.getDeviceId(),
-                              control.values[0].message.getType(),
-                              control.values[0].message.getParameterNumber(),
+        parameterMap.setValue(cv.message.getDeviceId(),
+                              cv.message.getType(),
+                              cv.message.getParameterNumber(),
                               midiValue,
                               Origin::internal);
+        cv.callFunction(midiValue);
     }
 
     void onTouchUp(const TouchEvent &touchEvent) override
     {
         if (control.getMode() == ControlMode::momentary) {
-            parameterMap.setValue(
-                control.values[0].message.getDeviceId(),
-                control.values[0].message.getType(),
-                control.values[0].message.getParameterNumber(),
-                control.values[0].message.getOffValue(),
-                Origin::internal);
+            const ControlValue cv = control.getValue(0);
+            parameterMap.setValue(cv.message.getDeviceId(),
+                                  cv.message.getType(),
+                                  cv.message.getParameterNumber(),
+                                  cv.message.getOffValue(),
+                                  Origin::internal);
+            cv.callFunction(cv.message.getOnValue());
         }
     }
 
@@ -51,19 +53,19 @@ public:
         const ControlValue cv = control.getValue(0);
 
         if (step < 0 && state != true) {
-            parameterMap.setValue(
-                control.values[0].message.getDeviceId(),
-                control.values[0].message.getType(),
-                control.values[0].message.getParameterNumber(),
-                control.values[0].message.getOnValue(),
-                Origin::internal);
+            parameterMap.setValue(cv.message.getDeviceId(),
+                                  cv.message.getType(),
+                                  cv.message.getParameterNumber(),
+                                  cv.message.getOnValue(),
+                                  Origin::internal);
+            cv.callFunction(cv.message.getOffValue());
         } else if (step > 0 && state != false) {
-            parameterMap.setValue(
-                control.values[0].message.getDeviceId(),
-                control.values[0].message.getType(),
-                control.values[0].message.getParameterNumber(),
-                control.values[0].message.getOffValue(),
-                Origin::internal);
+            parameterMap.setValue(cv.message.getDeviceId(),
+                                  cv.message.getType(),
+                                  cv.message.getParameterNumber(),
+                                  cv.message.getOffValue(),
+                                  Origin::internal);
+            cv.callFunction(cv.message.getOnValue());
         }
     }
 
@@ -77,6 +79,7 @@ public:
                                   cv.message.getParameterNumber(),
                                   cv.message.getOffValue(),
                                   Origin::internal);
+            cv.callFunction(cv.message.getOffValue());
         }
     }
 

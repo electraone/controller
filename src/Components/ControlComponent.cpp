@@ -17,6 +17,16 @@ ControlComponent::ControlComponent(const Control &controlToAssign)
 {
 }
 
+void ControlComponent::onControlUpdated(void)
+{
+    Component *c = this;
+
+    c->setBounds(control.getBounds());
+    c->setName(control.getName());
+    c->setId(control.getId());
+    c->setVisible(control.isVisible());
+}
+
 void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
 {
     if (MainWindow *window = dynamic_cast<MainWindow *>(getWindow())) {
@@ -62,7 +72,7 @@ void ControlComponent::emitValueChange(int16_t newDisplayValue,
 
 Component *ControlComponent::createControlComponent(const Control &control)
 {
-    Component *c = nullptr;
+    ControlComponent *c = nullptr;
 
     if (control.getType() == ControlType::fader) {
         c = new FaderControl(control);
@@ -79,10 +89,7 @@ Component *ControlComponent::createControlComponent(const Control &control)
     }
 
     if (c) {
-        c->setBounds(control.getBounds());
-        c->setName(control.getName());
-        c->setId(control.getId());
-        c->setVisible(control.getVisible());
+        c->onControlUpdated();
     }
 
     return (c);

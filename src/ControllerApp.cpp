@@ -7,6 +7,10 @@ void Controller::initialise(void)
     // Set application context
     System::context.setAppName("ctrlv2");
 
+    // Set UI delegate
+    delegate = &mainWindow;
+    luaDelegate = delegate;
+
     // Get info about the last used preset
     currentPreset = System::runtimeInfo.getLastActivePreset();
     System::context.setCurrentFile(currentPreset);
@@ -62,9 +66,6 @@ void Controller::initialise(void)
         monitorFreeMemory();
     }
 
-    // Set UI delegate.
-    delegate = &mainWindow;
-
     // Display the preset if valid.
     if (preset.isValid()) {
         displayDefaultPage();
@@ -81,7 +82,7 @@ void Controller::initialise(void)
 void Controller::displayDefaultPage(void)
 {
     if (delegate) {
-        delegate->setPage(0, preset.getPage(0).getDefaultControlSetId());
+        delegate->setPage(1, preset.getPage(1).getDefaultControlSetId());
     }
 }
 
@@ -313,7 +314,6 @@ bool Controller::loadPresetById(int presetId)
     } else {
         logMessage("loadPresetById: preset loading failed");
         //bottomBar.update(preset.getName(), preset.pages[0].getName());
-        currentPage = 0;
     }
 
     //sendPresetSwitch(presetId / 12, presetId % 12);
@@ -328,6 +328,8 @@ bool Controller::loadPresetById(int presetId)
 void Controller::runPresetLuaScript(void)
 {
     closeLua();
+
+    luaPreset = &preset;
 
     if (isLuaValid(System::context.getCurrentLuaFile())) {
         initLua();

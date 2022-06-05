@@ -13,21 +13,22 @@ PageSelection::PageSelection(Pages newPages,
     setName("pageSelection");
 
     for (uint8_t i = 0; i < 12; i++) {
+        uint8_t pageId = i + 1;
         pageButton[i] = new PageButton();
 
         if (pageButton[i]) {
-            pageButton[i]->setId(i);
+            pageButton[i]->setId(pageId);
 
-            if (pages[i].getHasObjects()) {
-                pageButton[i]->setLabel(pages[i].getName());
+            if (pages[pageId].getHasObjects()) {
+                pageButton[i]->setLabel(pages[pageId].getName());
                 pageButton[i]->assignPot(i);
-                pageButton[i]->onClick = [this, i]() {
-                    setActivePage(i);
+                pageButton[i]->onClick = [this, pageId]() {
+                    setActivePage(pageId);
                     return (true);
                 };
             }
 
-            if (activePage == i) {
+            if (activePage == pageId) {
                 pageButton[i]->setSelected(true);
             }
 
@@ -71,7 +72,7 @@ void PageSelection::setActivePageLabel(uint8_t newActivePage)
 
 void PageSelection::setActivePage(uint8_t newActivePage)
 {
-    pageButton[activePage]->setSelected(false);
+    pageButton[activePage - 1]->setSelected(false);
 
     activePage = newActivePage;
 
@@ -80,7 +81,7 @@ void PageSelection::setActivePage(uint8_t newActivePage)
                           pages.at(activePage).getDefaultControlSetId());
     }
 
-    pageButton[activePage]->setSelected(true);
+    pageButton[activePage - 1]->setSelected(true);
 
     repaint();
 }

@@ -102,6 +102,11 @@ int16_t ControlValue::getMax(void) const
     return (max);
 }
 
+void ControlValue::setOverlayId(uint8_t newOverlayId)
+{
+    overlayId = newOverlayId;
+}
+
 uint8_t ControlValue::getOverlayId(void) const
 {
     return (overlayId);

@@ -32,8 +32,10 @@ public:
     const Device &getDevice(uint8_t deviceId) const;
     const Device &getDevice(uint8_t port, uint8_t channel) const;
     Overlay *getOverlay(uint8_t overlayId);
-    Group *getGroup(uint8_t groupId);
+    const Group &getGroup(uint8_t groupId) const;
+    Group &getGroup(uint8_t groupId);
     const Control &getControl(uint16_t controlId) const;
+    Control &getControl(uint16_t controlId);
 
     // \todo do we need these?
     bool getPresetNameFast(File &file,
@@ -139,7 +141,7 @@ private:
 
     static uint8_t constrainPageId(uint8_t pageId)
     {
-        return (constrain(pageId, 1, MaxNumPages) - 1);
+        return (constrain(pageId, 1, MaxNumPages));
     }
 
     static uint8_t constrainControlSetId(uint8_t controlSetId)
@@ -188,6 +190,7 @@ public: // Public on the purpose
     static Page pageNotFound;
     static Device deviceNotFound;
     static Control controlNotFound;
+    static Group groupNotFound;
 };
 
 #define MAX_POT_ID 12

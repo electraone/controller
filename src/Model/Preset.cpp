@@ -6,6 +6,7 @@
 Page Preset::pageNotFound;
 Device Preset::deviceNotFound;
 Control Preset::controlNotFound;
+Group Preset::groupNotFound;
 
 Preset::Preset() : valid(false)
 {
@@ -177,26 +178,53 @@ Overlay *Preset::getOverlay(uint8_t overlayId)
     return (overlay);
 }
 
-/** Get group pointer by the Id
+/** Get group by the Id
  *
  */
-Group *Preset::getGroup(uint8_t groupId)
+const Group &Preset::getGroup(uint8_t groupId) const
 {
-    Group *group = nullptr;
-
     try {
-        group = &groups.at(groupId);
+        return groups.at(groupId);
     } catch (std::out_of_range const &) {
-        group = nullptr;
+        logMessage("getGroup: group does not exist: groupId=%d", groupId);
     }
 
-    return (group);
+    return (Preset::groupNotFound);
+}
+
+/** Get group by the Id
+ *
+ */
+Group &Preset::getGroup(uint8_t groupId)
+{
+    try {
+        return groups.at(groupId);
+    } catch (std::out_of_range const &) {
+        logMessage("getGroup: group does not exist: groupId=%d", groupId);
+    }
+
+    return (Preset::groupNotFound);
 }
 
 /** Get Control by the controlId
  *
  */
 const Control &Preset::getControl(uint16_t controlId) const
+{
+    try {
+        return controls.at(controlId);
+    } catch (std::out_of_range const &) {
+        logMessage("getControl: control does not exist: controlId=%d",
+                   controlId);
+    }
+
+    return (Preset::controlNotFound);
+}
+
+/** Get Control by the controlId
+ *
+ */
+Control &Preset::getControl(uint16_t controlId)
 {
     try {
         return controls.at(controlId);
@@ -635,13 +663,13 @@ Page Preset::parsePage(JsonObject jPage)
     const char *name = jPage["name"] | "No name";
     uint8_t defaultControlSetId = jPage["defaultControlSetId"] | 0;
 
-#ifdef DEBUG
+    //#ifdef DEBUG
     logMessage(
         "parsePage: page created: id=%d, name=%s, defaultControlSetId=%d",
         id,
         name,
         defaultControlSetId);
-#endif /* DEBUG */
+    //#endif /* DEBUG */
 
     return (Page(id, name, defaultControlSetId));
 }

@@ -14,7 +14,6 @@ public:
 
         setMinimum(controlValue.getMin());
         setMaximum(controlValue.getMax());
-        setColour(ElectraColours::getNumericRgb565(control.getColour()));
         list.assignListData(controlValue.getOverlay());
 
         updateValueFromParameterMap();
@@ -61,6 +60,7 @@ public:
 
     void paint(Graphics &g) override
     {
+        colour = ElectraColours::getNumericRgb565(control.getColour());
         Rectangle sliderBounds = getBounds();
 
         paintFader(g,

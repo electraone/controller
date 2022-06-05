@@ -16,6 +16,11 @@ public:
 
     virtual ~Input() = default;
 
+    void setPotId(uint8_t newPotId)
+    {
+        potId = newPotId;
+    }
+
     uint8_t getPotId(void) const
     {
         return (potId);

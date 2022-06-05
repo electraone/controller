@@ -10,13 +10,15 @@
 #include "UiDelegate.h"
 #include "Midi.h"
 
+Preset *luaPreset = nullptr;
+UiDelegate *luaDelegate = nullptr;
+
 class Controller : public App, private MidiInputCallback
 {
 public:
     Controller()
         : mainWindow(MainWindow(preset)),
           delegate(nullptr),
-          currentPage(0),
           currentPreset(0),
           currentPresetBank(0),
           readyForPresetSwitch(true),
@@ -76,7 +78,6 @@ private:
 
     // App state
     char presetNames[NumPresetsInBank][Preset::MaxNameLength + 1];
-    uint8_t currentPage;
     uint8_t currentPresetBank;
     uint8_t currentPreset;
     bool readyForPresetSwitch;

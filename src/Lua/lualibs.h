@@ -1,11 +1,17 @@
 #pragma once
 
 #include "luaHooks.h"
+#include "Device.h"
+#include "luaWindow.h"
+#include "luaPatch.h"
 #include "luaParameterMap.h"
 #include "luaLE.h"
 
 void loadLuaLibs();
 void loadGlobalVariables(lua_State *L);
+
+// table composers
+void luaLE_pushDevice(Device &device);
 
 // validators
 bool luaLE_checkBoolean(lua_State *L, int idx);

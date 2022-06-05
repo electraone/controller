@@ -2,6 +2,7 @@
 
 #include "helpers.h"
 #include "Colours.h"
+#include "Component.h"
 
 class Group
 {
@@ -9,7 +10,12 @@ private:
     static constexpr uint8_t maxLabelLength = 40;
 
 public:
-    Group() : id(0), pageId(0), colour(ElectraColours::white)
+    Group()
+        : id(0),
+          pageId(0),
+          colour(ElectraColours::white),
+          visible(true),
+          component(nullptr)
     {
         setLabel(nullptr);
     }
@@ -19,12 +25,21 @@ public:
           const Rectangle &newBounds,
           const char *newLabel,
           Colour newColour)
-        : id(newId), pageId(newPageId), colour(newColour), bounds(newBounds)
+        : id(newId),
+          pageId(newPageId),
+          colour(newColour),
+          bounds(newBounds),
+          component(nullptr)
     {
         setLabel(newLabel);
     }
 
     virtual ~Group() = default;
+
+    bool isValid(void) const
+    {
+        return (id != 0);
+    }
 
     void setId(uint8_t newId)
     {
@@ -70,6 +85,16 @@ public:
         return (colour);
     }
 
+    void setVisible(bool shouldBeVisible)
+    {
+        visible = shouldBeVisible;
+    }
+
+    bool isVisible(void) const
+    {
+        return ((bool)visible);
+    }
+
     void setBounds(const Rectangle &newBounds)
     {
         bounds = newBounds;
@@ -80,21 +105,43 @@ public:
         return (bounds);
     }
 
+    void setComponent(Component *newComponent)
+    {
+        component = newComponent;
+    }
+
+    void resetComponent(void)
+    {
+        component = nullptr;
+    }
+
+    Component *getComponent(void) const
+    {
+        return (component);
+    }
+
     void print(void) const
     {
         logMessage("id: %d", getId());
         logMessage("label: %s", getLabel());
         logMessage("pageId: %d", getPageId());
         logMessage("colour: %d", getColour());
+        logMessage("visible: %d", isVisible());
         getBounds().print();
     }
 
 private:
-    uint8_t id;
+    struct {
+        uint16_t id : 9;
+        uint8_t pageId : 4;
+        uint8_t colour : 3;
+        uint8_t visible : 1;
+    };
+
     char label[maxLabelLength + 1];
-    uint8_t pageId;
-    uint8_t colour;
     Rectangle bounds;
+
+    Component *component;
 };
 
 typedef std::map<uint8_t, Group> Groups;

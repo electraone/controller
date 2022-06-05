@@ -1,16 +1,45 @@
 #include "luabridge.h"
 #include "lualibs.h"
+#include "luaParameterMap.h"
+#include "luaValue.h"
+#include "luaHelpers.h"
+#include "luaGroup.h"
+#include "luaPage.h"
+#include "luaDevice.h"
+#include "luaControl.h"
+#include "luaMessage.h"
 
 void loadLuaLibs(void)
 {
-    static const luaL_Reg ctrlv2libs[] = {
-        { "parameterMap", luaopen_parameterMap }, { NULL, NULL }
-    };
+    static const luaL_Reg ctrlv2libs[] = { { "parameterMap",
+                                             luaopen_parameterMap },
+                                           { "pages", luaopen_pages },
+                                           { "groups", luaopen_groups },
+                                           { "devices", luaopen_devices },
+                                           { "controls", luaopen_controls },
+                                           { "helpers", luaopen_helpers },
+                                           { "window", luaopen_window },
+                                           { "patch", luaopen_patch },
+                                           { NULL, NULL } };
 
     luaLE_openEoslibs(L, ctrlv2libs);
+    value_register(L);
+    page_register(L);
+    group_register(L);
+    device_register(L);
+    control_register(L);
+    message_register(L);
 
     // Clear the stack
     lua_settop(L, 0);
+}
+
+void luaLE_pushDevice(Device &device)
+{
+    lua_newtable(L);
+    luaLE_pushTableInteger(L, "id", device.getId());
+    luaLE_pushTableInteger(L, "port", device.getPort());
+    luaLE_pushTableInteger(L, "channel", device.getChannel());
 }
 
 bool luaLE_checkBoolean(lua_State *L, int idx)

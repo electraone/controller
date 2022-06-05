@@ -41,6 +41,7 @@ public:
     int16_t getMin(void) const;
     void setMax(int16_t newMax);
     int16_t getMax(void) const;
+    void setOverlayId(uint8_t newOverlayId);
     uint8_t getOverlayId(void) const;
     Overlay *getOverlay(void) const;
     uint16_t getNumSteps(void) const;

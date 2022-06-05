@@ -8,5 +8,3 @@ extern "C" {
 
 #include "lualibs.h"
 #include "luaLE.h"
-
-//void repaintPageGraphics (Component *component);

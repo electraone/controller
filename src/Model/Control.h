@@ -8,6 +8,7 @@
 #include "Input.h"
 #include "Rectangle.h"
 #include "Colours.h"
+#include "Component.h"
 
 enum class ControlType {
     none = 0,
@@ -41,24 +42,36 @@ public:
 
     virtual ~Control() = default;
 
+    bool isValid(void) const;
     uint16_t getId(void) const;
     uint8_t getPageId(void) const;
     ControlType getType(void) const;
     ControlMode getMode(void) const;
+    void setColour(Colour newColour);
     Colour getColour(void) const;
+    void setName(const char *newName);
     const char *getName(void) const;
+    void setControlSetId(uint8_t newControlSetId);
     uint8_t getControlSetId(void) const;
     Variant getVariant(void) const;
-    bool getVisible(void) const;
+    void setVisible(bool shouldBeVisible);
+    bool isVisible(void) const;
     Rectangle getBounds(void) const;
     void setBounds(const Rectangle &bounds);
     void setValues(std::vector<ControlValue> values);
-    //ControlValue *getValue(const char *valueId);
     const ControlValue &getValue(uint8_t index) const;
+    const ControlValue &getValueByValueId(const char *valueId) const;
 
     static ControlType translateControlType(const char *typeText);
     static ControlMode translateControlMode(const char *modeText);
     static Variant translateVariant(const char *variantText);
+
+    const char *translateValueId(uint8_t id) const;
+    uint8_t translateValueId(const char *handle) const;
+
+    void setComponent(Component *newComponent);
+    void resetComponent(void);
+    Component *getComponent(void) const;
 
     void print(void) const;
     void printValues(void) const;
@@ -80,6 +93,8 @@ private:
 
     Rectangle bounds;
     char name[MaxNameLength + 1];
+
+    Component *component;
 
 public:
     std::vector<ControlValue> values;
