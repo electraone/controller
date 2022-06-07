@@ -35,10 +35,8 @@ public:
 
     void onPotChange(const PotEvent &potEvent) override
     {
-        if (potEvent.getRelativeChange()) {
-            int16_t delta = potEvent.getAcceleratedChange();
+        if (int16_t delta = potEvent.getAcceleratedChange()) {
             int16_t newDisplayValue = getValue() + delta;
-
             emitValueChange(newDisplayValue, control.getValue(0));
         }
     }

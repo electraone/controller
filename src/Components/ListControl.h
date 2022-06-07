@@ -14,6 +14,7 @@ public:
     {
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
         updateValueFromParameterMap();
+        enableEncoderMode(true);
     }
 
     virtual ~ListControl() = default;
@@ -36,12 +37,11 @@ public:
     void onPotChange(const PotEvent &potEvent) override
     {
         if (auto list = getList()) {
-            int16_t newIndex =
-                constrain(index + potEvent.getAcceleratedChange(),
-                          0,
-                          list->getMaxIndex());
-
-            emitValueChange(newIndex, control.getValue(0));
+            if (int16_t delta = potEvent.getAcceleratedChange()) {
+                int16_t newIndex =
+                    constrain(index + delta, 0, list->getMaxIndex());
+                emitValueChange(newIndex, control.getValue(0));
+            }
         }
     }
 

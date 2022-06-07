@@ -234,7 +234,6 @@ void MainWindow::setGroupSlot(Group *group,
                               uint8_t newWidth,
                               uint8_t newHeight)
 {
-
     // Keep width within the boundaries
     int rowPosition = (newSlot - 1) % 6;
 
@@ -249,7 +248,7 @@ void MainWindow::setGroupSlot(Group *group,
         newHeight -= colPosition;
     }
 
-/*
+    /*
     if (group) {
         GroupGraphics *groupGraphics = group->getGroupGraphics();
 
