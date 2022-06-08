@@ -9,7 +9,9 @@ int luaopen_patch(lua_State *L)
     return 1;
 }
 
-void runOnResponse(Device &device, uint8_t responseId, SysexBlock &sysexBlock)
+void runOnResponse(const Device &device,
+                   uint8_t responseId,
+                   SysexBlock &sysexBlock)
 {
     luaLE_getModuleFunction(L, "patch", "onResponse");
 
@@ -28,7 +30,7 @@ void runOnResponse(Device &device, uint8_t responseId, SysexBlock &sysexBlock)
     }
 }
 
-void runOnRequest(Device &device)
+void runOnRequest(const Device &device)
 {
     luaLE_getModuleFunction(L, "patch", "onRequest");
 

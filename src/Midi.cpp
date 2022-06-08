@@ -2,7 +2,10 @@
 #include "Event.h"
 #include "Checksum.h"
 #include "luaHooks.h"
+#include "luaPatch.h"
 #include "ParameterMap.h"
+
+CircularBuffer<PatchRequest, 128> patchRequests;
 
 /** Constructor
  *
@@ -84,18 +87,13 @@ void Midi::sendMessage(const Message &message)
  */
 void Midi::sendTemplatedSysex(const Device &device, std::vector<uint8_t> data)
 {
-    static const int maxSysexSize = 512;
+    const int maxSysexSize = 512;
 
     if (data.size() < maxSysexSize) {
         uint8_t sysexData[maxSysexSize];
-        uint8_t sysexDataLength = 0;
-
+        uint16_t sysexDataLength = 0;
         sysexDataLength = transformMessage(device, data, sysexData);
-
-        MidiOutput::sendSysEx(MidiInterface::Type::MidiUsbDev,
-                              device.getPort(),
-                              sysexData,
-                              sysexDataLength);
+        sendSysEx(device.getPort(), sysexData, sysexDataLength);
     } else {
         logMessage(
             "sendTemplatedSysex: message exceeds allowed maximum length: %d",
@@ -110,9 +108,9 @@ uint8_t Midi::transformMessage(const Device &device,
                                std::vector<uint8_t> data,
                                uint8_t *dataOut)
 {
-    uint8_t j = 0;
+    uint16_t j = 0;
 
-    for (uint8_t i = 0; i < data.size(); i++) {
+    for (uint16_t i = 0; i < data.size(); i++) {
         uint8_t type = 0;
         uint8_t parameterIdLSB;
         uint8_t parameterIdMSB;
@@ -359,6 +357,24 @@ void Midi::processProgramChange(uint8_t deviceId, uint8_t programNumber)
         deviceId, ElectraMessageType::program, 0, programNumber, Origin::midi);
 }
 
+void Midi::requestAllPatches(void)
+{
+    for (auto &[id, device] : model.devices) {
+        for (const auto &request : device.requests) {
+            patchRequests.push(
+                PatchRequest(device.getPort(), device.getId(), request));
+        }
+
+        if (L) {
+            runOnRequest(device);
+        }
+    }
+
+    if (!patchRequests.isEmpty()) {
+        System::tasks.enableUserTask();
+    }
+}
+
 void Midi::sendControlChange(uint8_t port,
                              uint8_t channel,
                              uint8_t parameterNumber,
@@ -455,5 +471,12 @@ void Midi::sendTuneRequest(uint8_t port)
 {
     for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
         MidiOutput::sendTuneRequest(interfaceType, port);
+    }
+}
+
+void Midi::sendSysEx(uint8_t port, uint8_t *sysexData, uint16_t sysexDataLength)
+{
+    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
+        MidiOutput::sendSysEx(interfaceType, port, sysexData, sysexDataLength);
     }
 }

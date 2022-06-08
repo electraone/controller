@@ -11,6 +11,23 @@
 #include "RpnDetector.h"
 #include "ElectraMessage.h"
 
+struct PatchRequest {
+    PatchRequest() : port(0), deviceId(0)
+    {
+    }
+
+    PatchRequest(uint8_t port, uint8_t deviceId, std::vector<uint8_t> data)
+        : port(port), deviceId(deviceId), data(data)
+    {
+    }
+
+    uint8_t deviceId;
+    uint8_t port;
+    std::vector<uint8_t> data;
+};
+
+extern CircularBuffer<PatchRequest, 128> patchRequests;
+
 class Midi
 {
 public:
@@ -27,6 +44,7 @@ public:
 
     void processMidi(const MidiInput &midiInput,
                      const MidiMessage &midiMessage);
+    void requestAllPatches(void);
 
 private:
     uint8_t transformMessage(const Device &deviceId,
@@ -76,6 +94,8 @@ private:
     static void sendStart(uint8_t port);
     static void sendStop(uint8_t port);
     static void sendTuneRequest(uint8_t port);
+    static void
+        sendSysEx(uint8_t port, uint8_t *data, uint16_t sysexDataLength);
 
     std::vector<std::string> *luaFunctions;
 

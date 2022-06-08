@@ -341,3 +341,19 @@ void Controller::runPresetLuaScript(void)
         assignLuaCallbacks();
     }
 }
+
+void Controller::runUserTask(void)
+{
+    PatchRequest request;
+
+    if (patchRequests.isEmpty() != true) {
+        request = patchRequests.shift();
+        Device device = preset.getDevice(request.deviceId);
+
+        if (device.isValid()) {
+            midi.sendTemplatedSysex(device, request.data);
+        }
+    } else {
+        System::tasks.disableUserTask();
+    }
+}

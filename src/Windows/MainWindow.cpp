@@ -2,8 +2,9 @@
 #include "ControlComponent.h"
 #include "GroupControl.h"
 
-MainWindow::MainWindow(Preset &newPreset)
+MainWindow::MainWindow(Preset &newPreset, Midi &newMidi)
     : preset(newPreset),
+      midi(newMidi),
       pageView(nullptr),
       pageSelectionWindow(nullptr),
       detailWindow(nullptr),
@@ -20,6 +21,7 @@ void MainWindow::onButtonDown(uint8_t buttonId)
     } else if (buttonId == 3) {
         logMessage("callback from mainWindow");
         System::windowManager.listWindows();
+        requestAllPatches();
     } else if (buttonId == 4) {
         logMessage("callback from mainWindow");
         buttonBroadcaster.listListeners();
@@ -234,6 +236,8 @@ void MainWindow::setGroupSlot(Group *group,
                               uint8_t newWidth,
                               uint8_t newHeight)
 {
+    Rectangle bounds = slotToBounds(newSlot);
+
     // Keep width within the boundaries
     int rowPosition = (newSlot - 1) % 6;
 
@@ -247,30 +251,6 @@ void MainWindow::setGroupSlot(Group *group,
     if ((colPosition + newHeight) > 6) {
         newHeight -= colPosition;
     }
-
-    /*
-    if (group) {
-        GroupGraphics *groupGraphics = group->getGroupGraphics();
-
-        Rectangle bounds = slotToBounds(slot);
-
-        bounds.setX(bounds.getX() + 8);
-        bounds.setWidth(width * 159 + ((width - 1) * 21));
-
-        if (height > 0) {
-            bounds.setHeight(height * 80 + ((height - 1) * 8) + 2);
-        } else {
-            bounds.setHeight(16);
-        }
-
-        if (groupGraphics) {
-            groupGraphics->setBounds(bounds);
-            repaintPageGraphics(groupGraphics);
-        }
-    }
-    */
-
-    Rectangle bounds = slotToBounds(newSlot);
 
     bounds.setX(bounds.getX() - 8);
     bounds.setY(bounds.getY() - 24);
@@ -295,7 +275,7 @@ void MainWindow::setGroupSlot(Group *group,
 
 void MainWindow::requestAllPatches(void)
 {
-    logMessage("need to request all patches");
+    midi.requestAllPatches();
 }
 
 void MainWindow::assignComponentToControl(uint16_t controlId,

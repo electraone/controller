@@ -34,7 +34,7 @@ void loadLuaLibs(void)
     lua_settop(L, 0);
 }
 
-void luaLE_pushDevice(Device &device)
+void luaLE_pushDevice(const Device &device)
 {
     lua_newtable(L);
     luaLE_pushTableInteger(L, "id", device.getId());

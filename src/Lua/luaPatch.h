@@ -6,8 +6,10 @@
 
 int luaopen_patch(lua_State *L);
 
-void runOnResponse(Device &device, uint8_t responseId, SysexBlock &sysexBlock);
-void runOnRequest(Device &device);
+void runOnResponse(const Device &device,
+                   uint8_t responseId,
+                   SysexBlock &sysexBlock);
+void runOnRequest(const Device &device);
 int patch_requestAll(lua_State *L);
 
 static const luaL_Reg patch_functions[] = { { "requestAll", patch_requestAll },

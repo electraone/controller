@@ -1,7 +1,6 @@
 #pragma once
 
 #define MIDI_VALUE_DO_NOT_SEND 16537
-#define MIDI_VALUE_TO_IGNORE 16536
 
 enum class ElectraMessageType {
     virt = 0,

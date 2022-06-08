@@ -11,7 +11,7 @@ void loadLuaLibs();
 void loadGlobalVariables(lua_State *L);
 
 // table composers
-void luaLE_pushDevice(Device &device);
+void luaLE_pushDevice(const Device &device);
 
 // validators
 bool luaLE_checkBoolean(lua_State *L, int idx);

@@ -17,7 +17,7 @@ class Controller : public App, private MidiInputCallback
 {
 public:
     Controller()
-        : mainWindow(MainWindow(preset)),
+        : mainWindow(MainWindow(preset, midi)),
           delegate(nullptr),
           currentPreset(0),
           currentPresetBank(0),
@@ -65,6 +65,7 @@ private:
     bool loadPreset(LocalFile file);
     void reset(void);
     void runPresetLuaScript(void);
+    void runUserTask(void);
 
     // UI
     MainWindow mainWindow;

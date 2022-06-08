@@ -7,13 +7,14 @@
 #include "PageView.h"
 #include "UiDelegate.h"
 #include "Model/Preset.h"
+#include "../Midi.h"
 
 #include "System.h"
 
 class MainWindow : public ParameterMapWindow, public UiDelegate
 {
 public:
-    explicit MainWindow(Preset &newPreset);
+    MainWindow(Preset &newPreset, Midi &newMidi);
     virtual ~MainWindow() = default;
 
     void onButtonDown(uint8_t buttonId) override;
@@ -78,6 +79,7 @@ private:
     PageView *pageView;
     uint8_t currentPageId;
     uint8_t currentControlSetId;
+    Midi &midi;
 
     // Sub-windows
     PageSelectionWindow *pageSelectionWindow;
