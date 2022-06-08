@@ -7,8 +7,7 @@
 #include "PageView.h"
 #include "UiDelegate.h"
 #include "Model/Preset.h"
-#include "../Midi.h"
-
+#include "Midi/Midi.h"
 #include "System.h"
 
 class MainWindow : public ParameterMapWindow, public UiDelegate
