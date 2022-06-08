@@ -56,7 +56,7 @@ void Preset::reset(void)
 
     groups.clear();
     devices.clear();
-    luaFunctions = std::vector<String>();
+    luaFunctions = std::vector<std::string>({ "" });
     overlays.clear();
     pages.clear();
 }
@@ -594,7 +594,7 @@ bool Preset::parseControls(File &file)
     }
 
     StaticJsonDocument<1024> doc;
-    StaticJsonDocument<256> filter;
+    StaticJsonDocument<512> filter;
 
     /* filter root elements only */
     filter["id"] = true;
@@ -1120,11 +1120,23 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
     int16_t min = 0;
     int16_t max = 0;
     const char *defaultValueText = "";
+    const char *formatter = nullptr;
+    const char *function = nullptr;
+    uint8_t formatterIndex = 0;
+    uint8_t functionIndex = 0;
 
     const char *valueId = jValue["id"] | "";
     uint8_t overlayId = jValue["overlayId"] | 0;
-    const char *formatter = jValue["formatter"];
-    const char *function = jValue["function"];
+
+    if (jValue["formatter"]) {
+        formatter = jValue["formatter"].as<char *>();
+        formatterIndex = registerFunction(formatter);
+    }
+
+    if (jValue["function"]) {
+        function = jValue["function"].as<char *>();
+        functionIndex = registerFunction(function);
+    }
 
     ControlType controlType = control->getType();
     uint8_t valueIndex = translateValueId(controlType, valueId);
@@ -1219,8 +1231,8 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
                          max,
                          overlayId,
                          message,
-                         formatter,
-                         function,
+                         luaFunctions[formatterIndex],
+                         luaFunctions[functionIndex],
                          overlay));
 }
 
@@ -1794,7 +1806,7 @@ void Preset::print(void) const
 
     logMessage("--[Lua Functions]------------------------------");
     for (const auto &function : luaFunctions) {
-        logMessage("function: %s", function);
+        logMessage("function: %s", function.c_str());
     }
 
     logMessage("--[end]----------------------------------------");

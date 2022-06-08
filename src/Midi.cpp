@@ -10,7 +10,7 @@ CircularBuffer<PatchRequest, 128> patchRequests;
 /** Constructor
  *
  */
-Midi::Midi(const Preset &preset) : luaFunctions(nullptr), model(preset)
+Midi::Midi(const Preset &preset) : model(preset)
 {
 }
 
@@ -111,114 +111,150 @@ uint8_t Midi::transformMessage(const Device &device,
     uint16_t j = 0;
 
     for (uint16_t i = 0; i < data.size(); i++) {
-        uint8_t type = 0;
-        uint8_t parameterIdLSB;
-        uint8_t parameterIdMSB;
-        uint16_t parameterId = 0;
-        uint8_t pPos = 0;
-        uint8_t bPos = 0;
-        uint8_t size = 0;
-        uint8_t byteToSend = 0;
-        uint16_t parameterValue = 0;
-        uint16_t mask = 0;
-
         if (data[i] == VARIABLE_DATA) {
-            i++;
-
-            while ((data[i] != VARIABLE_DATA_END) && (i < 100)) {
-                type = data[i];
-                i++;
-                parameterIdLSB = data[i];
-                i++;
-                parameterIdMSB = data[i];
-                i++;
-                parameterId = parameterIdLSB + (parameterIdMSB * 128);
-                pPos = data[i];
-                i++;
-                bPos = data[i];
-                i++;
-                size = data[i];
-                i++;
-                mask = createMask(pPos, size);
-
-                parameterValue =
-                    ((parameterMap.getValue(
-                          device.getId(), (ElectraMessageType)type, parameterId)
-                      & mask)
-                     >> pPos)
-                    << bPos;
-                byteToSend |= parameterValue;
-            }
-
-            dataOut[j] =
-                byteToSend & 0x7F; // mask to 7bit and assign to output array
-            j++;
+            runVariable(i, j, data, dataOut, device);
         } else if (data[i] == CHECKSUM) {
-            i++;
-            ChecksumAlgorithm algorithm = (ChecksumAlgorithm)data[i];
-            i++;
-            uint8_t start = data[i];
-            i++;
-            uint8_t length = data[i];
-            uint8_t checksum = 0;
-
-            if (algorithm == ChecksumAlgorithm::ROLAND) {
-                checksum = calculateChecksum(&dataOut[start], length);
-            } else if (algorithm == ChecksumAlgorithm::FRACTALAUDIO) {
-                checksum =
-                    calculateChecksum_fractalaudio(&dataOut[start], length);
-            } else if (algorithm == ChecksumAlgorithm::WALDORF) {
-                checksum = calculateChecksum_waldorf(&dataOut[start], length);
-            } else {
-                checksum = 0;
-            }
-
-            dataOut[j] = checksum & 0x7F;
-            j++;
-
-            logMessage(
-                "Checksum calculation: algorithm=%d, start=%d, length=%d, checksum=%d",
-                algorithm,
-                start,
-                length,
-                checksum);
+            runChecksum(i, j, data, dataOut, device);
         } else if (data[i] == LUAFUNCTION) {
-            i++;
-            type = data[i];
-            i++;
-            parameterIdLSB = data[i];
-            i++;
-            parameterIdMSB = data[i];
-            i++;
-            uint8_t functionId = data[i];
-
-            parameterId = parameterIdLSB + (parameterIdMSB * 128);
-            parameterValue = parameterMap.getValue(
-                device.getId(), (ElectraMessageType)type, parameterId);
-
-            if (L && luaFunctions) {
-                byteToSend =
-                    runTemplateFunction((*luaFunctions)[functionId].c_str(),
-                                        (void *)&device,
-                                        parameterValue);
-            }
-
-            dataOut[j] = byteToSend & 0x7F; // output of function
-            j++;
+            runLuaFunction(i, j, data, dataOut, device);
         } else {
-            dataOut[j] = data[i];
-            j++;
+            runConstant(i, j, data, dataOut, device);
         }
     }
     return (j);
 }
 
-/** Register all available Lua functions
- *
- */
-void Midi::registerLuaFunctions(std::vector<std::string> *newLuaFunctions)
+void Midi::runVariable(uint16_t &i,
+                       uint16_t &j,
+                       std::vector<uint8_t> data,
+                       uint8_t *dataOut,
+                       const Device &device)
 {
-    luaFunctions = newLuaFunctions;
+    uint8_t type = 0;
+    uint8_t parameterIdLSB;
+    uint8_t parameterIdMSB;
+    uint16_t parameterId = 0;
+    uint8_t pPos = 0;
+    uint8_t bPos = 0;
+    uint8_t size = 0;
+    uint8_t byteToSend = 0;
+    uint16_t parameterValue = 0;
+    uint16_t mask = 0;
+
+    i++;
+
+    while ((data[i] != VARIABLE_DATA_END) && (i < 100)) {
+        type = data[i];
+        i++;
+        parameterIdLSB = data[i];
+        i++;
+        parameterIdMSB = data[i];
+        i++;
+        parameterId = parameterIdLSB + (parameterIdMSB * 128);
+        pPos = data[i];
+        i++;
+        bPos = data[i];
+        i++;
+        size = data[i];
+        i++;
+        mask = createMask(pPos, size);
+
+        parameterValue =
+            ((parameterMap.getValue(
+                  device.getId(), (ElectraMessageType)type, parameterId)
+              & mask)
+             >> pPos)
+            << bPos;
+        byteToSend |= parameterValue;
+    }
+
+    dataOut[j] = byteToSend & 0x7F; // mask to 7bit and assign to output array
+    j++;
+}
+
+void Midi::runChecksum(uint16_t &i,
+                       uint16_t &j,
+                       std::vector<uint8_t> data,
+                       uint8_t *dataOut,
+                       const Device &device)
+{
+    i++;
+    ChecksumAlgorithm algorithm = (ChecksumAlgorithm)data[i];
+    i++;
+    uint8_t start = data[i];
+    i++;
+    uint8_t length = data[i];
+    uint8_t checksum = 0;
+
+    if (algorithm == ChecksumAlgorithm::ROLAND) {
+        checksum = calculateChecksum(&dataOut[start], length);
+    } else if (algorithm == ChecksumAlgorithm::FRACTALAUDIO) {
+        checksum = calculateChecksum_fractalaudio(&dataOut[start], length);
+    } else if (algorithm == ChecksumAlgorithm::WALDORF) {
+        checksum = calculateChecksum_waldorf(&dataOut[start], length);
+    } else {
+        checksum = 0;
+    }
+
+    dataOut[j] = checksum & 0x7F;
+    j++;
+
+    logMessage(
+        "Checksum calculation: algorithm=%d, start=%d, length=%d, checksum=%d",
+        algorithm,
+        start,
+        length,
+        checksum);
+}
+
+void Midi::runLuaFunction(uint16_t &i,
+                          uint16_t &j,
+                          std::vector<uint8_t> data,
+                          uint8_t *dataOut,
+                          const Device &device)
+{
+    uint8_t type = 0;
+    uint8_t parameterIdLSB;
+    uint8_t parameterIdMSB;
+    uint16_t parameterId = 0;
+    uint16_t parameterValue = 0;
+    uint8_t byteToSend = 0;
+
+    i++;
+    type = data[i];
+    i++;
+    parameterIdLSB = data[i];
+    i++;
+    parameterIdMSB = data[i];
+    i++;
+    uint8_t functionId = data[i];
+
+    logMessage("function: %d (%s)",
+               functionId,
+               model.luaFunctions[functionId].c_str());
+
+    parameterId = parameterIdLSB + (parameterIdMSB * 128);
+    parameterValue = parameterMap.getValue(
+        device.getId(), (ElectraMessageType)type, parameterId);
+
+    if (L && (model.luaFunctions.size() > 0)) {
+        byteToSend = runTemplateFunction(model.luaFunctions[functionId].c_str(),
+                                         (void *)&device,
+                                         parameterValue);
+    }
+
+    dataOut[j] = byteToSend & 0x7F;
+    j++;
+}
+
+void Midi::runConstant(uint16_t &i,
+                       uint16_t &j,
+                       std::vector<uint8_t> data,
+                       uint8_t *dataOut,
+                       const Device &device)
+{
+    dataOut[j] = data[i];
+    j++;
 }
 
 /** Process incoming MIDI messages (when MIDI learn is off)

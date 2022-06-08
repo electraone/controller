@@ -28,8 +28,8 @@ ControlValue::ControlValue(Control *newControl,
                            int16_t newMax,
                            uint8_t newOverlayId,
                            Message(newMessage),
-                           const char *newFormatter,
-                           const char *newFunction,
+                           std::string &newFormatter,
+                           std::string &newFunction,
                            Overlay *newOverlay)
     : control(newControl),
       index(newIndex),
@@ -38,16 +38,10 @@ ControlValue::ControlValue(Control *newControl,
       max(newMax),
       overlayId(newOverlayId),
       message(newMessage),
+      formatter(newFormatter),
+      function(newFunction),
       overlay(newOverlay)
 {
-    if (newFormatter) {
-        formatter = newFormatter;
-    }
-
-    if (newFunction) {
-        function = newFunction;
-    }
-
     // translate the valueId to the numeric handle
     handle = translateId(newValueId);
 }

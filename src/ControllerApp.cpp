@@ -159,7 +159,7 @@ bool Controller::loadPreset(LocalFile file)
         return (false);
     }
 
-    //electraMidi.registerLuaFunctions(&preset.luaFunctions);
+    //midi.registerLuaFunctions(preset.luaFunctions);
 
     // Set UI delegate.
     delegate = &mainWindow;

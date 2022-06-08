@@ -185,7 +185,7 @@ public: // Public on the purpose
     Groups groups;
     Controls controls;
     Overlays overlays;
-    std::vector<String> luaFunctions;
+    std::vector<std::string> luaFunctions;
 
     static Page pageNotFound;
     static Device deviceNotFound;

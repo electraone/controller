@@ -25,8 +25,8 @@ public:
                  int16_t newMax,
                  uint8_t newOverlayId,
                  Message(newMessage),
-                 const char *newFormatter,
-                 const char *newFunction,
+                 std::string &newFormatter,
+                 std::string &newFunction,
                  Overlay *newOverlay);
 
     virtual ~ControlValue() = default;

@@ -36,12 +36,6 @@ public:
 
     void sendMessage(const Message &message);
     void sendTemplatedSysex(const Device &device, std::vector<uint8_t> data);
-    // Lua functions. TODO: It does not really belong here.
-    void registerLuaFunctions(std::vector<std::string> *newLuaFunctions);
-
-    Device *getDevice(uint8_t port, uint8_t channel);
-    Device *getDevice(uint8_t deviceId);
-
     void processMidi(const MidiInput &midiInput,
                      const MidiMessage &midiMessage);
     void requestAllPatches(void);
@@ -50,6 +44,26 @@ private:
     uint8_t transformMessage(const Device &deviceId,
                              std::vector<uint8_t> data,
                              uint8_t *dataOut);
+    void runVariable(uint16_t &i,
+                     uint16_t &j,
+                     std::vector<uint8_t> data,
+                     uint8_t *dataOut,
+                     const Device &device);
+    void runChecksum(uint16_t &i,
+                     uint16_t &j,
+                     std::vector<uint8_t> data,
+                     uint8_t *dataOut,
+                     const Device &device);
+    void runLuaFunction(uint16_t &i,
+                        uint16_t &j,
+                        std::vector<uint8_t> data,
+                        uint8_t *dataOut,
+                        const Device &device);
+    void runConstant(uint16_t &i,
+                     uint16_t &j,
+                     std::vector<uint8_t> data,
+                     uint8_t *dataOut,
+                     const Device &device);
     void processStart(void);
     void processStop(void);
     void processTuneRequest(void);
@@ -96,8 +110,6 @@ private:
     static void sendTuneRequest(uint8_t port);
     static void
         sendSysEx(uint8_t port, uint8_t *data, uint16_t sysexDataLength);
-
-    std::vector<std::string> *luaFunctions;
 
     RpnDetector rpnDetector;
     Cc14Detector cc14Detector;
