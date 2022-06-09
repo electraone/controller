@@ -49,6 +49,7 @@ void ControlComponent::updateValueFromParameterMap(void)
 void ControlComponent::emitValueChange(int16_t newDisplayValue,
                                        const ControlValue &cv)
 {
+    newDisplayValue = constrain(newDisplayValue, cv.getMin(), cv.getMax());
     uint16_t midiValue = translateValueToMidiValue(cv.message.getSignMode(),
                                                    cv.message.getBitWidth(),
                                                    newDisplayValue,

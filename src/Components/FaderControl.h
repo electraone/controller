@@ -94,7 +94,8 @@ private:
         uint16_t barHeight = 8;
         uint16_t padding = bounds.getHeight() - 35;
 
-        uint16_t barX = map(0, min, max, 0, bounds.getWidth());
+        uint16_t barX =
+            map(std::max((int16_t)0, min), min, max, 0, bounds.getWidth());
         uint16_t barWidth = map(val, min, max, 0, bounds.getWidth()) - barX;
 
         // Clear the component area
