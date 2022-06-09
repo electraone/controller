@@ -1128,12 +1128,12 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
     const char *valueId = jValue["id"] | "";
     uint8_t overlayId = jValue["overlayId"] | 0;
 
-    if (jValue["formatter"]) {
+    if (!jValue["formatter"].isNull()) {
         formatter = jValue["formatter"].as<char *>();
         formatterIndex = registerFunction(formatter);
     }
 
-    if (jValue["function"]) {
+    if (!jValue["function"].isNull()) {
         function = jValue["function"].as<char *>();
         functionIndex = registerFunction(function);
     }
@@ -1150,13 +1150,13 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
         defaultValueText = jValue["defaultValue"].as<char *>();
     }
 
-    if (jValue["min"]) {
+    if (!jValue["min"].isNull()) {
         min = jValue["min"].as<int16_t>();
     } else {
         minNotDefined = true;
     }
 
-    if (jValue["max"]) {
+    if (!jValue["max"].isNull()) {
         max = jValue["max"].as<int16_t>();
     } else {
         maxNotDefined = true;
@@ -1262,7 +1262,7 @@ Message Preset::parseMessage(JsonObject jMessage)
 
     SignMode signMode = translateSignMode(signModeInput);
 
-    if (jMessage["bitWidth"]) {
+    if (!jMessage["bitWidth"].isNull()) {
         bitWidth = jMessage["bitWidth"].as<uint8_t>();
     } else {
         bitWidth = getDefaultbitWidth(electraMessageType);
@@ -1378,27 +1378,27 @@ Rule Preset::parseRule(JsonObject jRule)
     uint8_t size;
 
     // TODO: this is due to compatibility with legacy patch definition
-    if (jRule["parameterNumber"]) {
+    if (!jRule["parameterNumber"].isNull()) {
         parameterNumber = jRule["parameterNumber"].as<uint16_t>();
     } else {
         parameterNumber = jRule["id"].as<uint16_t>();
     }
 
-    if (jRule["parameterBitPosition"]) {
+    if (!jRule["parameterBitPosition"].isNull()) {
         pPos = jRule["parameterBitPosition"].as<uint8_t>();
     } else {
         pPos = jRule["pPos"].as<uint8_t>();
     }
 
-    if (jRule["byteBitPosition"]) {
+    if (!jRule["byteBitPosition"].isNull()) {
         bPos = jRule["byteBitPosition"].as<uint8_t>();
     } else {
         bPos = jRule["bPos"].as<uint8_t>();
     }
 
-    if (jRule["bitWidth"]) {
+    if (!jRule["bitWidth"].isNull()) {
         size = jRule["bitWidth"].as<uint8_t>();
-    } else if (jRule["size"]) {
+    } else if (!jRule["size"].isNull()) {
         size = jRule["size"].as<uint8_t>();
     } else {
         size = 7;
