@@ -75,6 +75,11 @@ public:
         return (channel);
     }
 
+    void setRate(uint16_t newRate)
+    {
+        rate = newRate;
+    }
+
     uint16_t getRate(void) const
     {
         return (rate);

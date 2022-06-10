@@ -67,6 +67,69 @@ int device_getId(lua_State *L)
     return (1);
 }
 
+int device_setName(lua_State *L)
+{
+    lua_settop(L, 2);
+
+    Device *device = getDevice(L, 1);
+    const char *name = luaL_checkstring(L, 2);
+
+    luaL_argcheck(L, name != nullptr, 2, "failed: name must not be nil");
+
+    if (device) {
+        device->setName(name);
+    } else {
+        return (luaL_error(L, "failed: not a valid device"));
+    }
+    return (0);
+}
+
+int device_getName(lua_State *L)
+{
+    lua_settop(L, 1);
+
+    if (Device *device = getDevice(L, 1)) {
+        const char *name = device->getName();
+        lua_pushstring(L, name);
+        return (1);
+    }
+    return (luaL_error(L, "failed: not a valid device"));
+}
+
+int device_setRate(lua_State *L)
+{
+    lua_settop(L, 2);
+
+    Device *device = getDevice(L, 1);
+    int rate = luaL_checkinteger(L, 2);
+
+    luaL_argcheck(L,
+                  10 <= rate && rate <= 1000,
+                  2,
+                  "failed: rate must be between 10 and 1000");
+
+    if (device) {
+        device->setRate(rate);
+    } else {
+        return (luaL_error(L, "failed: not a valid device"));
+    }
+
+    return (0);
+}
+
+int device_getRate(lua_State *L)
+{
+    lua_settop(L, 1);
+    int rate = 0;
+
+    if (Device *device = getDevice(L, 1)) {
+        rate = device->getRate();
+    }
+
+    lua_pushinteger(L, rate);
+    return (1);
+}
+
 int device_setPort(lua_State *L)
 {
     lua_settop(L, 2);
