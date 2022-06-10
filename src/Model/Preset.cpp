@@ -799,7 +799,7 @@ void Preset::parseResponses(File &file,
 
             Response response;
 
-            response.id = doc["id"];
+            response.setId(doc["id"] | 0);
             response.headers = parseResponseHeader(doc["header"]);
 
 #ifdef DEBUG

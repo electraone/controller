@@ -74,6 +74,16 @@ private:
                      uint8_t noteNumber,
                      uint8_t velocity);
     void processProgramChange(uint8_t deviceId, uint8_t programNumber);
+    void processSysex(const MidiMessage &midiMessage);
+
+    bool doesHeaderMatch(const SysexBlock &sysexBlock,
+                         uint8_t header[],
+                         uint8_t headerLength);
+    void resetRulesValues(const Device &device, const Rules rules);
+    void applyRulesValues(const Device &device,
+                          const Rules rules,
+                          const SysexBlock &sysexBlock,
+                          uint16_t headerLength);
 
     static void sendControlChange(uint8_t port,
                                   uint8_t channel,

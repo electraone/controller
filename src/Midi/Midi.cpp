@@ -274,6 +274,8 @@ void Midi::processMidi(const MidiInput &midiInput,
             processStop();
         } else if (midiMessage.isMidiTuneRequest()) {
             processTuneRequest();
+        } else if (midiMessage.isSysEx()) {
+            processSysex(midiMessage);
         }
     }
 
@@ -391,6 +393,110 @@ void Midi::processProgramChange(uint8_t deviceId, uint8_t programNumber)
     logMessage("Midi::processMidi: program message: program=%d", programNumber);
     parameterMap.setValue(
         deviceId, ElectraMessageType::program, 0, programNumber, Origin::midi);
+}
+
+void Midi::processSysex(const MidiMessage &midiMessage)
+{
+    SysexBlock sysexBlock = midiMessage.getSysExBlock();
+
+    if (sysexBlock.isEmpty()) {
+        return;
+    }
+
+    for (const auto &[id, device] : model.devices) {
+        for (const auto &response : device.responses) {
+            // \todo this can easily overflow the buffer
+            uint8_t header[64];
+            uint8_t headerLength = 0;
+            headerLength = transformMessage(device, response.headers, header);
+
+            if (doesHeaderMatch(sysexBlock, header, headerLength) == true) {
+                logMessage(
+                    "Midi::processSysex: matched response: responseId=%d",
+                    response.getId());
+
+                // Run Lua onResponse function
+                if (L) {
+                    runOnResponse(device, response.getId(), sysexBlock);
+                }
+
+                resetRulesValues(device, response.rules);
+                applyRulesValues(
+                    device, response.rules, sysexBlock, headerLength);
+                break;
+            }
+        }
+    }
+}
+
+bool Midi::doesHeaderMatch(const SysexBlock &sysexBlock,
+                           uint8_t header[],
+                           uint8_t headerLength)
+{
+    bool match = true;
+    auto sysexLength = sysexBlock.getLength();
+
+    if ((sysexLength - 2) >= headerLength) {
+        for (uint8_t i = 1; i < headerLength + 1; i++) {
+            if (header[i - 1] != sysexBlock.peek(i)) {
+                match = false;
+                break;
+            }
+        }
+    } else {
+        match = false;
+    }
+
+    return (match);
+}
+
+void Midi::resetRulesValues(const Device &device, const Rules rules)
+{
+    for (const auto &rule : rules) {
+        parameterMap.setValue(device.getId(),
+                              rule.getType(),
+                              rule.getParameterNumber(),
+                              0,
+                              Origin::midi);
+    }
+}
+
+void Midi::applyRulesValues(const Device &device,
+                            const Rules rules,
+                            const SysexBlock &sysexBlock,
+                            uint16_t headerLength)
+{
+    for (const auto &rule : rules) {
+        uint16_t bytePosition = rule.getByte() + headerLength + 1;
+        int sysexByte = sysexBlock.peek(bytePosition);
+
+        // If the sysexBlock byte exists
+        if (sysexByte != -1) {
+            uint16_t mask =
+                createMask(rule.getByteBitPosition(), rule.getBitWidth());
+            uint16_t parameterValue = (((sysexByte & mask) >> getShift(mask))
+                                       << rule.getParameterBitPosition());
+            LookupEntry *entry =
+                parameterMap.applyToValue(device.getId(),
+                                          rule.getType(),
+                                          rule.getParameterNumber(),
+                                          parameterValue,
+                                          Origin::midi);
+
+            if (entry) {
+                logMessage(
+                    "Midi::applyRulesValues: applying extraction rule: byte=%d, "
+                    "byteValue=%d, extractedValue=%d to parameterNumber=%d, type=%s "
+                    "resulting in parameterValue=%d",
+                    rule.getByte(),
+                    sysexByte,
+                    parameterValue,
+                    rule.getParameterNumber(),
+                    translateElectraMessageTypeToText(rule.getType()),
+                    entry->midiValue);
+            }
+        }
+    }
 }
 
 void Midi::requestAllPatches(void)

@@ -95,7 +95,7 @@ public:
         uint8_t index = 0;
 
         for (auto &response : responses) {
-            if (response.id == id) {
+            if (response.getId() == id) {
                 return (index);
             }
             index++;

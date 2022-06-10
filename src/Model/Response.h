@@ -6,13 +6,22 @@
 class Response
 {
 public:
-    Response(){};
-
+    Response() : id(0){};
     virtual ~Response() = default;
 
-    uint8_t id;
+    void setId(uint8_t newId)
+    {
+        id = newId;
+    }
+
+    uint8_t getId(void) const
+    {
+        return (id);
+    }
+
     std::vector<uint8_t> headers;
-    std::vector<Rule> rules;
+    Rules rules;
 
 private:
+    uint8_t id;
 };

@@ -31,32 +31,32 @@ public:
     {
     }
 
-    ElectraMessageType getType(void)
+    ElectraMessageType getType(void) const
     {
         return (electraMessageType);
     }
 
-    uint8_t getParameterBitPosition(void)
+    uint8_t getParameterBitPosition(void) const
     {
         return (parameterBitPosition);
     }
 
-    uint8_t getByteBitPosition(void)
+    uint8_t getByteBitPosition(void) const
     {
         return (byteBitPosition);
     }
 
-    uint8_t getBitWidth(void)
+    uint8_t getBitWidth(void) const
     {
         return (bitWidth);
     }
 
-    uint16_t getParameterNumber(void)
+    uint16_t getParameterNumber(void) const
     {
         return (parameterNumber);
     }
 
-    uint16_t getByte(void)
+    uint16_t getByte(void) const
     {
         return (byte);
     }
@@ -71,3 +71,5 @@ private:
         uint8_t bitWidth : 4;
     };
 };
+
+typedef std::vector<Rule> Rules;
