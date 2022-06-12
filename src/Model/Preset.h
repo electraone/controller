@@ -28,21 +28,20 @@ public:
     uint8_t getVersion(void) const;
     const char *getProjectId(void) const;
 
+    Page &getPage(uint8_t pageId);
     const Page &getPage(uint8_t pageId) const;
     const Device &getDevice(uint8_t deviceId) const;
     const Device &getDevice(uint8_t port, uint8_t channel) const;
     Overlay *getOverlay(uint8_t overlayId);
-    const Group &getGroup(uint8_t groupId) const;
     Group &getGroup(uint8_t groupId);
-    const Control &getControl(uint16_t controlId) const;
+    const Group &getGroup(uint8_t groupId) const;
     Control &getControl(uint16_t controlId);
-
-    // \todo do we need these?
-    bool getPresetNameFast(File &file,
-                           char *presetName,
-                           size_t maxPresetNameLength);
-    void
+    const Control &getControl(uint16_t controlId) const;
+    static void
         getPresetName(File &file, char *presetName, size_t maxPresetNameLength);
+    static bool getPresetProjectId(File &file,
+                                   char *presetProjectId,
+                                   size_t maxProjectIdLength);
 
     void print(void) const;
 
@@ -138,6 +137,9 @@ private:
     static uint8_t translateValueId(ControlType type, const char *valueId);
     static uint8_t getNumValues(ControlType type);
     static uint8_t getDefaultbitWidth(ElectraMessageType electraMessageType);
+    static bool getPresetNameFast(File &file,
+                                  char *presetName,
+                                  size_t maxPresetNameLength);
 
     static uint8_t constrainPageId(uint8_t pageId)
     {

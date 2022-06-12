@@ -7,8 +7,7 @@ void Controller::initialise(void)
     // Set application context
     System::context.setAppName("ctrlv2");
 
-    // Set UI delegate
-    delegate = &mainWindow;
+    // Set delegates
     luaDelegate = delegate;
 
     // Get info about the last used preset
@@ -34,9 +33,6 @@ void Controller::initialise(void)
     // Log free RAM
     monitorFreeMemory();
 
-    // Read preset names and assign them to preset seletion knobs
-    assignPresetNames(currentPresetBank);
-
     // Register ParameterMap onChange callback
     parameterMap.onChange = [this](LookupEntry *entry, Origin origin) {
         if (origin != Origin::midi) {
@@ -55,22 +51,11 @@ void Controller::initialise(void)
 
     // load the default preset
     if (System::context.getLoadDefaultFiles()) {
-        if (!loadPresetById(currentPresetBank * 12 + currentPreset)) {
-            logMessage("setup: preset load failed: name=%s", preset.getName());
-
-        } else {
-            logMessage("setup: preset loaded: name=%s", preset.getName());
-        }
-
-        // Log free RAM
-        monitorFreeMemory();
+        delegate->switchPreset(currentPresetBank, currentPreset);
     }
 
-    // Display the preset if valid.
-    if (preset.isValid()) {
-        displayDefaultPage();
-        //preset.print();
-    }
+    // Log free RAM
+    monitorFreeMemory();
 
     // Finalise the initialisation
     logMessage("App initialisation completed");
@@ -82,7 +67,8 @@ void Controller::initialise(void)
 void Controller::displayDefaultPage(void)
 {
     if (delegate) {
-        delegate->setPage(1, preset.getPage(1).getDefaultControlSetId());
+        delegate->setPage(
+            1, model.currentPreset.getPage(1).getDefaultControlSetId());
     }
 }
 
@@ -108,27 +94,24 @@ bool Controller::handleCtrlFileReceived(LocalFile file,
                                         ElectraCommand::Object fileType)
 {
     if (fileType == ElectraCommand::Object::FilePreset) {
-        // read preset names and assign them to preset seletion knobs
-        assignPresetNames(currentPresetBank);
-
-        // load a new preset
-        if (loadPreset(file)) {
+        if (model.presets.loadPreset(file)) {
             logMessage("handleCtrlFileReceived: preset loaded: name=%s",
-                       preset.getName());
+                       model.currentPreset.getName());
 
             // Loading the preset always (temporary fix) removes the Lua script
             // ie. the Lua script needs to be transferred afterwards
             Hardware::sdcard.deleteFile(System::context.getCurrentLuaFile());
+            displayDefaultPage();
         }
     } else if (fileType == ElectraCommand::Object::FileLua) {
         if (isLuaValid(System::context.getCurrentLuaFile())) {
-            if (preset.isValid()) {
-                runPresetLuaScript();
+            if (model.currentPreset.isValid()) {
+                model.presets.runPresetLuaScript();
             }
         }
     }
 
-    if (!preset.isValid()) {
+    if (!model.currentPreset.isValid()) {
         logMessage("handleCtrlFileReceived: preset upload failed");
         return (false);
     }
@@ -136,209 +119,103 @@ bool Controller::handleCtrlFileReceived(LocalFile file,
     return (true);
 }
 
-/** Load preset.
- *  Read preset file and initialize all data structures to display and run the preset.
- */
-bool Controller::loadPreset(LocalFile file)
+bool Controller::handleCtrlFileRemoved(int fileNumber,
+                                       ElectraCommand::Object fileType)
 {
-    const char *presetFile = file.getFilepath();
+    if (fileType == ElectraCommand::Object::FilePreset) {
+        // If it is a current preset, reload it
+        if ((fileNumber == currentPreset) || (fileNumber == -1)) {
+            logMessage("current preset");
+            delegate->switchPreset(currentPresetBank, currentPreset);
+        } else {
+            logMessage("other preset");
+        }
+    } else if (fileType == ElectraCommand::Object::FileLua) {
+        if ((fileNumber == currentPreset) || (fileNumber == -1)) {
+            logMessage("clear Lua context");
 
-    // clear all entries in the frame buffer
-    parameterMap.disable();
-    System::tasks.disableRepaintGraphics();
-    System::tasks.clearRepaintGraphics();
-
-    // Free current preset
-    reset();
-
-    if (preset.load(presetFile) == true) {
-        logMessage("Default preset loaded: filename=%s", presetFile);
-    } else {
-        // \todo what should be done?
-        logMessage("Default preset load failed");
-        return (false);
+            // disable the luaTask
+            // clear Lua context
+            // create a new Lua context
+        }
     }
+    return (true);
+}
 
-    //midi.registerLuaFunctions(preset.luaFunctions);
+void Controller::handleElectraSysex(const SysexBlock &sysexBlock)
+{
+    ElectraCommand cmd = sysexBlock.getElectraSysexCommand();
+    MemoryBlock sysexPayload = sysexBlock.getElectraSysexPayload();
+    ElectraCommand::Type command = cmd.getType();
+    ElectraCommand::Object object = cmd.getObject();
 
-    // Set UI delegate.
-    delegate = &mainWindow;
+    logMessage(
+        "handleElectraSysex: sysex received: command=%d, parameter=%d, byte1=%d",
+        command,
+        object,
+        cmd.getByte1());
 
-    // Display the preset if valid.
-    if (preset.isValid()) {
-        // Initialise the parameterMap
-        for (auto &[id, control] : preset.controls) {
-            for (auto &value : control.values) {
-                MessageDestination messageDestination(&control, &value);
-
-                if (value.message.getType() == ElectraMessageType::start) {
-                    parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-                        ->messageDestination.push_back(messageDestination);
-                } else if (value.message.getType()
-                           == ElectraMessageType::stop) {
-                    parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-                        ->messageDestination.push_back(messageDestination);
-                } else if (value.message.getType()
-                           == ElectraMessageType::tune) {
-                    parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-                        ->messageDestination.push_back(messageDestination);
-                } else {
-                    LookupEntry *lookupEntry = parameterMap.getOrCreate(
-                        value.message.getDeviceId(),
-                        value.message.getType(),
-                        value.message.getParameterNumber());
-
-                    lookupEntry->messageDestination.push_back(
-                        messageDestination);
-
-                    int16_t midiValue = 0;
-
-                    if (control.getType() == ControlType::pad) {
-                        midiValue = value.getDefault();
-                    } else {
-                        midiValue = translateValueToMidiValue(
-                            value.message.getSignMode(),
-                            value.message.getBitWidth(),
-                            value.getDefault(),
-                            value.getMin(),
-                            value.getMax(),
-                            value.message.getMidiMin(),
-                            value.message.getMidiMax());
-                    }
-                    parameterMap.setValue(value.message.getDeviceId(),
-                                          value.message.getType(),
-                                          value.message.getParameterNumber(),
-                                          midiValue,
-                                          Origin::internal);
+    if (cmd.isFileRequest()) {
+        if (object == ElectraCommand::Object::SnapshotList) {
+            if (cmd.getByte1() != 0xF7) {
+                api.sendSnapshotList(sysexPayload);
+            } else {
+                if (model.currentPreset.isValid()) {
+                    delegate->sendSnapshotList(
+                        model.currentPreset.getProjectId());
                 }
             }
+        } else if (object == ElectraCommand::Object::FileSnapshot) {
+            api.sendSnapshot(sysexPayload);
+        } else if (object == ElectraCommand::Object::PresetList) {
+            api.sendPresetList();
         }
-
-        preset.print();
-        parameterMap.print();
-
-        displayDefaultPage();
-    }
-
-    System::tasks.enableRepaintGraphics();
-    parameterMap.enable();
-
-    return (true);
-}
-
-/** Reset preset.
- *  Re-initialize preset so that it is completely empty and ready for loading a new preset.
- */
-void Controller::reset(void)
-{
-    // Disable the ParameterMap sync
-    parameterMap.disable();
-
-    // Reset Lua callbacks
-    resetMidiCallbacks();
-
-    // Reset Lua
-    closeLua();
-
-    // Reset preset
-    preset.reset();
-
-    // Reset parameterMap
-    parameterMap.reset();
-
-    // Clear all windows
-    /*for (uint i = 0; i < MaxNumberOfPageWindows; i++) {
-        pages[i].removeAllChildren();
-        pages[i].removePots();
-    }*/
-
-    logMessage("Controller::reset: preset memory deallocated");
-    monitorFreeMemory();
-}
-
-/** Read names of available presets from stored preset files
- *
- */
-void Controller::assignPresetNames(uint8_t presetBankId)
-{
-    for (uint16_t i = 0; i < 12; i++) {
-        char filename[MAX_FILENAME_LENGTH + 1];
-        snprintf(filename,
-                 MAX_FILENAME_LENGTH,
-                 "%s/p%03d.epr",
-                 getApplicationSandbox(),
-                 (presetBankId * 12) + i);
-
-        File file = Hardware::sdcard.createInputStream(filename);
-
-        if (file) {
-            preset.getPresetName(file, presetNames[i], Preset::MaxNameLength);
-            logMessage("preset name: %s", presetNames[i]);
-            file.close();
+    } else if (cmd.isMidiLearnSwitch()) {
+        if (object
+            == ElectraCommand::Object::
+                MidiLearnOff) // TODO: this is a fix for backwards compatibility
+        {
+            api.disableMidiLearn();
         } else {
-            *presetNames[i] = '\0';
+            api.enableMidiLearn();
         }
-    }
-}
-
-/** Load preset identified with a preset Id
- *
- */
-bool Controller::loadPresetById(int presetId)
-{
-    if (!readyForPresetSwitch) {
-        logMessage(
-            "Controller::loadPresetById: still busy with swicthing previous preset");
-        return (false);
+    } else if (cmd.isSwitch()) {
+        if (object == ElectraCommand::Object::PresetSlot) {
+            api.switchPreset(cmd.getByte1(), cmd.getByte2());
+        }
+    } else if (cmd.isUpdateRuntime()) {
+        if (object == ElectraCommand::Object::Control) {
+            uint16_t controlId = cmd.getByte1() | cmd.getByte2() << 7;
+            api.updateControl(controlId, sysexPayload);
+        } else if (object == ElectraCommand::Object::SnapshotSlot) {
+            api.setSnapshotSlot(sysexPayload);
+        } else if (object == ElectraCommand::Object::PresetSlot) {
+            api.setPresetSlot(cmd.getByte1(), cmd.getByte2());
+        }
+    } else if (cmd.isUpdate()) {
+        if (object == ElectraCommand::Object::SnapshotInfo) {
+            api.updateSnapshot(sysexPayload);
+        }
+    } else if (cmd.isRemove()) {
+        if (object == ElectraCommand::Object::SnapshotInfo) {
+            api.removeSnapshot(sysexPayload);
+        }
+    } else if (cmd.isSwap()) {
+        if (object == ElectraCommand::Object::SnapshotInfo) {
+            api.swapSnapshots(sysexPayload);
+        }
+    } else if (cmd.isEvent()) {
+        if (cmd.getEvent() == ElectraCommand::Event::SnapshotBankSwitch) {
+            uint8_t bankNumber = cmd.getByte1();
+            logMessage(
+                "handleElectraSysex: snapshot bank change event : bankNumber=%d",
+                bankNumber);
+            api.setCurrentSnapshotBank(bankNumber);
+        }
+    } else if (cmd.isSystemCall()) {
+        logMessage("handleElectraSysex: application system call");
     } else {
-        readyForPresetSwitch = false;
-    }
-
-    if (presetId > 71) {
-        presetId = 0;
-    }
-
-    currentPreset = presetId;
-    System::context.setCurrentFile(presetId);
-    LocalFile file(System::context.getCurrentPresetFile());
-
-    // Remember the preset for the next startup
-    System::runtimeInfo.setLastActivePreset(presetId);
-
-    // Try to load the preset
-    if (loadPreset(file)) {
-        logMessage("loadPresetById: preset loaded: name=%s", preset.getName());
-
-        // Re-set Lua state and execute
-        runPresetLuaScript();
-    } else {
-        logMessage("loadPresetById: preset loading failed");
-        //bottomBar.update(preset.getName(), preset.pages[0].getName());
-    }
-
-    //sendPresetSwitch(presetId / 12, presetId % 12);
-    readyForPresetSwitch = true;
-
-    return (true);
-}
-
-/** Run lua script
- *
- */
-void Controller::runPresetLuaScript(void)
-{
-    closeLua();
-
-    luaPreset = &preset;
-
-    if (isLuaValid(System::context.getCurrentLuaFile())) {
-        initLua();
-        loadLuaLibs();
-
-        executeElectraLua(System::context.getCurrentLuaFile());
-
-        // assign Lua callbacks
-        assignLuaCallbacks();
+        logMessage("handleElectraSysex: unknown sysex request");
     }
 }
 
@@ -348,7 +225,7 @@ void Controller::runUserTask(void)
 
     if (patchRequests.isEmpty() != true) {
         request = patchRequests.shift();
-        Device device = preset.getDevice(request.deviceId);
+        Device device = model.currentPreset.getDevice(request.deviceId);
 
         if (device.isValid()) {
             midi.sendTemplatedSysex(device, request.data);

@@ -123,6 +123,20 @@ const char *Preset::getProjectId(void) const
 /** Get Page by the pageId
  *
  */
+Page &Preset::getPage(uint8_t pageId)
+{
+    try {
+        return pages.at(pageId);
+    } catch (std::out_of_range const &) {
+        logMessage("getPage: page does not exist: pageId=%d", pageId);
+    }
+
+    return (Preset::pageNotFound);
+}
+
+/** Get const Page by the pageId
+ *
+ */
 const Page &Preset::getPage(uint8_t pageId) const
 {
     try {
@@ -181,20 +195,6 @@ Overlay *Preset::getOverlay(uint8_t overlayId)
 /** Get group by the Id
  *
  */
-const Group &Preset::getGroup(uint8_t groupId) const
-{
-    try {
-        return groups.at(groupId);
-    } catch (std::out_of_range const &) {
-        logMessage("getGroup: group does not exist: groupId=%d", groupId);
-    }
-
-    return (Preset::groupNotFound);
-}
-
-/** Get group by the Id
- *
- */
 Group &Preset::getGroup(uint8_t groupId)
 {
     try {
@@ -206,10 +206,24 @@ Group &Preset::getGroup(uint8_t groupId)
     return (Preset::groupNotFound);
 }
 
+/** Get const group by the Id
+ *
+ */
+const Group &Preset::getGroup(uint8_t groupId) const
+{
+    try {
+        return groups.at(groupId);
+    } catch (std::out_of_range const &) {
+        logMessage("getGroup: group does not exist: groupId=%d", groupId);
+    }
+
+    return (Preset::groupNotFound);
+}
+
 /** Get Control by the controlId
  *
  */
-const Control &Preset::getControl(uint16_t controlId) const
+Control &Preset::getControl(uint16_t controlId)
 {
     try {
         return controls.at(controlId);
@@ -221,10 +235,10 @@ const Control &Preset::getControl(uint16_t controlId) const
     return (Preset::controlNotFound);
 }
 
-/** Get Control by the controlId
+/** Get const Control by the controlId
  *
  */
-Control &Preset::getControl(uint16_t controlId)
+const Control &Preset::getControl(uint16_t controlId) const
 {
     try {
         return controls.at(controlId);
@@ -1769,6 +1783,39 @@ uint8_t Preset::getDefaultbitWidth(ElectraMessageType electraMessageType)
     }
 
     return (7);
+}
+
+bool Preset::getPresetProjectId(File &file,
+                                char *presetProjectId,
+                                size_t maxProjectIdLength)
+{
+    const size_t capacity = JSON_OBJECT_SIZE(1) + 100;
+    StaticJsonDocument<capacity> doc;
+
+    presetProjectId[0] = '\0';
+
+    const char *projectId = NULL;
+
+    if (file.seek(0) == false) {
+        return (false);
+    }
+
+    if (findElement(file, "\"projectId\"", ELEMENT, 300) == false) {
+        return (false);
+    }
+
+    DeserializationError err = deserializeJson(doc, file);
+
+    if (err) {
+        logMessage("Preset::getPresetProjectId: parsing failed: %s",
+                   err.c_str());
+    }
+
+    projectId = doc.as<char *>();
+    copyString(presetProjectId, projectId, maxProjectIdLength);
+    logMessage("Preset::getPresetProjectId: projectId=%s", projectId);
+
+    return (true);
 }
 
 void Preset::print(void) const

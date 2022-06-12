@@ -58,7 +58,7 @@ int control_setVisible(lua_State *L)
     bool shouldBeVisible = luaLE_checkBoolean(L, 2);
 
     if (control) {
-        luaDelegate->setControlVisible(control, shouldBeVisible);
+        luaDelegate->setControlVisible(control->getId(), shouldBeVisible);
     } else {
         return (luaL_error(L, "failed: not a valid control"));
     }
@@ -85,7 +85,7 @@ int control_setName(lua_State *L)
     const char *name = luaL_checkstring(L, 2);
 
     if (control) {
-        luaDelegate->setControlName(control, name);
+        luaDelegate->setControlName(control->getId(), name);
     } else {
         return (luaL_error(L, "failed: not a valid control"));
     }
@@ -112,7 +112,7 @@ int control_setColour(lua_State *L)
     int colour = luaL_checkinteger(L, 2);
 
     if (control) {
-        luaDelegate->setControlColour(control, colour);
+        luaDelegate->setControlColour(control->getId(), colour);
     } else {
         return (luaL_error(L, "failed: not a valid control"));
     }
@@ -151,7 +151,7 @@ int control_setPot(lua_State *L)
                   "failed: potId must be between 1 and 12");
 
     if (control) {
-        luaDelegate->setControlPot(control, controlSet, potId);
+        luaDelegate->setControlPot(control->getId(), controlSet, potId);
     } else {
         return (luaL_error(L, "failed: not a valid control"));
     }
@@ -175,7 +175,7 @@ int control_setBounds(lua_State *L)
     int height = luaL_checkinteger(L, -1);
 
     if (control) {
-        luaDelegate->setControlBounds(control,
+        luaDelegate->setControlBounds(control->getId(),
                                       Rectangle(x + 13, y + 24, width, height));
     } else {
         return (luaL_error(L, "failed: not a valid control"));
@@ -212,7 +212,7 @@ int control_setSlot(lua_State *L)
         L, 1 <= slot && slot <= 36, 2, "failed: slot must be between 1 and 36");
 
     if (control) {
-        luaDelegate->setControlSlot(control, slot);
+        luaDelegate->setControlSlot(control->getId(), slot);
     } else {
         return (luaL_error(L, "failed: not a valid control"));
     }

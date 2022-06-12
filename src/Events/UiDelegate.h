@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Preset.h"
+#include "Component.h"
 
 class UiDelegate
 {
@@ -21,28 +21,56 @@ public:
     virtual void repaintControl(uint16_t controlId) = 0;
 
     // Controls
-    virtual void setControlVisible(Control *control, bool shouldBeVisible) = 0;
-    virtual void setControlName(Control *control, const char *newName) = 0;
-    virtual void setControlColour(Control *control, uint8_t newColour) = 0;
-    virtual void setControlPot(Control *control,
+    virtual void setControlVisible(uint16_t controlId,
+                                   bool shouldBeVisible) = 0;
+    virtual void setControlName(uint16_t controlId, const char *newName) = 0;
+    virtual void setControlColour(uint16_t controlId, uint8_t newColour) = 0;
+    virtual void setControlPot(uint16_t controlId,
                                uint8_t newControlSetId,
                                uint8_t newPotId) = 0;
-    virtual void setControlBounds(Control *control,
+    virtual void setControlBounds(uint16_t controlId,
                                   const Rectangle &bounds) = 0;
-    virtual void setControlSlot(Control *control, uint8_t newSlot) = 0;
+    virtual void setControlSlot(uint16_t controlId, uint8_t newSlot) = 0;
 
     // Pages
-    virtual void setPageName(Page *page, const char *newName) = 0;
+    virtual void setPageName(uint8_t pageId, const char *newName) = 0;
 
     // Groups
-    virtual void setGroupLabel(Group *group, const char *newLabel) = 0;
-    virtual void setGroupColour(Group *group, uint8_t newColour) = 0;
-    virtual void setGroupVisible(Group *group, bool shouldBeVisible) = 0;
-    virtual void setGroupBounds(Group *group, const Rectangle &bounds) = 0;
-    virtual void setGroupSlot(Group *group,
+    virtual void setGroupLabel(uint16_t groupId, const char *newLabel) = 0;
+    virtual void setGroupColour(uint16_t groupId, uint8_t newColour) = 0;
+    virtual void setGroupVisible(uint16_t groupId, bool shouldBeVisible) = 0;
+    virtual void setGroupBounds(uint16_t groupId, const Rectangle &bounds) = 0;
+    virtual void setGroupSlot(uint16_t groupId,
                               uint8_t newSlot,
                               uint8_t newWidth,
                               uint8_t newHeight) = 0;
+    // Api
+    virtual void sendSnapshotList(const char *projectId) = 0;
+    virtual void sendSnapshot(const char *projectId,
+                              uint8_t bankNumber,
+                              uint8_t slot) = 0;
+    virtual void sendPresetList(void) = 0;
+    virtual void enableMidiLearn(void) = 0;
+    virtual void disableMidiLearn(void) = 0;
+    virtual void switchPreset(uint8_t bankNumber, uint8_t slot) = 0;
+    virtual void setSnapshotSlot(const char *projectId,
+                                 uint8_t bankNumber,
+                                 uint8_t slot) = 0;
+    virtual void setPresetSlot(uint8_t bankNumber, uint8_t slot) = 0;
+    virtual void updateSnapshot(const char *projectId,
+                                uint8_t bankNumber,
+                                uint8_t slot,
+                                const char *name,
+                                Colour colour) = 0;
+    virtual void removeSnapshot(const char *projectId,
+                                uint8_t bankNumber,
+                                uint8_t slot) = 0;
+    virtual void swapSnapshots(const char *projectId,
+                               uint8_t sourceBankNumber,
+                               uint8_t sourceSlot,
+                               uint8_t destBankNumber,
+                               uint8_t destSlot) = 0;
+    virtual void setCurrentSnapshotBank(uint8_t bankNumber) = 0;
 
     // Patch handling
     virtual void requestAllPatches(void) = 0;

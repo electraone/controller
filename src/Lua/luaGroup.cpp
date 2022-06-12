@@ -59,7 +59,7 @@ int group_setLabel(lua_State *L)
     luaL_argcheck(L, label != nullptr, 2, "failed: label must not be nil");
 
     if (group) {
-        luaDelegate->setGroupLabel(group, label);
+        luaDelegate->setGroupLabel(group->getId(), label);
     } else {
         return (luaL_error(L, "failed: not a valid group"));
     }
@@ -87,7 +87,7 @@ int group_setColour(lua_State *L)
     int colour = luaL_checkinteger(L, 2);
 
     if (group) {
-        luaDelegate->setGroupColour(group, colour);
+        luaDelegate->setGroupColour(group->getId(), colour);
     }
     return (0);
 }
@@ -113,7 +113,7 @@ int group_setVisible(lua_State *L)
     bool shouldBeVisible = luaLE_checkBoolean(L, 2);
 
     if (group) {
-        luaDelegate->setGroupVisible(group, shouldBeVisible);
+        luaDelegate->setGroupVisible(group->getId(), shouldBeVisible);
     }
     return (0);
 }
@@ -148,7 +148,7 @@ int group_setBounds(lua_State *L)
     int height = luaL_checkinteger(L, -1);
 
     if (group) {
-        luaDelegate->setGroupBounds(group,
+        luaDelegate->setGroupBounds(group->getId(),
                                     Rectangle(x + 13, y + 24, width, height));
     } else {
         return (luaL_error(L, "failed: not a valid group"));
@@ -206,7 +206,7 @@ int group_setSlot(lua_State *L)
                   "failed: height must be between 1 and 6");
 
     if (group) {
-        luaDelegate->setGroupSlot(group, slot, width, height);
+        luaDelegate->setGroupSlot(group->getId(), slot, width, height);
     } else {
         return (luaL_error(L, "failed: not a valid control"));
     }

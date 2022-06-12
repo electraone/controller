@@ -106,7 +106,7 @@ int page_setName(lua_State *L)
     const char *name = luaL_checkstring(L, 2);
 
     if (page) {
-        luaDelegate->setPageName(page, name);
+        luaDelegate->setPageName(page->getId(), name);
     } else {
         return (luaL_error(L, "failed: not a valid page"));
     }

@@ -6,14 +6,14 @@
 #include "DetailWindow.h"
 #include "PageView.h"
 #include "UiDelegate.h"
-#include "Model/Preset.h"
+#include "Model.h"
 #include "Midi/Midi.h"
 #include "System.h"
 
 class MainWindow : public ParameterMapWindow, public UiDelegate
 {
 public:
-    MainWindow(Preset &newPreset, Midi &newMidi);
+    MainWindow(Model &newModel, Midi &newMidi);
     virtual ~MainWindow() = default;
 
     void onButtonDown(uint8_t buttonId) override;
@@ -30,26 +30,58 @@ public:
     void repaintPage(void) override;
     void repaintControl(uint16_t controlId) override;
 
-    void setControlVisible(Control *control, bool shouldBeVisible) override;
-    void setControlName(Control *control, const char *newName) override;
-    void setControlColour(Control *control, uint8_t newColour) override;
-    void setControlPot(Control *control,
+    // Lua
+    void setControlVisible(uint16_t controlId, bool shouldBeVisible) override;
+    void setControlName(uint16_t controlId, const char *newName) override;
+    void setControlColour(uint16_t controlId, uint8_t newColour) override;
+
+    void setControlPot(uint16_t controlId,
                        uint8_t newControlSetId,
                        uint8_t newPotId) override;
-    void setControlBounds(Control *control, const Rectangle &bounds) override;
-    void setControlSlot(Control *control, uint8_t newSlot) override;
+    void setControlBounds(uint16_t controlId, const Rectangle &bounds) override;
+    void setControlSlot(uint16_t controlId, uint8_t newSlot) override;
 
-    void setPageName(Page *page, const char *newName) override;
+    void setPageName(uint8_t pageId, const char *newName) override;
 
-    void setGroupLabel(Group *group, const char *newLabel) override;
-    void setGroupColour(Group *group, uint8_t newColour) override;
-    void setGroupVisible(Group *group, bool shouldBeVisible) override;
-    void setGroupBounds(Group *group, const Rectangle &bounds) override;
-    void setGroupSlot(Group *group,
+    void setGroupLabel(uint16_t groupId, const char *newLabel) override;
+    void setGroupColour(uint16_t groupId, uint8_t newColour) override;
+    void setGroupVisible(uint16_t groupId, bool shouldBeVisible) override;
+    void setGroupBounds(uint16_t groupId, const Rectangle &bounds) override;
+    void setGroupSlot(uint16_t groupId,
                       uint8_t newSlot,
                       uint8_t newWidth,
                       uint8_t newHeight) override;
 
+    // API
+    void sendSnapshotList(const char *projectId) override;
+    void sendSnapshot(const char *projectId,
+                      uint8_t bankNumber,
+                      uint8_t slot) override;
+    void sendPresetList(void) override;
+    void enableMidiLearn(void) override;
+    void disableMidiLearn(void) override;
+    void switchPreset(uint8_t bankNumber, uint8_t slot) override;
+    // updateControl(????)
+    void setSnapshotSlot(const char *projectId,
+                         uint8_t bankNumber,
+                         uint8_t slot) override;
+    void setPresetSlot(uint8_t bankNumber, uint8_t slot) override;
+    void updateSnapshot(const char *projectId,
+                        uint8_t bankNumber,
+                        uint8_t slot,
+                        const char *name,
+                        Colour colour) override;
+    void removeSnapshot(const char *projectId,
+                        uint8_t bankNumber,
+                        uint8_t slot) override;
+    void swapSnapshots(const char *projectId,
+                       uint8_t sourceBankNumber,
+                       uint8_t sourceSlot,
+                       uint8_t destBankNumber,
+                       uint8_t destSlot) override;
+    void setCurrentSnapshotBank(uint8_t bankNumber) override;
+
+    // Misc
     void requestAllPatches(void) override;
 
     void assignComponentToControl(uint16_t controlId,
@@ -75,12 +107,19 @@ private:
 
     // MainWindow data
     Preset &preset;
-    PageView *pageView;
-    uint8_t currentPageId;
-    uint8_t currentControlSetId;
+    Snapshots &snapshots;
+    Presets &presets;
+
+    // Interface
     Midi &midi;
+
+    // Window content
+    PageView *pageView;
 
     // Sub-windows
     PageSelectionWindow *pageSelectionWindow;
     DetailWindow *detailWindow;
+
+    uint8_t currentPageId;
+    uint8_t currentControlSetId;
 };

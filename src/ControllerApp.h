@@ -5,24 +5,25 @@
 #include "MidiInputCallback.h"
 #include "MidiCallbacks.h"
 #include "PageView.h"
-#include "Preset.h"
+#include "Model.h"
 #include "Ui.h"
 #include "UiDelegate.h"
 #include "Midi.h"
+#include "Api.h"
 
-Preset *luaPreset = nullptr;
 UiDelegate *luaDelegate = nullptr;
 
 class Controller : public App, private MidiInputCallback
 {
 public:
     Controller()
-        : mainWindow(MainWindow(preset, midi)),
-          delegate(nullptr),
-          currentPreset(0),
+        : model(getApplicationSandbox()),
+          midi(model.currentPreset),
+          mainWindow(MainWindow(model, midi)),
+          delegate(&mainWindow),
+          api(&mainWindow),
           currentPresetBank(0),
-          readyForPresetSwitch(true),
-          midi(preset)
+          currentPreset(0)
     {
     }
 
@@ -33,7 +34,7 @@ public:
 
     const char *getApplicationVersion(void) const override
     {
-        return ("3.0-a.2");
+        return ("3.0-a.3");
     }
 
     const char *getApplicationSandbox(void) const override
@@ -49,39 +50,32 @@ public:
     void initialise(void) override;
 
 private:
-    static constexpr uint8_t NumPresetsInBank = 12;
-
-    // Delegated functions ---------------------------------------------------
     void displayDefaultPage(void);
-
     void handleIncomingMidiMessage(const MidiInput &midiInput,
                                    const MidiMessage &midiMessage) override;
     bool handleCtrlFileReceived(LocalFile file,
                                 ElectraCommand::Object fileType) override;
+    bool handleCtrlFileRemoved(int fileNumber,
+                               ElectraCommand::Object fileType) override;
+    void handleElectraSysex(const SysexBlock &sysexBlock) override;
 
-    // Handle preset
-    void assignPresetNames(uint8_t presetBankId);
-    bool loadPresetById(int presetId);
-    bool loadPreset(LocalFile file);
-    void reset(void);
-    void runPresetLuaScript(void);
+    // Patch requests
     void runUserTask(void);
+
+    // Model
+    Model model;
+
+    // Interfaces
+    Midi midi;
+    Api api;
 
     // UI
     MainWindow mainWindow;
     UiDelegate *delegate;
 
-    // Model
-    Preset preset;
-
-    // Midi
-    Midi midi;
-
     // App state
-    char presetNames[NumPresetsInBank][Preset::MaxNameLength + 1];
     uint8_t currentPresetBank;
     uint8_t currentPreset;
-    bool readyForPresetSwitch;
 };
 
 // This macro instructs main() routine to launch the app.

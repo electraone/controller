@@ -3,6 +3,7 @@
 #include <vector>
 #include <String>
 #include <functional>
+#include "Sysex.h"
 #include "MidiOutput.h"
 #include "Device.h"
 #include "Message.h"
