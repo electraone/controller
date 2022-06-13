@@ -21,9 +21,7 @@ public:
           midi(model.currentPreset),
           mainWindow(MainWindow(model, midi)),
           delegate(&mainWindow),
-          api(&mainWindow),
-          currentPresetBank(0),
-          currentPreset(0)
+          api(&mainWindow)
     {
     }
 
@@ -34,7 +32,7 @@ public:
 
     const char *getApplicationVersion(void) const override
     {
-        return ("3.0-a.3");
+        return ("3.0-a.4");
     }
 
     const char *getApplicationSandbox(void) const override
@@ -55,7 +53,8 @@ private:
                                    const MidiMessage &midiMessage) override;
     bool handleCtrlFileReceived(LocalFile file,
                                 ElectraCommand::Object fileType) override;
-    bool handleCtrlFileRemoved(int fileNumber,
+    bool handleCtrlFileRemoved(uint8_t bankNumber,
+                               uint8_t slot,
                                ElectraCommand::Object fileType) override;
     void handleElectraSysex(const SysexBlock &sysexBlock) override;
 
@@ -72,10 +71,6 @@ private:
     // UI
     MainWindow mainWindow;
     UiDelegate *delegate;
-
-    // App state
-    uint8_t currentPresetBank;
-    uint8_t currentPreset;
 };
 
 // This macro instructs main() routine to launch the app.

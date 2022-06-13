@@ -61,7 +61,6 @@ public:
     void enableMidiLearn(void) override;
     void disableMidiLearn(void) override;
     void switchPreset(uint8_t bankNumber, uint8_t slot) override;
-    // updateControl(????)
     void setSnapshotSlot(const char *projectId,
                          uint8_t bankNumber,
                          uint8_t slot) override;

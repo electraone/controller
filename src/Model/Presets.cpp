@@ -8,14 +8,14 @@ Preset *luaPreset = nullptr;
 
 Presets::Presets(const char *newAppSandbox)
     : appSandbox(newAppSandbox),
-      currentPreset(0),
-      currentPresetBank(0),
+      currentSlot(0),
+      currentBankNumber(0),
       readyForPresetSwitch(true)
 {
     snprintf(tempFilename, MAX_FILENAME_LENGTH, "%s/eprxfer.tmp", appSandbox);
 }
 
-void Presets::assignPresetNames(uint8_t presetBankId)
+void Presets::assignPresetNames(uint8_t bankNumber)
 {
     for (uint16_t i = 0; i < NumPresetsInBank; i++) {
         char filename[MAX_FILENAME_LENGTH + 1];
@@ -23,7 +23,7 @@ void Presets::assignPresetNames(uint8_t presetBankId)
                  MAX_FILENAME_LENGTH,
                  "%s/p%03d.epr",
                  appSandbox,
-                 (presetBankId * NumPresetsInBank) + i);
+                 (bankNumber * NumPresetsInBank) + i);
 
         if (File file = Hardware::sdcard.createInputStream(filename)) {
             Preset::getPresetName(file, presetNames[i], Preset::MaxNameLength);
@@ -171,7 +171,7 @@ bool Presets::loadPreset(LocalFile file)
 
     System::tasks.enableRepaintGraphics();
     parameterMap.enable();
-    assignPresetNames(currentPresetBank);
+    assignPresetNames(currentBankNumber);
 
     return (true);
 }
@@ -223,8 +223,7 @@ bool Presets::loadPresetById(int presetId)
         presetId = 0;
     }
 
-    currentPreset = presetId;
-    System::context.setCurrentFile(presetId);
+    setBankNumberAndSlot(presetId);
     LocalFile file(System::context.getCurrentPresetFile());
 
     // Remember the preset for the next startup
@@ -265,4 +264,50 @@ void Presets::runPresetLuaScript(void)
         // assign Lua callbacks
         assignLuaCallbacks();
     }
+}
+
+void Presets::setBankNumberAndSlot(uint8_t presetId)
+{
+    currentBankNumber = presetId / NumPresetsInBank;
+    currentSlot = presetId % NumPresetsInBank;
+    setDefaultFiles(currentBankNumber, currentSlot);
+}
+
+void Presets::setBankNumberAndSlot(uint8_t newBankNumber, uint8_t newSlot)
+{
+    currentBankNumber = newBankNumber;
+    currentSlot = newSlot;
+    setDefaultFiles(currentBankNumber, currentSlot);
+}
+
+uint8_t Presets::getPresetId(void) const
+{
+    return (currentBankNumber * NumPresetsInBank + currentSlot);
+}
+
+void Presets::setCurrentSlot(uint8_t newSlot)
+{
+    currentSlot = newSlot;
+    setDefaultFiles(currentBankNumber, currentSlot);
+}
+
+uint8_t Presets::getCurrentSlot(void) const
+{
+    return (currentSlot);
+}
+
+void Presets::setCurrentBankNumber(uint8_t newBankNumber)
+{
+    currentBankNumber = newBankNumber;
+    setDefaultFiles(currentBankNumber, currentSlot);
+}
+
+uint8_t Presets::getCurrentBankNumber(void) const
+{
+    return (currentBankNumber);
+}
+
+void Presets::setDefaultFiles(uint8_t newBankNumber, uint8_t newSlot)
+{
+    System::context.setCurrentFile(newBankNumber * NumPresetsInBank + newSlot);
 }

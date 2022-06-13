@@ -384,6 +384,8 @@ void MainWindow::setSnapshotSlot(const char *projectId,
 void MainWindow::setPresetSlot(uint8_t bankNumber, uint8_t slot)
 {
     logMessage("setPresetSlot: bankNumber=%d, slot=%d", bankNumber, slot);
+    presets.setCurrentBankNumber(bankNumber);
+    presets.setCurrentSlot(slot);
 }
 
 void MainWindow::updateSnapshot(const char *projectId,

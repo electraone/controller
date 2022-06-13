@@ -1,5 +1,6 @@
 #include "Api.h"
 #include "ArduinoJson.h"
+#include "Midi/Sysex.h"
 
 void Api::sendSnapshotList(MemoryBlock &sysexPayload)
 {
@@ -51,21 +52,21 @@ void Api::enableMidiLearn(void)
 {
     logMessage("Api::enableMidiLearn");
     delegate->enableMidiLearn();
-    //sendAck();
+    sendAck();
 }
 
 void Api::disableMidiLearn(void)
 {
     logMessage("Api::disableMidiLearn");
     delegate->disableMidiLearn();
-    //sendAck();
+    sendAck();
 }
 
 void Api::switchPreset(uint8_t bankNumber, uint8_t slot)
 {
     logMessage("Api::switchPreset");
     delegate->switchPreset(bankNumber, slot);
-    //sendAck();
+    sendAck();
 }
 
 void Api::updateControl(uint16_t controlId, MemoryBlock &sysexPayload)
@@ -100,7 +101,7 @@ void Api::updateControl(uint16_t controlId, MemoryBlock &sysexPayload)
         bool shouldBeVisible = doc["visible"].as<bool>();
         delegate->setControlVisible(controlId, shouldBeVisible);
     }
-    //sendAck();
+    sendAck();
 }
 
 void Api::setSnapshotSlot(MemoryBlock &sysexPayload)
@@ -122,15 +123,14 @@ void Api::setSnapshotSlot(MemoryBlock &sysexPayload)
     uint8_t slot = doc["slot"].as<uint8_t>();
 
     delegate->setSnapshotSlot(projectId, bankNumber, slot);
-    //sendAck();
+    sendAck();
 }
 
 void Api::setPresetSlot(uint8_t bankNumber, uint8_t slot)
 {
-    logMessage("Api::setSnapshotSlot");
-
+    logMessage("Api::setPresetSlot");
     delegate->setPresetSlot(bankNumber, slot);
-    //sendAck();
+    sendAck();
 }
 
 void Api::updateSnapshot(MemoryBlock &sysexPayload)
@@ -154,7 +154,7 @@ void Api::updateSnapshot(MemoryBlock &sysexPayload)
     Colour colour = ElectraColours::translateColour(doc["color"].as<char *>());
 
     delegate->updateSnapshot(projectId, bankNumber, slot, name, colour);
-    //sendAck();
+    sendAck();
 }
 
 void Api::removeSnapshot(MemoryBlock &sysexPayload)
@@ -176,7 +176,7 @@ void Api::removeSnapshot(MemoryBlock &sysexPayload)
     uint8_t slot = doc["slot"].as<uint8_t>();
 
     delegate->removeSnapshot(projectId, bankNumber, slot);
-    //sendAck();
+    sendAck();
 }
 
 void Api::swapSnapshots(MemoryBlock &sysexPayload)
@@ -199,11 +199,11 @@ void Api::swapSnapshots(MemoryBlock &sysexPayload)
 
     delegate->swapSnapshots(
         projectId, sourceBankNumber, sourceSlot, destBankNumber, destSlot);
-    //sendAck();
+    sendAck();
 }
 
 void Api::setCurrentSnapshotBank(uint8_t bankNumber)
 {
     delegate->setCurrentSnapshotBank(bankNumber);
-    //sendAck();
+    sendAck();
 }

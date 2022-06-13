@@ -11,8 +11,7 @@ void Controller::initialise(void)
     luaDelegate = delegate;
 
     // Get info about the last used preset
-    currentPreset = System::runtimeInfo.getLastActivePreset();
-    System::context.setCurrentFile(currentPreset);
+    uint8_t presetId = System::runtimeInfo.getLastActivePreset();
 
     // Load application setup file
     LocalFile config(System::context.getCurrentConfigFile());
@@ -51,7 +50,7 @@ void Controller::initialise(void)
 
     // load the default preset
     if (System::context.getLoadDefaultFiles()) {
-        delegate->switchPreset(currentPresetBank, currentPreset);
+        delegate->switchPreset(presetId / 12, presetId % 12);
     }
 
     // Log free RAM
@@ -119,19 +118,20 @@ bool Controller::handleCtrlFileReceived(LocalFile file,
     return (true);
 }
 
-bool Controller::handleCtrlFileRemoved(int fileNumber,
+bool Controller::handleCtrlFileRemoved(uint8_t bankNumber,
+                                       uint8_t slot,
                                        ElectraCommand::Object fileType)
 {
+    uint8_t currentPreset = model.presets.getCurrentSlot();
+    uint8_t currentPresetBank = model.presets.getCurrentBankNumber();
+
     if (fileType == ElectraCommand::Object::FilePreset) {
         // If it is a current preset, reload it
-        if ((fileNumber == currentPreset) || (fileNumber == -1)) {
-            logMessage("current preset");
+        if ((currentPresetBank == bankNumber) || (currentPreset == slot)) {
             delegate->switchPreset(currentPresetBank, currentPreset);
-        } else {
-            logMessage("other preset");
         }
     } else if (fileType == ElectraCommand::Object::FileLua) {
-        if ((fileNumber == currentPreset) || (fileNumber == -1)) {
+        if ((currentPresetBank == bankNumber) || (currentPreset == slot)) {
             logMessage("clear Lua context");
 
             // disable the luaTask
