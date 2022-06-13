@@ -328,7 +328,7 @@ void MainWindow::setGroupSlot(uint16_t groupId,
 void MainWindow::sendSnapshotList(const char *projectId)
 {
     logMessage("sendSnapshotList: projectId=%s", projectId);
-    snapshots.sendList();
+    //snapshots.sendList();
 }
 
 void MainWindow::sendSnapshot(const char *projectId,
