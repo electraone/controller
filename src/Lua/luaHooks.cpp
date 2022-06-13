@@ -12,7 +12,7 @@ void runFormatter(const char *formatter,
     lua_getglobal(L, formatter);
 
     if (lua_isfunction(L, -1)) {
-        luaLE_pushObject(L, "Value", object);
+        luaLE_pushObject(L, "ControlValue", object);
         lua_pushnumber(L, value);
 
         if (lua_pcall(L, 2, LUA_MULTRET, 0) != 0) {
@@ -42,7 +42,7 @@ void runFunction(const char *function, const void *object, int16_t value)
     lua_getglobal(L, function);
 
     if (lua_isfunction(L, -1)) {
-        luaLE_pushObject(L, "Value", object);
+        luaLE_pushObject(L, "ControlValue", object);
         lua_pushnumber(L, value);
 
         if (lua_pcall(L, 2, 0, 0) != 0) {
