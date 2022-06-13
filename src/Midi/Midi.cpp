@@ -293,7 +293,7 @@ void Midi::processMidi(const MidiInput &midiInput,
         } else if (midiMessage.isProgramChange()) {
             processProgramChange(deviceId, midiMessage.getData1());
         } else {
-            logMessage("Midi::processMidi: other midi message. ignoring it.");
+            // logMessage("Midi::processMidi: other midi message. ignoring it.");
         }
     }
 }
