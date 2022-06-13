@@ -1,5 +1,6 @@
 #include "luaMessage.h"
 #include "Message.h"
+#include "ParameterMap.h"
 
 static Message *getMessage(lua_State *L, uint8_t stackPosition)
 {
@@ -72,7 +73,10 @@ int message_getValue(lua_State *L)
     int midiValue = 0;
 
     if (Message *message = getMessage(L, 1)) {
-        midiValue = message->getValue();
+        midiValue =
+            parameterMap.getValue(message->getDeviceId(),
+                                  (ElectraMessageType)message->getType(),
+                                  message->getParameterNumber());
     }
 
     lua_pushinteger(L, midiValue);
@@ -88,6 +92,11 @@ int message_setValue(lua_State *L)
 
     if (message) {
         message->setValue(midiValue);
+        parameterMap.setValue(message->getDeviceId(),
+                              (ElectraMessageType)message->getType(),
+                              message->getParameterNumber(),
+                              midiValue,
+                              Origin::lua);
     }
     return (0);
 }
