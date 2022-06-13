@@ -522,10 +522,8 @@ void Midi::sendControlChange(uint8_t port,
                              uint8_t parameterNumber,
                              uint8_t value)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendControlChange(
-            interfaceType, port, channel, parameterNumber, value);
-    }
+    MidiOutput::sendControlChange(
+        MidiInterface::Type::MidiAll, port, channel, parameterNumber, value);
 }
 
 void Midi::sendControlChange14Bit(uint8_t port,
@@ -534,10 +532,12 @@ void Midi::sendControlChange14Bit(uint8_t port,
                                   uint16_t midiValue,
                                   bool lsbFirst)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendControlChange14Bit(
-            interfaceType, port, channel, parameterNumber, midiValue, lsbFirst);
-    }
+    MidiOutput::sendControlChange14Bit(MidiInterface::Type::MidiAll,
+                                       port,
+                                       channel,
+                                       parameterNumber,
+                                       midiValue,
+                                       lsbFirst);
 }
 
 void Midi::sendNrpn(uint8_t port,
@@ -546,10 +546,12 @@ void Midi::sendNrpn(uint8_t port,
                     uint16_t midiValue,
                     bool lsbFirst)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendNrpn(
-            interfaceType, port, channel, parameterNumber, midiValue, lsbFirst);
-    }
+    MidiOutput::sendNrpn(MidiInterface::Type::MidiAll,
+                         port,
+                         channel,
+                         parameterNumber,
+                         midiValue,
+                         lsbFirst);
 }
 
 void Midi::sendRpn(uint8_t port,
@@ -557,20 +559,19 @@ void Midi::sendRpn(uint8_t port,
                    uint16_t parameterNumber,
                    uint16_t midiValue)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendRpn(
-            interfaceType, port, channel, parameterNumber, midiValue);
-    }
+    MidiOutput::sendRpn(MidiInterface::Type::MidiAll,
+                        port,
+                        channel,
+                        parameterNumber,
+                        midiValue);
 }
 
 void Midi::sendProgramChange(uint8_t port,
                              uint8_t channel,
                              uint8_t programNumber)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendProgramChange(
-            interfaceType, port, channel, programNumber);
-    }
+    MidiOutput::sendProgramChange(
+        MidiInterface::Type::MidiAll, port, channel, programNumber);
 }
 
 void Midi::sendNoteOn(uint8_t port,
@@ -578,10 +579,8 @@ void Midi::sendNoteOn(uint8_t port,
                       uint8_t noteNumber,
                       uint8_t velocity)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendNoteOn(
-            interfaceType, port, channel, noteNumber, velocity);
-    }
+    MidiOutput::sendNoteOn(
+        MidiInterface::Type::MidiAll, port, channel, noteNumber, velocity);
 }
 
 void Midi::sendNoteOff(uint8_t port,
@@ -589,36 +588,27 @@ void Midi::sendNoteOff(uint8_t port,
                        uint8_t noteNumber,
                        uint8_t velocity)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendNoteOff(
-            interfaceType, port, channel, noteNumber, velocity);
-    }
+    MidiOutput::sendNoteOff(
+        MidiInterface::Type::MidiAll, port, channel, noteNumber, velocity);
 }
 
 void Midi::sendStart(uint8_t port)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendStart(interfaceType, port);
-    }
+    MidiOutput::sendStart(MidiInterface::Type::MidiAll, port);
 }
 
 void Midi::sendStop(uint8_t port)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendStop(interfaceType, port);
-    }
+    MidiOutput::sendStop(MidiInterface::Type::MidiAll, port);
 }
 
 void Midi::sendTuneRequest(uint8_t port)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendTuneRequest(interfaceType, port);
-    }
+    MidiOutput::sendTuneRequest(MidiInterface::Type::MidiAll, port);
 }
 
 void Midi::sendSysEx(uint8_t port, uint8_t *sysexData, uint16_t sysexDataLength)
 {
-    for (const auto &interfaceType : MidiInterface::allInterfaceTypes) {
-        MidiOutput::sendSysEx(interfaceType, port, sysexData, sysexDataLength);
-    }
+    MidiOutput::sendSysEx(
+        MidiInterface::Type::MidiAll, port, sysexData, sysexDataLength);
 }
