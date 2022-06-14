@@ -143,6 +143,8 @@ bool Presets::loadPreset(LocalFile file)
 
                     if (control.getType() == ControlType::pad) {
                         midiValue = value.getDefault();
+                    } else if (control.getType() == ControlType::list) {
+                        midiValue = value.getDefault();
                     } else {
                         midiValue = translateValueToMidiValue(
                             value.message.getSignMode(),

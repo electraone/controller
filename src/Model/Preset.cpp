@@ -752,7 +752,7 @@ void Preset::parsePatch(File &file,
         file.seek(startPosition);
         return;
     }
-    
+
     StaticJsonDocument<4096> doc;
     StaticJsonDocument<JSON_OBJECT_SIZE(20)> filter;
 
