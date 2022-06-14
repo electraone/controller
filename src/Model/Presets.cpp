@@ -35,7 +35,7 @@ void Presets::assignPresetNames(uint8_t bankNumber)
     }
 }
 
-void Presets::sendList(void)
+void Presets::sendList(uint8_t port)
 {
     File presetListFile = Hardware::sdcard.createOutputStream(
         tempFilename, FILE_WRITE | O_CREAT | O_TRUNC);
@@ -87,7 +87,7 @@ void Presets::sendList(void)
     presetListFile.print("]");
     presetListFile.close();
 
-    sendSysExFile(tempFilename, ElectraCommand::Object::PresetList);
+    sendSysExFile(port, tempFilename, ElectraCommand::Object::PresetList);
 }
 
 /** Load preset.

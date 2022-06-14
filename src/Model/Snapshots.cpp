@@ -22,7 +22,7 @@ void Snapshots::setProjectId(const char *newProjectId)
              projectId);
 }
 
-void Snapshots::sendList(void)
+void Snapshots::sendList(uint8_t port)
 {
     Database dbSnapshot(snapshotDbFilename);
 
@@ -69,17 +69,19 @@ void Snapshots::sendList(void)
     snapshotJsonFile.close();
     dbSnapshot.close();
 
-    sendSysExFile(tempSnapshotFilename, ElectraCommand::Object::SnapshotList);
+    sendSysExFile(
+        port, tempSnapshotFilename, ElectraCommand::Object::SnapshotList);
 }
 
-void Snapshots::sendSnapshot(uint8_t bankNumber, uint8_t slot)
+void Snapshots::sendSnapshot(uint8_t port, uint8_t bankNumber, uint8_t slot)
 {
     char snapshotFilename[MAX_FILENAME_LENGTH + 1];
 
     composeSnapshotFilename(snapshotFilename, bankNumber, slot);
 
     if (Hardware::sdcard.exists(snapshotFilename)) {
-        sendSysExFile(snapshotFilename, ElectraCommand::Object::FileSnapshot);
+        sendSysExFile(
+            port, snapshotFilename, ElectraCommand::Object::FileSnapshot);
     }
 }
 

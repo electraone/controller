@@ -45,11 +45,12 @@ public:
                               uint8_t newWidth,
                               uint8_t newHeight) = 0;
     // Api
-    virtual void sendSnapshotList(const char *projectId) = 0;
-    virtual void sendSnapshot(const char *projectId,
+    virtual void sendSnapshotList(uint8_t port, const char *projectId) = 0;
+    virtual void sendSnapshot(uint8_t port,
+                              const char *projectId,
                               uint8_t bankNumber,
                               uint8_t slot) = 0;
-    virtual void sendPresetList(void) = 0;
+    virtual void sendPresetList(uint8_t port) = 0;
     virtual void enableMidiLearn(void) = 0;
     virtual void disableMidiLearn(void) = 0;
     virtual void switchPreset(uint8_t bankNumber, uint8_t slot) = 0;

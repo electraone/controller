@@ -9,8 +9,8 @@ public:
     virtual ~Snapshots() = default;
 
     void setProjectId(const char *newProjectId);
-    void sendList(void);
-    void sendSnapshot(uint8_t bankNumber, uint8_t slot);
+    void sendList(uint8_t port);
+    void sendSnapshot(uint8_t port, uint8_t bankNumber, uint8_t slot);
 
 private:
     void createSnapshotDir(void);

@@ -53,11 +53,12 @@ public:
                       uint8_t newHeight) override;
 
     // API
-    void sendSnapshotList(const char *projectId) override;
-    void sendSnapshot(const char *projectId,
+    void sendSnapshotList(uint8_t port, const char *projectId) override;
+    void sendSnapshot(uint8_t port,
+                      const char *projectId,
                       uint8_t bankNumber,
                       uint8_t slot) override;
-    void sendPresetList(void) override;
+    void sendPresetList(uint8_t port) override;
     void enableMidiLearn(void) override;
     void disableMidiLearn(void) override;
     void switchPreset(uint8_t bankNumber, uint8_t slot) override;

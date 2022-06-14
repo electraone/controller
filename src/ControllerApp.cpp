@@ -142,7 +142,7 @@ bool Controller::handleCtrlFileRemoved(uint8_t bankNumber,
     return (true);
 }
 
-void Controller::handleElectraSysex(const SysexBlock &sysexBlock)
+void Controller::handleElectraSysex(uint8_t port, const SysexBlock &sysexBlock)
 {
     ElectraCommand cmd = sysexBlock.getElectraSysexCommand();
     MemoryBlock sysexPayload = sysexBlock.getElectraSysexPayload();
@@ -158,17 +158,17 @@ void Controller::handleElectraSysex(const SysexBlock &sysexBlock)
     if (cmd.isFileRequest()) {
         if (object == ElectraCommand::Object::SnapshotList) {
             if (cmd.getByte1() != 0xF7) {
-                api.sendSnapshotList(sysexPayload);
+                api.sendSnapshotList(port, sysexPayload);
             } else {
                 if (model.currentPreset.isValid()) {
                     delegate->sendSnapshotList(
-                        model.currentPreset.getProjectId());
+                        port, model.currentPreset.getProjectId());
                 }
             }
         } else if (object == ElectraCommand::Object::FileSnapshot) {
-            api.sendSnapshot(sysexPayload);
+            api.sendSnapshot(port, sysexPayload);
         } else if (object == ElectraCommand::Object::PresetList) {
-            api.sendPresetList();
+            api.sendPresetList(port);
         }
     } else if (cmd.isMidiLearnSwitch()) {
         if (object
@@ -176,33 +176,42 @@ void Controller::handleElectraSysex(const SysexBlock &sysexBlock)
                 MidiLearnOff) // TODO: this is a fix for backwards compatibility
         {
             api.disableMidiLearn();
+            sendAck(port);
         } else {
             api.enableMidiLearn();
+            sendAck(port);
         }
     } else if (cmd.isSwitch()) {
         if (object == ElectraCommand::Object::PresetSlot) {
             api.switchPreset(cmd.getByte1(), cmd.getByte2());
+            sendAck(port);
         }
     } else if (cmd.isUpdateRuntime()) {
         if (object == ElectraCommand::Object::Control) {
             uint16_t controlId = cmd.getByte1() | cmd.getByte2() << 7;
             api.updateControl(controlId, sysexPayload);
+            sendAck(port);
         } else if (object == ElectraCommand::Object::SnapshotSlot) {
             api.setSnapshotSlot(sysexPayload);
+            sendAck(port);
         } else if (object == ElectraCommand::Object::PresetSlot) {
             api.setPresetSlot(cmd.getByte1(), cmd.getByte2());
+            sendAck(port);
         }
     } else if (cmd.isUpdate()) {
         if (object == ElectraCommand::Object::SnapshotInfo) {
             api.updateSnapshot(sysexPayload);
+            sendAck(port);
         }
     } else if (cmd.isRemove()) {
         if (object == ElectraCommand::Object::SnapshotInfo) {
             api.removeSnapshot(sysexPayload);
+            sendAck(port);
         }
     } else if (cmd.isSwap()) {
         if (object == ElectraCommand::Object::SnapshotInfo) {
             api.swapSnapshots(sysexPayload);
+            sendAck(port);
         }
     } else if (cmd.isEvent()) {
         if (cmd.getEvent() == ElectraCommand::Event::SnapshotBankSwitch) {
@@ -211,6 +220,7 @@ void Controller::handleElectraSysex(const SysexBlock &sysexBlock)
                 "handleElectraSysex: snapshot bank change event : bankNumber=%d",
                 bankNumber);
             api.setCurrentSnapshotBank(bankNumber);
+            sendAck(port);
         }
     } else if (cmd.isSystemCall()) {
         logMessage("handleElectraSysex: application system call");

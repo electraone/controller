@@ -325,13 +325,14 @@ void MainWindow::setGroupSlot(uint16_t groupId,
     }
 }
 
-void MainWindow::sendSnapshotList(const char *projectId)
+void MainWindow::sendSnapshotList(uint8_t port, const char *projectId)
 {
     logMessage("sendSnapshotList: projectId=%s", projectId);
-    //snapshots.sendList();
+    //snapshots.sendList(port);
 }
 
-void MainWindow::sendSnapshot(const char *projectId,
+void MainWindow::sendSnapshot(uint8_t port,
+                              const char *projectId,
                               uint8_t bankNumber,
                               uint8_t slot)
 {
@@ -341,10 +342,10 @@ void MainWindow::sendSnapshot(const char *projectId,
                slot);
 }
 
-void MainWindow::sendPresetList(void)
+void MainWindow::sendPresetList(uint8_t port)
 {
     logMessage("sendPresetList");
-    presets.sendList();
+    presets.sendList(port);
 }
 
 void MainWindow::enableMidiLearn(void)
@@ -368,7 +369,7 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
 
     presets.loadPresetById(bankNumber * 12 + slot);
     setPage(1, preset.getPage(1).getDefaultControlSetId());
-    sendPresetSwitch(bankNumber, slot);
+    sendPresetSwitch(2, bankNumber, slot);
 }
 
 void MainWindow::setSnapshotSlot(const char *projectId,

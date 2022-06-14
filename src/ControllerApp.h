@@ -56,7 +56,8 @@ private:
     bool handleCtrlFileRemoved(uint8_t bankNumber,
                                uint8_t slot,
                                ElectraCommand::Object fileType) override;
-    void handleElectraSysex(const SysexBlock &sysexBlock) override;
+    void handleElectraSysex(uint8_t port,
+                            const SysexBlock &sysexBlock) override;
 
     // Patch requests
     void runUserTask(void);

@@ -12,9 +12,9 @@ public:
 
     virtual ~Api() = default;
 
-    void sendSnapshotList(MemoryBlock &sysexPayload);
-    void sendSnapshot(MemoryBlock &sysexPayload);
-    void sendPresetList(void);
+    void sendSnapshotList(uint8_t port, MemoryBlock &sysexPayload);
+    void sendSnapshot(uint8_t port, MemoryBlock &sysexPayload);
+    void sendPresetList(uint8_t port);
     void enableMidiLearn(void);
     void disableMidiLearn(void);
     void switchPreset(uint8_t bankNumber, uint8_t slot);

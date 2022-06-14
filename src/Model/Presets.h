@@ -11,7 +11,7 @@ public:
     virtual ~Presets() = default;
 
     void assignPresetNames(uint8_t bankNumber);
-    void sendList(void);
+    void sendList(uint8_t port);
 
     bool loadPresetById(int presetId);
     bool loadPreset(LocalFile file);
