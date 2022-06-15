@@ -8,7 +8,7 @@ class ADSRControl : public ControlComponent, public ADSR
 {
 public:
     explicit ADSRControl(const Control &control)
-        : ControlComponent(control), activeHandle(1)
+        : ControlComponent(control), activeHandle(0)
     {
         setMin(ADSR::attack, control.values[0].getMin());
         setMax(ADSR::attack, control.values[0].getMax());

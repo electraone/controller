@@ -8,7 +8,7 @@ class ADRControl : public ControlComponent, public ADR
 {
 public:
     explicit ADRControl(const Control &control)
-        : ControlComponent(control), activeHandle(1)
+        : ControlComponent(control), activeHandle(0)
     {
         setMin(ADR::attack, control.values[0].getMin());
         setMax(ADR::attack, control.values[0].getMax());

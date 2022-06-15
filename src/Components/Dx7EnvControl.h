@@ -8,7 +8,7 @@ class Dx7EnvControl : public ControlComponent, public Env5Seg
 {
 public:
     explicit Dx7EnvControl(const Control &control)
-        : ControlComponent(control), activeHandle(1)
+        : ControlComponent(control), activeHandle(0)
     {
         values[Env5Seg::level1].setMin(control.values[0].getMin());
         values[Env5Seg::level1].setMax(control.values[0].getMax());
