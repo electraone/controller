@@ -97,14 +97,14 @@ public:
     void paint(Graphics &g) override
     {
         LookAndFeel::paintPad(g, getBounds(), colour, getState());
-
         g.printText(0,
                     getHeight() / 2 - 10,
                     getName(),
-                    TextStyle::mediumWhiteOnBlack,
+                    getState() ? TextStyle::mediumBlackOnWhite
+                               : TextStyle::mediumWhiteOnBlack,
                     getWidth(),
                     TextAlign::center,
-                    2);
+                    control.getColour()); // needed to use the legacy text colours
     }
 
     void emitValueChange(int16_t newDisplayValue, const ControlValue &cv)
