@@ -544,6 +544,7 @@ void MainWindow::showDetailOfActivePotTouch(void)
         }
     }
     if (Component *c = getActivePotComponent()) {
+        logMessage("need detail of %d", c->getId());
         openDetail(c->getId());
     }
 }

@@ -20,7 +20,7 @@ public:
 
     virtual ~ListControl() = default;
 
-    void onTouchUp(const TouchEvent &touchEvent) override
+    virtual void onTouchUp(const TouchEvent &touchEvent) override
     {
         if (auto list = getList()) {
             int16_t delta = touchEvent.getTouchDownX() - touchEvent.getX();
@@ -35,7 +35,12 @@ public:
         }
     }
 
-    void onPotChange(const PotEvent &potEvent) override
+    virtual void onPotTouchDown(const PotEvent &potEvent) override
+    {
+        delegate->setActivePotTouch(potEvent.getPotId(), this);
+    }
+
+    virtual void onPotChange(const PotEvent &potEvent) override
     {
         if (auto list = getList()) {
             if (int16_t delta = potEvent.getAcceleratedChange()) {
@@ -46,7 +51,12 @@ public:
         }
     }
 
-    void onMidiValueChange(const ControlValue &value,
+    virtual void onPotTouchUp(const PotEvent &potEvent) override
+    {
+        delegate->resetActivePotTouch(potEvent.getPotId());
+    }
+
+    virtual void onMidiValueChange(const ControlValue &value,
                            int16_t midiValue,
                            uint8_t handle = 0) override
     {

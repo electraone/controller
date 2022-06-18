@@ -16,7 +16,7 @@ public:
 
     virtual ~PadControl() = default;
 
-    void onTouchDown(const TouchEvent &touchEvent) override
+    virtual void onTouchDown(const TouchEvent &touchEvent) override
     {
         const ControlValue cv = control.getValue(0);
         uint16_t midiValue = cv.message.getOnValue();
@@ -34,7 +34,7 @@ public:
         cv.callFunction(midiValue);
     }
 
-    void onTouchUp(const TouchEvent &touchEvent) override
+    virtual void onTouchUp(const TouchEvent &touchEvent) override
     {
         if (control.getMode() == ControlMode::momentary) {
             const ControlValue cv = control.getValue(0);
@@ -47,7 +47,7 @@ public:
         }
     }
 
-    void onPotChange(const PotEvent &potEvent) override
+    virtual void onPotChange(const PotEvent &potEvent) override
     {
         int16_t delta = potEvent.getAcceleratedChange();
         int8_t step = (delta < 0) - (delta > 0);
@@ -70,7 +70,7 @@ public:
         }
     }
 
-    void onPotTouchUp(const PotEvent &potEvent) override
+    virtual void onPotTouchUp(const PotEvent &potEvent) override
     {
         if (control.getMode() == ControlMode::momentary) {
             const ControlValue cv = control.getValue(0);
@@ -84,7 +84,7 @@ public:
         }
     }
 
-    void onMidiValueChange(const ControlValue &value,
+    virtual void onMidiValueChange(const ControlValue &value,
                            int16_t midiValue,
                            uint8_t handle = 0) override
     {

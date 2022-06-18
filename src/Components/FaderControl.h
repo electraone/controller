@@ -40,6 +40,11 @@ public:
         emitValueChange(newDisplayValue, control.getValue(0));
     }
 
+    virtual void onPotTouchDown(const PotEvent &potEvent) override
+    {
+        delegate->setActivePotTouch(potEvent.getPotId(), this);
+    }
+
     virtual void onPotChange(const PotEvent &potEvent) override
     {
         if (int16_t delta = potEvent.getAcceleratedChange()) {
@@ -48,9 +53,14 @@ public:
         }
     }
 
-    void onMidiValueChange(const ControlValue &value,
-                           int16_t midiValue,
-                           uint8_t handle = 0) override
+    virtual void onPotTouchUp(const PotEvent &potEvent) override
+    {
+        delegate->resetActivePotTouch(potEvent.getPotId());
+    }
+
+    virtual void onMidiValueChange(const ControlValue &value,
+                                   int16_t midiValue,
+                                   uint8_t handle = 0) override
     {
         int16_t newDisplayValue =
             translateMidiValueToValue(value.message.getSignMode(),
