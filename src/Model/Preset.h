@@ -48,14 +48,13 @@ public:
 public:
     static constexpr uint8_t MaxNameLength = 20;
     static constexpr uint8_t MaxProjectIdLength = 20;
-
-private:
     static constexpr uint8_t MaxNumPages = 12;
     static constexpr uint16_t MaxNumControls = 432;
     static constexpr uint8_t MaxNumDevices = 32;
     static constexpr uint8_t MaxNumControlSets = 3;
     static constexpr uint8_t MaxNumPots = 12;
 
+private:
     // Main parser
     bool parse(File &file);
     void resetRoot(void);
@@ -194,5 +193,3 @@ public: // Public on the purpose
     static Control controlNotFound;
     static Group groupNotFound;
 };
-
-#define MAX_POT_ID 12

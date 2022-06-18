@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ControlComponent.h"
 #include "GroupControl.h"
+#include "ADSRControl.h"
 
 MainWindow::MainWindow(Model &newModel, Midi &newMidi)
     : preset(newModel.currentPreset),
@@ -11,26 +12,35 @@ MainWindow::MainWindow(Model &newModel, Midi &newMidi)
       pageSelectionWindow(nullptr),
       detailWindow(nullptr),
       currentPageId(0),
-      currentControlSetId(0)
+      currentControlSetId(0),
+      numActivePotTouch(0),
+      potTouchComponents{ nullptr }
 {
     setName("mainWindow");
 }
 
 void MainWindow::onButtonDown(uint8_t buttonId)
 {
-    if (0 <= buttonId && buttonId <= 2) {
-        setControlSet(buttonId);
-    } else if (buttonId == 3) {
-        logMessage("callback from mainWindow");
-        System::windowManager.listWindows();
-        requestAllPatches();
-    } else if (buttonId == 4) {
-        logMessage("callback from mainWindow");
-        buttonBroadcaster.listListeners();
-    } else if (buttonId == 5) {
-        logMessage("callback from mainWindow");
-        parameterMap.listWindows();
-        openPageSelection();
+    if (getNumActivePotTouch() > 0) {
+        if (buttonId == 0) {
+            showDetailOfActivePotTouch();
+        } else if (buttonId == 1) {
+            switchToNextHandleOfActivePotTouch();
+        } else if (buttonId == 2) {
+            switchToPreviousHandleOfActivePotTouch();
+        }
+    } else {
+        if (0 <= buttonId && buttonId <= 2) {
+            setControlSet(buttonId);
+        } else if (buttonId == 3) {
+            System::windowManager.listWindows();
+            requestAllPatches();
+        } else if (buttonId == 4) {
+            buttonBroadcaster.listListeners();
+        } else if (buttonId == 5) {
+            parameterMap.listWindows();
+            openPageSelection();
+        }
     }
 }
 
@@ -197,8 +207,8 @@ void MainWindow::setControlSlot(uint16_t controlId, uint8_t newSlot)
 {
     Control &control = preset.getControl(controlId);
     if (control.isValid()) {
-        uint8_t newPotId = (newSlot - 1) % 12;
-        uint8_t newControlSetId = (newSlot - 1) / 12;
+        uint8_t newPotId = (newSlot - 1) % Preset::MaxNumPots;
+        uint8_t newControlSetId = (newSlot - 1) / Preset::MaxNumPots;
         Rectangle bounds = slotToBounds(newSlot);
         bounds.setX(bounds.getX());
         bounds.setY(bounds.getY());
@@ -365,9 +375,9 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
     logMessage("switchPreset: bankNumber=%d, slot=%d, id=%d",
                bankNumber,
                slot,
-               bankNumber * 12 + slot);
+               bankNumber * Preset::MaxNumPots + slot);
 
-    presets.loadPresetById(bankNumber * 12 + slot);
+    presets.loadPresetById(bankNumber * Preset::MaxNumPots + slot);
     setPage(1, preset.getPage(1).getDefaultControlSetId());
     sendPresetSwitch(2, bankNumber, slot);
 }
@@ -466,6 +476,44 @@ void MainWindow::removeComponentFromGroup(uint8_t groupId)
     assignComponentToGroup(groupId, nullptr);
 }
 
+void MainWindow::setActivePotTouch(uint8_t potId, Component *component)
+{
+    potTouchComponents[potId] = component;
+    numActivePotTouch++;
+}
+
+void MainWindow::resetActivePotTouch(uint8_t potId)
+{
+    potTouchComponents[potId] = nullptr;
+    numActivePotTouch--;
+}
+
+uint8_t MainWindow::getNumActivePotTouch(void)
+{
+    return (numActivePotTouch);
+}
+
+void MainWindow::showActiveHandle(Component *component, bool shouldBeShown)
+{
+    if (Envelope *en = dynamic_cast<Envelope *>(component)) {
+        en->showActiveSegment(shouldBeShown);
+    }
+}
+
+void MainWindow::switchToNextHandle(Component *component)
+{
+    if (Envelope *en = dynamic_cast<Envelope *>(component)) {
+        en->switchToNextActiveHandle();
+    }
+}
+
+void MainWindow::switchToPreviousHandle(Component *component)
+{
+    if (Envelope *en = dynamic_cast<Envelope *>(component)) {
+        en->switchToPreviousActiveHandle();
+    }
+}
+
 void MainWindow::ping(void)
 {
     logMessage("delegate ping");
@@ -495,6 +543,46 @@ bool MainWindow::isDetailOnTheLeft(void)
         return (detailWindow->getX() < 512);
     }
     return false;
+}
+
+Component *MainWindow::getActivePotComponent(void) const
+{
+    for (uint8_t i = 0; i < Preset::MaxNumPots; i++) {
+        if (potTouchComponents[i]) {
+            return (potTouchComponents[i]);
+        }
+    }
+    return (nullptr);
+}
+
+void MainWindow::showDetailOfActivePotTouch(void)
+{
+    for (uint8_t i = 0; i < Preset::MaxNumPots; i++) {
+        if (potTouchComponents[i]) {
+            showActiveHandle(potTouchComponents[i], false);
+        }
+    }
+    if (Component *c = getActivePotComponent()) {
+        openDetail(c->getId());
+    }
+}
+
+void MainWindow::switchToNextHandleOfActivePotTouch(void)
+{
+    for (uint8_t i = 0; i < Preset::MaxNumPots; i++) {
+        if (potTouchComponents[i]) {
+            switchToNextHandle(potTouchComponents[i]);
+        }
+    }
+}
+
+void MainWindow::switchToPreviousHandleOfActivePotTouch(void)
+{
+    for (uint8_t i = 0; i < Preset::MaxNumPots; i++) {
+        if (potTouchComponents[i]) {
+            switchToPreviousHandle(potTouchComponents[i]);
+        }
+    }
 }
 
 Rectangle MainWindow::getDetailBounds(const Control &control)

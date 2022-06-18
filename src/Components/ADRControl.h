@@ -7,8 +7,8 @@
 class ADRControl : public ControlComponent, public ADR
 {
 public:
-    explicit ADRControl(const Control &control)
-        : ControlComponent(control), activeHandle(0)
+    ADRControl(const Control &control, UiDelegate *newDelegate)
+        : ControlComponent(control), delegate(newDelegate)
     {
         setMin(ADR::attack, control.values[0].getMin());
         setMax(ADR::attack, control.values[0].getMax());
@@ -16,17 +16,16 @@ public:
         setMax(ADR::decay, control.values[1].getMax());
         setMin(ADR::release, control.values[2].getMin());
         setMax(ADR::release, control.values[2].getMax());
-
         setActiveSegment(ADR::attack);
-
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
         updateValueFromParameterMap();
     }
 
     virtual ~ADRControl() = default;
 
-    void onTouchMove(const TouchEvent &touchEvent) override
+    virtual void onTouchMove(const TouchEvent &touchEvent) override
     {
+        uint8_t activeHandle = getActiveSegment();
         int16_t max = values[activeHandle].getMax();
         int16_t min = values[activeHandle].getMin();
 
@@ -37,17 +36,30 @@ public:
         emitValueChange(newDisplayValue, control.getValue(activeHandle));
     }
 
-    void onPotChange(const PotEvent &potEvent) override
+    virtual void onPotTouchDown(const PotEvent &potEvent) override
+    {
+        showActiveSegment(true);
+        delegate->setActivePotTouch(potEvent.getPotId(), this);
+    }
+
+    virtual void onPotChange(const PotEvent &potEvent) override
     {
         if (int16_t delta = potEvent.getAcceleratedChange()) {
+            uint8_t activeHandle = getActiveSegment();
             int16_t newDisplayValue = getValue(activeHandle) + delta;
             emitValueChange(newDisplayValue, control.getValue(activeHandle));
         }
     }
 
-    void onMidiValueChange(const ControlValue &value,
-                           int16_t midiValue,
-                           uint8_t handle = 0) override
+    virtual void onPotTouchUp(const PotEvent &potEvent) override
+    {
+        showActiveSegment(false);
+        delegate->resetActivePotTouch(potEvent.getPotId());
+    }
+
+    virtual void onMidiValueChange(const ControlValue &value,
+                                   int16_t midiValue,
+                                   uint8_t handle = 0) override
     {
         int16_t newDisplayValue =
             translateMidiValueToValue(value.message.getSignMode(),
@@ -68,7 +80,13 @@ public:
         Rectangle envBounds = getBounds();
         envBounds.setHeight(envBounds.getHeight() / 2);
         computePoints(envBounds);
-        LookAndFeel::paintEnvelope(g, envBounds, colour, baselineY, points);
+        LookAndFeel::paintEnvelope(g,
+                                   envBounds,
+                                   colour,
+                                   baselineY,
+                                   points,
+                                   activeSegment,
+                                   activeSegmentIsShown);
 
         g.printText(0,
                     getHeight() - 20,
@@ -79,6 +97,6 @@ public:
                     2);
     }
 
-private:
-    uint8_t activeHandle;
+protected:
+    UiDelegate *delegate;
 };

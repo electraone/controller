@@ -71,7 +71,8 @@ void ControlComponent::emitValueChange(int16_t newDisplayValue,
 #endif
 }
 
-Component *ControlComponent::createControlComponent(const Control &control)
+Component *ControlComponent::createControlComponent(const Control &control,
+                                                    UiDelegate *newDelegate)
 {
     ControlComponent *c = nullptr;
 
@@ -82,11 +83,11 @@ Component *ControlComponent::createControlComponent(const Control &control)
     } else if (control.getType() == ControlType::pad) {
         c = new PadControl(control);
     } else if (control.getType() == ControlType::adsr) {
-        c = new ADSRControl(control);
+        c = new ADSRControl(control, newDelegate);
     } else if (control.getType() == ControlType::adr) {
-        c = new ADRControl(control);
+        c = new ADRControl(control, newDelegate);
     } else if (control.getType() == ControlType::dx7envelope) {
-        c = new Dx7EnvControl(control);
+        c = new Dx7EnvControl(control, newDelegate);
     }
 
     if (c) {

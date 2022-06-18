@@ -90,6 +90,9 @@ public:
     void assignComponentToGroup(uint8_t groupId, Component *component) override;
     void removeComponentFromGroup(uint8_t groupId) override;
 
+    void setActivePotTouch(uint8_t potId, Component *component) override;
+    void resetActivePotTouch(uint8_t potId) override;
+
     void ping(void) override;
 
     // Getters
@@ -99,10 +102,14 @@ public:
     bool isDetailOnTheLeft(void) override;
 
 private:
-    void repaintParameterMap(void);
-    void enableRepaintParameterMap(void);
-    void disableRepaintParameterMap(void);
-
+    Component *getActivePotComponent(void) const;
+    void showDetailOfActivePotTouch(void);
+    uint8_t getNumActivePotTouch(void);
+    void showActiveHandle(Component *component, bool shouldBeShown);
+    void switchToNextHandle(Component *component);
+    void switchToPreviousHandle(Component *component);
+    void switchToNextHandleOfActivePotTouch(void);
+    void switchToPreviousHandleOfActivePotTouch(void);
     Rectangle getDetailBounds(const Control &control);
 
     // MainWindow data
@@ -122,4 +129,8 @@ private:
 
     uint8_t currentPageId;
     uint8_t currentControlSetId;
+
+    // Ui state
+    uint8_t numActivePotTouch;
+    Component *potTouchComponents[Preset::MaxNumPots];
 };

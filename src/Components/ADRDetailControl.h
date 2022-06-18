@@ -6,7 +6,7 @@ class ADRDetailControl : public ADRControl
 {
 public:
     explicit ADRDetailControl(const Control &control, UiDelegate *newDelegate)
-        : ADRControl(control), delegate(newDelegate)
+        : ADRControl(control, newDelegate)
     {
     }
 
@@ -29,7 +29,4 @@ public:
             delegate->closeDetail();
         }
     }
-
-private:
-    UiDelegate *delegate;
 };

@@ -7,8 +7,8 @@
 class Dx7EnvControl : public ControlComponent, public Env5Seg
 {
 public:
-    explicit Dx7EnvControl(const Control &control)
-        : ControlComponent(control), activeHandle(0)
+    Dx7EnvControl(const Control &control, UiDelegate *newDelegate)
+        : ControlComponent(control), delegate(newDelegate), activeHandle(0)
     {
         values[Env5Seg::level1].setMin(control.values[0].getMin());
         values[Env5Seg::level1].setMax(control.values[0].getMax());
@@ -47,12 +47,24 @@ public:
         emitValueChange(newDisplayValue, control.getValue(activeHandle));
     }
 
+    void onPotTouchDown(const PotEvent &potEvent) override
+    {
+        showActiveSegment(true);
+        delegate->setActivePotTouch(potEvent.getPotId(), this);
+    }
+
     void onPotChange(const PotEvent &potEvent) override
     {
         if (int16_t delta = potEvent.getAcceleratedChange()) {
             int16_t newDisplayValue = getValue(activeHandle) + delta;
             emitValueChange(newDisplayValue, control.getValue(activeHandle));
         }
+    }
+
+    void onPotTouchUp(const PotEvent &potEvent) override
+    {
+        showActiveSegment(false);
+        delegate->resetActivePotTouch(potEvent.getPotId());
     }
 
     void onMidiValueChange(const ControlValue &value,
@@ -78,7 +90,13 @@ public:
         Rectangle envBounds = getBounds();
         envBounds.setHeight(envBounds.getHeight() / 2);
         computePoints(envBounds);
-        LookAndFeel::paintEnvelope(g, envBounds, colour, baselineY, points);
+        LookAndFeel::paintEnvelope(g,
+                                   envBounds,
+                                   colour,
+                                   baselineY,
+                                   points,
+                                   activeHandle,
+                                   activeSegmentIsShown);
 
         g.printText(0,
                     getHeight() - 20,
@@ -88,6 +106,9 @@ public:
                     TextAlign::center,
                     2);
     }
+
+protected:
+    UiDelegate *delegate;
 
 private:
     uint8_t activeHandle;

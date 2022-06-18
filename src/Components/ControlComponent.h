@@ -20,7 +20,8 @@ public:
     virtual void emitValueChange(int16_t newDisplayValue,
                                  const ControlValue &cv);
 
-    static Component *createControlComponent(const Control &control);
+    static Component *createControlComponent(const Control &control,
+                                             UiDelegate *newDelegate);
     static Component *createDetailControlComponent(const Control &control,
                                                    UiDelegate *newDelegate);
 

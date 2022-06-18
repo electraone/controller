@@ -84,6 +84,10 @@ public:
                                         Component *component) = 0;
     virtual void removeComponentFromGroup(uint8_t groupId) = 0;
 
+    // Control management actions
+    virtual void setActivePotTouch(uint8_t potId, Component *component) = 0;
+    virtual void resetActivePotTouch(uint8_t potId) = 0;
+
     // Testing
     virtual void ping(void) = 0;
 

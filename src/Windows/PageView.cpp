@@ -75,7 +75,8 @@ void PageView::addControls(const Controls &controls)
 {
     for (const auto &[id, control] : controls) {
         if (control.getPageId() == pageId) {
-            Component *c = ControlComponent::createControlComponent(control);
+            Component *c =
+                ControlComponent::createControlComponent(control, delegate);
 
             if (c) {
                 if (control.getControlSetId() != controlSetId) {

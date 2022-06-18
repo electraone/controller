@@ -7,8 +7,8 @@
 class ADSRControl : public ControlComponent, public ADSR
 {
 public:
-    explicit ADSRControl(const Control &control)
-        : ControlComponent(control), activeHandle(0)
+    ADSRControl(const Control &control, UiDelegate *newDelegate)
+        : ControlComponent(control), delegate(newDelegate)
     {
         setMin(ADSR::attack, control.values[0].getMin());
         setMax(ADSR::attack, control.values[0].getMax());
@@ -18,9 +18,7 @@ public:
         setMax(ADSR::sustain, control.values[2].getMax());
         setMin(ADSR::release, control.values[3].getMin());
         setMax(ADSR::release, control.values[3].getMax());
-
-        setActiveSegment(ADSR::sustain);
-
+        setActiveSegment(ADSR::attack);
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
         updateValueFromParameterMap();
     }
@@ -29,6 +27,7 @@ public:
 
     virtual void onTouchMove(const TouchEvent &touchEvent) override
     {
+        uint8_t activeHandle = getActiveSegment();
         int16_t max = values[activeHandle].getMax();
         int16_t min = values[activeHandle].getMin();
 
@@ -39,12 +38,25 @@ public:
         emitValueChange(newDisplayValue, control.getValue(activeHandle));
     }
 
+    virtual void onPotTouchDown(const PotEvent &potEvent) override
+    {
+        showActiveSegment(true);
+        delegate->setActivePotTouch(potEvent.getPotId(), this);
+    }
+
     virtual void onPotChange(const PotEvent &potEvent) override
     {
         if (int16_t delta = potEvent.getAcceleratedChange()) {
+            uint8_t activeHandle = getActiveSegment();
             int16_t newDisplayValue = getValue(activeHandle) + delta;
             emitValueChange(newDisplayValue, control.getValue(activeHandle));
         }
+    }
+
+    virtual void onPotTouchUp(const PotEvent &potEvent) override
+    {
+        showActiveSegment(false);
+        delegate->resetActivePotTouch(potEvent.getPotId());
     }
 
     virtual void onMidiValueChange(const ControlValue &value,
@@ -70,8 +82,13 @@ public:
         Rectangle envBounds = getBounds();
         envBounds.setHeight(envBounds.getHeight() / 2);
         computePoints(envBounds);
-        LookAndFeel::paintEnvelope(g, envBounds, colour, baselineY, points);
-
+        LookAndFeel::paintEnvelope(g,
+                                   envBounds,
+                                   colour,
+                                   baselineY,
+                                   points,
+                                   activeSegment,
+                                   activeSegmentIsShown);
         g.printText(0,
                     getHeight() - 20,
                     getName(),
@@ -81,6 +98,6 @@ public:
                     2);
     }
 
-private:
-    uint8_t activeHandle;
+protected:
+    UiDelegate *delegate;
 };

@@ -7,7 +7,7 @@ class Dx7EnvDetailControl : public Dx7EnvControl
 public:
     explicit Dx7EnvDetailControl(const Control &control,
                                  UiDelegate *newDelegate)
-        : Dx7EnvControl(control), delegate(newDelegate)
+        : Dx7EnvControl(control, newDelegate)
     {
     }
 
@@ -30,7 +30,4 @@ public:
             delegate->closeDetail();
         }
     }
-
-private:
-    UiDelegate *delegate;
 };

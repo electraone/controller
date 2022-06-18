@@ -6,7 +6,7 @@ class ADSRDetailControl : public ADSRControl
 {
 public:
     explicit ADSRDetailControl(const Control &control, UiDelegate *newDelegate)
-        : ADSRControl(control), delegate(newDelegate)
+        : ADSRControl(control, newDelegate)
     {
     }
 
@@ -29,7 +29,4 @@ public:
             delegate->closeDetail();
         }
     }
-
-private:
-    UiDelegate *delegate;
 };
