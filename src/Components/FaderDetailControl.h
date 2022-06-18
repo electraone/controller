@@ -14,6 +14,17 @@ public:
 
     virtual ~FaderDetailControl() = default;
 
+    void onTouchMove(const TouchEvent &touchEvent) override
+    {
+        int16_t max = value.getMax();
+        int16_t min = value.getMin();
+        float step = getWidth() / (float)(max - min);
+        int16_t newDisplayValue =
+            constrain(ceil(touchEvent.getX() / step + min), min, max);
+
+        emitValueChange(newDisplayValue, control.getValue(0));
+    }
+
     void paint(Graphics &g)
     {
         g.fillAll(Colours::black);

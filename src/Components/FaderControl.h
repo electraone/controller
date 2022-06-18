@@ -21,19 +21,26 @@ public:
 
     virtual ~FaderControl() = default;
 
-    void onTouchMove(const TouchEvent &touchEvent) override
+    virtual void onTouchDown(const TouchEvent &touchEvent) override
+    {
+        previousScreenX = touchEvent.getScreenX();
+    }
+
+    virtual void onTouchMove(const TouchEvent &touchEvent) override
     {
         int16_t max = value.getMax();
         int16_t min = value.getMin();
-
         float step = getWidth() / (float)(max - min);
+        int16_t delta = touchEvent.getScreenX() - previousScreenX;
+        previousScreenX = touchEvent.getScreenX();
+
         int16_t newDisplayValue =
-            constrain(ceil(touchEvent.getX() / step + min), min, max);
+            constrain(ceil(getValue() + ((float)delta / step)), min, max);
 
         emitValueChange(newDisplayValue, control.getValue(0));
     }
 
-    void onPotChange(const PotEvent &potEvent) override
+    virtual void onPotChange(const PotEvent &potEvent) override
     {
         if (int16_t delta = potEvent.getAcceleratedChange()) {
             int16_t newDisplayValue = getValue() + delta;
@@ -140,4 +147,6 @@ private:
                         TextAlign::center);
         }
     }
+
+    uint16_t previousScreenX;
 };
