@@ -5,8 +5,8 @@
 class FaderDetailControl : public FaderControl
 {
 public:
-    explicit FaderDetailControl(const Control &control, UiDelegate *newDelegate)
-        : FaderControl(control), delegate(newDelegate)
+    FaderDetailControl(const Control &control, UiDelegate *newDelegate)
+        : FaderControl(control, newDelegate)
     {
         assignPot(control.inputs[0].getPotId(),
                   control.values[0].getNumSteps());
@@ -37,7 +37,4 @@ public:
             delegate->closeDetail();
         }
     }
-
-private:
-    UiDelegate *delegate;
 };

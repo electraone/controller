@@ -117,50 +117,7 @@ bool Presets::loadPreset(LocalFile file)
         // Initialise the parameterMap
         for (auto &[id, control] : preset.controls) {
             for (auto &value : control.values) {
-                MessageDestination messageDestination(&control, &value);
-
-                if (value.message.getType() == ElectraMessageType::start) {
-                    parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-                        ->messageDestination.push_back(messageDestination);
-                } else if (value.message.getType()
-                           == ElectraMessageType::stop) {
-                    parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-                        ->messageDestination.push_back(messageDestination);
-                } else if (value.message.getType()
-                           == ElectraMessageType::tune) {
-                    parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-                        ->messageDestination.push_back(messageDestination);
-                } else {
-                    LookupEntry *lookupEntry = parameterMap.getOrCreate(
-                        value.message.getDeviceId(),
-                        value.message.getType(),
-                        value.message.getParameterNumber());
-
-                    lookupEntry->messageDestination.push_back(
-                        messageDestination);
-
-                    int16_t midiValue = 0;
-
-                    if (control.getType() == ControlType::pad) {
-                        midiValue = value.getDefault();
-                    } else if (control.getType() == ControlType::list) {
-                        midiValue = value.getDefault();
-                    } else {
-                        midiValue = translateValueToMidiValue(
-                            value.message.getSignMode(),
-                            value.message.getBitWidth(),
-                            value.getDefault(),
-                            value.getMin(),
-                            value.getMax(),
-                            value.message.getMidiMin(),
-                            value.message.getMidiMax());
-                    }
-                    parameterMap.setValue(value.message.getDeviceId(),
-                                          value.message.getType(),
-                                          value.message.getParameterNumber(),
-                                          midiValue,
-                                          Origin::internal);
-                }
+                control.setDefaultValue(value);
             }
         }
 

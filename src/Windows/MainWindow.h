@@ -93,6 +93,8 @@ public:
     void setActivePotTouch(uint8_t potId, Component *component) override;
     void resetActivePotTouch(uint8_t potId) override;
 
+    void setDefaultValue(uint16_t controlId, uint8_t handle) override;
+
     void ping(void) override;
 
     // Getters

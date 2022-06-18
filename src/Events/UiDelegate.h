@@ -87,6 +87,7 @@ public:
     // Control management actions
     virtual void setActivePotTouch(uint8_t potId, Component *component) = 0;
     virtual void resetActivePotTouch(uint8_t potId) = 0;
+    virtual void setDefaultValue(uint16_t controlId, uint8_t handle) = 0;
 
     // Testing
     virtual void ping(void) = 0;

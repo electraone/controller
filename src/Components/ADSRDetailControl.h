@@ -5,7 +5,7 @@
 class ADSRDetailControl : public ADSRControl
 {
 public:
-    explicit ADSRDetailControl(const Control &control, UiDelegate *newDelegate)
+    ADSRDetailControl(const Control &control, UiDelegate *newDelegate)
         : ADSRControl(control, newDelegate)
     {
     }

@@ -8,7 +8,7 @@ class Dx7EnvControl : public ControlComponent, public Env5Seg
 {
 public:
     Dx7EnvControl(const Control &control, UiDelegate *newDelegate)
-        : ControlComponent(control), delegate(newDelegate), activeHandle(0)
+        : ControlComponent(control, newDelegate), activeHandle(0)
     {
         values[Env5Seg::level1].setMin(control.values[0].getMin());
         values[Env5Seg::level1].setMax(control.values[0].getMax());
@@ -106,9 +106,6 @@ public:
                     TextAlign::center,
                     2);
     }
-
-protected:
-    UiDelegate *delegate;
 
 private:
     uint8_t activeHandle;

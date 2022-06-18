@@ -12,8 +12,9 @@
 #include "Dx7EnvDetailControl.h"
 #include "MainWindow.h"
 
-ControlComponent::ControlComponent(const Control &controlToAssign)
-    : control(controlToAssign)
+ControlComponent::ControlComponent(const Control &controlToAssign,
+                                   UiDelegate *newDelegate)
+    : control(controlToAssign), delegate(newDelegate)
 {
 }
 
@@ -32,6 +33,16 @@ void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
     if (MainWindow *window = dynamic_cast<MainWindow *>(getWindow())) {
         window->openDetail(getId());
     }
+}
+
+void ControlComponent::onTouchDoubleClick(const TouchEvent &touchEvent)
+{
+    uint8_t handle = 0;
+
+    if (Envelope *en = dynamic_cast<Envelope *>(this)) {
+        handle = en->getActiveSegment();
+    }
+    delegate->setDefaultValue(getId(), handle);
 }
 
 void ControlComponent::updateValueFromParameterMap(void)
@@ -77,11 +88,11 @@ Component *ControlComponent::createControlComponent(const Control &control,
     ControlComponent *c = nullptr;
 
     if (control.getType() == ControlType::fader) {
-        c = new FaderControl(control);
+        c = new FaderControl(control, newDelegate);
     } else if (control.getType() == ControlType::list) {
-        c = new ListControl(control);
+        c = new ListControl(control, newDelegate);
     } else if (control.getType() == ControlType::pad) {
-        c = new PadControl(control);
+        c = new PadControl(control, newDelegate);
     } else if (control.getType() == ControlType::adsr) {
         c = new ADSRControl(control, newDelegate);
     } else if (control.getType() == ControlType::adr) {

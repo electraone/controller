@@ -5,7 +5,7 @@
 class Dx7EnvDetailControl : public Dx7EnvControl
 {
 public:
-    explicit Dx7EnvDetailControl(const Control &control,
+    Dx7EnvDetailControl(const Control &control,
                                  UiDelegate *newDelegate)
         : Dx7EnvControl(control, newDelegate)
     {

@@ -8,7 +8,7 @@ class ADRControl : public ControlComponent, public ADR
 {
 public:
     ADRControl(const Control &control, UiDelegate *newDelegate)
-        : ControlComponent(control), delegate(newDelegate)
+        : ControlComponent(control, newDelegate)
     {
         setMin(ADR::attack, control.values[0].getMin());
         setMax(ADR::attack, control.values[0].getMax());
@@ -96,7 +96,4 @@ public:
                     TextAlign::center,
                     2);
     }
-
-protected:
-    UiDelegate *delegate;
 };

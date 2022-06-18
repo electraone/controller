@@ -9,8 +9,9 @@ class ListControl : public ControlComponent, public List
 public:
     static constexpr uint16_t thresholdSwipeDistance = 40;
 
-    explicit ListControl(const Control &control)
-        : ControlComponent(control), List(control.values[0].getOverlay())
+    ListControl(const Control &control, UiDelegate *newDelegate)
+        : ControlComponent(control, newDelegate),
+          List(control.values[0].getOverlay())
     {
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
         updateValueFromParameterMap();

@@ -59,6 +59,7 @@ public:
     Rectangle getBounds(void) const;
     void setBounds(const Rectangle &bounds);
     void setValues(std::vector<ControlValue> values);
+    ControlValue &getValue(uint8_t index);
     const ControlValue &getValue(uint8_t index) const;
     const ControlValue &getValueByValueId(const char *valueId) const;
 
@@ -72,6 +73,7 @@ public:
     void setComponent(Component *newComponent);
     void resetComponent(void);
     Component *getComponent(void) const;
+    void setDefaultValue(ControlValue &value);
 
     void print(void) const;
     void printValues(void) const;

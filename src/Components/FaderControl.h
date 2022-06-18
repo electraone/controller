@@ -8,14 +8,14 @@
 class FaderControl : public ControlComponent, public BarHorizontal
 {
 public:
-    explicit FaderControl(const Control &control) : ControlComponent(control)
+    FaderControl(const Control &control, UiDelegate *newDelegate)
+        : ControlComponent(control, newDelegate)
     {
         const auto &controlValue = control.getValue(0);
 
         setMinimum(controlValue.getMin());
         setMaximum(controlValue.getMax());
         list.assignListData(controlValue.getOverlay());
-
         updateValueFromParameterMap();
     }
 

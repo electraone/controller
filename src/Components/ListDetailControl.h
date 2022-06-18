@@ -6,16 +6,15 @@
 class ListDetailControl : public ListControl
 {
 public:
-    explicit ListDetailControl(const Control &control, UiDelegate *newDelegate)
-        : ListControl(control),
+    ListDetailControl(const Control &control, UiDelegate *newDelegate)
+        : ListControl(control, newDelegate),
           valueChosen(false),
           offsetY(0),
           prevTouchY(0),
           listItemWidth(getWidth()),
           listItemHeight(80),
           maxItemsInViewport(7),
-          itemTop(offsetY / listItemHeight),
-          delegate(newDelegate)
+          itemTop(offsetY / listItemHeight)
     {
         assignPot(control.inputs[0].getPotId(),
                   control.values[0].getNumSteps());
@@ -213,6 +212,4 @@ private:
     uint16_t maxItemsInViewport;
 
     uint16_t itemTop;
-
-    UiDelegate *delegate;
 };

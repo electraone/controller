@@ -7,7 +7,8 @@
 class PadControl : public ControlComponent, public Pad
 {
 public:
-    explicit PadControl(const Control &control) : ControlComponent(control)
+    PadControl(const Control &control, UiDelegate *newDelegate)
+        : ControlComponent(control, newDelegate)
     {
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
         updateValueFromParameterMap();
@@ -118,6 +119,4 @@ public:
         // left empty on pupose. It overrides the long hold of ControlComponent
         // which defaults to displaying the detail.
     }
-
-private:
 };

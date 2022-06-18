@@ -5,7 +5,7 @@
 class ADRDetailControl : public ADRControl
 {
 public:
-    explicit ADRDetailControl(const Control &control, UiDelegate *newDelegate)
+    ADRDetailControl(const Control &control, UiDelegate *newDelegate)
         : ADRControl(control, newDelegate)
     {
     }

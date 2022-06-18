@@ -8,7 +8,7 @@
 class ControlComponent : virtual public Component
 {
 public:
-    ControlComponent(const Control &controlToAssign);
+    ControlComponent(const Control &controlToAssign, UiDelegate *newDelegate);
     virtual ~ControlComponent() = default;
 
     virtual void onControlUpdated(void);
@@ -17,6 +17,7 @@ public:
                                    uint8_t handle = 0) = 0;
     virtual void updateValueFromParameterMap(void);
     virtual void onTouchLongHold(const TouchEvent &touchEvent) override;
+    virtual void onTouchDoubleClick(const TouchEvent &touchEvent) override;
     virtual void emitValueChange(int16_t newDisplayValue,
                                  const ControlValue &cv);
 
@@ -27,4 +28,5 @@ public:
 
 protected:
     const Control &control;
+    UiDelegate *delegate;
 };

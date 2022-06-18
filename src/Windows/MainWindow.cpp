@@ -488,30 +488,11 @@ void MainWindow::resetActivePotTouch(uint8_t potId)
     numActivePotTouch--;
 }
 
-uint8_t MainWindow::getNumActivePotTouch(void)
+void MainWindow::setDefaultValue(uint16_t controlId, uint8_t handle)
 {
-    return (numActivePotTouch);
-}
-
-void MainWindow::showActiveHandle(Component *component, bool shouldBeShown)
-{
-    if (Envelope *en = dynamic_cast<Envelope *>(component)) {
-        en->showActiveSegment(shouldBeShown);
-    }
-}
-
-void MainWindow::switchToNextHandle(Component *component)
-{
-    if (Envelope *en = dynamic_cast<Envelope *>(component)) {
-        en->switchToNextActiveHandle();
-    }
-}
-
-void MainWindow::switchToPreviousHandle(Component *component)
-{
-    if (Envelope *en = dynamic_cast<Envelope *>(component)) {
-        en->switchToPreviousActiveHandle();
-    }
+    Control &control = preset.getControl(controlId);
+    ControlValue &value = control.getValue(handle);
+    control.setDefaultValue(value);
 }
 
 void MainWindow::ping(void)
@@ -582,6 +563,32 @@ void MainWindow::switchToPreviousHandleOfActivePotTouch(void)
         if (potTouchComponents[i]) {
             switchToPreviousHandle(potTouchComponents[i]);
         }
+    }
+}
+
+uint8_t MainWindow::getNumActivePotTouch(void)
+{
+    return (numActivePotTouch);
+}
+
+void MainWindow::showActiveHandle(Component *component, bool shouldBeShown)
+{
+    if (Envelope *en = dynamic_cast<Envelope *>(component)) {
+        en->showActiveSegment(shouldBeShown);
+    }
+}
+
+void MainWindow::switchToNextHandle(Component *component)
+{
+    if (Envelope *en = dynamic_cast<Envelope *>(component)) {
+        en->switchToNextActiveHandle();
+    }
+}
+
+void MainWindow::switchToPreviousHandle(Component *component)
+{
+    if (Envelope *en = dynamic_cast<Envelope *>(component)) {
+        en->switchToPreviousActiveHandle();
     }
 }
 

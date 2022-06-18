@@ -8,7 +8,7 @@ class ADSRControl : public ControlComponent, public ADSR
 {
 public:
     ADSRControl(const Control &control, UiDelegate *newDelegate)
-        : ControlComponent(control), delegate(newDelegate)
+        : ControlComponent(control, newDelegate)
     {
         setMin(ADSR::attack, control.values[0].getMin());
         setMax(ADSR::attack, control.values[0].getMax());
@@ -97,7 +97,4 @@ public:
                     TextAlign::center,
                     2);
     }
-
-protected:
-    UiDelegate *delegate;
 };

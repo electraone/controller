@@ -1,4 +1,5 @@
 #include "Control.h"
+#include "ParameterMap.h"
 
 static const char *valueIdsAdsr[] = { "attack", "decay", "sustain", "release" };
 
@@ -125,6 +126,11 @@ void Control::setBounds(const Rectangle &newBounds)
 void Control::setValues(std::vector<ControlValue> newValues)
 {
     values = newValues;
+}
+
+ControlValue &Control::getValue(uint8_t index)
+{
+    return (values[index]);
 }
 
 const ControlValue &Control::getValue(uint8_t index) const
@@ -267,6 +273,51 @@ void Control::resetComponent(void)
 Component *Control::getComponent(void) const
 {
     return (component);
+}
+
+void Control::setDefaultValue(ControlValue &value)
+{
+    MessageDestination messageDestination(this, &value);
+
+    // \todo replace this with polymorphism
+    if (value.message.getType() == ElectraMessageType::start) {
+        parameterMap.getOrCreate(0xff, value.message.getType(), 0)
+            ->messageDestination.push_back(messageDestination);
+    } else if (value.message.getType() == ElectraMessageType::stop) {
+        parameterMap.getOrCreate(0xff, value.message.getType(), 0)
+            ->messageDestination.push_back(messageDestination);
+    } else if (value.message.getType() == ElectraMessageType::tune) {
+        parameterMap.getOrCreate(0xff, value.message.getType(), 0)
+            ->messageDestination.push_back(messageDestination);
+    } else {
+        LookupEntry *lookupEntry =
+            parameterMap.getOrCreate(value.message.getDeviceId(),
+                                     value.message.getType(),
+                                     value.message.getParameterNumber());
+
+        lookupEntry->messageDestination.push_back(messageDestination);
+
+        int16_t midiValue = 0;
+
+        if (getType() == ControlType::pad) {
+            midiValue = value.getDefault();
+        } else if (getType() == ControlType::list) {
+            midiValue = value.getDefault();
+        } else {
+            midiValue = translateValueToMidiValue(value.message.getSignMode(),
+                                                  value.message.getBitWidth(),
+                                                  value.getDefault(),
+                                                  value.getMin(),
+                                                  value.getMax(),
+                                                  value.message.getMidiMin(),
+                                                  value.message.getMidiMax());
+        }
+        parameterMap.setValue(value.message.getDeviceId(),
+                              value.message.getType(),
+                              value.message.getParameterNumber(),
+                              midiValue,
+                              Origin::internal);
+    }
 }
 
 void Control::print(void) const
