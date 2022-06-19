@@ -90,15 +90,10 @@ void MainWindow::lockDetail(void)
         detailWindow->setLocked();
     }
 }
+
 void MainWindow::closeDetail(void)
 {
-    if (detailWindow) {
-        delete detailWindow;
-        detailWindow = nullptr;
-        buttonBroadcaster.resumeListener(this);
-        resetActiveTouch();
-        repaint();
-    }
+    closeWindow(detailWindow);
 }
 
 void MainWindow::openPageSelection(void)
@@ -109,13 +104,7 @@ void MainWindow::openPageSelection(void)
 
 void MainWindow::closePageSelection(void)
 {
-    if (pageSelectionWindow) {
-        delete pageSelectionWindow;
-        pageSelectionWindow = nullptr;
-        buttonBroadcaster.resumeListener(this);
-        resetActiveTouch();
-        repaint();
-    }
+    closeWindow(pageSelectionWindow);
 }
 
 void MainWindow::repaintPage(void)
@@ -536,6 +525,14 @@ Component *MainWindow::getActivePotComponent(void) const
     return (nullptr);
 }
 
+void MainWindow::resetAllActivePotComponents(void)
+{
+    for (uint8_t i = 0; i < Preset::MaxNumPots; i++) {
+        potTouchComponents[i] = nullptr;
+    }
+    numActivePotTouch = 0;
+}
+
 void MainWindow::showDetailOfActivePotTouch(void)
 {
     for (uint8_t i = 0; i < Preset::MaxNumPots; i++) {
@@ -602,4 +599,16 @@ Rectangle MainWindow::getDetailBounds(const Control &control)
         return Rectangle(xPosition, 22, 436, 556);
     }
     return Rectangle(58, 60, 908, 480);
+}
+
+void MainWindow::closeWindow(Window *window)
+{
+    if (window) {
+        delete window;
+        window = nullptr;
+        buttonBroadcaster.resumeListener(this);
+        resetActiveTouch();
+        resetAllActivePotComponents();
+        repaint();
+    }
 }

@@ -105,6 +105,7 @@ public:
 
 private:
     Component *getActivePotComponent(void) const;
+    void resetAllActivePotComponents(void);
     void showDetailOfActivePotTouch(void);
     uint8_t getNumActivePotTouch(void);
     void showActiveHandle(Component *component, bool shouldBeShown);
@@ -113,6 +114,7 @@ private:
     void switchToNextHandleOfActivePotTouch(void);
     void switchToPreviousHandleOfActivePotTouch(void);
     Rectangle getDetailBounds(const Control &control);
+    void closeWindow(Window *window);
 
     // MainWindow data
     Preset &preset;
