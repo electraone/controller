@@ -85,8 +85,8 @@ public:
     }
 
     virtual void onMidiValueChange(const ControlValue &value,
-                           int16_t midiValue,
-                           uint8_t handle = 0) override
+                                   int16_t midiValue,
+                                   uint8_t handle = 0) override
     {
         if (value.message.getOnValue() == midiValue) {
             setState(true);
