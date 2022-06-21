@@ -29,5 +29,6 @@ private:
     UiDelegate *delegate;
     uint8_t pageId;
     uint8_t controlSetId;
+    uint8_t activeControlSetType;
     BottomBar *bottomBar;
 };

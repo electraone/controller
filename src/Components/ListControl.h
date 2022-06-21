@@ -71,9 +71,11 @@ public:
 
     void paint(Graphics &g) override
     {
-        Rectangle sliderBounds = getBounds();
-        sliderBounds.setHeight(sliderBounds.getHeight() / 2);
-        LookAndFeel::paintList(g, sliderBounds, colour, getList(), index);
+        Rectangle listBounds = getBounds();
+        listBounds.setHeight(listBounds.getHeight() / 2);
+        g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
+                                        : LookAndFeel::backgroundColour);
+        LookAndFeel::paintList(g, listBounds, colour, getList(), index);
         g.printText(0,
                     getHeight() - 20,
                     getName(),

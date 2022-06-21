@@ -10,6 +10,7 @@ PageView::PageView(const Preset &preset,
       delegate(newDelegate),
       pageId(newPageId),
       controlSetId(activeControlSetId),
+      activeControlSetType(3),
       bottomBar(nullptr)
 {
     setBounds(0, 0, 1024, 575);
@@ -65,6 +66,14 @@ void PageView::changePageName(const char *newName)
 void PageView::paint(Graphics &g)
 {
     g.fillAll(Colours::black);
+
+    if (activeControlSetType == 2) {
+        g.setColour(0x7BCF);
+        g.fillRect(4, 22 + controlSetId * 176, 1, 165);
+        g.fillRect(1018, 22 + controlSetId * 176, 1, 165);
+    } else if (activeControlSetType == 3) {
+        g.backdrop(12, 22 + controlSetId * 176, 999, 166, 0x0081);
+    }
 }
 
 void PageView::resized(void)
@@ -75,13 +84,15 @@ void PageView::addControls(const Controls &controls)
 {
     for (const auto &[id, control] : controls) {
         if (control.getPageId() == pageId) {
-            Component *c =
+            ControlComponent *c =
                 ControlComponent::createControlComponent(control, delegate);
 
             if (c) {
                 if (control.getControlSetId() != controlSetId) {
-                    c->setDimmed(true);
+                    c->setDimmed(activeControlSetType == 1 ? true : false);
                 } else {
+                    c->setUseAltBackground(activeControlSetType == 3 ? true
+                                                                     : false);
                     c->assignPot(control.inputs[0].getPotId(),
                                  control.values[0].getNumSteps());
                 }

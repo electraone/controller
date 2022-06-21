@@ -20,7 +20,8 @@ public:
     virtual void onTouchDoubleClick(const TouchEvent &touchEvent) override;
     virtual void emitValueChange(int16_t newDisplayValue,
                                  const ControlValue &cv);
-
+    void setUseAltBackground(bool shouldUseAltBackground);
+    bool getUseAltBackground(void) const;
     static ControlComponent *createControlComponent(const Control &control,
                                                     UiDelegate *newDelegate);
     static ControlComponent *
@@ -30,4 +31,5 @@ public:
 protected:
     const Control &control;
     UiDelegate *delegate;
+    bool useAltBackground;
 };

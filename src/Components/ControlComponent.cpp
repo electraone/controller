@@ -15,7 +15,7 @@
 
 ControlComponent::ControlComponent(const Control &controlToAssign,
                                    UiDelegate *newDelegate)
-    : control(controlToAssign), delegate(newDelegate)
+    : control(controlToAssign), delegate(newDelegate), useAltBackground(false)
 {
 }
 
@@ -82,6 +82,16 @@ void ControlComponent::emitValueChange(int16_t newDisplayValue,
     logMessage(
         "emitValueChange: display=%d, midi=%d", newDisplayValue, midiValue);
 #endif
+}
+
+void ControlComponent::setUseAltBackground(bool shouldUseAltBackground)
+{
+    useAltBackground = shouldUseAltBackground;
+}
+
+bool ControlComponent::getUseAltBackground(void) const
+{
+    return (useAltBackground);
 }
 
 ControlComponent *

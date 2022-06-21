@@ -80,6 +80,8 @@ public:
         Rectangle envBounds = getBounds();
         envBounds.setHeight(envBounds.getHeight() / 2);
         computePoints(envBounds);
+        g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
+                                        : LookAndFeel::backgroundColour);
         LookAndFeel::paintEnvelope(g,
                                    envBounds,
                                    colour,

@@ -116,7 +116,8 @@ private:
         uint16_t barWidth = map(val, min, max, 0, bounds.getWidth()) - barX;
 
         // Clear the component area
-        g.fillAll(Colours::black);
+        g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
+                                        : LookAndFeel::backgroundColour);
 
         // Paint the track background
         g.setColour(colourTrack);

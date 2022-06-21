@@ -66,6 +66,7 @@ void Controller::initialise(void)
 void Controller::displayDefaultPage(void)
 {
     if (delegate) {
+        delegate->closeDetail();
         delegate->setPage(
             1, model.currentPreset.getPage(1).getDefaultControlSetId());
     }

@@ -35,6 +35,7 @@ public:
         Rectangle envBounds = getBounds();
         envBounds.setHeight(envBounds.getHeight());
         computePoints(envBounds);
+        g.fillAll(LookAndFeel::backgroundColour);
         LookAndFeel::paintEnvelope(
             g, envBounds, colour, baselineY, points, 0, false);
     }
