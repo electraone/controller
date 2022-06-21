@@ -597,8 +597,10 @@ Rectangle MainWindow::getDetailBounds(const Control &control)
     } else if (control.getType() == ControlType::list) {
         uint16_t xPosition = (control.getBounds().getX() > 510) ? 8 : 577;
         return Rectangle(xPosition, 22, 436, 556);
+    } else if (control.getType() == ControlType::dx7envelope) {
+        return Rectangle(158, 62, 828, 490);
     }
-    return Rectangle(58, 60, 908, 480);
+    return Rectangle(158, 110, 828, 380);
 }
 
 void MainWindow::closeWindow(Window *window)

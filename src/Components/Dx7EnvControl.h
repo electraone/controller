@@ -81,6 +81,9 @@ public:
                                       value.getMax());
 
         if (0 <= handle && handle <= 7) {
+            if (handle % 2) {
+                newDisplayValue = value.getMax() - newDisplayValue;
+            }
             setValue(handle, newDisplayValue);
         }
     }

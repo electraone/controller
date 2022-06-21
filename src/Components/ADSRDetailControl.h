@@ -29,4 +29,18 @@ public:
             delegate->closeDetail();
         }
     }
+
+    virtual void paint(Graphics &g) override
+    {
+        Rectangle envBounds = getBounds();
+        envBounds.setHeight(envBounds.getHeight());
+        computePoints(envBounds);
+        LookAndFeel::paintEnvelope(g,
+                                   envBounds,
+                                   colour,
+                                   baselineY,
+                                   points,
+                                   activeSegment,
+                                   activeSegmentIsShown);
+    }
 };

@@ -232,6 +232,11 @@ void ParameterMap::print(void)
             getParameterNumber(entry.hash),
             entry.midiValue,
             entry.messageDestination.size());
+        for (auto &md : entry.messageDestination) {
+            logMessage("control: %s, value handle: %s",
+                       md.control->getName(),
+                       md.value->getId());
+        }
     }
     logMessage("--<Parameter Map:end>--");
 }

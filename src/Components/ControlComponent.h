@@ -21,10 +21,11 @@ public:
     virtual void emitValueChange(int16_t newDisplayValue,
                                  const ControlValue &cv);
 
-    static Component *createControlComponent(const Control &control,
-                                             UiDelegate *newDelegate);
-    static Component *createDetailControlComponent(const Control &control,
-                                                   UiDelegate *newDelegate);
+    static ControlComponent *createControlComponent(const Control &control,
+                                                    UiDelegate *newDelegate);
+    static ControlComponent *
+        createDetailControlComponent(const Control &control,
+                                     UiDelegate *newDelegate);
 
 protected:
     const Control &control;

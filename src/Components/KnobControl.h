@@ -7,7 +7,8 @@
 class KnobControl : public ControlComponent, public Knob
 {
 public:
-    explicit KnobControl(const Control &control) : ControlComponent(control)
+    explicit KnobControl(const Control &control, UiDelegate *newDelegate)
+        : ControlComponent(control, newDelegate)
     {
         setMinimum(control.values[0].getMin());
         setMaximum(control.values[0].getMax());
@@ -16,7 +17,7 @@ public:
 
     virtual ~KnobControl() = default;
 
-    void onTouchMove(const TouchEvent &touchEvent) override
+    virtual void onTouchMove(const TouchEvent &touchEvent) override
     {
         int16_t max = value.getMax();
         int16_t min = value.getMin();
@@ -28,7 +29,7 @@ public:
         emitValueChange(newDisplayValue, control.getValue(0));
     }
 
-    void onPotChange(const PotEvent &potEvent) override
+    virtual void onPotChange(const PotEvent &potEvent) override
     {
         if (int16_t delta = potEvent.getAcceleratedChange()) {
             int16_t newDisplayValue = getValue() + delta;
@@ -36,9 +37,9 @@ public:
         }
     }
 
-    void onMidiValueChange(const ControlValue &value,
-                           int16_t midiValue,
-                           uint8_t handle = 0) override
+    virtual void onMidiValueChange(const ControlValue &value,
+                                   int16_t midiValue,
+                                   uint8_t handle = 0) override
     {
         int16_t newDisplayValue =
             translateMidiValueToValue(value.message.getSignMode(),
@@ -56,6 +57,21 @@ public:
         Rectangle knobBounds = getBounds();
 
         Knob::paint(g);
+
+        char stringValue[10];
+        if (!control.getValue(0).getFormatter().empty()) {
+            control.getValue(0).callFormatter(
+                getValue(), stringValue, sizeof(stringValue));
+        } else {
+            snprintf(
+                stringValue, sizeof(stringValue), formatString, getValue());
+        }
+        g.printText(0,
+                    getWidth() / 2 - 7,
+                    stringValue,
+                    TextStyle::mediumTransparent,
+                    getWidth(),
+                    TextAlign::center);
 
         g.printText(0,
                     getHeight() - 20,

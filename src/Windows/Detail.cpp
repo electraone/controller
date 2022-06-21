@@ -1,7 +1,9 @@
 #include "Detail.h"
 #include "DetailFader.h"
 #include "DetailList.h"
-#include "DetailEnvelope.h"
+#include "DetailADSR.h"
+#include "DetailADR.h"
+#include "DetailDx7Env.h"
 
 Detail::Detail(const Control &newControl, UiDelegate *newDelegate)
     : control(newControl),
@@ -69,9 +71,15 @@ Detail *Detail::createDetail(const Control &control, UiDelegate *newDelegate)
             break;
 
         case ControlType::adsr:
+            detail = new DetailADSR(control, newDelegate);
+            break;
+
         case ControlType::adr:
+            detail = new DetailADR(control, newDelegate);
+            break;
+
         case ControlType::dx7envelope:
-            detail = new DetailEnvelope(control, newDelegate);
+            detail = new DetailDx7Env(control, newDelegate);
             break;
 
         default:

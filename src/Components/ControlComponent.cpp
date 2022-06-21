@@ -10,6 +10,7 @@
 #include "ADSRDetailControl.h"
 #include "ADRDetailControl.h"
 #include "Dx7EnvDetailControl.h"
+#include "KnobControl.h"
 #include "MainWindow.h"
 
 ControlComponent::ControlComponent(const Control &controlToAssign,
@@ -61,6 +62,7 @@ void ControlComponent::emitValueChange(int16_t newDisplayValue,
                                        const ControlValue &cv)
 {
     newDisplayValue = constrain(newDisplayValue, cv.getMin(), cv.getMax());
+
     uint16_t midiValue = translateValueToMidiValue(cv.message.getSignMode(),
                                                    cv.message.getBitWidth(),
                                                    newDisplayValue,
@@ -82,8 +84,9 @@ void ControlComponent::emitValueChange(int16_t newDisplayValue,
 #endif
 }
 
-Component *ControlComponent::createControlComponent(const Control &control,
-                                                    UiDelegate *newDelegate)
+ControlComponent *
+    ControlComponent::createControlComponent(const Control &control,
+                                             UiDelegate *newDelegate)
 {
     ControlComponent *c = nullptr;
 
@@ -99,6 +102,8 @@ Component *ControlComponent::createControlComponent(const Control &control,
         c = new ADRControl(control, newDelegate);
     } else if (control.getType() == ControlType::dx7envelope) {
         c = new Dx7EnvControl(control, newDelegate);
+    } else if (control.getType() == ControlType::knob) {
+        c = new KnobControl(control, newDelegate);
     }
 
     if (c) {
@@ -108,11 +113,11 @@ Component *ControlComponent::createControlComponent(const Control &control,
     return (c);
 }
 
-Component *
+ControlComponent *
     ControlComponent::createDetailControlComponent(const Control &control,
                                                    UiDelegate *newDelegate)
 {
-    Component *c = nullptr;
+    ControlComponent *c = nullptr;
 
     if (control.getType() == ControlType::fader) {
         c = new FaderDetailControl(control, newDelegate);

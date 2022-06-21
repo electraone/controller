@@ -48,6 +48,11 @@ bool Control::isValid(void) const
     return (id != 0);
 }
 
+void Control::setId(uint16_t newId)
+{
+    id = newId;
+}
+
 uint16_t Control::getId(void) const
 {
     return (id);
@@ -56,6 +61,11 @@ uint16_t Control::getId(void) const
 uint8_t Control::getPageId(void) const
 {
     return (pageId);
+}
+
+void Control::setType(ControlType newType)
+{
+    type = (uint8_t)newType;
 }
 
 ControlType Control::getType(void) const
@@ -273,6 +283,16 @@ void Control::resetComponent(void)
 Component *Control::getComponent(void) const
 {
     return (component);
+}
+
+void Control::addToParameterMap(ControlValue &value)
+{
+    MessageDestination messageDestination(this, &value);
+    LookupEntry *lookupEntry =
+        parameterMap.getOrCreate(value.message.getDeviceId(),
+                                 value.message.getType(),
+                                 value.message.getParameterNumber());
+    lookupEntry->messageDestination.push_back(messageDestination);
 }
 
 void Control::setDefaultValue(ControlValue &value)

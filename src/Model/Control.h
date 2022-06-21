@@ -18,7 +18,8 @@ enum class ControlType {
     pad = 4,
     adsr = 5,
     adr = 6,
-    dx7envelope = 7
+    dx7envelope = 7,
+    knob = 8
 };
 
 enum class ControlMode { none = 0, momentary = 1, toggle = 2 };
@@ -43,8 +44,10 @@ public:
     virtual ~Control() = default;
 
     bool isValid(void) const;
+    void setId(uint16_t newId);
     uint16_t getId(void) const;
     uint8_t getPageId(void) const;
+    void setType(ControlType newType);
     ControlType getType(void) const;
     ControlMode getMode(void) const;
     void setColour(Colour newColour);
@@ -73,6 +76,7 @@ public:
     void setComponent(Component *newComponent);
     void resetComponent(void);
     Component *getComponent(void) const;
+    void addToParameterMap(ControlValue &value);
     void setDefaultValue(ControlValue &value);
 
     void print(void) const;
