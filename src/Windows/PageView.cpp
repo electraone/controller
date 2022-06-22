@@ -111,6 +111,17 @@ void PageView::addGroups(const Groups &groups)
             GroupControl *g = new GroupControl(group);
 
             if (g) {
+                // Dim groups that are not in the active control set.
+                // This is determined on the group position as the groups are
+                // not linked to the control sets (yet).
+                if (activeControlSetType == 1) {
+                    if ((controlSetId * 165) < g->getY()
+                        && (g->getY() < (controlSetId * 165 + 165))) {
+                        g->setDimmed(false);
+                    } else {
+                        g->setDimmed(true);
+                    }
+                }
                 addAndMakeVisible(g);
                 delegate->assignComponentToGroup(group.getId(), g);
             }
