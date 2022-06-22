@@ -97,14 +97,19 @@ public:
 
     void paint(Graphics &g) override
     {
-        LookAndFeel::paintPad(g, getBounds(), colour, getState());
+        auto bounds = getBounds();
+        bounds.setX(5);
+        bounds.setY(3);
+        bounds.setWidth(getWidth() - 10);
+        bounds.setHeight(getHeight() - 6);
+        LookAndFeel::paintPad(g, bounds, colour, getState());
         g.printText(
-            0,
-            getHeight() / 2 - 10,
+            2,
+            getHeight() / 2 - 7,
             getName(),
             getState() ? TextStyle::mediumBlackOnWhite
                        : TextStyle::mediumWhiteOnBlack,
-            getWidth(),
+            bounds.getWidth(),
             TextAlign::center,
             control.getColour()); // needed to use the legacy text colours
     }

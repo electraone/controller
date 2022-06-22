@@ -8,7 +8,9 @@ class GroupControl : public Set
 public:
     explicit GroupControl(const Group &groupToAssign) : group(groupToAssign)
     {
-        setBounds(group.getBounds());
+        auto bounds = group.getBounds();
+        bounds.setY(bounds.getY() + 4);
+        setBounds(bounds);
         setLabel(group.getLabel());
     }
 

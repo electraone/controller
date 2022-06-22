@@ -10,7 +10,7 @@ PageView::PageView(const Preset &preset,
       delegate(newDelegate),
       pageId(newPageId),
       controlSetId(activeControlSetId),
-      activeControlSetType(3),
+      activeControlSetType(1),
       bottomBar(nullptr)
 {
     setBounds(0, 0, 1024, 575);

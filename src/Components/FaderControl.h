@@ -107,32 +107,39 @@ private:
                     const ListData *items)
     {
         uint32_t colourTrack = Colours::darker(colour, 0.3f);
+        uint32_t backgroundColour = getUseAltBackground()
+                                        ? LookAndFeel::altBackgroundColour
+                                        : LookAndFeel::backgroundColour;
 
-        uint16_t barHeight = 8;
-        uint16_t padding = bounds.getHeight() - 35;
+        uint16_t barHeight = 9;
+        uint16_t padding = bounds.getHeight() - 36;
 
         uint16_t barX =
             map(std::max((int16_t)0, min), min, max, 0, bounds.getWidth());
         uint16_t barWidth = map(val, min, max, 0, bounds.getWidth()) - barX;
 
         // Clear the component area
-        g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
-                                        : LookAndFeel::backgroundColour);
+        g.fillAll(backgroundColour);
 
         // Paint the track background
         g.setColour(colourTrack);
         g.fillRect(0, padding, bounds.getWidth(), barHeight);
 
         // Paint the active bar
-        g.setColour(colourTrack);
-        g.fillRect(barX, padding - 16, barWidth, 16);
+        //g.setColour(colourTrack);
+        //g.fillRect(barX, padding - 16, barWidth, 16);
 
         // Paint the active bar
         g.setColour(colour);
         g.fillRect(barX, padding, barWidth, barHeight);
 
         // Paint the outline
-        g.drawRect(0, padding, bounds.getWidth(), barHeight);
+        //g.drawRect(0, padding, bounds.getWidth(), barHeight);
+        g.setColour(backgroundColour);
+        g.drawPixel(0, padding);
+        g.drawPixel(0, padding + barHeight - 1);
+        g.drawPixel(getWidth(), padding);
+        g.drawPixel(getWidth(), padding + barHeight - 1);
 
         // Print the label text if exists
         if (items && !items->getByValue(val).isLabelEmpty()) {
