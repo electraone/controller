@@ -25,15 +25,24 @@ public:
 
     virtual ~ADSRControl() = default;
 
+    virtual void onTouchDown(const TouchEvent &touchEvent) override
+    {
+        previousScreenX = touchEvent.getScreenX();
+    }
+
     virtual void onTouchMove(const TouchEvent &touchEvent) override
     {
         uint8_t activeHandle = getActiveSegment();
         int16_t max = values[activeHandle].getMax();
         int16_t min = values[activeHandle].getMin();
-
         float step = getWidth() / (float)(max - min);
-        int16_t newDisplayValue =
-            constrain(ceil(touchEvent.getX() / step + min), min, max);
+        int16_t delta = touchEvent.getScreenX() - previousScreenX;
+        previousScreenX = touchEvent.getScreenX();
+
+        int16_t newDisplayValue = constrain(
+            ceil(getValue(activeHandle) + ((float)delta / step)),
+            min,
+            max);
 
         emitValueChange(newDisplayValue, control.getValue(activeHandle));
     }
@@ -99,4 +108,7 @@ public:
                     TextAlign::center,
                     2);
     }
+
+private:
+    uint16_t previousScreenX;
 };

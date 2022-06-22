@@ -8,7 +8,7 @@ class Dx7EnvControl : public ControlComponent, public Env5Seg
 {
 public:
     Dx7EnvControl(const Control &control, UiDelegate *newDelegate)
-        : ControlComponent(control, newDelegate), activeHandle(0)
+        : ControlComponent(control, newDelegate)
     {
         values[Env5Seg::level1].setMin(control.values[0].getMin());
         values[Env5Seg::level1].setMax(control.values[0].getMax());
@@ -35,14 +35,24 @@ public:
 
     virtual ~Dx7EnvControl() = default;
 
+    virtual void onTouchDown(const TouchEvent &touchEvent) override
+    {
+        previousScreenX = touchEvent.getScreenX();
+    }
+
     void onTouchMove(const TouchEvent &touchEvent) override
     {
+        uint8_t activeHandle = getActiveSegment();
         int16_t max = values[activeHandle].getMax();
         int16_t min = values[activeHandle].getMin();
-
         float step = getWidth() / (float)(max - min);
-        int16_t newDisplayValue =
-            constrain(ceil(touchEvent.getX() / step + min), min, max);
+        int16_t delta = touchEvent.getScreenX() - previousScreenX;
+        previousScreenX = touchEvent.getScreenX();
+
+        int16_t newDisplayValue = constrain(
+            ceil(getValue(activeHandle) + ((float)delta / step)),
+            min,
+            max);
 
         emitValueChange(newDisplayValue, control.getValue(activeHandle));
     }
@@ -56,6 +66,7 @@ public:
     void onPotChange(const PotEvent &potEvent) override
     {
         if (int16_t delta = potEvent.getAcceleratedChange()) {
+            uint8_t activeHandle = getActiveSegment();
             int16_t newDisplayValue = getValue(activeHandle) + delta;
             emitValueChange(newDisplayValue, control.getValue(activeHandle));
         }
@@ -100,7 +111,7 @@ public:
                                    colour,
                                    baselineY,
                                    points,
-                                   activeHandle,
+                                   activeSegment,
                                    activeSegmentIsShown);
 
         g.printText(0,
@@ -113,5 +124,5 @@ public:
     }
 
 private:
-    uint8_t activeHandle;
+    uint16_t previousScreenX;
 };
