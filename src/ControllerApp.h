@@ -21,7 +21,7 @@ public:
         : model(getApplicationSandbox()),
           midi(model.currentPreset),
           mainWindow(MainWindow(model, midi, appSetup)),
-          delegate(&mainWindow),
+          delegate(mainWindow),
           api(&mainWindow)
     {
     }
@@ -79,7 +79,7 @@ private:
 
     // UI
     MainWindow mainWindow;
-    UiDelegate *delegate;
+    UiDelegate &delegate;
 };
 
 // This macro instructs main() routine to launch the app.

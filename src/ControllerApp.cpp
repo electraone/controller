@@ -8,7 +8,7 @@ void Controller::initialise(void)
     System::context.setAppName("ctrlv2");
 
     // Set delegates
-    luaDelegate = delegate;
+    luaDelegate = &delegate;
 
     // Get info about the last used preset
     uint8_t presetId = System::runtimeInfo.getLastActivePreset();
@@ -54,7 +54,7 @@ void Controller::initialise(void)
 
     // load the default preset
     if (System::context.getLoadDefaultFiles()) {
-        delegate->switchPreset(presetId / 12, presetId % 12);
+        delegate.switchPreset(presetId / 12, presetId % 12);
     }
 
     // Log free RAM
@@ -69,11 +69,9 @@ void Controller::initialise(void)
 
 void Controller::displayDefaultPage(void)
 {
-    if (delegate) {
-        delegate->closeDetail();
-        delegate->setPage(
-            1, model.currentPreset.getPage(1).getDefaultControlSetId());
-    }
+    delegate.closeDetail();
+    delegate.setPage(1,
+                     model.currentPreset.getPage(1).getDefaultControlSetId());
 }
 
 /** Incoming MIDI message handler.
@@ -137,7 +135,7 @@ bool Controller::handleCtrlFileRemoved(uint8_t bankNumber,
     if (fileType == ElectraCommand::Object::FilePreset) {
         // If it is a current preset, reload it
         if ((currentPresetBank == bankNumber) || (currentPreset == slot)) {
-            delegate->switchPreset(currentPresetBank, currentPreset);
+            delegate.switchPreset(currentPresetBank, currentPreset);
         }
     } else if (fileType == ElectraCommand::Object::FileLua) {
         if ((currentPresetBank == bankNumber) || (currentPreset == slot)) {
@@ -170,7 +168,7 @@ void Controller::handleElectraSysex(uint8_t port, const SysexBlock &sysexBlock)
                 api.sendSnapshotList(port, sysexPayload);
             } else {
                 if (model.currentPreset.isValid()) {
-                    delegate->sendSnapshotList(
+                    delegate.sendSnapshotList(
                         port, model.currentPreset.getProjectId());
                 }
             }
@@ -281,7 +279,7 @@ bool Controller::loadSetup(LocalFile file)
         //        assignUSBdevicesToPorts();
         logMessage("setup loaded");
 
-        delegate->setActiveControlSetType(
+        delegate.setActiveControlSetType(
             appSetup.uiFeatures.activeControlSetType);
     }
 
