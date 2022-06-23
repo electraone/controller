@@ -98,9 +98,9 @@ public:
     void paint(Graphics &g) override
     {
         auto bounds = getBounds();
-        bounds.setX(5);
+        bounds.setX(0);
         bounds.setY(3);
-        bounds.setWidth(getWidth() - 10);
+        bounds.setWidth(getWidth());
         bounds.setHeight(getHeight() - 6);
         LookAndFeel::paintPad(g, bounds, colour, getState());
         g.printText(
