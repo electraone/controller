@@ -49,27 +49,12 @@ void MainWindow::onButtonUp(uint8_t buttonId)
 {
 }
 
-void MainWindow::displayPage(void)
+void MainWindow::setPage(uint8_t pageId)
 {
-    setVisible(false);
-
-    delete pageView;
-
-    PageView *newPageView = new PageView(
-        preset, this, setup.uiFeatures, currentPageId, currentControlSetId);
-
-    if (newPageView) {
-        setOwnedContent(newPageView);
-        pageView = newPageView;
-    }
-
-    setVisible(true);
-
-    logMessage("Page switched: page=%d, controlSetId=%d",
-               currentPageId,
-               currentControlSetId);
-
-    display();
+    uint8_t controlSet = setup.uiFeatures.resetActiveControlSet
+                             ? preset.pages.at(pageId).getDefaultControlSetId()
+                             : currentControlSetId;
+    setPage(pageId, controlSet);
 }
 
 void MainWindow::setPage(uint8_t pageId, uint8_t controlSetId)
@@ -530,6 +515,29 @@ bool MainWindow::isDetailOnTheLeft(void)
         return (detailWindow->getX() < 512);
     }
     return false;
+}
+
+void MainWindow::displayPage(void)
+{
+    setVisible(false);
+
+    delete pageView;
+
+    PageView *newPageView = new PageView(
+        preset, this, setup.uiFeatures, currentPageId, currentControlSetId);
+
+    if (newPageView) {
+        setOwnedContent(newPageView);
+        pageView = newPageView;
+    }
+
+    setVisible(true);
+
+    logMessage("Page switched: page=%d, controlSetId=%d",
+               currentPageId,
+               currentControlSetId);
+
+    display();
 }
 
 Component *MainWindow::getActivePotComponent(void) const

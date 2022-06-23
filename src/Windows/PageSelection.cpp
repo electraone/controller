@@ -77,8 +77,7 @@ void PageSelection::setActivePage(uint8_t newActivePage)
     activePage = newActivePage;
 
     if (delegate) {
-        delegate->setPage(activePage,
-                          pages.at(activePage).getDefaultControlSetId());
+        delegate->setPage(activePage);
     }
 
     pageButton[activePage - 1]->setSelected(true);
