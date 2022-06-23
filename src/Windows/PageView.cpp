@@ -34,11 +34,27 @@ PageView::~PageView(void)
             delegate->removeComponentFromGroup(group.getId());
         }
     }
+    getWindow()->resetActiveTouch();
     parameterMap.disable();
     System::tasks.disableRepaintGraphics();
     System::tasks.clearRepaintGraphics();
     System::tasks.enableRepaintGraphics();
     parameterMap.enable();
+}
+
+void PageView::onTouchDown(const TouchEvent &touchEvent)
+{
+    if (uiFeatures.touchSwitchControlSets) {
+        auto y = touchEvent.getScreenY();
+
+        if (y < 240) {
+            delegate->setControlSet(0);
+        } else if (y > 400) {
+            delegate->setControlSet(2);
+        } else {
+            delegate->setControlSet(1);
+        }
+    }
 }
 
 void PageView::reassignComponent(const Control &control)

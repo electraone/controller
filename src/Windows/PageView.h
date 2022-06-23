@@ -16,6 +16,7 @@ public:
              uint8_t activeControlSetId = 0);
     virtual ~PageView();
 
+    void onTouchDown(const TouchEvent &touchEvent) override;
     void reassignComponent(const Control &control);
     void changePageName(const char *newName);
 
