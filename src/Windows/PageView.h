@@ -4,12 +4,14 @@
 #include "BottomBar.h"
 #include "Preset.h"
 #include "UiDelegate.h"
+#include "UiFeatures.h"
 
 class PageView : public Component
 {
 public:
     PageView(const Preset &preset,
              UiDelegate *newDelegate,
+             const UiFeatures &newUiFeatures,
              uint8_t newPageId,
              uint8_t activeControlSetId = 0);
     virtual ~PageView();
@@ -27,8 +29,8 @@ private:
 
     const Preset &model;
     UiDelegate *delegate;
+    const UiFeatures &uiFeatures;
     uint8_t pageId;
     uint8_t controlSetId;
-    uint8_t activeControlSetType;
     BottomBar *bottomBar;
 };

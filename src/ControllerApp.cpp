@@ -16,6 +16,10 @@ void Controller::initialise(void)
     // Load application setup file
     LocalFile config(System::context.getCurrentConfigFile());
 
+    if (!loadSetup(config)) {
+        appSetup.useDefault();
+    }
+
     // Special boot - do not read the default preset
     if (Hardware::buttons[BUTTON_LEFT_TOP]->process() == true) {
         logMessage("Special boot mode: do not read preset");
@@ -109,6 +113,10 @@ bool Controller::handleCtrlFileReceived(LocalFile file,
                 model.presets.runPresetLuaScript();
             }
         }
+    } else if (fileType == ElectraCommand::Object::FileConfig) {
+        LocalFile config(System::context.getCurrentConfigFile());
+        applySetup(file);
+        loadSetup(config);
     }
 
     if (!model.currentPreset.isValid()) {
@@ -244,4 +252,63 @@ void Controller::runUserTask(void)
     } else {
         System::tasks.disableUserTask();
     }
+}
+
+/** Apply setup change.
+ *
+ */
+bool Controller::applySetup(LocalFile file)
+{
+    bool success = false;
+
+    if (appSetup.load(file.getFilepath())) {
+        appSetup.serialize();
+        success = true;
+    }
+
+    return (success);
+}
+
+/** Load setup.
+ *
+ */
+bool Controller::loadSetup(LocalFile file)
+{
+    bool success = false;
+
+    if (appSetup.load(file.getFilepath())) {
+        success = true;
+        //        assignUSBdevicesToPorts();
+        logMessage("setup loaded");
+
+        delegate->setActiveControlSetType(
+            appSetup.uiFeatures.activeControlSetType);
+    }
+
+#ifdef NEVER
+    logMessage("setting up the forwarding");
+
+    /*
+	 * configure MIDI IO thru
+	 */
+    if (appSetup.router.midiIo1Thru) {
+        midiDINInterfaces[0]->turnThruOn();
+    } else {
+        midiDINInterfaces[0]->turnThruOff();
+    }
+
+    if (appSetup.router.midiIo2Thru) {
+        midiDINInterfaces[1]->turnThruOn();
+    } else {
+        midiDINInterfaces[1]->turnThruOff();
+    }
+
+    /*
+	 * Reconfigure pages according to the uiFeatures
+	 */
+    setUpPages();
+
+    windows.displayPage(currentPage);
+#endif
+    return (success);
 }

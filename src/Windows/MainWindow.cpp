@@ -3,11 +3,12 @@
 #include "GroupControl.h"
 #include "ADSRControl.h"
 
-MainWindow::MainWindow(Model &newModel, Midi &newMidi)
+MainWindow::MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup)
     : preset(newModel.currentPreset),
       snapshots(newModel.snapshots),
       presets(newModel.presets),
       midi(newMidi),
+      setup(newSetup),
       pageView(nullptr),
       pageSelectionWindow(nullptr),
       detailWindow(nullptr),
@@ -48,18 +49,17 @@ void MainWindow::onButtonUp(uint8_t buttonId)
 {
 }
 
-void MainWindow::setPage(uint8_t pageId, uint8_t controlSetId)
+void MainWindow::displayPage(void)
 {
     setVisible(false);
 
     delete pageView;
 
-    PageView *newPageView = new PageView(preset, this, pageId, controlSetId);
+    PageView *newPageView = new PageView(
+        preset, this, setup.uiFeatures, currentPageId, currentControlSetId);
 
     if (newPageView) {
         setOwnedContent(newPageView);
-        currentPageId = pageId;
-        currentControlSetId = controlSetId;
         pageView = newPageView;
     }
 
@@ -70,6 +70,16 @@ void MainWindow::setPage(uint8_t pageId, uint8_t controlSetId)
                currentControlSetId);
 
     display();
+}
+
+void MainWindow::setPage(uint8_t pageId, uint8_t controlSetId)
+{
+    currentPageId = pageId;
+    currentControlSetId = controlSetId;
+    displayPage();
+    logMessage("Page switched: page=%d, controlSetId=%d",
+               currentPageId,
+               currentControlSetId);
 }
 
 void MainWindow::setControlSet(uint8_t controlSetId)
@@ -482,6 +492,13 @@ void MainWindow::setDefaultValue(uint16_t controlId, uint8_t handle)
     Control &control = preset.getControl(controlId);
     ControlValue &value = control.getValue(handle);
     control.setDefaultValue(value);
+}
+
+void MainWindow::setActiveControlSetType(
+    ActiveControlSetType newActiveControlSetType)
+{
+    setup.uiFeatures.activeControlSetType = newActiveControlSetType;
+    displayPage();
 }
 
 void MainWindow::ping(void)

@@ -4,13 +4,14 @@
 
 PageView::PageView(const Preset &preset,
                    UiDelegate *newDelegate,
+                   const UiFeatures &newUiFeatures,
                    uint8_t newPageId,
                    uint8_t activeControlSetId)
     : model(preset),
       delegate(newDelegate),
+      uiFeatures(newUiFeatures),
       pageId(newPageId),
       controlSetId(activeControlSetId),
-      activeControlSetType(1),
       bottomBar(nullptr)
 {
     setBounds(0, 0, 1024, 575);
@@ -67,12 +68,17 @@ void PageView::paint(Graphics &g)
 {
     g.fillAll(Colours::black);
 
-    if (activeControlSetType == 2) {
+    if (uiFeatures.activeControlSetType == ActiveControlSetType::bars) {
         g.setColour(0x7BCF);
         g.fillRect(4, 22 + controlSetId * 176, 1, 165);
         g.fillRect(1018, 22 + controlSetId * 176, 1, 165);
-    } else if (activeControlSetType == 3) {
-        g.backdrop(12, 22 + controlSetId * 176, 999, 166, 0x0081);
+    } else if (uiFeatures.activeControlSetType
+               == ActiveControlSetType::background) {
+        g.backdrop(12,
+                   22 + controlSetId * 176,
+                   999,
+                   166,
+                   LookAndFeel::altBackgroundColour);
     }
 }
 
@@ -89,10 +95,16 @@ void PageView::addControls(const Controls &controls)
 
             if (c) {
                 if (control.getControlSetId() != controlSetId) {
-                    c->setDimmed(activeControlSetType == 1 ? true : false);
+                    c->setDimmed(uiFeatures.activeControlSetType
+                                         == ActiveControlSetType::dim
+                                     ? true
+                                     : false);
                 } else {
-                    c->setUseAltBackground(activeControlSetType == 3 ? true
-                                                                     : false);
+                    c->setUseAltBackground(
+                        uiFeatures.activeControlSetType
+                                == ActiveControlSetType::background
+                            ? true
+                            : false);
                     c->assignPot(control.inputs[0].getPotId(),
                                  control.values[0].getNumSteps());
                 }
@@ -114,7 +126,8 @@ void PageView::addGroups(const Groups &groups)
                 // Dim groups that are not in the active control set.
                 // This is determined on the group position as the groups are
                 // not linked to the control sets (yet).
-                if (activeControlSetType == 1) {
+                if (uiFeatures.activeControlSetType
+                    == ActiveControlSetType::dim) {
                     if ((controlSetId * 165) < g->getY()
                         && (g->getY() < (controlSetId * 165 + 165))) {
                         g->setDimmed(false);

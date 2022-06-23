@@ -38,9 +38,7 @@ public:
         previousScreenX = touchEvent.getScreenX();
 
         int16_t newDisplayValue = constrain(
-            ceil(getValue(activeHandle) + ((float)delta / step)),
-            min,
-            max);
+            ceil(getValue(activeHandle) + ((float)delta / step)), min, max);
 
         emitValueChange(newDisplayValue, control.getValue(activeHandle));
     }

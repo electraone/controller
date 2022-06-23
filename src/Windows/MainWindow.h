@@ -8,12 +8,13 @@
 #include "UiDelegate.h"
 #include "Model.h"
 #include "Midi/Midi.h"
+#include "Setup/Setup.h"
 #include "System.h"
 
 class MainWindow : public ParameterMapWindow, public UiDelegate
 {
 public:
-    MainWindow(Model &newModel, Midi &newMidi);
+    MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup);
     virtual ~MainWindow() = default;
 
     void onButtonDown(uint8_t buttonId) override;
@@ -95,6 +96,9 @@ public:
 
     void setDefaultValue(uint16_t controlId, uint8_t handle) override;
 
+    void setActiveControlSetType(
+        ActiveControlSetType newActiveControlSetType) override;
+
     void ping(void) override;
 
     // Getters
@@ -104,6 +108,7 @@ public:
     bool isDetailOnTheLeft(void) override;
 
 private:
+    void displayPage(void);
     Component *getActivePotComponent(void) const;
     void resetAllActivePotComponents(void);
     void showDetailOfActivePotTouch(void);
@@ -123,6 +128,9 @@ private:
 
     // Interface
     Midi &midi;
+
+    // Setup
+    Setup &setup;
 
     // Window content
     PageView *pageView;

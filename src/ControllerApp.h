@@ -10,6 +10,7 @@
 #include "UiDelegate.h"
 #include "Midi.h"
 #include "Api.h"
+#include "Setup/Setup.h"
 
 UiDelegate *luaDelegate = nullptr;
 
@@ -19,7 +20,7 @@ public:
     Controller()
         : model(getApplicationSandbox()),
           midi(model.currentPreset),
-          mainWindow(MainWindow(model, midi)),
+          mainWindow(MainWindow(model, midi, appSetup)),
           delegate(&mainWindow),
           api(&mainWindow)
     {
@@ -62,12 +63,19 @@ private:
     // Patch requests
     void runUserTask(void);
 
+    // Setup handling
+    bool loadSetup(LocalFile file);
+    bool applySetup(LocalFile file);
+
     // Model
     Model model;
 
     // Interfaces
     Midi midi;
     Api api;
+
+    // Setup
+    Setup appSetup;
 
     // UI
     MainWindow mainWindow;
