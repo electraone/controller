@@ -16,11 +16,14 @@ void Controller::initialise(void)
     // Load application setup file
     LocalFile config(System::context.getCurrentConfigFile());
 
-    //MidiInputCallback::routeMessageCallback = routerCallback;
-
     if (!loadSetup(config)) {
         appSetup.useDefault();
     }
+
+    MidiOutput::enableThru(
+        MidiInterface::Type::MidiIo, 0, appSetup.router.midiIo1Thru);
+    MidiOutput::enableThru(
+        MidiInterface::Type::MidiIo, 1, appSetup.router.midiIo2Thru);
 
     // Special boot - do not read the default preset
     if (Hardware::buttons[BUTTON_LEFT_TOP]->process() == true) {
@@ -264,6 +267,8 @@ bool Controller::applySetup(LocalFile file)
     if (appSetup.load(file.getFilepath())) {
         appSetup.serialize();
         success = true;
+
+        configureApp();
     }
 
     return (success);
@@ -278,37 +283,21 @@ bool Controller::loadSetup(LocalFile file)
 
     if (appSetup.load(file.getFilepath())) {
         success = true;
-        //        assignUSBdevicesToPorts();
         logMessage("setup loaded");
-
-        delegate.setActiveControlSetType(
-            appSetup.uiFeatures.activeControlSetType);
+        configureApp();
     }
 
-#ifdef NEVER
-    logMessage("setting up the forwarding");
-
-    /*
-	 * configure MIDI IO thru
-	 */
-    if (appSetup.router.midiIo1Thru) {
-        midiDINInterfaces[0]->turnThruOn();
-    } else {
-        midiDINInterfaces[0]->turnThruOff();
-    }
-
-    if (appSetup.router.midiIo2Thru) {
-        midiDINInterfaces[1]->turnThruOn();
-    } else {
-        midiDINInterfaces[1]->turnThruOff();
-    }
-
-    /*
-	 * Reconfigure pages according to the uiFeatures
-	 */
-    setUpPages();
-
-    windows.displayPage(currentPage);
-#endif
     return (success);
+}
+
+void Controller::configureApp(void)
+{
+    //  assignUSBdevicesToPorts();
+
+    delegate.setActiveControlSetType(appSetup.uiFeatures.activeControlSetType);
+
+    MidiOutput::enableThru(
+        MidiInterface::Type::MidiIo, 0, appSetup.router.midiIo1Thru);
+    MidiOutput::enableThru(
+        MidiInterface::Type::MidiIo, 1, appSetup.router.midiIo2Thru);
 }

@@ -68,6 +68,7 @@ private:
     // Setup handling
     bool loadSetup(LocalFile file);
     bool applySetup(LocalFile file);
+    void configureApp(void);
 
     // Model
     Model model;
