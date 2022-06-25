@@ -16,6 +16,8 @@ void Controller::initialise(void)
     // Load application setup file
     LocalFile config(System::context.getCurrentConfigFile());
 
+    //MidiInputCallback::routeMessageCallback = routerCallback;
+
     if (!loadSetup(config)) {
         appSetup.useDefault();
     }

@@ -11,6 +11,7 @@
 #include "Midi.h"
 #include "Api.h"
 #include "Setup/Setup.h"
+#include "MidiRouter.h"
 
 UiDelegate *luaDelegate = nullptr;
 
@@ -22,7 +23,8 @@ public:
           midi(model.currentPreset),
           mainWindow(MainWindow(model, midi, appSetup)),
           delegate(mainWindow),
-          api(&mainWindow)
+          api(&mainWindow),
+          midiRouter(appSetup.router)
     {
     }
 
@@ -33,7 +35,7 @@ public:
 
     const char *getApplicationVersion(void) const override
     {
-        return ("3.0-a.9");
+        return ("3.0-a.10");
     }
 
     const char *getApplicationSandbox(void) const override
@@ -76,6 +78,9 @@ private:
 
     // Setup
     Setup appSetup;
+
+    // Midi Router
+    MidiRouter midiRouter;
 
     // UI
     MainWindow mainWindow;

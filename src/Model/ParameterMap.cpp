@@ -436,10 +436,10 @@ void ParameterMap::listWindows(void)
 
 void ParameterMap::enable(void)
 {
-    TaskClassCallback<void(void)>::callbackFunction =
+    InstanceCallback<void(void)>::callbackFunction =
         std::bind(&ParameterMap::repaintParameterMap, this);
     TaskCallback repaintTaskCallback =
-        static_cast<TaskCallback>(TaskClassCallback<void(void)>::callback);
+        static_cast<TaskCallback>(InstanceCallback<void(void)>::callback);
 
     System::tasks.addTask(repaintParameterMapTask);
     repaintParameterMapTask.set(40000, TASK_FOREVER, repaintTaskCallback);
