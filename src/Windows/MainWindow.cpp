@@ -10,6 +10,7 @@ MainWindow::MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup)
       midi(newMidi),
       setup(newSetup),
       pageView(nullptr),
+      presetSelectionWindow(nullptr),
       pageSelectionWindow(nullptr),
       detailWindow(nullptr),
       currentPageId(0),
@@ -38,6 +39,7 @@ void MainWindow::onButtonDown(uint8_t buttonId)
             requestAllPatches();
         } else if (buttonId == 4) {
             buttonBroadcaster.listListeners();
+            openPresetSelection();
         } else if (buttonId == 5) {
             parameterMap.listWindows();
             openPageSelection();
@@ -89,6 +91,17 @@ void MainWindow::lockDetail(void)
 void MainWindow::closeDetail(void)
 {
     closeWindow(detailWindow);
+}
+
+void MainWindow::openPresetSelection(void)
+{
+    presetSelectionWindow = PresetSelectionWindow::createPresetSelectionWindow(
+        presets, setup.presetBanks, this);
+}
+
+void MainWindow::closePresetSelection(void)
+{
+    closeWindow(presetSelectionWindow);
 }
 
 void MainWindow::openPageSelection(void)
@@ -366,6 +379,12 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
     sendPresetSwitch(2, bankNumber, slot);
 }
 
+void MainWindow::switchPresetBank(uint8_t bankNumber)
+{
+    logMessage("switchPresetBank: bankNumber=%d", bankNumber);
+    presets.setCurrentBankNumber(bankNumber);
+}
+
 void MainWindow::setSnapshotSlot(const char *projectId,
                                  uint8_t bankNumber,
                                  uint8_t slot)
@@ -499,6 +518,11 @@ uint8_t MainWindow::getCurrentPageId(void)
 uint8_t MainWindow::getCurrentControlSetId(void)
 {
     return (currentControlSetId);
+}
+
+uint8_t MainWindow::getCurrentPresetBank(void)
+{
+    return (presets.getCurrentBankNumber());
 }
 
 bool MainWindow::isDetailLocked(void)

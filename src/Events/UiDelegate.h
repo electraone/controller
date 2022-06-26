@@ -17,6 +17,8 @@ public:
     virtual void openDetail(uint16_t controlId) = 0;
     virtual void lockDetail(void) = 0;
     virtual void closeDetail(void) = 0;
+    virtual void openPresetSelection(void) = 0;
+    virtual void closePresetSelection(void) = 0;
     virtual void openPageSelection(void) = 0;
     virtual void closePageSelection(void) = 0;
     virtual void repaintPage(void) = 0;
@@ -56,6 +58,7 @@ public:
     virtual void enableMidiLearn(void) = 0;
     virtual void disableMidiLearn(void) = 0;
     virtual void switchPreset(uint8_t bankNumber, uint8_t slot) = 0;
+    virtual void switchPresetBank(uint8_t bankNumber) = 0;
     virtual void setSnapshotSlot(const char *projectId,
                                  uint8_t bankNumber,
                                  uint8_t slot) = 0;
@@ -101,6 +104,7 @@ public:
     // Getters
     virtual uint8_t getCurrentPageId(void) = 0;
     virtual uint8_t getCurrentControlSetId(void) = 0;
+    virtual uint8_t getCurrentPresetBank(void) = 0;
     virtual bool isDetailLocked(void) = 0;
     virtual bool isDetailOnTheLeft(void) = 0;
 };

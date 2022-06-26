@@ -2,6 +2,7 @@
 
 #include "ParameterMapWindow.h"
 #include "ButtonListener.h"
+#include "PresetSelectionWindow.h"
 #include "PageSelectionWindow.h"
 #include "DetailWindow.h"
 #include "PageView.h"
@@ -27,6 +28,8 @@ public:
     void openDetail(uint16_t controlId) override;
     void lockDetail(void) override;
     void closeDetail(void) override;
+    void openPresetSelection(void) override;
+    void closePresetSelection(void) override;
     void openPageSelection(void) override;
     void closePageSelection(void) override;
     void repaintPage(void) override;
@@ -64,6 +67,7 @@ public:
     void enableMidiLearn(void) override;
     void disableMidiLearn(void) override;
     void switchPreset(uint8_t bankNumber, uint8_t slot) override;
+    void switchPresetBank(uint8_t bankNumber) override;
     void setSnapshotSlot(const char *projectId,
                          uint8_t bankNumber,
                          uint8_t slot) override;
@@ -105,6 +109,7 @@ public:
     // Getters
     uint8_t getCurrentPageId(void) override;
     uint8_t getCurrentControlSetId(void) override;
+    uint8_t getCurrentPresetBank(void) override;
     bool isDetailLocked(void) override;
     bool isDetailOnTheLeft(void) override;
 
@@ -137,6 +142,7 @@ private:
     PageView *pageView;
 
     // Sub-windows
+    PresetSelectionWindow *presetSelectionWindow;
     PageSelectionWindow *pageSelectionWindow;
     DetailWindow *detailWindow;
 

@@ -45,3 +45,7 @@ private:
     void serializeMidiControl(JsonDocument &doc);
     void serializeUiFeatures(JsonDocument &doc);
 };
+
+typedef std::vector<UsbHostAssigment> UsbHostAssigments;
+typedef std::vector<MidiControl> MidiControls;
+typedef std::array<PresetBank, Setup::numPresetBanks> PresetBanks;

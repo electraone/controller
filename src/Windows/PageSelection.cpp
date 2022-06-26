@@ -1,6 +1,4 @@
 #include "PageSelection.h"
-#include "Window.h"
-#include "PageView.h"
 
 PageSelection::PageSelection(Pages newPages,
                              uint8_t newActivePage,

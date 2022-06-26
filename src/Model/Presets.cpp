@@ -27,7 +27,6 @@ void Presets::assignPresetNames(uint8_t bankNumber)
 
         if (File file = Hardware::sdcard.createInputStream(filename)) {
             Preset::getPresetName(file, presetNames[i], Preset::MaxNameLength);
-            logMessage("assignPresetNames: preset name: %s", presetNames[i]);
             file.close();
         } else {
             *presetNames[i] = '\0';
@@ -122,8 +121,8 @@ bool Presets::loadPreset(LocalFile file)
         }
 
         //        snapshots.setProjectId(preset.getProjectId());
-        preset.print();
-        parameterMap.print();
+        //preset.print();
+        //parameterMap.print();
 
         //        displayDefaultPage();
     }
@@ -259,6 +258,7 @@ void Presets::setCurrentBankNumber(uint8_t newBankNumber)
 {
     currentBankNumber = newBankNumber;
     setDefaultFiles(currentBankNumber, currentSlot);
+    assignPresetNames(currentBankNumber);
 }
 
 uint8_t Presets::getCurrentBankNumber(void) const
@@ -269,4 +269,9 @@ uint8_t Presets::getCurrentBankNumber(void) const
 void Presets::setDefaultFiles(uint8_t newBankNumber, uint8_t newSlot)
 {
     System::context.setCurrentFile(newBankNumber * NumPresetsInBank + newSlot);
+}
+
+const char *Presets::getPresetName(uint8_t slotId) const
+{
+    return presetNames[slotId];
 }

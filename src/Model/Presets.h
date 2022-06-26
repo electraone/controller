@@ -25,6 +25,7 @@ public:
     uint8_t getCurrentSlot(void) const;
     void setCurrentBankNumber(uint8_t newBankNumber);
     uint8_t getCurrentBankNumber(void) const;
+    const char *getPresetName(uint8_t slotId) const;
 
     Preset preset;
 
