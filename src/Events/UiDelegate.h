@@ -11,8 +11,10 @@ public:
      */
 
     // Window state management
-    virtual void setPage(uint8_t pageId) = 0;
-    virtual void setPage(uint8_t pageId, uint8_t controlSetId) = 0;
+    virtual void switchPage(uint8_t pageId) = 0;
+    virtual void switchPage(uint8_t pageId, uint8_t controlSetId) = 0;
+    virtual void switchPageNext(void) = 0;
+    virtual void switchPagePrev(void) = 0;
     virtual void setControlSet(uint8_t controlSetId) = 0;
     virtual void openDetail(uint16_t controlId) = 0;
     virtual void lockDetail(void) = 0;
@@ -58,6 +60,8 @@ public:
     virtual void enableMidiLearn(void) = 0;
     virtual void disableMidiLearn(void) = 0;
     virtual void switchPreset(uint8_t bankNumber, uint8_t slot) = 0;
+    virtual void switchPresetNext(void) = 0;
+    virtual void switchPresetPrev(void) = 0;
     virtual void switchPresetBank(uint8_t bankNumber) = 0;
     virtual void setSnapshotSlot(const char *projectId,
                                  uint8_t bankNumber,

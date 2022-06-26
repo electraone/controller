@@ -116,11 +116,11 @@ void Setup::serializeMidiControl(JsonDocument &doc)
         if (!midiControl.command) {
             jMidiControl["event"] =
                 translateAppEventTypeToText(midiControl.eventType);
-            jMidiControl["eventParameter"] = midiControl.eventParameter1 + 1;
+            jMidiControl["eventParameter"] = midiControl.eventParameter1;
         } else {
             jMidiControl["command"]["type"] =
                 translateAppEventTypeToText(midiControl.eventType);
-            jMidiControl["command"]["pageId"] = midiControl.eventParameter1 + 1;
+            jMidiControl["command"]["pageId"] = midiControl.eventParameter1;
             jMidiControl["command"]["controlSetId"] =
                 midiControl.eventParameter2;
         }
@@ -396,16 +396,8 @@ bool Setup::parseMidiControl(File &file)
                 uint8_t eventParameter2 =
                     jMidiControl["command"]["controlSetId"].as<uint8_t>();
 
-                if (eventParameter1 > 0) {
-                    eventParameter1--;
-                }
-
-                if (eventParameter1 > 11) {
+                if (eventParameter1 > 12) {
                     eventParameter1 = 0;
-                }
-
-                if (eventParameter2 > 0) {
-                    eventParameter2--;
                 }
 
                 if (eventParameter2 > 3) {
@@ -441,11 +433,7 @@ bool Setup::parseMidiControl(File &file)
                 uint8_t eventParameter =
                     jMidiControl["eventParameter"].as<uint8_t>();
 
-                if (eventParameter > 0) {
-                    eventParameter--;
-                }
-
-                if (eventParameter > 11) {
+                if (eventParameter > 12) {
                     eventParameter = 0;
                 }
 

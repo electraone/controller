@@ -57,7 +57,8 @@ public:
     {
         // Do not forward/process the CTRL messages. It is done on purpose for now.
         if (midiInput.getPort() == MIDI_CTRL_PORT) {
-            return (false);
+            logMessage("External MIDI control command arrived");
+            return (true);
         }
 
         if (midiInput.getInterfaceType() == MidiInterface::Type::MidiUsbDev) {

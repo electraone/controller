@@ -51,15 +51,15 @@ void MainWindow::onButtonUp(uint8_t buttonId)
 {
 }
 
-void MainWindow::setPage(uint8_t pageId)
+void MainWindow::switchPage(uint8_t pageId)
 {
     uint8_t controlSet = setup.uiFeatures.resetActiveControlSet
                              ? preset.pages.at(pageId).getDefaultControlSetId()
                              : currentControlSetId;
-    setPage(pageId, controlSet);
+    switchPage(pageId, controlSet);
 }
 
-void MainWindow::setPage(uint8_t pageId, uint8_t controlSetId)
+void MainWindow::switchPage(uint8_t pageId, uint8_t controlSetId)
 {
     currentPageId = pageId;
     currentControlSetId = controlSetId;
@@ -69,9 +69,29 @@ void MainWindow::setPage(uint8_t pageId, uint8_t controlSetId)
                currentControlSetId);
 }
 
+void MainWindow::switchPageNext(void)
+{
+    for (uint8_t i = (currentPageId + 1); i < 12; i++) {
+        if (preset.getPage(i).getHasObjects()) {
+            switchPage(i);
+            break;
+        }
+    }
+}
+
+void MainWindow::switchPagePrev(void)
+{
+    for (int8_t i = (currentPageId - 1); i > 0; i--) {
+        if (preset.getPage(i).getHasObjects()) {
+            switchPage(i);
+            break;
+        }
+    }
+}
+
 void MainWindow::setControlSet(uint8_t controlSetId)
 {
-    setPage(currentPageId, controlSetId);
+    switchPage(currentPageId, controlSetId);
 }
 
 void MainWindow::openDetail(uint16_t controlId)
@@ -373,10 +393,30 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
                bankNumber,
                slot,
                bankNumber * Preset::MaxNumPots + slot);
-
+    closeAllWindows();
     presets.loadPresetById(bankNumber * Preset::MaxNumPots + slot);
-    setPage(1, preset.getPage(1).getDefaultControlSetId());
+    switchPage(1, preset.getPage(1).getDefaultControlSetId());
     sendPresetSwitch(2, bankNumber, slot);
+}
+
+void MainWindow::switchPresetNext(void)
+{
+    auto presetId = presets.getPresetId();
+
+    if (presetId < 71) {
+        presetId++;
+        switchPreset(presetId / 12, presetId % 12);
+    }
+}
+
+void MainWindow::switchPresetPrev(void)
+{
+    auto presetId = presets.getPresetId();
+
+    if (presetId > 0) {
+        presetId--;
+        switchPreset(presetId / 12, presetId % 12);
+    }
 }
 
 void MainWindow::switchPresetBank(uint8_t bankNumber)
@@ -662,4 +702,11 @@ void MainWindow::closeWindow(Window *window)
         resetAllActivePotComponents();
         repaint();
     }
+}
+
+void MainWindow::closeAllWindows(void)
+{
+    closeDetail();
+    closePresetSelection();
+    closePageSelection();
 }

@@ -75,7 +75,7 @@ void PageSelection::setActivePage(uint8_t newActivePage)
     activePage = newActivePage;
 
     if (delegate) {
-        delegate->setPage(activePage);
+        delegate->switchPage(activePage);
     }
 
     pageButton[activePage - 1]->setSelected(true);

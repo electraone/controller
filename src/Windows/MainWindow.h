@@ -22,8 +22,10 @@ public:
     void onButtonUp(uint8_t buttonId) override;
 
     // Actions
-    void setPage(uint8_t pageId) override;
-    void setPage(uint8_t pageId, uint8_t controlSetId) override;
+    void switchPage(uint8_t pageId) override;
+    void switchPage(uint8_t pageId, uint8_t controlSetId) override;
+    void switchPageNext(void) override;
+    void switchPagePrev(void) override;
     void setControlSet(uint8_t controlSetId) override;
     void openDetail(uint16_t controlId) override;
     void lockDetail(void) override;
@@ -67,6 +69,8 @@ public:
     void enableMidiLearn(void) override;
     void disableMidiLearn(void) override;
     void switchPreset(uint8_t bankNumber, uint8_t slot) override;
+    void switchPresetNext(void) override;
+    void switchPresetPrev(void) override;
     void switchPresetBank(uint8_t bankNumber) override;
     void setSnapshotSlot(const char *projectId,
                          uint8_t bankNumber,
@@ -126,6 +130,7 @@ private:
     void switchToPreviousHandleOfActivePotTouch(void);
     Rectangle getDetailBounds(const Control &control);
     void closeWindow(Window *window);
+    void closeAllWindows(void);
 
     // MainWindow data
     Preset &preset;

@@ -59,7 +59,7 @@ int pages_display(lua_State *L)
         controlSetId = luaLE_checkControlSetId(L, 2);
     }
 
-    luaDelegate->setPage(pageId, controlSetId); // freezes E1
+    luaDelegate->switchPage(pageId, controlSetId); // freezes E1
     return (0);
 }
 

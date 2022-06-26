@@ -10,6 +10,7 @@
 #include "UiDelegate.h"
 #include "Midi.h"
 #include "Api.h"
+#include "MidiApi.h"
 #include "Setup/Setup.h"
 #include "MidiRouter.h"
 
@@ -24,6 +25,7 @@ public:
           mainWindow(MainWindow(model, midi, appSetup)),
           delegate(mainWindow),
           api(&mainWindow),
+          midiApi(appSetup.midiControls, mainWindow),
           midiRouter(appSetup.router)
     {
     }
@@ -61,6 +63,8 @@ private:
                                ElectraCommand::Object fileType) override;
     void handleElectraSysex(uint8_t port,
                             const SysexBlock &sysexBlock) override;
+    void handleIncomingControlMessage(MidiInput &midiInput,
+                                      MidiMessage &midiMessage) override;
 
     // Patch requests
     void runUserTask(void);
@@ -73,19 +77,20 @@ private:
     // Model
     Model model;
 
-    // Interfaces
-    Midi midi;
-    Api api;
-
     // Setup
     Setup appSetup;
-
-    // Midi Router
-    MidiRouter midiRouter;
 
     // UI
     MainWindow mainWindow;
     UiDelegate &delegate;
+
+    // Interfaces
+    Midi midi;
+    Api api;
+    MidiApi midiApi;
+
+    // Midi Router
+    MidiRouter midiRouter;
 };
 
 // This macro instructs main() routine to launch the app.

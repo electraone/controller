@@ -75,8 +75,8 @@ void Controller::initialise(void)
 void Controller::displayDefaultPage(void)
 {
     delegate.closeDetail();
-    delegate.setPage(1,
-                     model.currentPreset.getPage(1).getDefaultControlSetId());
+    delegate.switchPage(
+        1, model.currentPreset.getPage(1).getDefaultControlSetId());
 }
 
 /** Incoming MIDI message handler.
@@ -239,6 +239,12 @@ void Controller::handleElectraSysex(uint8_t port, const SysexBlock &sysexBlock)
     } else {
         logMessage("handleElectraSysex: unknown sysex request");
     }
+}
+
+void Controller::handleIncomingControlMessage(MidiInput &midiInput,
+                                              MidiMessage &midiMessage)
+{
+    (void)midiApi.process(midiMessage);
 }
 
 void Controller::runUserTask(void)
