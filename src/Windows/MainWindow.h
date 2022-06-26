@@ -107,6 +107,7 @@ public:
 
     void setActiveControlSetType(
         ActiveControlSetType newActiveControlSetType) override;
+    void closeAllWindows(void) override;
 
     void ping(void) override;
 
@@ -130,7 +131,6 @@ private:
     void switchToPreviousHandleOfActivePotTouch(void);
     Rectangle getDetailBounds(const Control &control);
     void closeWindow(Window *window);
-    void closeAllWindows(void);
 
     // MainWindow data
     Preset &preset;

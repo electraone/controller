@@ -24,6 +24,7 @@ public:
         for (const auto &midiControl : midiControls) {
             if (midiControl.midiMessageType == type) {
                 if (midiControl.parameterNumber == data1) {
+                    delegate.closeAllWindows();
                     uint8_t presetId = 0;
                     switch (midiControl.eventType) {
                         case AppEventType::switchPreset:

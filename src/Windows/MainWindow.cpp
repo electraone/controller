@@ -393,7 +393,6 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
                bankNumber,
                slot,
                bankNumber * Preset::MaxNumPots + slot);
-    closeAllWindows();
     presets.loadPresetById(bankNumber * Preset::MaxNumPots + slot);
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
     sendPresetSwitch(2, bankNumber, slot);
@@ -495,9 +494,13 @@ void MainWindow::requestAllPatches(void)
 void MainWindow::assignComponentToControl(uint16_t controlId,
                                           Component *component)
 {
-    logMessage("assignComponentToControl: control=%d, component=%s",
-               controlId,
-               component->getName());
+#ifdef DEBUG
+    if (component) {
+        logMessage("assignComponentToControl: control=%d, component=%s",
+                   controlId,
+                   component->getName());
+    }
+#endif
     preset.getControl(controlId).setComponent(component);
 }
 
@@ -508,9 +511,13 @@ void MainWindow::removeComponentFromControl(uint16_t controlId)
 
 void MainWindow::assignComponentToGroup(uint8_t groupId, Component *component)
 {
-    logMessage("assignComponentToGroup: group=%d, component=%s",
-               groupId,
-               component->getName());
+#ifdef DEBUG
+    if (component) {
+        logMessage("assignComponentToGroup: group=%d, component=%s",
+                   groupId,
+                   component->getName());
+    }
+#endif
     preset.getGroup(groupId).setComponent(component);
 }
 
@@ -584,7 +591,6 @@ bool MainWindow::isDetailOnTheLeft(void)
 void MainWindow::displayPage(void)
 {
     setVisible(false);
-
     delete pageView;
 
     PageView *newPageView = new PageView(
@@ -596,11 +602,6 @@ void MainWindow::displayPage(void)
     }
 
     setVisible(true);
-
-    logMessage("Page switched: page=%d, controlSetId=%d",
-               currentPageId,
-               currentControlSetId);
-
     display();
 }
 
