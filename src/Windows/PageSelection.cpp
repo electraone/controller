@@ -2,7 +2,7 @@
 
 PageSelection::PageSelection(Pages newPages,
                              uint8_t newActivePage,
-                             UiDelegate *newDelegate)
+                             UiDelegate &newDelegate)
     : pages(newPages),
       activePage(newActivePage),
       delegate(newDelegate),
@@ -71,15 +71,9 @@ void PageSelection::setActivePageLabel(uint8_t newActivePage)
 void PageSelection::setActivePage(uint8_t newActivePage)
 {
     pageButton[activePage - 1]->setSelected(false);
-
     activePage = newActivePage;
-
-    if (delegate) {
-        delegate->switchPage(activePage);
-    }
-
+    delegate.switchPage(activePage);
     pageButton[activePage - 1]->setSelected(true);
-
     repaint();
 }
 

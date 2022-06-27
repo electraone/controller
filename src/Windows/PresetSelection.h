@@ -12,7 +12,7 @@ class PresetSelection : public Component
 public:
     PresetSelection(const Presets &newPresets,
                     const PresetBanks &newPresetBanks,
-                    UiDelegate *newDelegate);
+                    UiDelegate &newDelegate);
     virtual ~PresetSelection() = default;
 
     void paint(Graphics &g) override;
@@ -30,7 +30,7 @@ private:
 
     const Presets &presets;
     const PresetBanks &presetBanks;
-    UiDelegate *delegate;
+    UiDelegate &delegate;
     uint8_t active;
     uint8_t activeBank;
 

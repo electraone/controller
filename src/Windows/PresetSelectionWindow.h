@@ -10,7 +10,7 @@ class PresetSelectionWindow : public Window
 private:
     PresetSelectionWindow(const Presets &presets,
                           const PresetBanks &presetBanks,
-                          UiDelegate *newDelegate)
+                          UiDelegate &newDelegate)
         : delegate(newDelegate), ps(nullptr)
     {
         PresetSelection *ps =
@@ -30,14 +30,14 @@ public:
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 4) {
-            delegate->closePresetSelection();
+            delegate.closePresetSelection();
         }
     }
 
     static PresetSelectionWindow *
         createPresetSelectionWindow(const Presets &presets,
                                     const PresetBanks &presetBanks,
-                                    UiDelegate *newDelegate)
+                                    UiDelegate &newDelegate)
     {
         PresetSelectionWindow *psw =
             new PresetSelectionWindow(presets, presetBanks, newDelegate);
@@ -51,6 +51,6 @@ public:
     }
 
 private:
-    UiDelegate *delegate;
+    UiDelegate &delegate;
     PresetSelection *ps;
 };

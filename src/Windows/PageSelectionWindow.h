@@ -10,7 +10,7 @@ class PageSelectionWindow : public Window
 private:
     PageSelectionWindow(Pages pages,
                         uint8_t newActivePage,
-                        UiDelegate *newDelegate)
+                        UiDelegate &newDelegate)
         : delegate(newDelegate), ps(nullptr)
     {
         PageSelection *ps =
@@ -35,20 +35,22 @@ public:
         } else if (buttonId == 4) {
             logMessage("callback from pageSelectionWindow");
             buttonBroadcaster.listListeners();
+            delegate.closePageSelection();
+            delegate.openPresetSelection();
         }
     }
 
     void onButtonUp(uint8_t buttonId)
     {
         if (buttonId == 5) {
-            delegate->closePageSelection();
+            delegate.closePageSelection();
         }
     }
 
     static PageSelectionWindow *
         createPageSelectionWindow(Pages pages,
                                   uint8_t activePage,
-                                  UiDelegate *newDelegate)
+                                  UiDelegate &newDelegate)
     {
         PageSelectionWindow *psw =
             new PageSelectionWindow(pages, activePage, newDelegate);
@@ -62,6 +64,6 @@ public:
     }
 
 private:
-    UiDelegate *delegate;
+    UiDelegate &delegate;
     PageSelection *ps;
 };

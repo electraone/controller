@@ -117,7 +117,7 @@ void MainWindow::closeDetail(void)
 void MainWindow::openPresetSelection(void)
 {
     presetSelectionWindow = PresetSelectionWindow::createPresetSelectionWindow(
-        presets, setup.presetBanks, this);
+        presets, setup.presetBanks, *this);
 }
 
 void MainWindow::closePresetSelection(void)
@@ -128,7 +128,7 @@ void MainWindow::closePresetSelection(void)
 void MainWindow::openPageSelection(void)
 {
     pageSelectionWindow = PageSelectionWindow::createPageSelectionWindow(
-        preset.pages, currentPageId, this);
+        preset.pages, currentPageId, *this);
 }
 
 void MainWindow::closePageSelection(void)
