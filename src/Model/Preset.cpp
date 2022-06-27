@@ -677,13 +677,13 @@ Page Preset::parsePage(JsonObject jPage)
     const char *name = jPage["name"] | "No name";
     uint8_t defaultControlSetId = jPage["defaultControlSetId"] | 0;
 
-    //#ifdef DEBUG
+#ifdef DEBUG
     logMessage(
         "parsePage: page created: id=%d, name=%s, defaultControlSetId=%d",
         id,
         name,
         defaultControlSetId);
-    //#endif /* DEBUG */
+#endif /* DEBUG */
 
     return (Page(id, name, defaultControlSetId));
 }
@@ -701,7 +701,7 @@ Device Preset::parseDevice(JsonObject jDevice)
     const char *name = jDevice["name"];
     uint16_t rate = constrainRate(jDevice["rate"]);
 
-    //#ifdef DEBUG
+#ifdef DEBUG
     logMessage(
         "parseDevice: device created: id=%d, port=%d, channel=%d, name=%s, rate=%d",
         id,
@@ -709,7 +709,7 @@ Device Preset::parseDevice(JsonObject jDevice)
         channel,
         name,
         rate);
-    //#endif /* DEBUG */
+#endif /* DEBUG */
 
     return (Device(id, name, port, channel, rate));
 }
@@ -1228,7 +1228,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
         max = 1;
     }
 
-    //#ifdef DEBUG
+#ifdef DEBUG
     logMessage(
         "parseValue: id=%s, index=%d, defaultValue=%d, min=%d, max=%d, overlayId=%d, formatter=%s, function=%s, overlay=%x",
         valueId,
@@ -1240,7 +1240,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
         formatter,
         function,
         overlay);
-    //#endif /* DEBUG */
+#endif /* DEBUG */
 
     return (ControlValue(control,
                          valueId,
@@ -1301,6 +1301,7 @@ Message Preset::parseMessage(JsonObject jMessage)
         parameterNumber = 0;
     }
 
+#ifdef DEBUG
     logMessage(
         "parseMessage: device=%d, msgType=%s (%d), parameterId=%d, min=%d, max=%d, value=%d, offValue=%d, onValue=%d, lsbFirst=%d, signMode=%d, bitWidth=%d",
         deviceId,
@@ -1315,6 +1316,7 @@ Message Preset::parseMessage(JsonObject jMessage)
         lsbFirst,
         signMode,
         bitWidth);
+#endif
 
     return (Message(deviceId,
                     electraMessageType,
