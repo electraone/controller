@@ -3,7 +3,6 @@
 #include <vector>
 #include <String>
 #include <functional>
-#include "Sysex.h"
 #include "MidiOutput.h"
 #include "Device.h"
 #include "Message.h"
@@ -37,8 +36,7 @@ public:
 
     void sendMessage(const Message &message);
     void sendTemplatedSysex(const Device &device, std::vector<uint8_t> data);
-    void processMidi(const MidiInput &midiInput,
-                     const MidiMessage &midiMessage);
+    void process(const MidiInput &midiInput, const MidiMessage &midiMessage);
     void requestAllPatches(void);
 
 private:
@@ -122,7 +120,8 @@ private:
     static void
         sendSysEx(uint8_t port, uint8_t *data, uint16_t sysexDataLength);
 
+    const Preset &model;
+
     RpnDetector rpnDetector;
     Cc14Detector cc14Detector;
-    const Preset &model;
 };

@@ -12,6 +12,7 @@
 #include "Api.h"
 #include "MidiApi.h"
 #include "Setup/Setup.h"
+#include "MidiLearn.h"
 #include "MidiRouter.h"
 
 UiDelegate *luaDelegate = nullptr;
@@ -26,6 +27,7 @@ public:
           delegate(mainWindow),
           api(&mainWindow),
           midiApi(appSetup.midiControls, mainWindow),
+          midiLearn(model.currentPreset),
           midiRouter(appSetup.router)
     {
     }
@@ -88,6 +90,7 @@ private:
     Midi midi;
     Api api;
     MidiApi midiApi;
+    MidiLearn midiLearn;
 
     // Midi Router
     MidiRouter midiRouter;

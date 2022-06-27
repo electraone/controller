@@ -1,7 +1,8 @@
 #include "MainWindow.h"
+#include "sysex.h"
 #include "ControlComponent.h"
 #include "GroupControl.h"
-#include "ADSRControl.h"
+#include "Envelope.h"
 
 MainWindow::MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup)
     : preset(newModel.currentPreset),

@@ -260,8 +260,7 @@ void Midi::runConstant(uint16_t &i,
 /** Process incoming MIDI messages (when MIDI learn is off)
  *
  */
-void Midi::processMidi(const MidiInput &midiInput,
-                       const MidiMessage &midiMessage)
+void Midi::process(const MidiInput &midiInput, const MidiMessage &midiMessage)
 {
     Device device =
         model.getDevice(midiInput.getPort(), midiMessage.getChannel());

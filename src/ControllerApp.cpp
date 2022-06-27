@@ -1,5 +1,6 @@
 #include "ControllerApp.h"
 #include "MidiInputCallback.h"
+#include "MidiLearn.h"
 #include "lualibs.h"
 
 void Controller::initialise(void)
@@ -20,6 +21,7 @@ void Controller::initialise(void)
         appSetup.useDefault();
     }
 
+    // \todo applySetup?
     MidiOutput::enableThru(
         MidiInterface::Type::MidiIo, 0, appSetup.router.midiIo1Thru);
     MidiOutput::enableThru(
@@ -87,9 +89,9 @@ void Controller::handleIncomingMidiMessage(const MidiInput &midiInput,
                                            const MidiMessage &midiMessage)
 {
     if (System::context.getMidiLearn()) {
-        //midi.processMidiLearn(device, midiInput, midiMessage);
+        midiLearn.process(midiInput, midiMessage);
     } else {
-        midi.processMidi(midiInput, midiMessage);
+        midi.process(midiInput, midiMessage);
     }
 }
 
