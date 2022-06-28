@@ -30,11 +30,9 @@ public:
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
-            logMessage("callback from pageSelectionWindow");
-            System::windowManager.listWindows();
+            delegate.closePageSelection();
+            delegate.openUsbHostPorts();
         } else if (buttonId == 4) {
-            logMessage("callback from pageSelectionWindow");
-            buttonBroadcaster.listListeners();
             delegate.closePageSelection();
             delegate.openPresetSelection();
         }

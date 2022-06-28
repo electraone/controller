@@ -75,6 +75,7 @@ private:
     bool loadSetup(LocalFile file);
     bool applySetup(LocalFile file);
     void configureApp(void);
+    uint8_t getUsbHostPortAssigment(const char *productName) override;
 
     // Model
     Model model;

@@ -23,6 +23,8 @@ public:
     virtual void closePresetSelection(void) = 0;
     virtual void openPageSelection(void) = 0;
     virtual void closePageSelection(void) = 0;
+    virtual void openUsbHostPorts(void) = 0;
+    virtual void closeUsbHostPorts(void) = 0;
     virtual void repaintPage(void) = 0;
     virtual void repaintControl(uint16_t controlId) = 0;
 

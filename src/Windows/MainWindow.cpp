@@ -14,6 +14,7 @@ MainWindow::MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup)
       presetSelectionWindow(nullptr),
       pageSelectionWindow(nullptr),
       detailWindow(nullptr),
+      settingsWindow(nullptr),
       currentPageId(0),
       currentControlSetId(0),
       numActivePotTouch(0),
@@ -40,7 +41,6 @@ void MainWindow::onButtonDown(uint8_t buttonId)
             requestAllPatches();
         } else if (buttonId == 4) {
             buttonBroadcaster.listListeners();
-            openPresetSelection();
         } else if (buttonId == 5) {
             parameterMap.listWindows();
             openPageSelection();
@@ -134,6 +134,16 @@ void MainWindow::openPageSelection(void)
 void MainWindow::closePageSelection(void)
 {
     closeWindow(pageSelectionWindow);
+}
+
+void MainWindow::openUsbHostPorts(void)
+{
+    settingsWindow = UsbHostWindow::createUsbHostWindow(*this);
+}
+
+void MainWindow::closeUsbHostPorts(void)
+{
+    closeWindow(settingsWindow);
 }
 
 void MainWindow::repaintPage(void)
@@ -632,7 +642,6 @@ void MainWindow::showDetailOfActivePotTouch(void)
         }
     }
     if (Component *c = getActivePotComponent()) {
-        logMessage("need detail of %d", c->getId());
         openDetail(c->getId());
     }
 }

@@ -327,12 +327,6 @@ bool Setup::parseUsbHostAssigments(File &file)
             const char *pattern = jAssigment["pattern"].as<char *>();
             uint8_t port = jAssigment["port"].as<uint8_t>();
 
-            logMessage(
-                "pre Setup::parseUsbHostAssigments: usb assigment: pattern=%s, "
-                "port=%d",
-                pattern,
-                port);
-
             if (port > 0) {
                 port--;
             }

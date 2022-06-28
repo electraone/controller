@@ -309,3 +309,8 @@ void Controller::configureApp(void)
     MidiOutput::enableThru(
         MidiInterface::Type::MidiIo, 1, appSetup.router.midiIo2Thru);
 }
+
+uint8_t Controller::getUsbHostPortAssigment(const char *productName)
+{
+    return appSetup.getUsbHostAssigment(productName);
+}

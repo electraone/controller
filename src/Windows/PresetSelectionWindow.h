@@ -4,6 +4,7 @@
 #include "PresetSelection.h"
 #include "Model/Presets.h"
 #include "UiDelegate.h"
+#include "Hardware.h"
 
 class PresetSelectionWindow : public Window
 {
@@ -29,8 +30,14 @@ public:
 
     void onButtonDown(uint8_t buttonId) override
     {
-        if (buttonId == 4) {
+        if (buttonId == 3) {
             delegate.closePresetSelection();
+            delegate.openUsbHostPorts();
+        } else if (buttonId == 4) {
+            delegate.closePresetSelection();
+        } else if (buttonId == 5) {
+            delegate.closeUsbHostPorts();
+            delegate.openPageSelection();
         }
     }
 

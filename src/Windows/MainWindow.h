@@ -5,6 +5,7 @@
 #include "PresetSelectionWindow.h"
 #include "PageSelectionWindow.h"
 #include "DetailWindow.h"
+#include "UsbHostWindow.h"
 #include "PageView.h"
 #include "UiDelegate.h"
 #include "Model.h"
@@ -34,6 +35,8 @@ public:
     void closePresetSelection(void) override;
     void openPageSelection(void) override;
     void closePageSelection(void) override;
+    void openUsbHostPorts(void) override;
+    void closeUsbHostPorts(void) override;
     void repaintPage(void) override;
     void repaintControl(uint16_t controlId) override;
 
@@ -150,6 +153,7 @@ private:
     PresetSelectionWindow *presetSelectionWindow;
     PageSelectionWindow *pageSelectionWindow;
     DetailWindow *detailWindow;
+    UsbHostWindow *settingsWindow;
 
     uint8_t currentPageId;
     uint8_t currentControlSetId;
