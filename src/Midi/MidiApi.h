@@ -18,7 +18,6 @@ public:
     {
         MidiMessage::Type type = midiMessage.getType();
         uint8_t data1 = midiMessage.getData1();
-        uint8_t data2 = midiMessage.getData2();
 
         for (const auto &midiControl : midiControls) {
             if (midiControl.midiMessageType == type) {

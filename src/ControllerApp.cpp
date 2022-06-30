@@ -45,7 +45,7 @@ void Controller::initialise(void)
 
     // Register ParameterMap onChange callback
     parameterMap.onChange = [this](LookupEntry *entry, Origin origin) {
-        if (origin != Origin::midi) {
+        if (origin != Origin::midi && origin != Origin::file) {
             // \todo taking the first message destination might not be ok
             // in some situations
             Message message = entry->messageDestination[0].value->message;

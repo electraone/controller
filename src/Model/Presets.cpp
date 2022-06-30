@@ -154,12 +154,6 @@ void Presets::reset(void)
     // Reset parameterMap
     parameterMap.reset();
 
-    // Clear all windows
-    /*for (uint i = 0; i < MaxNumberOfPageWindows; i++) {
-        pages[i].removeAllChildren();
-        pages[i].removePots();
-    }*/
-
     logMessage("Controller::reset: preset memory deallocated");
     monitorFreeMemory();
 }

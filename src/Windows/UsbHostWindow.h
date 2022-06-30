@@ -2,7 +2,6 @@
 
 #include "Window.h"
 #include "UsbHostPorts.h"
-#include "Model/Page.h"
 #include "UiDelegate.h"
 
 class UsbHostWindow : public Window

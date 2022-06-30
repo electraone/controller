@@ -376,7 +376,7 @@ bool ParameterMap::parseParameters(File &file)
                      (ElectraMessageType)messageType,
                      parameterNumber,
                      midiValue,
-                     Origin::internal);
+                     Origin::file);
 
             logMessage(
                 "ParameterMap::parseParameters: deviceId=%d, messageType=%d, "

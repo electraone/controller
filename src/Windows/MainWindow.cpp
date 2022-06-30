@@ -14,7 +14,8 @@ MainWindow::MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup)
       presetSelectionWindow(nullptr),
       pageSelectionWindow(nullptr),
       detailWindow(nullptr),
-      settingsWindow(nullptr),
+      snapshotsWindow(nullptr),
+      usbHostWindow(nullptr),
       currentPageId(0),
       currentControlSetId(0),
       numActivePotTouch(0),
@@ -40,7 +41,7 @@ void MainWindow::onButtonDown(uint8_t buttonId)
             System::windowManager.listWindows();
             requestAllPatches();
         } else if (buttonId == 4) {
-            buttonBroadcaster.listListeners();
+            openSnapshots();
         } else if (buttonId == 5) {
             parameterMap.listWindows();
             openPageSelection();
@@ -138,12 +139,23 @@ void MainWindow::closePageSelection(void)
 
 void MainWindow::openUsbHostPorts(void)
 {
-    settingsWindow = UsbHostWindow::createUsbHostWindow(*this);
+    usbHostWindow = UsbHostWindow::createUsbHostWindow(*this);
 }
 
 void MainWindow::closeUsbHostPorts(void)
 {
-    closeWindow(settingsWindow);
+    closeWindow(usbHostWindow);
+}
+
+void MainWindow::openSnapshots(void)
+{
+    snapshotsWindow =
+        SnapshotsWindow::createSnapshotsWindow(*this, preset.getProjectId());
+}
+
+void MainWindow::closeSnapshots(void)
+{
+    closeWindow(snapshotsWindow);
 }
 
 void MainWindow::repaintPage(void)
@@ -366,7 +378,8 @@ void MainWindow::setGroupSlot(uint16_t groupId,
 void MainWindow::sendSnapshotList(uint8_t port, const char *projectId)
 {
     logMessage("sendSnapshotList: projectId=%s", projectId);
-    //snapshots.sendList(port);
+    snapshots.setProjectId(projectId);
+    snapshots.sendList(port);
 }
 
 void MainWindow::sendSnapshot(uint8_t port,
@@ -452,6 +465,27 @@ void MainWindow::setPresetSlot(uint8_t bankNumber, uint8_t slot)
     presets.setCurrentSlot(slot);
 }
 
+void MainWindow::loadSnapshot(const char *projectId,
+                              uint8_t bankNumber,
+                              uint8_t slot)
+{
+    logMessage("loading snapshot: bankNumber=%d, slot=%d", bankNumber, slot);
+    snapshots.setProjectId(projectId);
+    snapshots.sendSnapshotMessages(bankNumber, slot);
+    sendAllControls();
+}
+
+void MainWindow::saveSnapshot(const char *projectId,
+                              uint8_t bankNumber,
+                              uint8_t slot,
+                              const char *newName,
+                              uint8_t newColour)
+{
+    snapshots.setProjectId(projectId);
+    snapshots.saveSnapshot(bankNumber, slot, newName, newColour);
+    snapshotsWindow->snapshotSaved(bankNumber, slot, newName, newColour);
+}
+
 void MainWindow::updateSnapshot(const char *projectId,
                                 uint8_t bankNumber,
                                 uint8_t slot,
@@ -465,6 +499,9 @@ void MainWindow::updateSnapshot(const char *projectId,
         slot,
         name,
         colour);
+    snapshots.setProjectId(projectId);
+    snapshots.saveSnapshot(bankNumber, slot, name, colour);
+    snapshotsWindow->snapshotSaved(bankNumber, slot, name, colour);
 }
 
 void MainWindow::removeSnapshot(const char *projectId,
@@ -475,6 +512,9 @@ void MainWindow::removeSnapshot(const char *projectId,
                projectId,
                bankNumber,
                slot);
+    snapshots.setProjectId(projectId);
+    snapshots.removeSnapshot(bankNumber, slot);
+    snapshotsWindow->snapshotRemoved(bankNumber, slot);
 }
 
 void MainWindow::swapSnapshots(const char *projectId,
@@ -490,6 +530,11 @@ void MainWindow::swapSnapshots(const char *projectId,
         sourceSlot,
         destBankNumber,
         destSlot);
+    snapshots.setProjectId(projectId);
+    snapshots.swapSnapshot(
+        sourceBankNumber, sourceSlot, destBankNumber, destSlot);
+    snapshotsWindow->snapshotsSwapped(
+        sourceBankNumber, sourceSlot, destBankNumber, destSlot);
 }
 
 void MainWindow::setCurrentSnapshotBank(uint8_t bankNumber)
@@ -720,4 +765,18 @@ void MainWindow::closeAllWindows(void)
     closeDetail();
     closePresetSelection();
     closePageSelection();
+}
+
+void MainWindow::sendAllControls(void)
+{
+    for (auto &[id, control] : preset.controls) {
+        for (auto &value : control.values) {
+            value.message.setValue(
+                parameterMap.getValue(value.message.getDeviceId(),
+                                      value.message.getType(),
+                                      value.message.getParameterNumber()));
+            value.message.setEvent(Event::change);
+            midi.sendMessage(value.message);
+        }
+    }
 }

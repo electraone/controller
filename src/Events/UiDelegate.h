@@ -25,6 +25,8 @@ public:
     virtual void closePageSelection(void) = 0;
     virtual void openUsbHostPorts(void) = 0;
     virtual void closeUsbHostPorts(void) = 0;
+    virtual void openSnapshots(void) = 0;
+    virtual void closeSnapshots(void) = 0;
     virtual void repaintPage(void) = 0;
     virtual void repaintControl(uint16_t controlId) = 0;
 
@@ -69,6 +71,14 @@ public:
                                  uint8_t bankNumber,
                                  uint8_t slot) = 0;
     virtual void setPresetSlot(uint8_t bankNumber, uint8_t slot) = 0;
+    virtual void loadSnapshot(const char *projectId,
+                              uint8_t bankNumber,
+                              uint8_t slot) = 0;
+    virtual void saveSnapshot(const char *projectId,
+                              uint8_t bankNumber,
+                              uint8_t slot,
+                              const char *newName,
+                              uint8_t newColour) = 0;
     virtual void updateSnapshot(const char *projectId,
                                 uint8_t bankNumber,
                                 uint8_t slot,
@@ -83,6 +93,8 @@ public:
                                uint8_t destBankNumber,
                                uint8_t destSlot) = 0;
     virtual void setCurrentSnapshotBank(uint8_t bankNumber) = 0;
+
+    virtual void sendAllControls(void) = 0;
 
     // Patch handling
     virtual void requestAllPatches(void) = 0;

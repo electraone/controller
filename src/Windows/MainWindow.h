@@ -5,6 +5,7 @@
 #include "PresetSelectionWindow.h"
 #include "PageSelectionWindow.h"
 #include "DetailWindow.h"
+#include "SnapshotsWindow.h"
 #include "UsbHostWindow.h"
 #include "PageView.h"
 #include "UiDelegate.h"
@@ -37,6 +38,8 @@ public:
     void closePageSelection(void) override;
     void openUsbHostPorts(void) override;
     void closeUsbHostPorts(void) override;
+    void openSnapshots(void) override;
+    void closeSnapshots(void) override;
     void repaintPage(void) override;
     void repaintControl(uint16_t controlId) override;
 
@@ -79,6 +82,14 @@ public:
                          uint8_t bankNumber,
                          uint8_t slot) override;
     void setPresetSlot(uint8_t bankNumber, uint8_t slot) override;
+    void loadSnapshot(const char *projectId,
+                      uint8_t bankNumber,
+                      uint8_t slot) override;
+    void saveSnapshot(const char *projectId,
+                      uint8_t bankNumber,
+                      uint8_t slot,
+                      const char *newName,
+                      uint8_t newColour) override;
     void updateSnapshot(const char *projectId,
                         uint8_t bankNumber,
                         uint8_t slot,
@@ -93,6 +104,8 @@ public:
                        uint8_t destBankNumber,
                        uint8_t destSlot) override;
     void setCurrentSnapshotBank(uint8_t bankNumber) override;
+
+    void sendAllControls(void);
 
     // Misc
     void requestAllPatches(void) override;
@@ -153,7 +166,8 @@ private:
     PresetSelectionWindow *presetSelectionWindow;
     PageSelectionWindow *pageSelectionWindow;
     DetailWindow *detailWindow;
-    UsbHostWindow *settingsWindow;
+    SnapshotsWindow *snapshotsWindow;
+    UsbHostWindow *usbHostWindow;
 
     uint8_t currentPageId;
     uint8_t currentControlSetId;

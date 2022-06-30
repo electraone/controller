@@ -14,7 +14,6 @@ public:
           sustainKnob(nullptr),
           releaseKnob(nullptr)
     {
-        logMessage("colour: %d");
         // \todo to be deduplicated
         attackValues.push_back(control.getValue(0));
         attack.setId(500);
