@@ -116,14 +116,14 @@ public:
     void assignComponentToGroup(uint8_t groupId, Component *component) override;
     void removeComponentFromGroup(uint8_t groupId) override;
 
-    void setActivePotTouch(uint8_t potId, Component *component) override;
-    void resetActivePotTouch(uint8_t potId) override;
-
     void setDefaultValue(uint16_t controlId, uint8_t handle) override;
 
     void setActiveControlSetType(
         ActiveControlSetType newActiveControlSetType) override;
     void closeAllWindows(void) override;
+
+    void setActivePotTouch(uint8_t potId, Component *component) override;
+    void resetActivePotTouch(uint8_t potId) override;
 
     void ping(void) override;
 
@@ -136,17 +136,13 @@ public:
 
 private:
     void displayPage(void);
-    Component *getActivePotComponent(void) const;
-    void resetAllActivePotComponents(void);
     void showDetailOfActivePotTouch(void);
-    uint8_t getNumActivePotTouch(void);
     void showActiveHandle(Component *component, bool shouldBeShown);
     void switchToNextHandle(Component *component);
     void switchToPreviousHandle(Component *component);
     void switchToNextHandleOfActivePotTouch(void);
     void switchToPreviousHandleOfActivePotTouch(void);
     Rectangle getDetailBounds(const Control &control);
-    void closeWindow(Window *window);
 
     // MainWindow data
     Preset &preset;
@@ -163,16 +159,13 @@ private:
     PageView *pageView;
 
     // Sub-windows
-    PresetSelectionWindow *presetSelectionWindow;
     PageSelectionWindow *pageSelectionWindow;
+    PresetSelectionWindow *presetSelectionWindow;
     DetailWindow *detailWindow;
     SnapshotsWindow *snapshotsWindow;
     UsbHostWindow *usbHostWindow;
 
     uint8_t currentPageId;
     uint8_t currentControlSetId;
-
-    // Ui state
-    uint8_t numActivePotTouch;
-    Component *potTouchComponents[Preset::MaxNumPots];
+    uint8_t currentSnapshotBank;
 };

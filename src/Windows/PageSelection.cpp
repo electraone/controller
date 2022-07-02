@@ -6,31 +6,31 @@ PageSelection::PageSelection(Pages newPages,
     : pages(newPages),
       activePage(newActivePage),
       delegate(newDelegate),
-      pageButton{ nullptr }
+      button{ nullptr }
 {
     setName("pageSelection");
 
     for (uint8_t i = 0; i < 12; i++) {
         uint8_t pageId = i + 1;
-        pageButton[i] = new PageButton();
+        button[i] = new Button();
 
-        if (pageButton[i]) {
-            pageButton[i]->setId(pageId);
+        if (button[i]) {
+            button[i]->setId(pageId);
 
             if (pages[pageId].getHasObjects()) {
-                pageButton[i]->setLabel(pages[pageId].getName());
-                pageButton[i]->assignPot(i);
-                pageButton[i]->onClick = [this, pageId]() {
+                button[i]->setLabel(pages[pageId].getName());
+                button[i]->assignPot(i);
+                button[i]->onClick = [this, pageId]() {
                     setActivePage(pageId);
                     return (true);
                 };
             }
 
             if (activePage == pageId) {
-                pageButton[i]->setSelected(true);
+                button[i]->setSelected(true);
             }
 
-            addAndMakeVisible(pageButton[i]);
+            addAndMakeVisible(button[i]);
         }
     }
     setBounds(0, 365, 1024, 210);
@@ -54,15 +54,14 @@ void PageSelection::resized(void)
     for (uint8_t i = 0; i < 12; i++) {
         uint16_t x = (i % 6) * segmentWidth;
         uint16_t y = ((i < 6) ? 0 : segmentHeight + 10) + topPadding;
-        pageButton[i]->setBounds(x + 12, y, segmentWidth - 10, segmentHeight);
+        button[i]->setBounds(x + 12, y, segmentWidth - 10, segmentHeight);
     }
 }
 
 void PageSelection::setActivePageLabel(uint8_t newActivePage)
 {
     for (Component *c : getChildren()) {
-        if (PageButton *l = dynamic_cast<PageButton *>(c)) {
-            // fragile, relies on the ids
+        if (Button *l = dynamic_cast<Button *>(c)) {
             l->setActive((l->getId() == newActivePage) ? true : false);
         }
     }
@@ -70,10 +69,11 @@ void PageSelection::setActivePageLabel(uint8_t newActivePage)
 
 void PageSelection::setActivePage(uint8_t newActivePage)
 {
-    pageButton[activePage - 1]->setSelected(false);
+    uint8_t previousActivePage = activePage;
     activePage = newActivePage;
     delegate.switchPage(activePage);
-    pageButton[activePage - 1]->setSelected(true);
+    button[previousActivePage - 1]->setSelected(false);
+    button[activePage - 1]->setSelected(true);
     repaint();
 }
 

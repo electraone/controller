@@ -15,7 +15,7 @@ SnapshotsView::SnapshotsView(UiDelegate &newDelegate,
       saveButton(nullptr),
       snapsButton{ nullptr }
 {
-    setName("snapshots");
+    setName("Snapshots");
     addActionButtons();
     addSnapshotButtons(bankNumber);
     setMode(load);
@@ -33,14 +33,15 @@ void SnapshotsView::resized(void)
     for (uint16_t x = 0; x < 6; x++) {
         for (uint16_t y = 0; y < 6; y++) {
             snapsButton[y * 6 + x]->setBounds(
-                x * 170 + 12, y * 74 + 125, 150, 55);
+                x * 170 + 10, y * 74 + 125, 150, 55);
         }
     }
 }
 
 void SnapshotsView::snapshotRemoved(uint8_t bankNumber, uint8_t slot)
 {
-    uint16_t id = bankNumber * 36 + slot;
+    // uint16_t id = bankNumber * 36 + slot;
+    uint16_t id = slot;
     snapsButton[id]->setUsed(false);
     repaint();
 }
@@ -50,7 +51,8 @@ void SnapshotsView::snapshotSaved(uint8_t bankNumber,
                                   const char *name,
                                   uint8_t colour)
 {
-    uint16_t id = bankNumber * 36 + slot;
+    // uint16_t id = bankNumber * 36 + slot;
+    uint16_t id = slot;
     snapsButton[id]->setLabel(name);
     snapsButton[id]->setColour(ElectraColours::getNumericRgb565Darker(colour));
     snapsButton[id]->setUsed(true);
@@ -62,8 +64,11 @@ void SnapshotsView::snapshotsSwapped(uint8_t sourceBankNumber,
                                      uint8_t destBankNumber,
                                      uint8_t destSlot)
 {
-    uint16_t sourceId = sourceBankNumber * 36 + sourceSlot;
-    uint16_t destId = destBankNumber * 36 + destSlot;
+    // uint16_t sourceId = sourceBankNumber * 36 + sourceSlot;
+    // uint16_t destId = destBankNumber * 36 + destSlot;
+
+    uint16_t sourceId = sourceSlot;
+    uint16_t destId = destSlot;
 
     SnapsButton tmpButton;
 
@@ -78,7 +83,6 @@ void SnapshotsView::snapshotsSwapped(uint8_t sourceBankNumber,
     snapsButton[destId]->setUsed(tmpButton.isUsed());
     snapsButton[destId]->setLabel(tmpButton.getLabel());
     snapsButton[destId]->setColour(tmpButton.getColour());
-
     repaint();
 }
 
@@ -104,67 +108,87 @@ void SnapshotsView::paintIcon(Graphics &g, uint16_t x, uint16_t y)
 void SnapshotsView::addActionButtons(void)
 {
     loadButton = new ActionButton();
-    loadButton->setBounds(10, 40, 154, 50);
-    loadButton->setLabel("LOAD");
-    loadButton->setColours(0x0003, 0x0009);
-    loadButton->setId(101);
-    loadButton->onClick = [this]() {
-        logMessage("snapshotActionLambda: load");
-        setMode(load);
-        repaint();
-        return (true);
-    };
-    addAndMakeVisible(loadButton);
+
+    if (loadButton) {
+        loadButton->setName("Load");
+        loadButton->setBounds(10, 40, 154, 50);
+        loadButton->setLabel("LOAD");
+        loadButton->setColours(0x0003, 0x0009);
+        loadButton->setId(101);
+        loadButton->onClick = [this]() {
+            logMessage("snapshotActionLambda: load");
+            setMode(load);
+            repaint();
+            return (true);
+        };
+        addAndMakeVisible(loadButton);
+    }
 
     loadAndStayButton = new ActionButton();
-    loadAndStayButton->setBounds(180, 40, 154, 50);
-    loadAndStayButton->setLabel("LOAD & STAY");
-    loadAndStayButton->setColours(0x0003, 0x0009);
-    loadAndStayButton->setId(102);
-    loadAndStayButton->onClick = [this]() {
-        logMessage("snapshotActionLambda: loadAndStay");
-        setMode(loadAndStay);
-        repaint();
-        return (true);
-    };
-    addAndMakeVisible(loadAndStayButton);
+
+    if (loadAndStayButton) {
+        loadAndStayButton->setName("Load & stay");
+        loadAndStayButton->setBounds(180, 40, 154, 50);
+        loadAndStayButton->setLabel("LOAD & STAY");
+        loadAndStayButton->setColours(0x0003, 0x0009);
+        loadAndStayButton->setId(102);
+        loadAndStayButton->onClick = [this]() {
+            logMessage("snapshotActionLambda: loadAndStay");
+            setMode(loadAndStay);
+            repaint();
+            return (true);
+        };
+        addAndMakeVisible(loadAndStayButton);
+    }
 
     sendCurrentButton = new ActionButton();
-    sendCurrentButton->setBounds(435, 40, 154, 50);
-    sendCurrentButton->setLabel("SEND CURRENT");
-    sendCurrentButton->setColour(0x00e0);
-    sendCurrentButton->setId(103);
-    sendCurrentButton->onClick = [this]() {
-        delegate.sendAllControls();
-        return (false);
-    };
-    addAndMakeVisible(sendCurrentButton);
+
+    if (sendCurrentButton) {
+        sendCurrentButton->setName("Send current");
+        sendCurrentButton->setBounds(435, 40, 154, 50);
+        sendCurrentButton->setLabel("SEND CURRENT");
+        sendCurrentButton->setColour(0x00e0);
+        sendCurrentButton->setId(103);
+        sendCurrentButton->onClick = [this]() {
+            delegate.sendAllControls();
+            return (false);
+        };
+        addAndMakeVisible(sendCurrentButton);
+    }
 
     removeButton = new ActionButton();
-    removeButton->setBounds(690, 40, 154, 50);
-    removeButton->setLabel("REMOVE");
-    removeButton->setColours(0x1800, 0x4800);
-    removeButton->setId(104);
-    removeButton->onClick = [this]() {
-        logMessage("snapshotActionLambda: remove");
-        setMode(remove);
-        repaint();
-        return (true);
-    };
-    addAndMakeVisible(removeButton);
+
+    if (removeButton) {
+        removeButton->setName("Remove");
+        removeButton->setBounds(690, 40, 154, 50);
+        removeButton->setLabel("REMOVE");
+        removeButton->setColours(0x1800, 0x4800);
+        removeButton->setId(104);
+        removeButton->onClick = [this]() {
+            logMessage("snapshotActionLambda: remove");
+            setMode(remove);
+            repaint();
+            return (true);
+        };
+        addAndMakeVisible(removeButton);
+    }
 
     saveButton = new ActionButton();
-    saveButton->setBounds(860, 40, 154, 50);
-    saveButton->setLabel("SAVE CURRENT");
-    saveButton->setColours(0x1800, 0x3800);
-    saveButton->setId(105);
-    saveButton->onClick = [this]() {
-        logMessage("snapshotActionLambda: save");
-        setMode(save);
-        repaint();
-        return (true);
-    };
-    addAndMakeVisible(saveButton);
+
+    if (saveButton) {
+        saveButton->setName("Save current");
+        saveButton->setBounds(860, 40, 154, 50);
+        saveButton->setLabel("SAVE CURRENT");
+        saveButton->setColours(0x1800, 0x3800);
+        saveButton->setId(105);
+        saveButton->onClick = [this]() {
+            logMessage("snapshotActionLambda: save");
+            setMode(save);
+            repaint();
+            return (true);
+        };
+        addAndMakeVisible(saveButton);
+    }
 }
 
 void SnapshotsView::setMode(Mode newMode)
@@ -201,11 +225,14 @@ void SnapshotsView::addSnapshotButtons(uint8_t bankNumber)
             char programInfo[SnapsButton::maxProgramInfoLength + 1];
             sprintf(programInfo, "%d-%02d", bankNumber + 1, i + 1);
 
-            button->setId(i);
+            uint16_t id = (bankNumber * 36) + i;
+
+            button->setId(id);
+            button->setName(programInfo);
             button->setProgramInfo(programInfo);
             button->setBankNumber(bankNumber);
 
-            if (dbSnapshot.select(i, DB_RECORD snapRec)) {
+            if (dbSnapshot.select(id, DB_RECORD snapRec)) {
                 button->setUsed(true);
                 button->setLabel(snapRec.name);
                 button->setColour(
@@ -280,4 +307,5 @@ void SnapshotsView::saveSnapshot(SnapsButton *button,
     char name[20 + 1];
     sprintf(name, "%c%d", 65 + slot % 6, slot / 6);
     delegate.saveSnapshot(projectId, bankNumber, slot, name, colour);
+    logMessage("3");
 }

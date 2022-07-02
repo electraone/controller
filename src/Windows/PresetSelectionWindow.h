@@ -4,7 +4,6 @@
 #include "PresetSelection.h"
 #include "Model/Presets.h"
 #include "UiDelegate.h"
-#include "Hardware.h"
 
 class PresetSelectionWindow : public Window
 {
@@ -12,22 +11,23 @@ private:
     PresetSelectionWindow(const Presets &presets,
                           const PresetBanks &presetBanks,
                           UiDelegate &newDelegate)
-        : delegate(newDelegate), ps(nullptr)
+        : delegate(newDelegate), content(nullptr)
     {
-        PresetSelection *ps =
-            new PresetSelection(presets, presetBanks, newDelegate);
+        content = new PresetSelection(presets, presetBanks, newDelegate);
 
-        if (ps) {
-            setOwnedContent(ps);
-            setVisible(true);
+        if (content) {
+            setName("PresetSelectionWindow");
+            setOwnedContent(content);
         }
-
-        setName("presetSelectionWindow");
+        setVisible(true);
     }
 
 public:
     virtual ~PresetSelectionWindow() = default;
 
+    // API
+
+    // Events
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
@@ -36,28 +36,21 @@ public:
         } else if (buttonId == 4) {
             delegate.closePresetSelection();
         } else if (buttonId == 5) {
-            delegate.closeUsbHostPorts();
+            delegate.closePresetSelection();
             delegate.openPageSelection();
         }
     }
 
+    // Factory function
     static PresetSelectionWindow *
         createPresetSelectionWindow(const Presets &presets,
                                     const PresetBanks &presetBanks,
                                     UiDelegate &newDelegate)
     {
-        PresetSelectionWindow *psw =
-            new PresetSelectionWindow(presets, presetBanks, newDelegate);
-
-        if (psw) {
-            psw->setName("PresetSelection");
-            psw->repaint();
-        }
-
-        return (psw);
+        return new PresetSelectionWindow(presets, presetBanks, newDelegate);
     }
 
 private:
     UiDelegate &delegate;
-    PresetSelection *ps;
+    PresetSelection *content;
 };

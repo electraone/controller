@@ -3,7 +3,7 @@
 #include "Component.h"
 #include "Model/Page.h"
 #include "UiDelegate.h"
-#include "PageButton.h"
+#include "Button.h"
 
 class PageSelection : public Component
 {
@@ -30,7 +30,7 @@ private:
     uint8_t activePage;
     UiDelegate &delegate;
 
-    PageButton *pageButton[12];
+    Button *button[12];
 
     static constexpr uint8_t topPadding = 50;
 };

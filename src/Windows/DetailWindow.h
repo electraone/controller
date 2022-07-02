@@ -15,8 +15,9 @@ private:
 
         if (detail) {
             setOwnedContent(detail);
-            setVisible(true);
         }
+        setName("DetailWindow");
+        setVisible(true);
     }
 
 public:
@@ -27,6 +28,18 @@ public:
         detail->setBounds(0, 0, getWidth(), getHeight());
     }
 
+    // API
+    void setLocked(void)
+    {
+        detail->setLocked();
+    }
+
+    bool isLocked(void) const
+    {
+        return (detail->isLocked());
+    }
+
+    // Events
     void onTouchOutside(void) override
     {
         delegate->closeDetail();
@@ -46,26 +59,11 @@ public:
         }
     }
 
-    void setLocked(void)
-    {
-        detail->setLocked();
-    }
-
-    bool isLocked(void)
-    {
-        return (detail->isLocked());
-    }
-
+    // Factory function
     static DetailWindow *createDetailWindow(const Control &control,
                                             UiDelegate *newDelegate)
     {
-        DetailWindow *detailWindow = new DetailWindow(control, newDelegate);
-
-        if (detailWindow) {
-            detailWindow->setName("detailWindow");
-            detailWindow->repaint();
-        }
-        return (detailWindow);
+        return new DetailWindow(control, newDelegate);
     }
 
 private:

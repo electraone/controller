@@ -8,21 +8,23 @@ class UsbHostWindow : public Window
 {
 private:
     UsbHostWindow(UiDelegate &newDelegate)
-        : delegate(newDelegate), settings(nullptr)
+        : delegate(newDelegate), content(nullptr)
     {
-        UsbHostPorts *settings = new UsbHostPorts(newDelegate);
+        content = new UsbHostPorts(newDelegate);
 
-        if (settings) {
-            setOwnedContent(settings);
-            setVisible(true);
+        if (content) {
+            setOwnedContent(content);
         }
-
         setName("UsbHostWindow");
+        setVisible(true);
     }
 
 public:
     virtual ~UsbHostWindow() = default;
 
+    // API
+
+    // Events
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
@@ -36,18 +38,13 @@ public:
         }
     }
 
+    // Factory function
     static UsbHostWindow *createUsbHostWindow(UiDelegate &newDelegate)
     {
-        UsbHostWindow *sw = new UsbHostWindow(newDelegate);
-
-        if (sw) {
-            sw->repaint();
-        }
-
-        return (sw);
+        return new UsbHostWindow(newDelegate);
     }
 
 private:
     UiDelegate &delegate;
-    UsbHostPorts *settings;
+    UsbHostPorts *content;
 };

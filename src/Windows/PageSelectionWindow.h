@@ -11,22 +11,24 @@ private:
     PageSelectionWindow(Pages pages,
                         uint8_t newActivePage,
                         UiDelegate &newDelegate)
-        : delegate(newDelegate), ps(nullptr)
+        : delegate(newDelegate), content(nullptr)
     {
-        PageSelection *ps =
-            new PageSelection(pages, newActivePage, newDelegate);
+        content = new PageSelection(pages, newActivePage, newDelegate);
 
-        if (ps) {
-            setOwnedContent(ps);
-            setVisible(true);
+        if (content) {
+            setOwnedContent(content);
         }
 
-        setName("pageSelectionWindow");
+        setName("PageSelectionWindow");
+        setVisible(true);
     }
 
 public:
     virtual ~PageSelectionWindow() = default;
 
+    // API
+
+    // Events
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
@@ -45,23 +47,16 @@ public:
         }
     }
 
+    // Factory function
     static PageSelectionWindow *
         createPageSelectionWindow(Pages pages,
                                   uint8_t activePage,
                                   UiDelegate &newDelegate)
     {
-        PageSelectionWindow *psw =
-            new PageSelectionWindow(pages, activePage, newDelegate);
-
-        if (psw) {
-            psw->setName("PageSelection");
-            psw->repaint();
-        }
-
-        return (psw);
+        return new PageSelectionWindow(pages, activePage, newDelegate);
     }
 
 private:
     UiDelegate &delegate;
-    PageSelection *ps;
+    PageSelection *content;
 };

@@ -450,7 +450,7 @@ void ParameterMap::disable(void)
 {
     System::tasks.disableRepaintGraphics();
     System::tasks.deleteTask(repaintParameterMapTask);
-    System::tasks.flushRepaintGraphics();
+    System::tasks.clearRepaintGraphics();
     System::tasks.enableRepaintGraphics();
 }
 

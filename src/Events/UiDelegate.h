@@ -27,6 +27,10 @@ public:
     virtual void closeUsbHostPorts(void) = 0;
     virtual void openSnapshots(void) = 0;
     virtual void closeSnapshots(void) = 0;
+    /*
+    virtual void openSnapshotBanks(void) = 0;
+    virtual void closeSnapshotBanks(void) = 0;
+    */
     virtual void repaintPage(void) = 0;
     virtual void repaintControl(uint16_t controlId) = 0;
 

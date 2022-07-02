@@ -18,8 +18,7 @@ MainWindow::MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup)
       usbHostWindow(nullptr),
       currentPageId(0),
       currentControlSetId(0),
-      numActivePotTouch(0),
-      potTouchComponents{ nullptr }
+      currentSnapshotBank(0)
 {
     setName("mainWindow");
 }
@@ -39,6 +38,7 @@ void MainWindow::onButtonDown(uint8_t buttonId)
             setControlSet(buttonId);
         } else if (buttonId == 3) {
             System::windowManager.listWindows();
+            buttonBroadcaster.listListeners();
             requestAllPatches();
         } else if (buttonId == 4) {
             openSnapshots();
@@ -112,7 +112,8 @@ void MainWindow::lockDetail(void)
 
 void MainWindow::closeDetail(void)
 {
-    closeWindow(detailWindow);
+    Window::close(detailWindow);
+    detailWindow = nullptr;
 }
 
 void MainWindow::openPresetSelection(void)
@@ -123,7 +124,8 @@ void MainWindow::openPresetSelection(void)
 
 void MainWindow::closePresetSelection(void)
 {
-    closeWindow(presetSelectionWindow);
+    Window::close(presetSelectionWindow);
+    presetSelectionWindow = nullptr;
 }
 
 void MainWindow::openPageSelection(void)
@@ -134,7 +136,8 @@ void MainWindow::openPageSelection(void)
 
 void MainWindow::closePageSelection(void)
 {
-    closeWindow(pageSelectionWindow);
+    Window::close(pageSelectionWindow);
+    pageSelectionWindow = nullptr;
 }
 
 void MainWindow::openUsbHostPorts(void)
@@ -144,18 +147,20 @@ void MainWindow::openUsbHostPorts(void)
 
 void MainWindow::closeUsbHostPorts(void)
 {
-    closeWindow(usbHostWindow);
+    Window::close(usbHostWindow);
+    usbHostWindow = nullptr;
 }
 
 void MainWindow::openSnapshots(void)
 {
-    snapshotsWindow =
-        SnapshotsWindow::createSnapshotsWindow(*this, preset.getProjectId());
+    snapshotsWindow = SnapshotsWindow::createSnapshotsWindow(
+        *this, preset.getProjectId(), currentSnapshotBank);
 }
 
 void MainWindow::closeSnapshots(void)
 {
-    closeWindow(snapshotsWindow);
+    Window::close(snapshotsWindow);
+    snapshotsWindow = nullptr;
 }
 
 void MainWindow::repaintPage(void)
@@ -481,9 +486,16 @@ void MainWindow::saveSnapshot(const char *projectId,
                               const char *newName,
                               uint8_t newColour)
 {
+    logMessage("saving snapshot: bankNumber=%d, slot=%d, name=%s, colour=%d",
+               bankNumber,
+               slot,
+               newName,
+               newColour);
     snapshots.setProjectId(projectId);
     snapshots.saveSnapshot(bankNumber, slot, newName, newColour);
+    logMessage("1");
     snapshotsWindow->snapshotSaved(bankNumber, slot, newName, newColour);
+    logMessage("2");
 }
 
 void MainWindow::updateSnapshot(const char *projectId,
@@ -540,6 +552,7 @@ void MainWindow::swapSnapshots(const char *projectId,
 void MainWindow::setCurrentSnapshotBank(uint8_t bankNumber)
 {
     logMessage("setCurrentSnapshotBank: bankNumber=%d", bankNumber);
+    currentSnapshotBank = bankNumber;
 }
 
 void MainWindow::requestAllPatches(void)
@@ -582,18 +595,6 @@ void MainWindow::removeComponentFromGroup(uint8_t groupId)
     assignComponentToGroup(groupId, nullptr);
 }
 
-void MainWindow::setActivePotTouch(uint8_t potId, Component *component)
-{
-    potTouchComponents[potId] = component;
-    numActivePotTouch++;
-}
-
-void MainWindow::resetActivePotTouch(uint8_t potId)
-{
-    potTouchComponents[potId] = nullptr;
-    numActivePotTouch--;
-}
-
 void MainWindow::setDefaultValue(uint16_t controlId, uint8_t handle)
 {
     Control &control = preset.getControl(controlId);
@@ -606,6 +607,16 @@ void MainWindow::setActiveControlSetType(
 {
     setup.uiFeatures.activeControlSetType = newActiveControlSetType;
     displayPage();
+}
+
+void MainWindow::setActivePotTouch(uint8_t potId, Component *component)
+{
+    Window::setActivePotTouch(potId, component);
+}
+
+void MainWindow::resetActivePotTouch(uint8_t potId)
+{
+    Window::resetActivePotTouch(potId);
 }
 
 void MainWindow::ping(void)
@@ -646,46 +657,13 @@ bool MainWindow::isDetailOnTheLeft(void)
 
 void MainWindow::displayPage(void)
 {
-    setVisible(false);
-    delete pageView;
-
     PageView *newPageView = new PageView(
         preset, this, setup.uiFeatures, currentPageId, currentControlSetId);
-
-    if (newPageView) {
-        setOwnedContent(newPageView);
-        pageView = newPageView;
-    }
-
-    setVisible(true);
-    display();
-}
-
-Component *MainWindow::getActivePotComponent(void) const
-{
-    for (uint8_t i = 0; i < Preset::MaxNumPots; i++) {
-        if (potTouchComponents[i]) {
-            return (potTouchComponents[i]);
-        }
-    }
-    return (nullptr);
-}
-
-void MainWindow::resetAllActivePotComponents(void)
-{
-    for (uint8_t i = 0; i < Preset::MaxNumPots; i++) {
-        potTouchComponents[i] = nullptr;
-    }
-    numActivePotTouch = 0;
+    pageView = dynamic_cast<PageView *>(replaceOwnedContent(newPageView));
 }
 
 void MainWindow::showDetailOfActivePotTouch(void)
 {
-    for (uint8_t i = 0; i < Preset::MaxNumPots; i++) {
-        if (potTouchComponents[i]) {
-            showActiveHandle(potTouchComponents[i], false);
-        }
-    }
     if (Component *c = getActivePotComponent()) {
         openDetail(c->getId());
     }
@@ -707,11 +685,6 @@ void MainWindow::switchToPreviousHandleOfActivePotTouch(void)
             switchToPreviousHandle(potTouchComponents[i]);
         }
     }
-}
-
-uint8_t MainWindow::getNumActivePotTouch(void)
-{
-    return (numActivePotTouch);
 }
 
 void MainWindow::showActiveHandle(Component *component, bool shouldBeShown)
@@ -748,23 +721,21 @@ Rectangle MainWindow::getDetailBounds(const Control &control)
     return Rectangle(158, 110, 828, 380);
 }
 
+/*
 void MainWindow::closeWindow(Window *window)
 {
     if (window) {
         delete window;
-        window = nullptr;
-        buttonBroadcaster.resumeListener(this);
-        resetActiveTouch();
-        resetAllActivePotComponents();
-        repaint();
     }
 }
+*/
 
 void MainWindow::closeAllWindows(void)
 {
     closeDetail();
     closePresetSelection();
     closePageSelection();
+    closeSnapshots();
 }
 
 void MainWindow::sendAllControls(void)
