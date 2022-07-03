@@ -9,21 +9,39 @@ public:
     explicit Snapshots(const char *newAppSandbox);
     virtual ~Snapshots() = default;
 
-    void setProjectId(const char *newProjectId);
-    void sendList(uint8_t port);
-    void sendSnapshot(uint8_t port, uint8_t bankNumber, uint8_t slot);
+    void initialise(const char *newProjectId);
+    const char *getCurrentProjectId(void) const;
+    void setDestProjectId(const char *newProjectId);
+    const char *getDestProjectId(void) const;
+    void setDestBankNumber(uint8_t newBankNumber);
+    uint8_t getDestBankNumber(void) const;
+    void setDestSlot(uint8_t newSlot);
+    uint8_t getDestSlot(void) const;
 
-    void importSnapshot(LocalFile file,
-                        const char *projectId,
-                        uint8_t bankNumber,
-                        uint8_t slot);
-    void sendSnapshotMessages(uint8_t bankNumber, uint8_t slot);
-    void saveSnapshot(uint8_t bankNumber,
+    void sendList(uint8_t port, const char *projectId);
+    void sendSnapshot(uint8_t port,
+                      const char *projectId,
+                      uint8_t bankNumber,
+                      uint8_t slot);
+
+    Snapshot importSnapshot(LocalFile file);
+    void sendSnapshotMessages(const char *projectId,
+                              uint8_t bankNumber,
+                              uint8_t slot);
+    void saveSnapshot(const char *projectId,
+                      uint8_t bankNumber,
                       uint8_t slot,
                       const char *newName,
                       uint8_t newColour);
-    void removeSnapshot(uint8_t bankNumber, uint8_t slot);
-    void swapSnapshot(uint8_t sourceBankNumber,
+    void updateSnapshot(const char *projectId,
+                        uint8_t bankNumber,
+                        uint8_t slot,
+                        const char *newName,
+                        uint8_t newColour);
+    void
+        removeSnapshot(const char *projectId, uint8_t bankNumber, uint8_t slot);
+    void swapSnapshot(const char *projectId,
+                      uint8_t sourceBankNumber,
                       uint8_t sourceSlot,
                       uint8_t destBankNumber,
                       uint8_t destSlot);
@@ -34,21 +52,25 @@ public:
                                 uint8_t slot);
 
 private:
-    void createSnapshotDir(void);
-    void
-        composeSnapshotFilename(char *buffer, uint8_t bankNumber, uint8_t slot);
-    void updateSnapshotDb(uint8_t bankNumber,
+    void createSnapshotDir(const char *projectId);
+    void createSnapshotDatabase(const char *projectId);
+    void updateSnapshotDb(const char *projectId,
+                          uint8_t bankNumber,
                           uint8_t slot,
                           const char *name,
                           uint8_t colour);
-    void removeSnapshotDb(uint8_t bankNumber, uint8_t slot);
-    void swapSnapshotDb(uint8_t sourceBankNumber,
+    void removeSnapshotDb(const char *projectId,
+                          uint8_t bankNumber,
+                          uint8_t slot);
+    void swapSnapshotDb(const char *projectId,
+                        uint8_t sourceBankNumber,
                         uint8_t sourceSlot,
                         uint8_t destBankNumber,
                         uint8_t destSlot);
 
     const char *appSandbox;
-    const char *projectId;
+    char destProjectId[20 + 1];
+    uint8_t destBankNumber;
+    uint8_t destSlot;
     char tempSnapshotFilename[MAX_FILENAME_LENGTH + 1];
-    char snapshotDbFilename[MAX_FILENAME_LENGTH + 1];
 };

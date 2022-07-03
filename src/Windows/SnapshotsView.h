@@ -34,20 +34,24 @@ private:
                               uint16_t width,
                               uint32_t colour);
     static void paintIcon(Graphics &g, uint16_t x, uint16_t y);
+    void updateSnapsButtons(void);
     void setMode(Mode newMode);
+    ActionButton *addButton(uint16_t id,
+                            const char *label,
+                            uint32_t colour,
+                            uint32_t colourActive,
+                            const Rectangle &bounds);
     void addActionButtons(void);
-    void addSnapshotButtons(uint8_t bankNumber);
-    void runAction(SnapsButton *button, uint8_t bankNumber, uint8_t slot);
-    void loadSnapshot(SnapsButton *button, uint8_t bankNumber, uint8_t slot);
-    void loadAndStaySnapshot(SnapsButton *button,
-                             uint8_t bankNumber,
-                             uint8_t slot);
-    void removeSnapshot(uint8_t bankNumber, uint8_t slot);
-    void saveSnapshot(SnapsButton *button, uint8_t bankNumber, uint8_t slot);
+    void addSnapshotButtons(void);
+    void runAction(SnapsButton *button, uint8_t slot);
+    void loadSnapshot(SnapsButton *button, uint8_t slot);
+    void loadAndStaySnapshot(SnapsButton *button, uint8_t slot);
+    void removeSnapshot(uint8_t slot);
+    void saveSnapshot(SnapsButton *button, uint8_t slot);
 
     UiDelegate &delegate;
-    const char *projectId;
-    uint8_t bankNumber;
+    const char *currentProjectId;
+    uint8_t currentBankNumber;
     Mode mode;
     ActionButton *loadButton;
     ActionButton *loadAndStayButton;

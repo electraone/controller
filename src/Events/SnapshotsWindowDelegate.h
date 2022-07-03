@@ -15,4 +15,5 @@ public:
                                   uint8_t sourceSlot,
                                   uint8_t destBankNumber,
                                   uint8_t destSlot) = 0;
+    virtual void snapshotBankSwitched(uint8_t newBankNumber) = 0;
 };

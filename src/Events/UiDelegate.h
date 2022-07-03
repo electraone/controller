@@ -2,6 +2,7 @@
 
 #include "Component.h"
 #include "Enums.h"
+#include "LocalFile.h"
 
 class UiDelegate
 {
@@ -27,10 +28,6 @@ public:
     virtual void closeUsbHostPorts(void) = 0;
     virtual void openSnapshots(void) = 0;
     virtual void closeSnapshots(void) = 0;
-    /*
-    virtual void openSnapshotBanks(void) = 0;
-    virtual void closeSnapshotBanks(void) = 0;
-    */
     virtual void repaintPage(void) = 0;
     virtual void repaintControl(uint16_t controlId) = 0;
 
@@ -96,6 +93,7 @@ public:
                                uint8_t sourceSlot,
                                uint8_t destBankNumber,
                                uint8_t destSlot) = 0;
+    virtual void importSnapshot(LocalFile file) = 0;
     virtual void setCurrentSnapshotBank(uint8_t bankNumber) = 0;
 
     virtual void sendAllControls(void) = 0;

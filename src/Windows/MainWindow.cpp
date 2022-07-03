@@ -211,7 +211,6 @@ void MainWindow::setControlName(uint16_t controlId, const char *newName)
 
 void MainWindow::setControlColour(uint16_t controlId, uint8_t newColour)
 {
-    logMessage("controlId=%d, colour=%d", controlId, newColour);
     Control &control = preset.getControl(controlId);
     if (control.isValid()) {
         control.setColour(newColour);
@@ -383,8 +382,7 @@ void MainWindow::setGroupSlot(uint16_t groupId,
 void MainWindow::sendSnapshotList(uint8_t port, const char *projectId)
 {
     logMessage("sendSnapshotList: projectId=%s", projectId);
-    snapshots.setProjectId(projectId);
-    snapshots.sendList(port);
+    snapshots.sendList(port, projectId);
 }
 
 void MainWindow::sendSnapshot(uint8_t port,
@@ -396,6 +394,7 @@ void MainWindow::sendSnapshot(uint8_t port,
                projectId,
                bankNumber,
                slot);
+    snapshots.sendSnapshot(port, projectId, bankNumber, slot);
 }
 
 void MainWindow::sendPresetList(uint8_t port)
@@ -423,6 +422,8 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
                slot,
                bankNumber * Preset::MaxNumPots + slot);
     presets.loadPresetById(bankNumber * Preset::MaxNumPots + slot);
+    snapshots.initialise(preset.getProjectId());
+    parameterMap.setProjectId(preset.getProjectId());
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
     sendPresetSwitch(2, bankNumber, slot);
 }
@@ -461,6 +462,9 @@ void MainWindow::setSnapshotSlot(const char *projectId,
                projectId,
                bankNumber,
                slot);
+    snapshots.setDestProjectId(projectId);
+    snapshots.setDestBankNumber(bankNumber);
+    snapshots.setDestSlot(slot);
 }
 
 void MainWindow::setPresetSlot(uint8_t bankNumber, uint8_t slot)
@@ -474,9 +478,11 @@ void MainWindow::loadSnapshot(const char *projectId,
                               uint8_t bankNumber,
                               uint8_t slot)
 {
-    logMessage("loading snapshot: bankNumber=%d, slot=%d", bankNumber, slot);
-    snapshots.setProjectId(projectId);
-    snapshots.sendSnapshotMessages(bankNumber, slot);
+    logMessage("loading snapshot: projectId=%s, bankNumber=%d, slot=%d",
+               projectId,
+               bankNumber,
+               slot);
+    snapshots.sendSnapshotMessages(projectId, bankNumber, slot);
     sendAllControls();
 }
 
@@ -486,16 +492,17 @@ void MainWindow::saveSnapshot(const char *projectId,
                               const char *newName,
                               uint8_t newColour)
 {
-    logMessage("saving snapshot: bankNumber=%d, slot=%d, name=%s, colour=%d",
-               bankNumber,
-               slot,
-               newName,
-               newColour);
-    snapshots.setProjectId(projectId);
-    snapshots.saveSnapshot(bankNumber, slot, newName, newColour);
-    logMessage("1");
-    snapshotsWindow->snapshotSaved(bankNumber, slot, newName, newColour);
-    logMessage("2");
+    logMessage(
+        "saving snapshot: projectId=%s, bankNumber=%d, slot=%d, name=%s, colour=%d",
+        projectId,
+        bankNumber,
+        slot,
+        newName,
+        newColour);
+    snapshots.saveSnapshot(projectId, bankNumber, slot, newName, newColour);
+    if (snapshotsWindow && strcmp(projectId, preset.getProjectId()) == 0) {
+        snapshotsWindow->snapshotSaved(bankNumber, slot, newName, newColour);
+    }
 }
 
 void MainWindow::updateSnapshot(const char *projectId,
@@ -511,9 +518,10 @@ void MainWindow::updateSnapshot(const char *projectId,
         slot,
         name,
         colour);
-    snapshots.setProjectId(projectId);
-    snapshots.saveSnapshot(bankNumber, slot, name, colour);
-    snapshotsWindow->snapshotSaved(bankNumber, slot, name, colour);
+    snapshots.updateSnapshot(projectId, bankNumber, slot, name, colour);
+    if (snapshotsWindow && strcmp(projectId, preset.getProjectId()) == 0) {
+        snapshotsWindow->snapshotSaved(bankNumber, slot, name, colour);
+    }
 }
 
 void MainWindow::removeSnapshot(const char *projectId,
@@ -524,9 +532,10 @@ void MainWindow::removeSnapshot(const char *projectId,
                projectId,
                bankNumber,
                slot);
-    snapshots.setProjectId(projectId);
-    snapshots.removeSnapshot(bankNumber, slot);
-    snapshotsWindow->snapshotRemoved(bankNumber, slot);
+    snapshots.removeSnapshot(projectId, bankNumber, slot);
+    if (snapshotsWindow && strcmp(projectId, preset.getProjectId()) == 0) {
+        snapshotsWindow->snapshotRemoved(bankNumber, slot);
+    }
 }
 
 void MainWindow::swapSnapshots(const char *projectId,
@@ -542,17 +551,34 @@ void MainWindow::swapSnapshots(const char *projectId,
         sourceSlot,
         destBankNumber,
         destSlot);
-    snapshots.setProjectId(projectId);
     snapshots.swapSnapshot(
-        sourceBankNumber, sourceSlot, destBankNumber, destSlot);
-    snapshotsWindow->snapshotsSwapped(
-        sourceBankNumber, sourceSlot, destBankNumber, destSlot);
+        projectId, sourceBankNumber, sourceSlot, destBankNumber, destSlot);
+    if (snapshotsWindow && strcmp(projectId, preset.getProjectId()) == 0) {
+        snapshotsWindow->snapshotsSwapped(
+            sourceBankNumber, sourceSlot, destBankNumber, destSlot);
+    }
+}
+
+void MainWindow::importSnapshot(LocalFile file)
+{
+    logMessage("importSnapshot: file: %s", file.getFilepath());
+    auto snapshot = snapshots.importSnapshot(file);
+    if (snapshotsWindow
+        && strcmp(snapshots.getDestProjectId(), preset.getProjectId()) == 0) {
+        snapshotsWindow->snapshotSaved(snapshots.getDestBankNumber(),
+                                       snapshots.getDestSlot(),
+                                       snapshot.getName(),
+                                       snapshot.getColour());
+    }
 }
 
 void MainWindow::setCurrentSnapshotBank(uint8_t bankNumber)
 {
     logMessage("setCurrentSnapshotBank: bankNumber=%d", bankNumber);
     currentSnapshotBank = bankNumber;
+    if (snapshotsWindow) {
+        snapshotsWindow->snapshotBankSwitched(currentSnapshotBank);
+    }
 }
 
 void MainWindow::requestAllPatches(void)

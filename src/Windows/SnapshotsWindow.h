@@ -69,12 +69,17 @@ public:
             sourceBankNumber, sourceSlot, destBankNumber, destSlot);
     }
 
-    void switchSnapshotBank(uint8_t newBankNumber) override
+    void snapshotBankSwitched(uint8_t newBankNumber) override
     {
+        currentSnapshotBank = newBankNumber;
         SnapshotsView *newSnapshotsView =
             new SnapshotsView(delegate, projectId, newBankNumber);
         snapshotsView = dynamic_cast<SnapshotsView *>(
             replaceOwnedContent(newSnapshotsView));
+    }
+
+    void switchSnapshotBank(uint8_t newBankNumber) override
+    {
         delegate.setCurrentSnapshotBank(newBankNumber);
     }
 

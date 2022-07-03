@@ -4,28 +4,62 @@
 #include "Midi/Sysex.h"
 
 Snapshots::Snapshots(const char *newAppSandbox)
-    : appSandbox(newAppSandbox), projectId("noProjectId")
+    : appSandbox(newAppSandbox), destBankNumber(0), destSlot(0)
 {
+    copyString(destProjectId, "noProjectId", 20);
     snprintf(tempSnapshotFilename,
              MAX_FILENAME_LENGTH,
              "%s/snapxfer.tmp",
              appSandbox);
 }
 
-void Snapshots::setProjectId(const char *newProjectId)
+void Snapshots::initialise(const char *newProjectId)
 {
-    projectId = newProjectId;
-    createSnapshotDir();
-    snprintf(snapshotDbFilename,
+    createSnapshotDir(newProjectId);
+    createSnapshotDatabase(newProjectId);
+}
+
+void Snapshots::setDestProjectId(const char *newProjectId)
+{
+    copyString(destProjectId, newProjectId, 20);
+}
+
+const char *Snapshots::getDestProjectId(void) const
+{
+    return (destProjectId);
+}
+
+void Snapshots::setDestBankNumber(uint8_t newBankNumber)
+{
+    destBankNumber = newBankNumber;
+}
+
+uint8_t Snapshots::getDestBankNumber(void) const
+{
+    return (destBankNumber);
+}
+
+void Snapshots::setDestSlot(uint8_t newSlot)
+{
+    destSlot = newSlot;
+}
+
+uint8_t Snapshots::getDestSlot(void) const
+{
+    return (destSlot);
+}
+
+void Snapshots::sendList(uint8_t port, const char *projectId)
+{
+    char dbFile[MAX_FILENAME_LENGTH + 1];
+
+    snprintf(dbFile,
              MAX_FILENAME_LENGTH,
              "%s/snaps/%s/snapshot.db",
              appSandbox,
              projectId);
-}
 
-void Snapshots::sendList(uint8_t port)
-{
-    Database dbSnapshot(snapshotDbFilename);
+    Database dbSnapshot(dbFile);
 
     if (!dbSnapshot.open()) {
         logMessage("Snapshots::sendList: cannot open the snapshot storage");
@@ -74,11 +108,14 @@ void Snapshots::sendList(uint8_t port)
         port, tempSnapshotFilename, ElectraCommand::Object::SnapshotList);
 }
 
-void Snapshots::sendSnapshot(uint8_t port, uint8_t bankNumber, uint8_t slot)
+void Snapshots::sendSnapshot(uint8_t port,
+                             const char *projectId,
+                             uint8_t bankNumber,
+                             uint8_t slot)
 {
     char snapshotFilename[MAX_FILENAME_LENGTH + 1];
 
-    composeSnapshotFilename(snapshotFilename, bankNumber, slot);
+    createSnapshotFilename(snapshotFilename, projectId, bankNumber, slot);
 
     if (Hardware::sdcard.exists(snapshotFilename)) {
         sendSysExFile(
@@ -86,26 +123,39 @@ void Snapshots::sendSnapshot(uint8_t port, uint8_t bankNumber, uint8_t slot)
     }
 }
 
-void Snapshots::importSnapshot(LocalFile file,
-                               const char *projectId,
-                               uint8_t bankNumber,
-                               uint8_t slot)
+Snapshot Snapshots::importSnapshot(LocalFile file)
 {
     char snapshotFilename[MAX_FILENAME_LENGTH + 1];
-
-    createSnapshotFilename(snapshotFilename, projectId, bankNumber, slot);
+    createSnapshotFilename(
+        snapshotFilename, destProjectId, destBankNumber, destSlot);
 
     Snapshot snapshot(file.getFilepath());
 
+    logMessage(
+        "importSnapshot: file=%s, projectId=%s, bankNumber=%d, slot=%d, name=%s, colour=%x",
+        snapshotFilename,
+        destProjectId,
+        destBankNumber,
+        destSlot,
+        snapshot.getName(),
+        snapshot.getColour());
+
     if (!Hardware::sdcard.exists(snapshotFilename)) {
         if (file.rename(snapshotFilename)) {
-            updateSnapshotDb(
-                bankNumber, slot, snapshot.getName(), snapshot.getColour());
+            updateSnapshotDb(destProjectId,
+                             destBankNumber,
+                             destSlot,
+                             snapshot.getName(),
+                             snapshot.getColour());
         }
     }
+    sendSnapshotChange(USB_MIDI_PORT_CTRL);
+    return (snapshot);
 }
 
-void Snapshots::sendSnapshotMessages(uint8_t bankNumber, uint8_t slot)
+void Snapshots::sendSnapshotMessages(const char *projectId,
+                                     uint8_t bankNumber,
+                                     uint8_t slot)
 {
     char filename[MAX_FILENAME_LENGTH + 1];
     createSnapshotFilename(filename, projectId, bankNumber, slot);
@@ -114,7 +164,8 @@ void Snapshots::sendSnapshotMessages(uint8_t bankNumber, uint8_t slot)
     }
 }
 
-void Snapshots::saveSnapshot(uint8_t bankNumber,
+void Snapshots::saveSnapshot(const char *projectId,
+                             uint8_t bankNumber,
                              uint8_t slot,
                              const char *newName,
                              uint8_t newColour)
@@ -122,26 +173,40 @@ void Snapshots::saveSnapshot(uint8_t bankNumber,
     char filename[MAX_FILENAME_LENGTH + 1];
     createSnapshotFilename(filename, projectId, bankNumber, slot);
     parameterMap.save(filename);
-    updateSnapshotDb(bankNumber, slot, newName, newColour);
+    updateSnapshotDb(projectId, bankNumber, slot, newName, newColour);
     sendSnapshotChange(USB_MIDI_PORT_CTRL);
 }
 
-void Snapshots::removeSnapshot(uint8_t bankNumber, uint8_t slot)
+void Snapshots::updateSnapshot(const char *projectId,
+                               uint8_t bankNumber,
+                               uint8_t slot,
+                               const char *newName,
+                               uint8_t newColour)
 {
-    removeSnapshotDb(bankNumber, slot);
+    updateSnapshotDb(projectId, bankNumber, slot, newName, newColour);
+}
+
+void Snapshots::removeSnapshot(const char *projectId,
+                               uint8_t bankNumber,
+                               uint8_t slot)
+{
+    removeSnapshotDb(projectId, bankNumber, slot);
     sendSnapshotChange(USB_MIDI_PORT_CTRL);
 }
 
-void Snapshots::swapSnapshot(uint8_t sourceBankNumber,
+void Snapshots::swapSnapshot(const char *projectId,
+                             uint8_t sourceBankNumber,
                              uint8_t sourceSlot,
                              uint8_t destBankNumber,
                              uint8_t destSlot)
 {
-    swapSnapshotDb(sourceBankNumber, sourceSlot, destBankNumber, destSlot);
+    swapSnapshotDb(
+        projectId, sourceBankNumber, sourceSlot, destBankNumber, destSlot);
     sendSnapshotChange(USB_MIDI_PORT_CTRL);
 }
 
-void Snapshots::updateSnapshotDb(uint8_t bankNumber,
+void Snapshots::updateSnapshotDb(const char *projectId,
+                                 uint8_t bankNumber,
                                  uint8_t slot,
                                  const char *name,
                                  uint8_t colour)
@@ -153,7 +218,7 @@ void Snapshots::updateSnapshotDb(uint8_t bankNumber,
              "%s/snaps/%s/snapshot.db",
              appSandbox,
              projectId);
-    Database dbSnapshot(dbFile); // x
+    Database dbSnapshot(dbFile);
 
     if (!dbSnapshot.open()) {
         logMessage("updateSnapshotDb: cannot open database: file=%s", dbFile);
@@ -172,7 +237,9 @@ void Snapshots::updateSnapshotDb(uint8_t bankNumber,
     dbSnapshot.close();
 }
 
-void Snapshots::removeSnapshotDb(uint8_t bankNumber, uint8_t slot)
+void Snapshots::removeSnapshotDb(const char *projectId,
+                                 uint8_t bankNumber,
+                                 uint8_t slot)
 {
     bool status;
     char snapshotFilename[MAX_FILENAME_LENGTH + 1];
@@ -212,7 +279,8 @@ void Snapshots::removeSnapshotDb(uint8_t bankNumber, uint8_t slot)
     dbSnapshot.close();
 }
 
-void Snapshots::swapSnapshotDb(uint8_t sourceBankNumber,
+void Snapshots::swapSnapshotDb(const char *projectId,
+                               uint8_t sourceBankNumber,
                                uint8_t sourceSlot,
                                uint8_t destBankNumber,
                                uint8_t destSlot)
@@ -236,25 +304,32 @@ void Snapshots::swapSnapshotDb(uint8_t sourceBankNumber,
 
     if (Hardware::sdcard.exists(tmpFilename)) {
         status = Hardware::sdcard.deleteFile(tmpFilename);
-        logMessage("removing tmp file %s: %s",
+        logMessage("swapSnapshotDb: removing tmp file %s: %s",
                    tmpFilename,
                    (status == true) ? "OK" : "fail");
     }
 
     if (!Hardware::sdcard.renameFile(sourceFilename, tmpFilename)) {
-        logMessage("cannot rename %s to %s", sourceFilename, tmpFilename);
+        logMessage("swapSnapshotDb: cannot rename %s to %s",
+                   sourceFilename,
+                   tmpFilename);
     }
-    logMessage("move %s to %s", sourceFilename, tmpFilename);
+    logMessage("swapSnapshotDb: move %s to %s", sourceFilename, tmpFilename);
 
-    if (!Hardware::sdcard.renameFile(destFilename, sourceFilename)) {
-        logMessage("cannot rename %s to %s", destFilename, sourceFilename);
+    if (Hardware::sdcard.exists(destFilename)) {
+        if (!Hardware::sdcard.renameFile(destFilename, sourceFilename)) {
+            logMessage("cannot rename %s to %s", destFilename, sourceFilename);
+        }
+        logMessage(
+            "swapSnapshotDb: move %s to %s", destFilename, sourceFilename);
     }
-    logMessage("move %s to %s", destFilename, sourceFilename);
 
     if (!Hardware::sdcard.renameFile(tmpFilename, destFilename)) {
-        logMessage("cannot rename %s to %s", tmpFilename, destFilename);
+        logMessage("swapSnapshotDb: cannot rename %s to %s",
+                   tmpFilename,
+                   destFilename);
     }
-    logMessage("move %s to %s", tmpFilename, destFilename);
+    logMessage("swapSnapshotDb: move %s to %s", tmpFilename, destFilename);
 
     // update database on success
     SnapshotRecord sourceRec;
@@ -264,7 +339,6 @@ void Snapshots::swapSnapshotDb(uint8_t sourceBankNumber,
     uint16_t destId = (destBankNumber * 36) + destSlot;
 
     char snapshotFilename[MAX_FILENAME_LENGTH + 1];
-
     snprintf(snapshotFilename,
              MAX_FILENAME_LENGTH,
              "%s/snaps/%s/snapshot.db",
@@ -305,7 +379,7 @@ void Snapshots::swapSnapshotDb(uint8_t sourceBankNumber,
     }
 
     logMessage(
-        "ElectraApp::swapSnapshotDb: swapping projectId=%s, sourceId=%d, sourceBankNumber=%d, sourceSlot=%d, destId=%d, destBankNumber=%d, destSlot=%d",
+        "swapSnapshotDb: swapping snaphosts: projectId=%s, sourceId=%d, sourceBankNumber=%d, sourceSlot=%d, destId=%d, destBankNumber=%d, destSlot=%d",
         projectId,
         sourceId,
         sourceBankNumber,
@@ -316,10 +390,9 @@ void Snapshots::swapSnapshotDb(uint8_t sourceBankNumber,
     dbSnapshot.close();
 }
 
-void Snapshots::createSnapshotDir(void)
+void Snapshots::createSnapshotDir(const char *projectId)
 {
     char dirname[MAX_DIRNAME_LENGTH + 1];
-
     snprintf(dirname, MAX_DIRNAME_LENGTH, "%s/snaps", appSandbox);
 
     if (!Hardware::sdcard.exists(dirname)) {
@@ -335,20 +408,43 @@ void Snapshots::createSnapshotDir(void)
         if (!Hardware::sdcard.createDirectory(dirname)) {
             logMessage(
                 "Snapshots::createSnapshotDir: cannot create preset snaphot storage");
+        } else {
+            logMessage("Snapshots::createSnapshotDir: directory created: %s",
+                       dirname);
         }
+    } else {
+        logMessage("Snapshots::createSnapshotDir: directory already exists: %s",
+                   dirname);
+    }
+}
+
+void Snapshots::createSnapshotDatabase(const char *projectId)
+{
+    char snapshotDbFilename[MAX_FILENAME_LENGTH + 1];
+    snprintf(snapshotDbFilename,
+             MAX_FILENAME_LENGTH,
+             "%s/snaps/%s/snapshot.db",
+             appSandbox,
+             projectId);
+    Database dbSnapshot(snapshotDbFilename);
+
+    if (!Hardware::sdcard.exists(snapshotDbFilename)) {
+        logMessage("ElectraApp::createSnapshotDatabase: creating db file %s",
+                   snapshotDbFilename);
+        dbSnapshot.create(432, sizeof(SnapshotRecord));
     }
 }
 
 void Snapshots::createSnapshotFilename(char *buffer,
-                                       const char *projectId,
-                                       uint8_t bankNumber,
-                                       uint8_t slot)
+                                       const char *newProjectId,
+                                       uint8_t newBankNumber,
+                                       uint8_t newSlot)
 {
     snprintf(buffer,
              MAX_FILENAME_LENGTH,
              "%s/snaps/%s/s%02d%02d.snp",
              appSandbox,
-             projectId,
-             bankNumber,
-             slot);
+             newProjectId,
+             newBankNumber,
+             newSlot);
 }

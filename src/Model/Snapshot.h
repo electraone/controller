@@ -20,9 +20,3 @@ private:
     char name[MAX_SNAPSHOT_NAME_LENGTH + 1];
     uint8_t colour;
 };
-
-/*
-void sendSnapshotMessages(const char *projectId,
-                          uint8_t bankNumber,
-                          uint8_t slot);
-*/

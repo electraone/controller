@@ -18,7 +18,9 @@ void Api::sendSnapshotList(uint8_t port, MemoryBlock &sysexPayload)
 
     const char *projectId = doc["projectId"].as<char *>();
 
-    delegate->sendSnapshotList(port, projectId);
+    if (projectId) {
+        delegate->sendSnapshotList(port, projectId);
+    }
 }
 
 void Api::sendSnapshot(uint8_t port, MemoryBlock &sysexPayload)
@@ -119,6 +121,11 @@ void Api::setSnapshotSlot(MemoryBlock &sysexPayload)
     uint8_t slot = doc["slot"].as<uint8_t>();
 
     delegate->setSnapshotSlot(projectId, bankNumber, slot);
+}
+
+void Api::importSnapshot(LocalFile file)
+{
+    delegate->importSnapshot(file);
 }
 
 void Api::setPresetSlot(uint8_t bankNumber, uint8_t slot)

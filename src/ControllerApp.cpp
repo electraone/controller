@@ -76,7 +76,7 @@ void Controller::initialise(void)
 
 void Controller::displayDefaultPage(void)
 {
-    delegate.closeDetail();
+    delegate.closeAllWindows();
     delegate.switchPage(
         1, model.currentPreset.getPage(1).getDefaultControlSetId());
 }
@@ -111,6 +111,11 @@ bool Controller::handleCtrlFileReceived(LocalFile file,
             // ie. the Lua script needs to be transferred afterwards
             Hardware::sdcard.deleteFile(System::context.getCurrentLuaFile());
             displayDefaultPage();
+
+            if (!model.currentPreset.isValid()) {
+                logMessage("handleCtrlFileReceived: preset upload failed");
+                return (false);
+            }
         }
     } else if (fileType == ElectraCommand::Object::FileLua) {
         if (isLuaValid(System::context.getCurrentLuaFile())) {
@@ -122,11 +127,8 @@ bool Controller::handleCtrlFileReceived(LocalFile file,
         LocalFile config(System::context.getCurrentConfigFile());
         applySetup(file);
         loadSetup(config);
-    }
-
-    if (!model.currentPreset.isValid()) {
-        logMessage("handleCtrlFileReceived: preset upload failed");
-        return (false);
+    } else if (fileType == ElectraCommand::Object::FileSnapshot) {
+        api.importSnapshot(file);
     }
 
     return (true);

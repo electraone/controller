@@ -20,6 +20,7 @@ public:
     void switchPreset(uint8_t bankNumber, uint8_t slot);
     void updateControl(uint16_t controlId, MemoryBlock &sysexPayload);
     void setSnapshotSlot(MemoryBlock &sysexPayload);
+    void importSnapshot(LocalFile file);
     void setPresetSlot(uint8_t bankNumber, uint8_t slot);
     void updateSnapshot(MemoryBlock &sysexPayload);
     void removeSnapshot(MemoryBlock &sysexPayload);

@@ -103,6 +103,7 @@ public:
                        uint8_t sourceSlot,
                        uint8_t destBankNumber,
                        uint8_t destSlot) override;
+    void importSnapshot(LocalFile file) override;
     void setCurrentSnapshotBank(uint8_t bankNumber) override;
 
     void sendAllControls(void);
