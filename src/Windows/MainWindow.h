@@ -129,11 +129,13 @@ public:
     void ping(void) override;
 
     // Getters
-    uint8_t getCurrentPageId(void) override;
-    uint8_t getCurrentControlSetId(void) override;
-    uint8_t getCurrentPresetBank(void) override;
-    bool isDetailLocked(void) override;
-    bool isDetailOnTheLeft(void) override;
+    uint8_t getCurrentPageId(void) const override;
+    uint8_t getCurrentControlSetId(void) const override;
+    uint8_t getCurrentPresetBank(void) const override;
+    uint8_t getCurrentSnapshotBank(void) const override;
+    const char *getCurrentProjectId(void) const override;
+    bool isDetailLocked(void) const override;
+    bool isDetailOnTheLeft(void) const override;
 
 private:
     void displayPage(void);

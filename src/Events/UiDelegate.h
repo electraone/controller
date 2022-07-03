@@ -123,9 +123,11 @@ public:
     virtual void ping(void) = 0;
 
     // Getters
-    virtual uint8_t getCurrentPageId(void) = 0;
-    virtual uint8_t getCurrentControlSetId(void) = 0;
-    virtual uint8_t getCurrentPresetBank(void) = 0;
-    virtual bool isDetailLocked(void) = 0;
-    virtual bool isDetailOnTheLeft(void) = 0;
+    virtual uint8_t getCurrentPageId(void) const = 0;
+    virtual uint8_t getCurrentControlSetId(void) const = 0;
+    virtual uint8_t getCurrentPresetBank(void) const = 0;
+    virtual uint8_t getCurrentSnapshotBank(void) const = 0;
+    virtual const char *getCurrentProjectId(void) const = 0;
+    virtual bool isDetailLocked(void) const = 0;
+    virtual bool isDetailOnTheLeft(void) const = 0;
 };

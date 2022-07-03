@@ -650,22 +650,32 @@ void MainWindow::ping(void)
     logMessage("delegate ping");
 }
 
-uint8_t MainWindow::getCurrentPageId(void)
+uint8_t MainWindow::getCurrentPageId(void) const
 {
     return (currentPageId);
 }
 
-uint8_t MainWindow::getCurrentControlSetId(void)
+uint8_t MainWindow::getCurrentControlSetId(void) const
 {
     return (currentControlSetId);
 }
 
-uint8_t MainWindow::getCurrentPresetBank(void)
+uint8_t MainWindow::getCurrentPresetBank(void) const
 {
     return (presets.getCurrentBankNumber());
 }
 
-bool MainWindow::isDetailLocked(void)
+uint8_t MainWindow::getCurrentSnapshotBank(void) const
+{
+    return (currentSnapshotBank);
+}
+
+const char *MainWindow::getCurrentProjectId(void) const
+{
+    return (preset.getProjectId());
+}
+
+bool MainWindow::isDetailLocked(void) const
 {
     if (detailWindow) {
         return detailWindow->isLocked();
@@ -673,7 +683,7 @@ bool MainWindow::isDetailLocked(void)
     return false;
 }
 
-bool MainWindow::isDetailOnTheLeft(void)
+bool MainWindow::isDetailOnTheLeft(void) const
 {
     if (detailWindow) {
         return (detailWindow->getX() < 512);
