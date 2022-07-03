@@ -3,11 +3,12 @@
 
 SnapshotsView::SnapshotsView(UiDelegate &newDelegate,
                              const char *newProjectId,
-                             uint8_t newBankNumber)
+                             uint8_t newBankNumber,
+                             Mode newMode)
     : delegate(newDelegate),
       currentProjectId(newProjectId),
       currentBankNumber(newBankNumber),
-      mode(load),
+      mode(newMode),
       loadButton(nullptr),
       loadAndStayButton(nullptr),
       sendCurrentButton(nullptr),
@@ -18,7 +19,7 @@ SnapshotsView::SnapshotsView(UiDelegate &newDelegate,
     setName("Snapshots");
     addActionButtons();
     addSnapshotButtons();
-    setMode(load);
+    setMode(newMode);
     setBounds(0, 6, 1024, 570);
 }
 

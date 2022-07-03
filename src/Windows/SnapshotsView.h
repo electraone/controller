@@ -8,14 +8,17 @@
 class SnapshotsView : public Component
 {
 public:
+    enum Mode { load, loadAndStay, save, remove };
+
     SnapshotsView(UiDelegate &newDelegate,
                   const char *newProjectId,
-                  uint8_t newBankNumber);
+                  uint8_t newBankNumber,
+                  Mode newMode);
     virtual ~SnapshotsView() = default;
 
     void paint(Graphics &g) override;
     void resized(void) override;
-
+    void setMode(Mode newMode);
     void snapshotRemoved(uint8_t bankNumber, uint8_t slot);
     void snapshotSaved(uint8_t bankNumber,
                        uint8_t slot,
@@ -27,15 +30,12 @@ public:
                           uint8_t destSlot);
 
 private:
-    enum Mode { load, loadAndStay, save, remove };
-
     static void paintTitleBar(Graphics &g,
                               const char *title,
                               uint16_t width,
                               uint32_t colour);
     static void paintIcon(Graphics &g, uint16_t x, uint16_t y);
     void updateSnapsButtons(void);
-    void setMode(Mode newMode);
     ActionButton *addButton(uint16_t id,
                             const char *label,
                             uint32_t colour,
