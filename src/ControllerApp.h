@@ -25,7 +25,7 @@ public:
           midi(model.currentPreset),
           mainWindow(MainWindow(model, midi, appSetup)),
           delegate(mainWindow),
-          api(&mainWindow),
+          api(mainWindow),
           midiApi(appSetup.midiControls, mainWindow),
           midiLearn(model.currentPreset),
           midiRouter(appSetup.router)

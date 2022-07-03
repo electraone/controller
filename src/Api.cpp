@@ -2,6 +2,10 @@
 #include "ArduinoJson.h"
 #include "Midi/Sysex.h"
 
+Api::Api(UiDelegate &newDelegate) : delegate(newDelegate)
+{
+}
+
 void Api::sendSnapshotList(uint8_t port, MemoryBlock &sysexPayload)
 {
     logMessage("Api::sendSnapshotList");
@@ -19,7 +23,7 @@ void Api::sendSnapshotList(uint8_t port, MemoryBlock &sysexPayload)
     const char *projectId = doc["projectId"].as<char *>();
 
     if (projectId) {
-        delegate->sendSnapshotList(port, projectId);
+        delegate.sendSnapshotList(port, projectId);
     }
 }
 
@@ -41,31 +45,31 @@ void Api::sendSnapshot(uint8_t port, MemoryBlock &sysexPayload)
     uint8_t bankNumber = doc["bankNumber"].as<uint8_t>();
     uint8_t slot = doc["slot"].as<uint8_t>();
 
-    delegate->sendSnapshot(port, projectId, bankNumber, slot);
+    delegate.sendSnapshot(port, projectId, bankNumber, slot);
 }
 
 void Api::sendPresetList(uint8_t port) // \todo port does not belong here
 {
     logMessage("Api::sendPresetList");
-    delegate->sendPresetList(port);
+    delegate.sendPresetList(port);
 }
 
 void Api::enableMidiLearn(void)
 {
     logMessage("Api::enableMidiLearn");
-    delegate->enableMidiLearn();
+    delegate.enableMidiLearn();
 }
 
 void Api::disableMidiLearn(void)
 {
     logMessage("Api::disableMidiLearn");
-    delegate->disableMidiLearn();
+    delegate.disableMidiLearn();
 }
 
 void Api::switchPreset(uint8_t bankNumber, uint8_t slot)
 {
     logMessage("Api::switchPreset");
-    delegate->switchPreset(bankNumber, slot);
+    delegate.switchPreset(bankNumber, slot);
 }
 
 void Api::updateControl(uint16_t controlId, MemoryBlock &sysexPayload)
@@ -87,18 +91,18 @@ void Api::updateControl(uint16_t controlId, MemoryBlock &sysexPayload)
 
     if (!doc["name"].isNull()) {
         const char *name = doc["name"].as<char *>();
-        delegate->setControlName(controlId, name);
+        delegate.setControlName(controlId, name);
     }
 
     if (!doc["color"].isNull()) {
         uint8_t colour =
             ElectraColours::translateColour(doc["color"].as<char *>());
-        delegate->setControlColour(controlId, colour);
+        delegate.setControlColour(controlId, colour);
     }
 
     if (!doc["visible"].isNull()) {
         bool shouldBeVisible = doc["visible"].as<bool>();
-        delegate->setControlVisible(controlId, shouldBeVisible);
+        delegate.setControlVisible(controlId, shouldBeVisible);
     }
 }
 
@@ -120,18 +124,18 @@ void Api::setSnapshotSlot(MemoryBlock &sysexPayload)
     uint8_t bankNumber = doc["bankNumber"].as<uint8_t>();
     uint8_t slot = doc["slot"].as<uint8_t>();
 
-    delegate->setSnapshotSlot(projectId, bankNumber, slot);
+    delegate.setSnapshotSlot(projectId, bankNumber, slot);
 }
 
 void Api::importSnapshot(LocalFile file)
 {
-    delegate->importSnapshot(file);
+    delegate.importSnapshot(file);
 }
 
 void Api::setPresetSlot(uint8_t bankNumber, uint8_t slot)
 {
     logMessage("Api::setPresetSlot");
-    delegate->setPresetSlot(bankNumber, slot);
+    delegate.setPresetSlot(bankNumber, slot);
 }
 
 void Api::updateSnapshot(MemoryBlock &sysexPayload)
@@ -154,7 +158,7 @@ void Api::updateSnapshot(MemoryBlock &sysexPayload)
     const char *name = doc["name"].as<char *>();
     Colour colour = ElectraColours::translateColour(doc["color"].as<char *>());
 
-    delegate->updateSnapshot(projectId, bankNumber, slot, name, colour);
+    delegate.updateSnapshot(projectId, bankNumber, slot, name, colour);
 }
 
 void Api::removeSnapshot(MemoryBlock &sysexPayload)
@@ -175,7 +179,7 @@ void Api::removeSnapshot(MemoryBlock &sysexPayload)
     uint8_t bankNumber = doc["bankNumber"].as<uint8_t>();
     uint8_t slot = doc["slot"].as<uint8_t>();
 
-    delegate->removeSnapshot(projectId, bankNumber, slot);
+    delegate.removeSnapshot(projectId, bankNumber, slot);
 }
 
 void Api::swapSnapshots(MemoryBlock &sysexPayload)
@@ -196,11 +200,11 @@ void Api::swapSnapshots(MemoryBlock &sysexPayload)
     uint8_t destBankNumber = doc["toBankNumber"].as<uint8_t>();
     uint8_t destSlot = doc["toSlot"].as<uint8_t>();
 
-    delegate->swapSnapshots(
+    delegate.swapSnapshots(
         projectId, sourceBankNumber, sourceSlot, destBankNumber, destSlot);
 }
 
 void Api::setCurrentSnapshotBank(uint8_t bankNumber)
 {
-    delegate->setCurrentSnapshotBank(bankNumber);
+    delegate.setCurrentSnapshotBank(bankNumber);
 }

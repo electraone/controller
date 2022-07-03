@@ -6,10 +6,7 @@
 class Api
 {
 public:
-    Api(UiDelegate *newDelegate) : delegate(newDelegate)
-    {
-    }
-
+    explicit Api(UiDelegate &newDelegate);
     virtual ~Api() = default;
 
     void sendSnapshotList(uint8_t port, MemoryBlock &sysexPayload);
@@ -28,5 +25,5 @@ public:
     void setCurrentSnapshotBank(uint8_t bankNumber);
 
 private:
-    UiDelegate *delegate;
+    UiDelegate &delegate;
 };
