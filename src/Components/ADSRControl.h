@@ -32,6 +32,7 @@ public:
 
     virtual void onTouchMove(const TouchEvent &touchEvent) override
     {
+        /* commented out on purpose
         uint8_t activeHandle = getActiveSegment();
         int16_t max = values[activeHandle].getMax();
         int16_t min = values[activeHandle].getMin();
@@ -43,6 +44,7 @@ public:
             ceil(getValue(activeHandle) + ((float)delta / step)), min, max);
 
         emitValueChange(newDisplayValue, control.getValue(activeHandle));
+        */
     }
 
     virtual void onPotTouchDown(const PotEvent &potEvent) override
