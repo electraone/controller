@@ -103,19 +103,27 @@ bool Controller::handleCtrlFileReceived(LocalFile file,
                                         ElectraCommand::Object fileType)
 {
     if (fileType == ElectraCommand::Object::FilePreset) {
-        if (model.presets.loadPreset(file)) {
-            logMessage("handleCtrlFileReceived: preset loaded: name=%s",
-                       model.currentPreset.getName());
+        uint8_t attempt = 0;
+        System::tasks.enableSpinner();
 
-            // Loading the preset always (temporary fix) removes the Lua script
-            // ie. the Lua script needs to be transferred afterwards
-            Hardware::sdcard.deleteFile(System::context.getCurrentLuaFile());
-            displayDefaultPage();
+        do {
+            if (model.presets.loadPreset(file)) {
+                logMessage("handleCtrlFileReceived: preset loaded: name=%s",
+                           model.currentPreset.getName());
 
-            if (!model.currentPreset.isValid()) {
-                logMessage("handleCtrlFileReceived: preset upload failed");
-                return (false);
+                // Loading the preset always (temporary fix) removes the Lua script
+                // ie. the Lua script needs to be transferred afterwards
+                Hardware::sdcard.deleteFile(
+                    System::context.getCurrentLuaFile());
             }
+        } while (!model.currentPreset.isValid() && (attempt++ < 4));
+
+        System::tasks.disableSpinner();
+        displayDefaultPage();
+
+        if (!model.currentPreset.isValid()) {
+            logMessage("handleCtrlFileReceived: preset upload failed");
+            return (false);
         }
     } else if (fileType == ElectraCommand::Object::FileLua) {
         if (isLuaValid(System::context.getCurrentLuaFile())) {
