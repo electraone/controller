@@ -9,15 +9,32 @@ public:
     {
     }
 
+    virtual ~BankButton() = default;
+
     void paint(Graphics &g) override
     {
-        Button::paint(g);
+        uint16_t backgroundColour = getColour();
+
+        g.fillAll(LookAndFeel::backgroundColour);
 
         if (isSelected()) {
-            g.setColour(Colours::lighter(getSelectedColour(), 0.3f));
-            g.drawRoundRect(0, 0, getWidth(), getHeight(), getRadius());
+            g.setColour(backgroundColour);
+            g.fillRoundRect(0, 0, getWidth(), getHeight(), getRadius());
+            g.dimAll();
+        } else if (isHighlighted()) {
+            backgroundColour = Colours::lighter(backgroundColour, 0.1f);
+            g.setColour(backgroundColour);
+            g.fillRoundRect(0, 0, getWidth(), getHeight(), getRadius());
+            g.dimAll();
         }
-    }
 
-    virtual ~BankButton() = default;
+        g.setColour(getSelectedColour());
+        g.drawRoundRect(0, 0, getWidth(), getHeight(), getRadius());
+        g.printText(0,
+                    getHeight() / 2 - 7,
+                    getLabel(),
+                    TextStyle::smallTransparent,
+                    getWidth(),
+                    TextAlign::center);
+    }
 };

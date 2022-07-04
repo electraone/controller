@@ -19,12 +19,10 @@ PresetSelection::PresetSelection(const Presets &newPresets,
         if (bankButton[i]) {
             bankButton[i]->setId(i + 100); // offset the id
             bankButton[i]->setLabel(presetBanks[i].name);
-
             auto colour =
                 ElectraColours::getNumericRgb565(presetBanks[i].colour);
 
-            bankButton[i]->setColours(Colours::darker(colour, 0.1f),
-                                      Colours::darker(colour, 0.3f));
+            bankButton[i]->setColours(colour, Colours::darker(colour, 0.3f));
 
             if (i == activeBank) {
                 bankButton[i]->setSelected(true);
@@ -69,7 +67,7 @@ void PresetSelection::paint(Graphics &g)
     g.dim(0, 0, getWidth(), getHeight(), 0x0000);
     g.dim(0, 0, getWidth(), getHeight(), 0x0020);
 
-    paintTitleBar(g, "Presets", getWidth(), 0x1080);
+    paintTitleBar(g, "Presets", getWidth(), 0x2820);
 }
 
 void PresetSelection::resized(void)

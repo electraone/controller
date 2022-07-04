@@ -7,7 +7,7 @@ class PresetButton : public Button
 public:
     PresetButton()
     {
-        setColours(0x0840, 0x18c0);
+        setColours(0x2820, 0x4860);
     }
 
     virtual ~PresetButton() = default;
