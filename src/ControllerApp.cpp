@@ -110,11 +110,6 @@ bool Controller::handleCtrlFileReceived(LocalFile file,
             if (model.presets.loadPreset(file)) {
                 logMessage("handleCtrlFileReceived: preset loaded: name=%s",
                            model.currentPreset.getName());
-
-                // Loading the preset always (temporary fix) removes the Lua script
-                // ie. the Lua script needs to be transferred afterwards
-                Hardware::sdcard.deleteFile(
-                    System::context.getCurrentLuaFile());
             }
         } while (!model.currentPreset.isValid() && (attempt++ < 4));
 
@@ -129,6 +124,7 @@ bool Controller::handleCtrlFileReceived(LocalFile file,
         if (isLuaValid(System::context.getCurrentLuaFile())) {
             if (model.currentPreset.isValid()) {
                 model.presets.runPresetLuaScript();
+                displayDefaultPage();
             }
         }
     } else if (fileType == ElectraCommand::Object::FileConfig) {

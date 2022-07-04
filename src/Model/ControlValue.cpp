@@ -28,8 +28,8 @@ ControlValue::ControlValue(Control *newControl,
                            int16_t newMax,
                            uint8_t newOverlayId,
                            Message(newMessage),
-                           std::string &newFormatter,
-                           std::string &newFunction,
+                           const std::string &newFormatter,
+                           const std::string &newFunction,
                            Overlay *newOverlay)
     : control(newControl),
       index(newIndex),
@@ -121,9 +121,9 @@ const char *ControlValue::ControlValue::getFunction(void) const
     return (function.c_str());
 }
 
-std::string ControlValue::getFormatter(void) const
+const std::string ControlValue::getFormatter(void) const
 {
-    return formatter;
+    return (formatter);
 }
 
 void ControlValue::callFormatter(int16_t value,
@@ -223,7 +223,7 @@ void ControlValue::print(void) const
     logMessage("    max: %d", getMax());
     logMessage("    overlayId: %d", getOverlayId());
     logMessage("    function: %s", getFunction());
-    logMessage("    formatter: %s", getFormatter());
+    logMessage("    formatter: %s", getFormatter().c_str());
     logMessage("    overlay: %x", getOverlay());
     logMessage("    control: %x", getControl());
     message.print();

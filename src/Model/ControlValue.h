@@ -25,8 +25,8 @@ public:
                  int16_t newMax,
                  uint8_t newOverlayId,
                  Message(newMessage),
-                 std::string &newFormatter,
-                 std::string &newFunction,
+                 const std::string &newFormatter,
+                 const std::string &newFunction,
                  Overlay *newOverlay);
 
     virtual ~ControlValue() = default;
@@ -46,7 +46,7 @@ public:
     Overlay *getOverlay(void) const;
     uint16_t getNumSteps(void) const;
     const char *getFunction(void) const;
-    std::string getFormatter(void) const;
+    const std::string getFormatter(void) const;
     void callFormatter(int16_t value, char *buffer, size_t length) const;
     void callFunction(int16_t value) const;
     const char *translateId(uint8_t id) const;

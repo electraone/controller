@@ -1237,7 +1237,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
         min,
         max,
         overlayId,
-        formatter,
+        luaFunctions[formatterIndex].c_str(),
         function,
         overlay);
 #endif /* DEBUG */
@@ -1820,7 +1820,6 @@ bool Preset::getPresetProjectId(File &file,
 
     projectId = doc.as<char *>();
     copyString(presetProjectId, projectId, maxProjectIdLength);
-    logMessage("Preset::getPresetProjectId: projectId=%s", projectId);
 
     return (true);
 }
