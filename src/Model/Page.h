@@ -20,7 +20,7 @@ public:
 
     bool isValid(void) const
     {
-        return (id != 0);
+        return (0 < id && id <= 12);
     }
 
     uint8_t getId(void) const
