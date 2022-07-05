@@ -137,7 +137,8 @@ void ControlValue::callFormatter(int16_t value,
 
 void ControlValue::callFunction(int16_t value) const
 {
-    if (L != nullptr && !function.empty()) {
+    if (L != nullptr && (value != MIDI_VALUE_DO_NOT_SEND)
+        && !function.empty()) {
         runFunction(function.c_str(), this, value);
     }
 }

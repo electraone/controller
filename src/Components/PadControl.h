@@ -20,10 +20,15 @@ public:
     {
         const ControlValue cv = control.getValue(0);
         uint16_t midiValue = cv.message.getOnValue();
+        bool stateToPass = false;
 
         if (control.getMode() == ControlMode::toggle) {
             midiValue = (state == false) ? cv.message.getOnValue()
                                          : cv.message.getOffValue();
+            setState(!state);
+            stateToPass = state;
+        } else {
+            stateToPass = true;
         }
 
         parameterMap.setValue(cv.message.getDeviceId(),
@@ -31,7 +36,12 @@ public:
                               cv.message.getParameterNumber(),
                               midiValue,
                               Origin::internal);
-        cv.callFunction(midiValue);
+        // if this is used. The pad will emit the MIDI value as the value
+        //cv.callFunction(midiValue);
+        // For compatibility reasons it emits the state
+        if (midiValue != MIDI_VALUE_DO_NOT_SEND) {
+            cv.callFunction(stateToPass);
+        }
     }
 
     virtual void onTouchUp(const TouchEvent &touchEvent) override
@@ -43,7 +53,13 @@ public:
                                   cv.message.getParameterNumber(),
                                   cv.message.getOffValue(),
                                   Origin::internal);
-            cv.callFunction(cv.message.getOnValue());
+
+            // if this is used. The pad will emit the MIDI value as the value
+            //cv.callFunction(cv.message.getOffValue());
+            // For compatibility reasons it emits the state
+            if (cv.message.getOffValue() != MIDI_VALUE_DO_NOT_SEND) {
+                cv.callFunction(false);
+            }
         }
     }
 
@@ -59,14 +75,18 @@ public:
                                   cv.message.getParameterNumber(),
                                   cv.message.getOnValue(),
                                   Origin::internal);
-            cv.callFunction(cv.message.getOffValue());
+            if (cv.message.getOnValue() != MIDI_VALUE_DO_NOT_SEND) {
+                cv.callFunction(true);
+            }
         } else if (step > 0 && state != false) {
             parameterMap.setValue(cv.message.getDeviceId(),
                                   cv.message.getType(),
                                   cv.message.getParameterNumber(),
                                   cv.message.getOffValue(),
                                   Origin::internal);
-            cv.callFunction(cv.message.getOnValue());
+            if (cv.message.getOffValue() != MIDI_VALUE_DO_NOT_SEND) {
+                cv.callFunction(false);
+            }
         }
     }
 
@@ -80,7 +100,9 @@ public:
                                   cv.message.getParameterNumber(),
                                   cv.message.getOffValue(),
                                   Origin::internal);
-            cv.callFunction(cv.message.getOffValue());
+            if (cv.message.getOffValue() != MIDI_VALUE_DO_NOT_SEND) {
+                cv.callFunction(false);
+            }
         }
     }
 

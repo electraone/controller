@@ -141,21 +141,24 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
     uint32_t hash = calculateHash(deviceId, type, parameterNumber);
     LookupEntry *entry = findAndCache(hash);
 
-    if (entry) {
-        if (entry->midiValue != midiValue) {
-            entry->dirty = true;
-            entry->midiValue = midiValue;
+    if (entry && (midiValue != MIDI_VALUE_DO_NOT_SEND)) {
+        // Commented out on purpose. It prevents sending of duplicate messages,
+        // but it can be tricky and unwanted in certain situations.
+        // if (entry->midiValue == midiValue) {
+        //    return (nullptr);
+        //}
 
-            if (onChange) {
-                onChange(entry, origin);
-            }
+        entry->dirty = true;
+        entry->midiValue = midiValue;
+
+        if (onChange) {
+            onChange(entry, origin);
+        }
 
 #ifdef DEBUG
-            parameterMap.print();
+        parameterMap.print();
 #endif
-
-            return (entry);
-        }
+        return (entry);
     }
 
     return (nullptr);
