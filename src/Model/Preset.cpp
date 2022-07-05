@@ -391,7 +391,7 @@ bool Preset::parsePages(File &file)
 
             uint8_t pageId = page.getId();
 
-            if ((pageId >= 0) && (pageId < MaxNumPages)) {
+            if ((0 < pageId) && (pageId <= MaxNumPages)) {
                 pages[pageId] = page;
             }
         } else {
