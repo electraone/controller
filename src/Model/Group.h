@@ -29,6 +29,7 @@ public:
           pageId(newPageId),
           colour(newColour),
           bounds(newBounds),
+          visible(true),
           component(nullptr)
     {
         setLabel(newLabel);

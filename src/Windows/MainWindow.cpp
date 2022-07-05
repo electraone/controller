@@ -291,10 +291,19 @@ void MainWindow::setGroupLabel(uint16_t groupId, const char *newLabel)
     if (group.isValid()) {
         group.setLabel(newLabel);
 
-        if (Component *component = group.getComponent()) {
-            if (GroupControl *gc = dynamic_cast<GroupControl *>(component)) {
-                gc->setLabel(newLabel);
-                gc->repaint();
+        if (strlen(newLabel) == 0) {
+            group.setVisible(false);
+            if (Component *component = group.getComponent()) {
+                component->setVisible(false);
+                repaintPage();
+            }
+        } else {
+            if (Component *component = group.getComponent()) {
+                if (GroupControl *gc =
+                        dynamic_cast<GroupControl *>(component)) {
+                    gc->setLabel(newLabel);
+                    gc->repaint();
+                }
             }
         }
     }

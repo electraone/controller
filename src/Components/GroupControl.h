@@ -12,6 +12,7 @@ public:
         bounds.setY(bounds.getY() + 4);
         setBounds(bounds);
         setLabel(group.getLabel());
+        setVisible(group.isVisible());
     }
 
     virtual ~GroupControl() = default;

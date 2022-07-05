@@ -151,7 +151,7 @@ void PageView::addGroups(const Groups &groups)
                         g->setDimmed(true);
                     }
                 }
-                addAndMakeVisible(g);
+                addChildComponent(g);
                 delegate->assignComponentToGroup(group.getId(), g);
             }
         }
