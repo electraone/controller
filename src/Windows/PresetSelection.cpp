@@ -62,8 +62,6 @@ PresetSelection::PresetSelection(const Presets &newPresets,
 
 void PresetSelection::paint(Graphics &g)
 {
-    setActiveLabel(active);
-
     g.dim(0, 0, getWidth(), getHeight(), 0x0000);
     g.dim(0, 0, getWidth(), getHeight(), 0x0020);
 
@@ -85,16 +83,6 @@ void PresetSelection::resized(void)
         uint16_t x = (i % 6) * segmentWidth;
         uint16_t y = ((i < 6) ? 0 : segmentHeight + 10) + topPadding;
         button[i]->setBounds(x + 12, y + 100, segmentWidth - 10, segmentHeight);
-    }
-}
-
-void PresetSelection::setActiveLabel(uint8_t newActive)
-{
-    for (Component *c : getChildren()) {
-        if (PresetButton *l = dynamic_cast<PresetButton *>(c)) {
-            // fragile, relies on the ids
-            l->setActive((l->getId() == newActive) ? true : false);
-        }
     }
 }
 

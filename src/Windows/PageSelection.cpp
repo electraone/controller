@@ -38,8 +38,6 @@ PageSelection::PageSelection(Pages newPages,
 
 void PageSelection::paint(Graphics &g)
 {
-    setActivePageLabel(activePage);
-
     g.dim(0, 0, getWidth(), getHeight(), 0x0000);
     g.dim(0, 0, getWidth(), getHeight(), 0x0001);
 
@@ -55,15 +53,6 @@ void PageSelection::resized(void)
         uint16_t x = (i % 6) * segmentWidth;
         uint16_t y = ((i < 6) ? 0 : segmentHeight + 10) + topPadding;
         button[i]->setBounds(x + 12, y, segmentWidth - 10, segmentHeight);
-    }
-}
-
-void PageSelection::setActivePageLabel(uint8_t newActivePage)
-{
-    for (Component *c : getChildren()) {
-        if (Button *l = dynamic_cast<Button *>(c)) {
-            l->setActive((l->getId() == newActivePage) ? true : false);
-        }
     }
 }
 

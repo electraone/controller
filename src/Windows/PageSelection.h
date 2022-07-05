@@ -17,7 +17,6 @@ public:
     void resized(void) override;
 
 private:
-    void setActivePageLabel(uint8_t newActivePage);
     static void paintTitleBar(Graphics &g,
                               const char *title,
                               uint16_t width,
