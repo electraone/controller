@@ -182,7 +182,6 @@ void MainWindow::repaintControl(uint16_t controlId)
 
 void MainWindow::setControlVisible(uint16_t controlId, bool shouldBeVisible)
 {
-    logMessage("controlId=%d, visible=%d", controlId, shouldBeVisible);
     Control &control = preset.getControl(controlId);
     if (control.isValid()) {
         if (control.isVisible() != shouldBeVisible) {
@@ -197,7 +196,6 @@ void MainWindow::setControlVisible(uint16_t controlId, bool shouldBeVisible)
 
 void MainWindow::setControlName(uint16_t controlId, const char *newName)
 {
-    logMessage("controlId=%d, name=%s", controlId, newName);
     Control &control = preset.getControl(controlId);
     if (control.isValid()) {
         control.setName(newName);

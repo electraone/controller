@@ -19,6 +19,7 @@ public:
 
     void paint(Graphics &g) override
     {
+        g.fillAll(LookAndFeel::backgroundColour);
         setColour(ElectraColours::getNumericRgb565(group.getColour()));
         Set::paint(g);
     }
