@@ -2,10 +2,10 @@
 
 PageSelection::PageSelection(Pages newPages,
                              uint8_t newActivePage,
-                             UiDelegate &newDelegate)
+                             UiApi &newUiApi)
     : pages(newPages),
       activePage(newActivePage),
-      delegate(newDelegate),
+      uiApi(newUiApi),
       button{ nullptr }
 {
     setName("pageSelection");
@@ -60,7 +60,7 @@ void PageSelection::setActivePage(uint8_t newActivePage)
 {
     uint8_t previousActivePage = activePage;
     activePage = newActivePage;
-    delegate.switchPage(activePage);
+    uiApi.switchPage(activePage);
     button[previousActivePage - 1]->setSelected(false);
     button[activePage - 1]->setSelected(true);
     repaint();

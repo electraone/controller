@@ -2,12 +2,12 @@
 
 PresetSelection::PresetSelection(const Presets &newPresets,
                                  const PresetBanks &newPresetBanks,
-                                 UiDelegate &newDelegate)
+                                 UiApi &newUiApi)
     : presets(newPresets),
       presetBanks(newPresetBanks),
-      delegate(newDelegate),
+      uiApi(newUiApi),
       active(presets.getCurrentSlot()),
-      activeBank(delegate.getCurrentPresetBank()),
+      activeBank(uiApi.getCurrentPresetBank()),
       bankButton{ nullptr },
       button{ nullptr }
 {
@@ -46,8 +46,7 @@ PresetSelection::PresetSelection(const Presets &newPresets,
             button[i]->assignPot(i);
 
             button[i]->onClick = [this, i]() {
-                delegate.switchPreset(presets.getCurrentBankNumber(), i);
-                delegate.closePresetSelection();
+                uiApi.switchPreset(presets.getCurrentBankNumber(), i);
                 return (true);
             };
 
@@ -90,7 +89,7 @@ void PresetSelection::setActiveBank(uint8_t newActiveBank)
 {
     bankButton[activeBank]->setSelected(false);
     activeBank = newActiveBank;
-    delegate.switchPresetBank(activeBank);
+    uiApi.switchPresetBank(activeBank);
     for (uint8_t i = 0; i < 12; i++) {
         button[i]->setLabel(presets.getPresetName(i));
     }

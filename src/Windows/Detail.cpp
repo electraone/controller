@@ -5,7 +5,7 @@
 #include "DetailADR.h"
 #include "DetailDx7Env.h"
 
-Detail::Detail(const Control &newControl, UiDelegate *newDelegate)
+Detail::Detail(const Control &newControl, MainDelegate &newDelegate)
     : control(newControl),
       delegate(newDelegate),
       component(nullptr),
@@ -28,9 +28,9 @@ Detail::Detail(const Control &newControl, UiDelegate *newDelegate)
 
         lock->onClick = [this] {
             if (!locked) {
-                delegate->lockDetail();
+                delegate.lockDetail();
             } else {
-                delegate->closeDetail();
+                delegate.closeDetail();
             }
         };
     }
@@ -41,7 +41,7 @@ Detail::Detail(const Control &newControl, UiDelegate *newDelegate)
         addAndMakeVisible(dimmedSection);
 
         dimmedSection->onClick = [this] {
-            delegate->closeDetail();
+            delegate.closeDetail();
         };
     }
 }
@@ -57,7 +57,7 @@ bool Detail::isLocked(void)
     return (locked);
 }
 
-Detail *Detail::createDetail(const Control &control, UiDelegate *newDelegate)
+Detail *Detail::createDetail(const Control &control, MainDelegate &newDelegate)
 {
     Detail *detail = nullptr;
 

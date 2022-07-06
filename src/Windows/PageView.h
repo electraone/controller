@@ -3,14 +3,16 @@
 #include "Component.h"
 #include "BottomBar.h"
 #include "Preset.h"
-#include "UiDelegate.h"
+#include "MainDelegate.h"
+#include "UiApi.h"
 #include "UiFeatures.h"
 
 class PageView : public Component
 {
 public:
     PageView(const Preset &preset,
-             UiDelegate *newDelegate,
+             MainDelegate &newDelegate,
+             UiApi &uiApi,
              const UiFeatures &newUiFeatures,
              uint8_t newPageId,
              uint8_t activeControlSetId = 0);
@@ -29,7 +31,8 @@ private:
     void addBottomBar(const char *presetName, const char *pageName);
 
     const Preset &model;
-    UiDelegate *delegate;
+    MainDelegate &delegate;
+    UiApi &uiApi;
     const UiFeatures &uiFeatures;
     uint8_t pageId;
     uint8_t controlSetId;

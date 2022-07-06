@@ -7,15 +7,15 @@
 #include "PageView.h"
 #include "Model.h"
 #include "Ui.h"
-#include "UiDelegate.h"
+#include "MainDelegate.h"
 #include "Midi.h"
-#include "Api.h"
+#include "SysexApi.h"
 #include "MidiApi.h"
 #include "Setup/Setup.h"
 #include "MidiLearn.h"
 #include "MidiRouter.h"
 
-UiDelegate *luaDelegate = nullptr;
+MainDelegate *luaDelegate = nullptr;
 
 class Controller : public App, private MidiInputCallback
 {
@@ -25,7 +25,7 @@ public:
           midi(model.currentPreset),
           mainWindow(MainWindow(model, midi, appSetup)),
           delegate(mainWindow),
-          api(mainWindow),
+          sysexApi(mainWindow),
           midiApi(appSetup.midiControls, mainWindow),
           midiLearn(model.currentPreset),
           midiRouter(appSetup.router)
@@ -55,10 +55,10 @@ public:
     void initialise(void) override;
 
 private:
-    void displayDefaultPage(void);
     void handleIncomingMidiMessage(const MidiInput &midiInput,
                                    const MidiMessage &midiMessage) override;
-    bool handleCtrlFileReceived(LocalFile file,
+    bool handleCtrlFileReceived(uint8_t port,
+                                LocalFile file,
                                 ElectraCommand::Object fileType) override;
     bool handleCtrlFileRemoved(uint8_t bankNumber,
                                uint8_t slot,
@@ -85,11 +85,11 @@ private:
 
     // UI
     MainWindow mainWindow;
-    UiDelegate &delegate;
+    MainDelegate &delegate;
 
     // Interfaces
     Midi midi;
-    Api api;
+    SysexApi sysexApi;
     MidiApi midiApi;
     MidiLearn midiLearn;
 

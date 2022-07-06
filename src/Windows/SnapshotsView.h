@@ -3,14 +3,14 @@
 #include "Component.h"
 #include "SnapsButton.h"
 #include "ActionButton.h"
-#include "UiDelegate.h"
+#include "UiApi.h"
 
 class SnapshotsView : public Component
 {
 public:
     enum Mode { load, loadAndStay, save, remove };
 
-    SnapshotsView(UiDelegate &newDelegate,
+    SnapshotsView(UiApi &newUiApi,
                   const char *newProjectId,
                   uint8_t newBankNumber,
                   Mode newMode);
@@ -43,13 +43,13 @@ private:
                             const Rectangle &bounds);
     void addActionButtons(void);
     void addSnapshotButtons(void);
-    void runAction(SnapsButton *button, uint8_t slot);
-    void loadSnapshot(SnapsButton *button, uint8_t slot);
-    void loadAndStaySnapshot(SnapsButton *button, uint8_t slot);
+    void runAction(uint8_t slot);
+    void loadSnapshot(uint8_t slot);
+    void loadAndStaySnapshot(uint8_t slot);
     void removeSnapshot(uint8_t slot);
-    void saveSnapshot(SnapsButton *button, uint8_t slot);
+    void saveSnapshot(uint8_t slot);
 
-    UiDelegate &delegate;
+    UiApi &uiApi;
     const char *currentProjectId;
     uint8_t currentBankNumber;
     Mode mode;

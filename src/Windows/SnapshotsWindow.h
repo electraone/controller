@@ -5,15 +5,15 @@
 #include "SnapshotBankSelectionWindow.h"
 #include "Preset.h"
 #include "SnapshotsWindowDelegate.h"
-#include "UiDelegate.h"
+#include "UiApi.h"
 
 class SnapshotsWindow : public Window, public SnapshotsWindowDelegate
 {
 private:
-    SnapshotsWindow(UiDelegate &newDelegate,
+    SnapshotsWindow(UiApi &newUiApi,
                     const char *newProjectId,
                     uint8_t newBankNumber)
-        : delegate(newDelegate),
+        : uiApi(newUiApi),
           snapshotsView(nullptr),
           snapshotBankSelectionWindow(nullptr),
           currentSnapshotBank(newBankNumber),
@@ -22,7 +22,7 @@ private:
         copyString(projectId, newProjectId, Preset::MaxProjectIdLength);
 
         snapshotsView = new SnapshotsView(
-            newDelegate, newProjectId, newBankNumber, modes[modeIndex]);
+            newUiApi, newProjectId, newBankNumber, modes[modeIndex]);
 
         if (snapshotsView) {
             setOwnedContent(snapshotsView);
@@ -50,7 +50,7 @@ public:
 
     void switchSnapshotBank(uint8_t newBankNumber) override
     {
-        delegate.setCurrentSnapshotBank(newBankNumber);
+        uiApi.switchSnapshotBank(newBankNumber);
     }
 
     void switchMode(void) override
@@ -85,7 +85,7 @@ public:
     {
         currentSnapshotBank = newBankNumber;
         SnapshotsView *newSnapshotsView = new SnapshotsView(
-            delegate, projectId, newBankNumber, modes[modeIndex]);
+            uiApi, projectId, newBankNumber, modes[modeIndex]);
         snapshotsView = dynamic_cast<SnapshotsView *>(
             replaceOwnedContent(newSnapshotsView));
     }
@@ -96,22 +96,22 @@ public:
         if (buttonId == 3) {
             switchMode();
         } else if (buttonId == 4) {
-            delegate.closeSnapshots();
+            uiApi.snapshots_close();
         } else if (buttonId == 5) {
             openSnapshotBanks();
         }
     }
 
     // Factory function
-    static SnapshotsWindow *createSnapshotsWindow(UiDelegate &newDelegate,
+    static SnapshotsWindow *createSnapshotsWindow(UiApi &newUiApi,
                                                   const char *newProjectId,
-                                                  uint8_t bankNumber)
+                                                  uint8_t newBankNumber)
     {
-        return new SnapshotsWindow(newDelegate, newProjectId, bankNumber);
+        return new SnapshotsWindow(newUiApi, newProjectId, newBankNumber);
     }
 
 private:
-    UiDelegate &delegate;
+    UiApi &uiApi;
     char projectId[Preset::MaxProjectIdLength + 1];
     SnapshotsView *snapshotsView;
 

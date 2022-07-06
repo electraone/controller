@@ -2,7 +2,7 @@
 
 #include "Component.h"
 #include "UsbHostDevice.h"
-#include "UiDelegate.h"
+#include "UiApi.h"
 #include "USBDevice.h"
 
 extern USBDevice USBDevices[];
@@ -10,7 +10,7 @@ extern USBDevice USBDevices[];
 class UsbHostPorts : public Component
 {
 public:
-    UsbHostPorts(UiDelegate &newDelegate);
+    UsbHostPorts(UiApi &newUiApi);
     virtual ~UsbHostPorts() = default;
 
     void paint(Graphics &g) override;
@@ -23,7 +23,7 @@ private:
                               uint32_t colour);
     static void paintIcon(Graphics &g, uint16_t x, uint16_t y);
 
-    UiDelegate &delegate;
+    UiApi &uiApi;
 
     UsbHostDevice *usbHostDevice[2];
     static constexpr uint8_t topPadding = 50;

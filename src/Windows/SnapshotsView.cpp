@@ -1,11 +1,11 @@
 #include "SnapshotsView.h"
 #include "Database.h"
 
-SnapshotsView::SnapshotsView(UiDelegate &newDelegate,
+SnapshotsView::SnapshotsView(UiApi &newUiApi,
                              const char *newProjectId,
                              uint8_t newBankNumber,
                              Mode newMode)
-    : delegate(newDelegate),
+    : uiApi(newUiApi),
       currentProjectId(newProjectId),
       currentBankNumber(newBankNumber),
       mode(newMode),
@@ -139,7 +139,7 @@ void SnapshotsView::addActionButtons(void)
     if (sendCurrentButton) {
         sendCurrentButton->onClick = [this]() {
             logMessage("SnapshotsView: send saved snapshot messages");
-            delegate.sendAllControls();
+            uiApi.sendAllSnapshotValues();
             return (false);
         };
     }
@@ -196,8 +196,8 @@ void SnapshotsView::addSnapshotButtons(void)
             button->setBankNumber(currentBankNumber);
             button->setUsed(false);
 
-            button->onClick = [this, button, i]() {
-                runAction(button, i);
+            button->onClick = [this, i]() {
+                runAction(i);
             };
         }
         addAndMakeVisible(snapsButton[i]);
@@ -239,15 +239,15 @@ void SnapshotsView::updateSnapsButtons(void)
     dbSnapshot.close();
 }
 
-void SnapshotsView::runAction(SnapsButton *button, uint8_t slot)
+void SnapshotsView::runAction(uint8_t slot)
 {
     switch (mode) {
         case SnapshotsView::load:
-            loadSnapshot(button, slot);
+            loadSnapshot(slot);
             break;
 
         case SnapshotsView::loadAndStay:
-            loadAndStaySnapshot(button, slot);
+            loadAndStaySnapshot(slot);
             break;
 
         case SnapshotsView::remove:
@@ -255,7 +255,7 @@ void SnapshotsView::runAction(SnapsButton *button, uint8_t slot)
             break;
 
         case SnapshotsView::save:
-            saveSnapshot(button, slot);
+            saveSnapshot(slot);
             break;
 
         default:
@@ -263,27 +263,25 @@ void SnapshotsView::runAction(SnapsButton *button, uint8_t slot)
     }
 }
 
-void SnapshotsView::loadSnapshot(SnapsButton *button, uint8_t slot)
+void SnapshotsView::loadSnapshot(uint8_t slot)
 {
-    delegate.loadSnapshot(currentProjectId, currentBankNumber, slot);
-    delegate.closeSnapshots();
+    uiApi.loadSnapshot(currentProjectId, currentBankNumber, slot);
 }
 
-void SnapshotsView::loadAndStaySnapshot(SnapsButton *button, uint8_t slot)
+void SnapshotsView::loadAndStaySnapshot(uint8_t slot)
 {
-    delegate.loadSnapshot(currentProjectId, currentBankNumber, slot);
+    uiApi.loadAndStaySnapshot(currentProjectId, currentBankNumber, slot);
 }
 
 void SnapshotsView::removeSnapshot(uint8_t slot)
 {
-    delegate.removeSnapshot(currentProjectId, currentBankNumber, slot);
+    uiApi.removeSnapshot(currentProjectId, currentBankNumber, slot);
 }
 
-void SnapshotsView::saveSnapshot(SnapsButton *button, uint8_t slot)
+void SnapshotsView::saveSnapshot(uint8_t slot)
 {
     uint8_t colour = slot % 6;
     char name[20 + 1];
     sprintf(name, "%c%d", 65 + slot % 6, slot / 6);
-    delegate.saveSnapshot(
-        currentProjectId, currentBankNumber, slot, name, colour);
+    uiApi.saveSnapshot(currentProjectId, currentBankNumber, slot, name, colour);
 }

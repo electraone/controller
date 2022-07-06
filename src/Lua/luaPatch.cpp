@@ -1,7 +1,7 @@
 #include "luaPatch.h"
-#include "UiDelegate.h"
+#include "MainDelegate.h"
 
-extern UiDelegate *luaDelegate;
+extern MainDelegate *luaDelegate;
 
 int luaopen_patch(lua_State *L)
 {

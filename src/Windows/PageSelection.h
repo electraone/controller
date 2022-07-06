@@ -2,15 +2,13 @@
 
 #include "Component.h"
 #include "Model/Page.h"
-#include "UiDelegate.h"
+#include "UiApi.h"
 #include "Button.h"
 
 class PageSelection : public Component
 {
 public:
-    PageSelection(Pages newPages,
-                  uint8_t newActivePage,
-                  UiDelegate &newDelegate);
+    PageSelection(Pages newPages, uint8_t newActivePage, UiApi &newUiApi);
     virtual ~PageSelection() = default;
 
     void paint(Graphics &g) override;
@@ -27,7 +25,7 @@ private:
 
     Pages pages;
     uint8_t activePage;
-    UiDelegate &delegate;
+    UiApi &uiApi;
 
     Button *button[12];
 

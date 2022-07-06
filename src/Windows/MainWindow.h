@@ -8,13 +8,13 @@
 #include "SnapshotsWindow.h"
 #include "UsbHostWindow.h"
 #include "PageView.h"
-#include "UiDelegate.h"
+#include "MainDelegate.h"
 #include "Model.h"
 #include "Midi/Midi.h"
 #include "Setup/Setup.h"
 #include "System.h"
 
-class MainWindow : public ParameterMapWindow, public UiDelegate
+class MainWindow : public ParameterMapWindow, public MainDelegate
 {
 public:
     MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup);
@@ -42,6 +42,12 @@ public:
     void closeSnapshots(void) override;
     void repaintPage(void) override;
     void repaintControl(uint16_t controlId) override;
+
+    //
+    bool loadPreset(LocalFile &file) override;
+    bool loadLua(LocalFile &file) override;
+    bool loadConfig(LocalFile &file) override;
+    bool importSnapshot(LocalFile &file) override;
 
     // Lua
     void setControlVisible(uint16_t controlId, bool shouldBeVisible) override;
@@ -103,7 +109,6 @@ public:
                        uint8_t sourceSlot,
                        uint8_t destBankNumber,
                        uint8_t destSlot) override;
-    void importSnapshot(LocalFile file) override;
     void setCurrentSnapshotBank(uint8_t bankNumber) override;
 
     void sendAllControls(void);
@@ -152,11 +157,14 @@ private:
     Snapshots &snapshots;
     Presets &presets;
 
-    // Interface
+    // MIDI Interface
     Midi &midi;
 
     // Setup
     Setup &setup;
+
+    // UI Activity API handler
+    UiApi uiApi;
 
     // Window content
     PageView *pageView;

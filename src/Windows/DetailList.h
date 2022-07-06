@@ -5,7 +5,7 @@
 class DetailList : public Detail
 {
 public:
-    DetailList(const Control &control, UiDelegate *newDelegate)
+    DetailList(const Control &control, MainDelegate &newDelegate)
         : Detail(control, newDelegate)
     {
     }
@@ -17,7 +17,7 @@ public:
         uint16_t xPosition = 0;
         uint16_t xPositionDim = 0;
 
-        if (delegate->isDetailOnTheLeft()) {
+        if (delegate.isDetailOnTheLeft()) {
             xPosition = 0;
             xPositionDim = getWidth() - 100;
         } else {
@@ -34,7 +34,7 @@ public:
 
     void resized(void)
     {
-        if (delegate->isDetailOnTheLeft()) {
+        if (delegate.isDetailOnTheLeft()) {
             component->setBounds(8, 8, getWidth() - 116, getHeight() - 10);
             lock->setBounds(getWidth() - 90, getHeight() - 100, 80, 80);
             dimmedSection->setBounds(

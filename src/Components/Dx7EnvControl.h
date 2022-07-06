@@ -7,7 +7,7 @@
 class Dx7EnvControl : public ControlComponent, public Env5Seg
 {
 public:
-    Dx7EnvControl(const Control &control, UiDelegate *newDelegate)
+    Dx7EnvControl(const Control &control, MainDelegate &newDelegate)
         : ControlComponent(control, newDelegate)
     {
         values[Env5Seg::level1].setMin(control.values[0].getMin());
@@ -60,7 +60,7 @@ public:
     void onPotTouchDown(const PotEvent &potEvent) override
     {
         showActiveSegment(true);
-        delegate->setActivePotTouch(potEvent.getPotId(), this);
+        delegate.setActivePotTouch(potEvent.getPotId(), this);
     }
 
     void onPotChange(const PotEvent &potEvent) override
@@ -75,7 +75,7 @@ public:
     void onPotTouchUp(const PotEvent &potEvent) override
     {
         showActiveSegment(false);
-        delegate->resetActivePotTouch(potEvent.getPotId());
+        delegate.resetActivePotTouch(potEvent.getPotId());
     }
 
     void onMidiValueChange(const ControlValue &value,

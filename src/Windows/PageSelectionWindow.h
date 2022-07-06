@@ -3,17 +3,15 @@
 #include "Window.h"
 #include "PageSelection.h"
 #include "Model/Page.h"
-#include "UiDelegate.h"
+#include "UiApi.h"
 
 class PageSelectionWindow : public Window
 {
 private:
-    PageSelectionWindow(Pages pages,
-                        uint8_t newActivePage,
-                        UiDelegate &newDelegate)
-        : delegate(newDelegate), content(nullptr)
+    PageSelectionWindow(Pages pages, uint8_t activePage, UiApi &newUiApi)
+        : uiApi(newUiApi), content(nullptr)
     {
-        content = new PageSelection(pages, newActivePage, newDelegate);
+        content = new PageSelection(pages, activePage, newUiApi);
 
         if (content) {
             setOwnedContent(content);
@@ -32,31 +30,28 @@ public:
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
-            delegate.closePageSelection();
-            delegate.openUsbHostPorts();
+            uiApi.pageSelection_openUsbHostPorts();
         } else if (buttonId == 4) {
-            delegate.closePageSelection();
-            delegate.openPresetSelection();
+            uiApi.pageSelection_openPresetSelection();
         }
     }
 
     void onButtonUp(uint8_t buttonId)
     {
         if (buttonId == 5) {
-            delegate.closePageSelection();
+            uiApi.pageSelection_close();
         }
     }
 
     // Factory function
-    static PageSelectionWindow *
-        createPageSelectionWindow(Pages pages,
-                                  uint8_t activePage,
-                                  UiDelegate &newDelegate)
+    static PageSelectionWindow *createPageSelectionWindow(Pages pages,
+                                                          uint8_t activePage,
+                                                          UiApi &newUiApi)
     {
-        return new PageSelectionWindow(pages, activePage, newDelegate);
+        return new PageSelectionWindow(pages, activePage, newUiApi);
     }
 
 private:
-    UiDelegate &delegate;
+    UiApi &uiApi;
     PageSelection *content;
 };

@@ -7,7 +7,7 @@
 class KnobControl : public ControlComponent, public Knob
 {
 public:
-    explicit KnobControl(const Control &control, UiDelegate *newDelegate)
+    explicit KnobControl(const Control &control, MainDelegate &newDelegate)
         : ControlComponent(control, newDelegate)
     {
         setMinimum(control.values[0].getMin());

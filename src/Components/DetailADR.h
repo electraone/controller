@@ -7,7 +7,7 @@
 class DetailADR : public Detail
 {
 public:
-    DetailADR(const Control &control, UiDelegate *newDelegate)
+    DetailADR(const Control &control, MainDelegate &newDelegate)
         : Detail(control, newDelegate),
           attackKnob(nullptr),
           decayKnob(nullptr),

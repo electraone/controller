@@ -3,7 +3,7 @@
 #include "Component.h"
 #include "Model/Presets.h"
 #include "Setup/Setup.h"
-#include "UiDelegate.h"
+#include "UiApi.h"
 #include "BankButton.h"
 #include "PresetButton.h"
 
@@ -12,7 +12,7 @@ class PresetSelection : public Component
 public:
     PresetSelection(const Presets &newPresets,
                     const PresetBanks &newPresetBanks,
-                    UiDelegate &newDelegate);
+                    UiApi &newUiApi);
     virtual ~PresetSelection() = default;
 
     void paint(Graphics &g) override;
@@ -30,7 +30,7 @@ private:
 
     const Presets &presets;
     const PresetBanks &presetBanks;
-    UiDelegate &delegate;
+    UiApi &uiApi;
     uint8_t active;
     uint8_t activeBank;
 

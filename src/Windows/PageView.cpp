@@ -3,12 +3,14 @@
 #include "GroupControl.h"
 
 PageView::PageView(const Preset &preset,
-                   UiDelegate *newDelegate,
+                   MainDelegate &newDelegate,
+                   UiApi &newUiApi,
                    const UiFeatures &newUiFeatures,
                    uint8_t newPageId,
                    uint8_t activeControlSetId)
     : model(preset),
       delegate(newDelegate),
+      uiApi(newUiApi),
       uiFeatures(newUiFeatures),
       pageId(newPageId),
       controlSetId(activeControlSetId),
@@ -26,12 +28,12 @@ PageView::~PageView(void)
 {
     for (const auto &[id, control] : model.controls) {
         if (control.getPageId() == pageId) {
-            delegate->removeComponentFromControl(control.getId());
+            delegate.removeComponentFromControl(control.getId());
         }
     }
     for (const auto &[id, group] : model.groups) {
         if (group.getPageId() == pageId) {
-            delegate->removeComponentFromGroup(group.getId());
+            delegate.removeComponentFromGroup(group.getId());
         }
     }
     getWindow()->resetActiveTouch();
@@ -48,11 +50,11 @@ void PageView::onTouchDown(const TouchEvent &touchEvent)
         auto y = touchEvent.getScreenY();
 
         if (y < 240) {
-            delegate->setControlSet(0);
+            delegate.setControlSet(0);
         } else if (y > 400) {
-            delegate->setControlSet(2);
+            delegate.setControlSet(2);
         } else {
-            delegate->setControlSet(1);
+            delegate.setControlSet(1);
         }
     }
 }
@@ -126,7 +128,7 @@ void PageView::addControls(const Controls &controls)
                 }
                 addChildComponent(c);
 
-                delegate->assignComponentToControl(control.getId(), c);
+                delegate.assignComponentToControl(control.getId(), c);
             }
         }
     }
@@ -152,7 +154,7 @@ void PageView::addGroups(const Groups &groups)
                     }
                 }
                 addChildComponent(g);
-                delegate->assignComponentToGroup(group.getId(), g);
+                delegate.assignComponentToGroup(group.getId(), g);
             }
         }
     }

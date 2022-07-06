@@ -6,7 +6,7 @@
 class ListDetailControl : public ListControl
 {
 public:
-    ListDetailControl(const Control &control, UiDelegate *newDelegate)
+    ListDetailControl(const Control &control, MainDelegate &newDelegate)
         : ListControl(control, newDelegate),
           valueChosen(false),
           offsetY(0),
@@ -85,8 +85,8 @@ public:
     void onTouchUp(const TouchEvent &touchEvent) override
     {
         if (valueChosen) {
-            if (!delegate->isDetailLocked()) {
-                delegate->closeDetail();
+            if (!delegate.isDetailLocked()) {
+                delegate.closeDetail();
             }
         }
     }
@@ -97,8 +97,8 @@ public:
 
     void onPotTouchUp(const PotEvent &potEvent) override
     {
-        if (!delegate->isDetailLocked()) {
-            delegate->closeDetail();
+        if (!delegate.isDetailLocked()) {
+            delegate.closeDetail();
         }
     }
 

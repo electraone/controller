@@ -1,8 +1,8 @@
 #include "luaValue.h"
 #include "Preset.h"
-#include "UiDelegate.h"
+#include "MainDelegate.h"
 
-extern UiDelegate *luaDelegate;
+extern MainDelegate *luaDelegate;
 
 static ControlValue *getControlValue(lua_State *L, uint8_t stackPosition)
 {

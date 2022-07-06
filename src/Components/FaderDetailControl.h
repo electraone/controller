@@ -5,7 +5,7 @@
 class FaderDetailControl : public FaderControl
 {
 public:
-    FaderDetailControl(const Control &control, UiDelegate *newDelegate)
+    FaderDetailControl(const Control &control, MainDelegate &newDelegate)
         : FaderControl(control, newDelegate)
     {
         assignPot(control.inputs[0].getPotId(),
@@ -34,8 +34,8 @@ public:
 
     void onTouchUp(const TouchEvent &touchEvent) override
     {
-        if (!delegate->isDetailLocked()) {
-            delegate->closeDetail();
+        if (!delegate.isDetailLocked()) {
+            delegate.closeDetail();
         }
     }
 
@@ -45,8 +45,8 @@ public:
 
     void onPotTouchUp(const PotEvent &potEvent) override
     {
-        if (!delegate->isDetailLocked()) {
-            delegate->closeDetail();
+        if (!delegate.isDetailLocked()) {
+            delegate.closeDetail();
         }
     }
 };

@@ -5,7 +5,7 @@
 class ADRDetailControl : public ADRControl
 {
 public:
-    ADRDetailControl(const Control &control, UiDelegate *newDelegate)
+    ADRDetailControl(const Control &control, MainDelegate &newDelegate)
         : ADRControl(control, newDelegate)
     {
     }
@@ -14,8 +14,8 @@ public:
 
     void onTouchUp(const TouchEvent &touchEvent) override
     {
-        if (!delegate->isDetailLocked()) {
-            delegate->closeDetail();
+        if (!delegate.isDetailLocked()) {
+            delegate.closeDetail();
         }
     }
 
@@ -25,8 +25,8 @@ public:
 
     void onPotTouchUp(const PotEvent &potEvent) override
     {
-        if (!delegate->isDetailLocked()) {
-            delegate->closeDetail();
+        if (!delegate.isDetailLocked()) {
+            delegate.closeDetail();
         }
     }
 

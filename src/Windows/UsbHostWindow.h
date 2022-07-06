@@ -2,21 +2,21 @@
 
 #include "Window.h"
 #include "UsbHostPorts.h"
-#include "UiDelegate.h"
+#include "UiApi.h"
 
 class UsbHostWindow : public Window
 {
 private:
-    UsbHostWindow(UiDelegate &newDelegate)
-        : delegate(newDelegate), content(nullptr)
+    UsbHostWindow(UiApi &newUiApi) : uiApi(newUiApi), content(nullptr)
     {
-        content = new UsbHostPorts(newDelegate);
+        content = new UsbHostPorts(newUiApi);
 
         if (content) {
             setOwnedContent(content);
         }
         setName("UsbHostWindow");
         setVisible(true);
+        logMessage("done");
     }
 
 public:
@@ -28,23 +28,21 @@ public:
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
-            delegate.closeUsbHostPorts();
+            uiApi.usbHost_close();
         } else if (buttonId == 4) {
-            delegate.closeUsbHostPorts();
-            delegate.openPresetSelection();
+            uiApi.usbHost_openPresetSelection();
         } else if (buttonId == 5) {
-            delegate.closeUsbHostPorts();
-            delegate.openPageSelection();
+            uiApi.usbHost_openPageSelection();
         }
     }
 
     // Factory function
-    static UsbHostWindow *createUsbHostWindow(UiDelegate &newDelegate)
+    static UsbHostWindow *createUsbHostWindow(UiApi &newUiApi)
     {
-        return new UsbHostWindow(newDelegate);
+        return new UsbHostWindow(newUiApi);
     }
 
 private:
-    UiDelegate &delegate;
+    UiApi &uiApi;
     UsbHostPorts *content;
 };

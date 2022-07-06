@@ -1,7 +1,7 @@
 #include "UsbHostPorts.h"
 
-UsbHostPorts::UsbHostPorts(UiDelegate &newDelegate)
-    : delegate(newDelegate), usbHostDevice{ nullptr }
+UsbHostPorts::UsbHostPorts(UiApi &newUiApi)
+    : uiApi(newUiApi), usbHostDevice{ nullptr }
 {
     setName("settings");
 

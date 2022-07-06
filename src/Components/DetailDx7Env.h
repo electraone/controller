@@ -7,7 +7,7 @@
 class DetailDx7Env : public Detail
 {
 public:
-    DetailDx7Env(const Control &control, UiDelegate *newDelegate)
+    DetailDx7Env(const Control &control, MainDelegate &newDelegate)
         : Detail(control, newDelegate),
           l1Knob(nullptr),
           l2Knob(nullptr),

@@ -3,12 +3,12 @@
 #include "ParameterMapWindow.h"
 #include "Detail.h"
 #include "Model/Page.h"
-#include "UiDelegate.h"
+#include "MainDelegate.h"
 
 class DetailWindow : public ParameterMapWindow
 {
 private:
-    DetailWindow(const Control &controlToDisplay, UiDelegate *newDelegate)
+    DetailWindow(const Control &controlToDisplay, MainDelegate &newDelegate)
         : control(controlToDisplay), delegate(newDelegate), detail(nullptr)
     {
         detail = Detail::createDetail(control, delegate);
@@ -42,7 +42,7 @@ public:
     // Events
     void onTouchOutside(void) override
     {
-        delegate->closeDetail();
+        delegate.closeDetail();
     }
 
     void onButtonDown(uint8_t buttonId) override
@@ -55,19 +55,19 @@ public:
             buttonBroadcaster.listListeners();
         } else if (buttonId == 5) {
             logMessage("closing detail");
-            delegate->closeDetail();
+            delegate.closeDetail();
         }
     }
 
     // Factory function
     static DetailWindow *createDetailWindow(const Control &control,
-                                            UiDelegate *newDelegate)
+                                            MainDelegate &newDelegate)
     {
         return new DetailWindow(control, newDelegate);
     }
 
 private:
     const Control &control;
-    UiDelegate *delegate;
+    MainDelegate &delegate;
     Detail *detail;
 };

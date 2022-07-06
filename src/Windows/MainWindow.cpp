@@ -3,6 +3,7 @@
 #include "ControlComponent.h"
 #include "GroupControl.h"
 #include "Envelope.h"
+#include "luabridge.h"
 
 MainWindow::MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup)
     : preset(newModel.currentPreset),
@@ -10,6 +11,7 @@ MainWindow::MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup)
       presets(newModel.presets),
       midi(newMidi),
       setup(newSetup),
+      uiApi(*this),
       pageView(nullptr),
       presetSelectionWindow(nullptr),
       pageSelectionWindow(nullptr),
@@ -99,7 +101,7 @@ void MainWindow::setControlSet(uint8_t controlSetId)
 void MainWindow::openDetail(uint16_t controlId)
 {
     const Control &control = preset.getControl(controlId);
-    detailWindow = DetailWindow::createDetailWindow(control, this);
+    detailWindow = DetailWindow::createDetailWindow(control, *this);
     detailWindow->setBounds(getDetailBounds(control));
 }
 
@@ -119,7 +121,7 @@ void MainWindow::closeDetail(void)
 void MainWindow::openPresetSelection(void)
 {
     presetSelectionWindow = PresetSelectionWindow::createPresetSelectionWindow(
-        presets, setup.presetBanks, *this);
+        presets, setup.presetBanks, uiApi);
 }
 
 void MainWindow::closePresetSelection(void)
@@ -131,7 +133,7 @@ void MainWindow::closePresetSelection(void)
 void MainWindow::openPageSelection(void)
 {
     pageSelectionWindow = PageSelectionWindow::createPageSelectionWindow(
-        preset.pages, currentPageId, *this);
+        preset.pages, currentPageId, uiApi);
 }
 
 void MainWindow::closePageSelection(void)
@@ -142,7 +144,7 @@ void MainWindow::closePageSelection(void)
 
 void MainWindow::openUsbHostPorts(void)
 {
-    usbHostWindow = UsbHostWindow::createUsbHostWindow(*this);
+    usbHostWindow = UsbHostWindow::createUsbHostWindow(uiApi);
 }
 
 void MainWindow::closeUsbHostPorts(void)
@@ -154,7 +156,7 @@ void MainWindow::closeUsbHostPorts(void)
 void MainWindow::openSnapshots(void)
 {
     snapshotsWindow = SnapshotsWindow::createSnapshotsWindow(
-        *this, preset.getProjectId(), currentSnapshotBank);
+        uiApi, preset.getProjectId(), currentSnapshotBank);
 }
 
 void MainWindow::closeSnapshots(void)
@@ -178,6 +180,48 @@ void MainWindow::repaintControl(uint16_t controlId)
             cc->repaint();
         }
     }
+}
+
+bool MainWindow::loadPreset(LocalFile &file)
+{
+    uint8_t attempt = 0;
+    System::tasks.enableSpinner();
+
+    do {
+        if (presets.loadPreset(file)) {
+            logMessage("handleCtrlFileReceived: preset loaded: name=%s",
+                       preset.getName());
+        }
+    } while (!preset.isValid() && (attempt++ < 4));
+
+    System::tasks.disableSpinner();
+
+    closeAllWindows();
+    switchPage(1, preset.getPage(1).getDefaultControlSetId());
+
+    if (!preset.isValid()) {
+        logMessage("handleCtrlFileReceived: preset upload failed");
+        return (false);
+    }
+    return (true);
+}
+
+bool MainWindow::loadLua(LocalFile &file)
+{
+    if (isLuaValid(System::context.getCurrentLuaFile())) {
+        if (preset.isValid()) {
+            presets.runPresetLuaScript();
+            closeAllWindows();
+            switchPage(1, preset.getPage(1).getDefaultControlSetId());
+            return (true);
+        }
+    }
+    return (false);
+}
+
+bool MainWindow::loadConfig(LocalFile &file)
+{
+    return (true);
 }
 
 void MainWindow::setControlVisible(uint16_t controlId, bool shouldBeVisible)
@@ -432,7 +476,6 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
     snapshots.initialise(preset.getProjectId());
     parameterMap.setProjectId(preset.getProjectId());
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
-    sendPresetSwitch(2, bankNumber, slot);
 }
 
 void MainWindow::switchPresetNext(void)
@@ -566,7 +609,7 @@ void MainWindow::swapSnapshots(const char *projectId,
     }
 }
 
-void MainWindow::importSnapshot(LocalFile file)
+bool MainWindow::importSnapshot(LocalFile &file)
 {
     logMessage("importSnapshot: file: %s", file.getFilepath());
     auto snapshot = snapshots.importSnapshot(file);
@@ -577,6 +620,7 @@ void MainWindow::importSnapshot(LocalFile file)
                                        snapshot.getName(),
                                        snapshot.getColour());
     }
+    return (true); // \todo it should not be always true
 }
 
 void MainWindow::setCurrentSnapshotBank(uint8_t bankNumber)
@@ -700,8 +744,12 @@ bool MainWindow::isDetailOnTheLeft(void) const
 
 void MainWindow::displayPage(void)
 {
-    PageView *newPageView = new PageView(
-        preset, this, setup.uiFeatures, currentPageId, currentControlSetId);
+    PageView *newPageView = new PageView(preset,
+                                         *this,
+                                         uiApi,
+                                         setup.uiFeatures,
+                                         currentPageId,
+                                         currentControlSetId);
     pageView = dynamic_cast<PageView *>(replaceOwnedContent(newPageView));
 }
 

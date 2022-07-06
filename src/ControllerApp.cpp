@@ -74,13 +74,6 @@ void Controller::initialise(void)
     loggerEnabled = System::runtimeInfo.getLoggerStatus();
 }
 
-void Controller::displayDefaultPage(void)
-{
-    delegate.closeAllWindows();
-    delegate.switchPage(
-        1, model.currentPreset.getPage(1).getDefaultControlSetId());
-}
-
 /** Incoming MIDI message handler.
  *  handleIncomingMidiMessage () is called when a MIDI message arrives to Electra's
  *  MIDI ports (excluding Control port)
@@ -99,40 +92,16 @@ void Controller::handleIncomingMidiMessage(const MidiInput &midiInput,
  *  handleCtrlFileReceived () is called whenever preset file is received on
  *  Electra's control port
  */
-bool Controller::handleCtrlFileReceived(LocalFile file,
+bool Controller::handleCtrlFileReceived(uint8_t port,
+                                        LocalFile file,
                                         ElectraCommand::Object fileType)
 {
-    if (fileType == ElectraCommand::Object::FilePreset) {
-        uint8_t attempt = 0;
-        System::tasks.enableSpinner();
-
-        do {
-            if (model.presets.loadPreset(file)) {
-                logMessage("handleCtrlFileReceived: preset loaded: name=%s",
-                           model.currentPreset.getName());
-            }
-        } while (!model.currentPreset.isValid() && (attempt++ < 4));
-
-        System::tasks.disableSpinner();
-        displayDefaultPage();
-
-        if (!model.currentPreset.isValid()) {
-            logMessage("handleCtrlFileReceived: preset upload failed");
-            return (false);
-        }
-    } else if (fileType == ElectraCommand::Object::FileLua) {
-        if (isLuaValid(System::context.getCurrentLuaFile())) {
-            if (model.currentPreset.isValid()) {
-                model.presets.runPresetLuaScript();
-                displayDefaultPage();
-            }
-        }
-    } else if (fileType == ElectraCommand::Object::FileConfig) {
+    if (fileType == ElectraCommand::Object::FileConfig) {
         LocalFile config(System::context.getCurrentConfigFile());
         applySetup(file);
         loadSetup(config);
-    } else if (fileType == ElectraCommand::Object::FileSnapshot) {
-        api.importSnapshot(file);
+    } else {
+        sysexApi.process(port, file, fileType);
     }
 
     return (true);
@@ -150,109 +119,20 @@ bool Controller::handleCtrlFileRemoved(uint8_t bankNumber,
         if ((currentPresetBank == bankNumber) || (currentPreset == slot)) {
             delegate.switchPreset(currentPresetBank, currentPreset);
         }
-    } else if (fileType == ElectraCommand::Object::FileLua) {
-        if ((currentPresetBank == bankNumber) || (currentPreset == slot)) {
-            logMessage("clear Lua context");
-
-            // disable the luaTask
-            // clear Lua context
-            // create a new Lua context
-        }
     }
+
     return (true);
 }
 
 void Controller::handleElectraSysex(uint8_t port, const SysexBlock &sysexBlock)
 {
-    ElectraCommand cmd = sysexBlock.getElectraSysexCommand();
-    MemoryBlock sysexPayload = sysexBlock.getElectraSysexPayload();
-    ElectraCommand::Type command = cmd.getType();
-    ElectraCommand::Object object = cmd.getObject();
-
-    logMessage(
-        "handleElectraSysex: sysex received: command=%d, parameter=%d, byte1=%d",
-        command,
-        object,
-        cmd.getByte1());
-
-    if (cmd.isFileRequest()) {
-        if (object == ElectraCommand::Object::SnapshotList) {
-            if (cmd.getByte1() != 0xF7) {
-                api.sendSnapshotList(port, sysexPayload);
-            } else {
-                if (model.currentPreset.isValid()) {
-                    delegate.sendSnapshotList(
-                        port, model.currentPreset.getProjectId());
-                }
-            }
-        } else if (object == ElectraCommand::Object::FileSnapshot) {
-            api.sendSnapshot(port, sysexPayload);
-        } else if (object == ElectraCommand::Object::PresetList) {
-            api.sendPresetList(port);
-        }
-    } else if (cmd.isMidiLearnSwitch()) {
-        if (object
-            == ElectraCommand::Object::
-                MidiLearnOff) // TODO: this is a fix for backwards compatibility
-        {
-            api.disableMidiLearn();
-            sendAck(port);
-        } else {
-            api.enableMidiLearn();
-            sendAck(port);
-        }
-    } else if (cmd.isSwitch()) {
-        if (object == ElectraCommand::Object::PresetSlot) {
-            api.switchPreset(cmd.getByte1(), cmd.getByte2());
-            sendAck(port);
-        }
-    } else if (cmd.isUpdateRuntime()) {
-        if (object == ElectraCommand::Object::Control) {
-            uint16_t controlId = cmd.getByte1() | cmd.getByte2() << 7;
-            api.updateControl(controlId, sysexPayload);
-            sendAck(port);
-        } else if (object == ElectraCommand::Object::SnapshotSlot) {
-            api.setSnapshotSlot(sysexPayload);
-            sendAck(port);
-        } else if (object == ElectraCommand::Object::PresetSlot) {
-            api.setPresetSlot(cmd.getByte1(), cmd.getByte2());
-            sendAck(port);
-        }
-    } else if (cmd.isUpdate()) {
-        if (object == ElectraCommand::Object::SnapshotInfo) {
-            api.updateSnapshot(sysexPayload);
-            sendAck(port);
-        }
-    } else if (cmd.isRemove()) {
-        if (object == ElectraCommand::Object::SnapshotInfo) {
-            api.removeSnapshot(sysexPayload);
-            sendAck(port);
-        }
-    } else if (cmd.isSwap()) {
-        if (object == ElectraCommand::Object::SnapshotInfo) {
-            api.swapSnapshots(sysexPayload);
-            sendAck(port);
-        }
-    } else if (cmd.isEvent()) {
-        if (cmd.getEvent() == ElectraCommand::Event::SnapshotBankSwitch) {
-            uint8_t bankNumber = cmd.getByte1();
-            logMessage(
-                "handleElectraSysex: snapshot bank change event : bankNumber=%d",
-                bankNumber);
-            api.setCurrentSnapshotBank(bankNumber);
-            sendAck(port);
-        }
-    } else if (cmd.isSystemCall()) {
-        logMessage("handleElectraSysex: application system call");
-    } else {
-        logMessage("handleElectraSysex: unknown sysex request");
-    }
+    sysexApi.process(port, sysexBlock);
 }
 
 void Controller::handleIncomingControlMessage(MidiInput &midiInput,
                                               MidiMessage &midiMessage)
 {
-    (void)midiApi.process(midiMessage);
+    midiApi.process(midiMessage);
 }
 
 void Controller::runUserTask(void)
@@ -297,7 +177,6 @@ bool Controller::loadSetup(LocalFile file)
 
     if (appSetup.load(file.getFilepath())) {
         success = true;
-        logMessage("setup loaded");
         configureApp();
     }
 

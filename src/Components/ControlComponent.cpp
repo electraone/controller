@@ -14,7 +14,7 @@
 #include "MainWindow.h"
 
 ControlComponent::ControlComponent(const Control &controlToAssign,
-                                   UiDelegate *newDelegate)
+                                   MainDelegate &newDelegate)
     : control(controlToAssign), delegate(newDelegate), useAltBackground(false)
 {
 }
@@ -43,7 +43,7 @@ void ControlComponent::onTouchDoubleClick(const TouchEvent &touchEvent)
     if (Envelope *en = dynamic_cast<Envelope *>(this)) {
         handle = en->getActiveSegment();
     }
-    delegate->setDefaultValue(getId(), handle);
+    delegate.setDefaultValue(getId(), handle);
 }
 
 void ControlComponent::updateValueFromParameterMap(void)
@@ -96,7 +96,7 @@ bool ControlComponent::getUseAltBackground(void) const
 
 ControlComponent *
     ControlComponent::createControlComponent(const Control &control,
-                                             UiDelegate *newDelegate)
+                                             MainDelegate &newDelegate)
 {
     ControlComponent *c = nullptr;
 
@@ -125,7 +125,7 @@ ControlComponent *
 
 ControlComponent *
     ControlComponent::createDetailControlComponent(const Control &control,
-                                                   UiDelegate *newDelegate)
+                                                   MainDelegate &newDelegate)
 {
     ControlComponent *c = nullptr;
 

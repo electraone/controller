@@ -3,17 +3,17 @@
 #include "Window.h"
 #include "PresetSelection.h"
 #include "Model/Presets.h"
-#include "UiDelegate.h"
+#include "UiApi.h"
 
 class PresetSelectionWindow : public Window
 {
 private:
     PresetSelectionWindow(const Presets &presets,
                           const PresetBanks &presetBanks,
-                          UiDelegate &newDelegate)
-        : delegate(newDelegate), content(nullptr)
+                          UiApi &newUiApi)
+        : uiApi(newUiApi), content(nullptr)
     {
-        content = new PresetSelection(presets, presetBanks, newDelegate);
+        content = new PresetSelection(presets, presetBanks, uiApi);
 
         if (content) {
             setName("PresetSelectionWindow");
@@ -31,13 +31,11 @@ public:
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
-            delegate.closePresetSelection();
-            delegate.openUsbHostPorts();
+            uiApi.presetSelection_openUsbHostPorts();
         } else if (buttonId == 4) {
-            delegate.closePresetSelection();
+            uiApi.presetSelection_close();
         } else if (buttonId == 5) {
-            delegate.closePresetSelection();
-            delegate.openPageSelection();
+            uiApi.presetSelection_openPageSelection();
         }
     }
 
@@ -45,12 +43,12 @@ public:
     static PresetSelectionWindow *
         createPresetSelectionWindow(const Presets &presets,
                                     const PresetBanks &presetBanks,
-                                    UiDelegate &newDelegate)
+                                    UiApi &newUiApi)
     {
-        return new PresetSelectionWindow(presets, presetBanks, newDelegate);
+        return new PresetSelectionWindow(presets, presetBanks, newUiApi);
     }
 
 private:
-    UiDelegate &delegate;
+    UiApi &uiApi;
     PresetSelection *content;
 };

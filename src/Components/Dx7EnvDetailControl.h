@@ -5,7 +5,7 @@
 class Dx7EnvDetailControl : public Dx7EnvControl
 {
 public:
-    Dx7EnvDetailControl(const Control &control, UiDelegate *newDelegate)
+    Dx7EnvDetailControl(const Control &control, MainDelegate &newDelegate)
         : Dx7EnvControl(control, newDelegate)
     {
     }
@@ -14,8 +14,8 @@ public:
 
     void onTouchUp(const TouchEvent &touchEvent) override
     {
-        if (!delegate->isDetailLocked()) {
-            delegate->closeDetail();
+        if (!delegate.isDetailLocked()) {
+            delegate.closeDetail();
         }
     }
 
@@ -25,8 +25,8 @@ public:
 
     void onPotTouchUp(const PotEvent &potEvent) override
     {
-        if (!delegate->isDetailLocked()) {
-            delegate->closeDetail();
+        if (!delegate.isDetailLocked()) {
+            delegate.closeDetail();
         }
     }
 

@@ -8,7 +8,7 @@
 class FaderControl : public ControlComponent, public BarHorizontal
 {
 public:
-    FaderControl(const Control &control, UiDelegate *newDelegate)
+    FaderControl(const Control &control, MainDelegate &newDelegate)
         : ControlComponent(control, newDelegate)
     {
         const auto &controlValue = control.getValue(0);
@@ -42,7 +42,7 @@ public:
 
     virtual void onPotTouchDown(const PotEvent &potEvent) override
     {
-        delegate->setActivePotTouch(potEvent.getPotId(), this);
+        delegate.setActivePotTouch(potEvent.getPotId(), this);
     }
 
     virtual void onPotChange(const PotEvent &potEvent) override
@@ -55,7 +55,7 @@ public:
 
     virtual void onPotTouchUp(const PotEvent &potEvent) override
     {
-        delegate->resetActivePotTouch(potEvent.getPotId());
+        delegate.resetActivePotTouch(potEvent.getPotId());
     }
 
     virtual void onMidiValueChange(const ControlValue &value,

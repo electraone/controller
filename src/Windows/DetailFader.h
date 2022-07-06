@@ -5,7 +5,7 @@
 class DetailFader : public Detail
 {
 public:
-    DetailFader(const Control &control, UiDelegate *newDelegate)
+    DetailFader(const Control &control, MainDelegate &newDelegate)
         : Detail(control, newDelegate)
     {
     }

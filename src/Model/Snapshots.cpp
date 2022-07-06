@@ -149,7 +149,6 @@ Snapshot Snapshots::importSnapshot(LocalFile file)
                              snapshot.getColour());
         }
     }
-    sendSnapshotChange(USB_MIDI_PORT_CTRL);
     return (snapshot);
 }
 
@@ -174,7 +173,6 @@ void Snapshots::saveSnapshot(const char *projectId,
     createSnapshotFilename(filename, projectId, bankNumber, slot);
     parameterMap.save(filename);
     updateSnapshotDb(projectId, bankNumber, slot, newName, newColour);
-    sendSnapshotChange(USB_MIDI_PORT_CTRL);
 }
 
 void Snapshots::updateSnapshot(const char *projectId,
@@ -191,7 +189,6 @@ void Snapshots::removeSnapshot(const char *projectId,
                                uint8_t slot)
 {
     removeSnapshotDb(projectId, bankNumber, slot);
-    sendSnapshotChange(USB_MIDI_PORT_CTRL);
 }
 
 void Snapshots::swapSnapshot(const char *projectId,
@@ -202,7 +199,6 @@ void Snapshots::swapSnapshot(const char *projectId,
 {
     swapSnapshotDb(
         projectId, sourceBankNumber, sourceSlot, destBankNumber, destSlot);
-    sendSnapshotChange(USB_MIDI_PORT_CTRL);
 }
 
 void Snapshots::updateSnapshotDb(const char *projectId,

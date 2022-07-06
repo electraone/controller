@@ -6,7 +6,7 @@
 #include "Model/Control.h"
 #include "ControlComponent.h"
 #include "System.h"
-#include "UiDelegate.h"
+#include "MainDelegate.h"
 
 class DetailFader;
 class DetailList;
@@ -15,7 +15,7 @@ class DetailEnvelope;
 class Detail : public Component
 {
 public:
-    Detail(const Control &newControl, UiDelegate *newDelegate);
+    Detail(const Control &newControl, MainDelegate &newDelegate);
     virtual ~Detail() = default;
 
     void setLocked(void);
@@ -25,11 +25,11 @@ public:
     virtual void resized(void) = 0;
 
     static Detail *createDetail(const Control &control,
-                                UiDelegate *newDelegate);
+                                MainDelegate &newDelegate);
 
 protected:
     const Control &control;
-    UiDelegate *delegate;
+    MainDelegate &delegate;
     Component *component;
     Lock *lock;
     VoidSpace *dimmedSection;

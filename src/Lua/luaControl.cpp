@@ -1,10 +1,10 @@
 #include "luaControl.h"
 #include "luaValue.h"
 #include "Preset.h"
-#include "UiDelegate.h"
+#include "MainDelegate.h"
 
 extern Preset *luaPreset;
-extern UiDelegate *luaDelegate;
+extern MainDelegate *luaDelegate;
 
 static Control *getControl(lua_State *L, uint8_t stackPosition)
 {

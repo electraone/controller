@@ -3,12 +3,12 @@
 #include "Control.h"
 #include "Component.h"
 #include "ParameterMap.h"
-#include "UiDelegate.h"
+#include "MainDelegate.h"
 
 class ControlComponent : virtual public Component
 {
 public:
-    ControlComponent(const Control &controlToAssign, UiDelegate *newDelegate);
+    ControlComponent(const Control &controlToAssign, MainDelegate &newDelegate);
     virtual ~ControlComponent() = default;
 
     virtual void onControlUpdated(void);
@@ -23,13 +23,13 @@ public:
     void setUseAltBackground(bool shouldUseAltBackground);
     bool getUseAltBackground(void) const;
     static ControlComponent *createControlComponent(const Control &control,
-                                                    UiDelegate *newDelegate);
+                                                    MainDelegate &newDelegate);
     static ControlComponent *
         createDetailControlComponent(const Control &control,
-                                     UiDelegate *newDelegate);
+                                     MainDelegate &newDelegate);
 
 protected:
     const Control &control;
-    UiDelegate *delegate;
+    MainDelegate &delegate;
     bool useAltBackground;
 };

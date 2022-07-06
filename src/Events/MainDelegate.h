@@ -4,7 +4,7 @@
 #include "Enums.h"
 #include "LocalFile.h"
 
-class UiDelegate
+class MainDelegate
 {
 public:
     /*
@@ -93,7 +93,10 @@ public:
                                uint8_t sourceSlot,
                                uint8_t destBankNumber,
                                uint8_t destSlot) = 0;
-    virtual void importSnapshot(LocalFile file) = 0;
+    virtual bool loadPreset(LocalFile &file) = 0;
+    virtual bool loadLua(LocalFile &file) = 0;
+    virtual bool loadConfig(LocalFile &file) = 0;
+    virtual bool importSnapshot(LocalFile &file) = 0;
     virtual void setCurrentSnapshotBank(uint8_t bankNumber) = 0;
 
     virtual void sendAllControls(void) = 0;
