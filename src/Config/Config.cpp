@@ -1,33 +1,33 @@
-#include "Setup.h"
+#include "Config/Config.h"
 #include "PersistentStorage.h"
 #include "Hardware.h"
 #include "System.h"
 
-/** Setup contructor
+/** Config contructor
  *  an object that keeps information about the Electra base system settings that
  *  can be adjusted by the user
  */
-Setup::Setup()
+Config::Config()
 {
 }
 
-bool Setup::load(const char *filename)
+bool Config::load(const char *filename)
 {
     File file;
 
-    logMessage("Setup::load: file: filename=%s", filename);
+    logMessage("Config::load: file: filename=%s", filename);
 
     file = Hardware::sdcard.createInputStream(filename);
 
     if (!file) {
-        logMessage("Setup::load: cannot open setup file: %s", filename);
+        logMessage("Config::load: cannot open setup file: %s", filename);
         return (false);
     }
 
     file.setTimeout(100);
 
     if (!parse(file)) {
-        logMessage("Setup::load: cannot parse setup: filename=%s", filename);
+        logMessage("Config::load: cannot parse setup: filename=%s", filename);
         file.close();
         return (false);
     } else {
@@ -37,12 +37,12 @@ bool Setup::load(const char *filename)
     return (true);
 }
 
-void Setup::serializeRoot(JsonDocument &doc)
+void Config::serializeRoot(JsonDocument &doc)
 {
     doc["version"] = 1;
 }
 
-void Setup::serializeRouter(JsonDocument &doc)
+void Config::serializeRouter(JsonDocument &doc)
 {
     doc["router"]["usbDevToMidiIo"] = router.usbDevToMidiIo;
     doc["router"]["usbDevToUsbHost"] = router.usbDevToUsbHost;
@@ -62,7 +62,7 @@ void Setup::serializeRouter(JsonDocument &doc)
     }
 }
 
-void Setup::serializePresetBanks(JsonDocument &doc)
+void Config::serializePresetBanks(JsonDocument &doc)
 {
     JsonArray jPresetBanks = doc.createNestedArray("presetBanks");
 
@@ -77,12 +77,12 @@ void Setup::serializePresetBanks(JsonDocument &doc)
 
         if (jPresetBanks.add(jPresetBank) == false) {
             logMessage(
-                "Setup::serialize: cannot add a presetBank to the setup");
+                "Config::serialize: cannot add a presetBank to the setup");
         }
     }
 }
 
-void Setup::serializeUsbHostAssigments(JsonDocument &doc)
+void Config::serializeUsbHostAssigments(JsonDocument &doc)
 {
     JsonArray jUsbHostAssigments = doc.createNestedArray("usbHostAssigments");
 
@@ -96,12 +96,12 @@ void Setup::serializeUsbHostAssigments(JsonDocument &doc)
 
         if (jUsbHostAssigments.add(jUsbHostAssigment) == false) {
             logMessage(
-                "Setup::serialize: cannot add a usbHostAssigment to the setup");
+                "Config::serialize: cannot add a usbHostAssigment to the setup");
         }
     }
 }
 
-void Setup::serializeMidiControl(JsonDocument &doc)
+void Config::serializeMidiControl(JsonDocument &doc)
 {
     JsonArray jMidiControls = doc.createNestedArray("midiControl");
 
@@ -127,12 +127,12 @@ void Setup::serializeMidiControl(JsonDocument &doc)
 
         if (jMidiControls.add(jMidiControl) == false) {
             logMessage(
-                "Setup::serialize: cannot add a midiControl to the setup");
+                "Config::serialize: cannot add a midiControl to the setup");
         }
     }
 }
 
-void Setup::serializeUiFeatures(JsonDocument &doc)
+void Config::serializeUiFeatures(JsonDocument &doc)
 {
     doc["uiFeatures"]["touchSwitchControlSets"] =
         uiFeatures.touchSwitchControlSets;
@@ -142,7 +142,7 @@ void Setup::serializeUiFeatures(JsonDocument &doc)
         translateControlSetTypeToText(uiFeatures.activeControlSetType);
 }
 
-void Setup::serialize(void)
+void Config::serialize(void)
 {
     StaticJsonDocument<2048> doc;
 
@@ -150,7 +150,7 @@ void Setup::serialize(void)
         System::context.getCurrentConfigFile(), FILE_WRITE | O_CREAT | O_TRUNC);
 
     if (!file) {
-        logMessage("Setup::serialize: cannot open setup file for writing");
+        logMessage("Config::serialize: cannot open setup file for writing");
         return;
     }
 
@@ -166,7 +166,7 @@ void Setup::serialize(void)
     file.close();
 }
 
-bool Setup::parse(File &file)
+bool Config::parse(File &file)
 {
     parseRouter(file);
     parsePresetBanks(file);
@@ -177,7 +177,7 @@ bool Setup::parse(File &file)
     return (true);
 }
 
-bool Setup::parseRouter(File &file)
+bool Config::parseRouter(File &file)
 {
     const size_t capacityRouter = JSON_OBJECT_SIZE(1) + 1000;
     const size_t capacityFilter = JSON_OBJECT_SIZE(1) + 100;
@@ -187,7 +187,7 @@ bool Setup::parseRouter(File &file)
     filter["router"] = true;
 
     if (file.seek(0) == false) {
-        logMessage("Setup::parseRouter: cannot rewind the file");
+        logMessage("Config::parseRouter: cannot rewind the file");
         return (false);
     }
 
@@ -195,7 +195,7 @@ bool Setup::parseRouter(File &file)
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        logMessage("Setup::parseRouter: parsing failed: %s", err.c_str());
+        logMessage("Config::parseRouter: parsing failed: %s", err.c_str());
         return (false);
     }
 
@@ -222,31 +222,31 @@ bool Setup::parseRouter(File &file)
             router.midiControlChannel = Router::notSet;
         }
 
-        logMessage("Setup::parseRouter: usbDevToUsbHost=%d",
+        logMessage("Config::parseRouter: usbDevToUsbHost=%d",
                    router.usbDevToUsbHost);
-        logMessage("Setup::parseRouter: usbDevToMidiIo=%d",
+        logMessage("Config::parseRouter: usbDevToMidiIo=%d",
                    router.usbDevToMidiIo);
-        logMessage("Setup::parseRouter: usbHostToUsbDev=%d",
+        logMessage("Config::parseRouter: usbHostToUsbDev=%d",
                    router.usbHostToUsbDev);
-        logMessage("Setup::parseRouter: usbHostToMidiIo=%d",
+        logMessage("Config::parseRouter: usbHostToMidiIo=%d",
                    router.usbHostToMidiIo);
-        logMessage("Setup::parseRouter: midiIoToUsbDev=%d",
+        logMessage("Config::parseRouter: midiIoToUsbDev=%d",
                    router.midiIoToUsbDev);
-        logMessage("Setup::parseRouter: midiIoToUsbHost=%d",
+        logMessage("Config::parseRouter: midiIoToUsbHost=%d",
                    router.midiIoToUsbHost);
-        logMessage("Setup::parseRouter: midiIo1Thru=%d", router.midiIo1Thru);
-        logMessage("Setup::parseRouter: midiIo2Thru=%d", router.midiIo2Thru);
-        logMessage("Setup::parseRouter: usbDevCtrl=%d", router.usbDevCtrl);
-        logMessage("Setup::parseRouter: midiControlChannel=%d",
+        logMessage("Config::parseRouter: midiIo1Thru=%d", router.midiIo1Thru);
+        logMessage("Config::parseRouter: midiIo2Thru=%d", router.midiIo2Thru);
+        logMessage("Config::parseRouter: usbDevCtrl=%d", router.usbDevCtrl);
+        logMessage("Config::parseRouter: midiControlChannel=%d",
                    router.midiControlChannel);
     } else {
-        logMessage("Setup::parseRouter: no router definition found");
+        logMessage("Config::parseRouter: no router definition found");
     }
 
     return (true);
 }
 
-bool Setup::parsePresetBanks(File &file)
+bool Config::parsePresetBanks(File &file)
 {
     const size_t capacityPresetBanks = JSON_OBJECT_SIZE(1) + 1000;
     const size_t capacityFilter = JSON_OBJECT_SIZE(1) + 100;
@@ -258,7 +258,7 @@ bool Setup::parsePresetBanks(File &file)
     resetPresetBanks();
 
     if (file.seek(0) == false) {
-        logMessage("Setup::parsePresetBanks: cannot rewind the file");
+        logMessage("Config::parsePresetBanks: cannot rewind the file");
         return (false);
     }
 
@@ -266,7 +266,7 @@ bool Setup::parsePresetBanks(File &file)
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        logMessage("Setup::parsePresetBanks: parsing failed: %s", err.c_str());
+        logMessage("Config::parsePresetBanks: parsing failed: %s", err.c_str());
         return (false);
     }
 
@@ -282,20 +282,20 @@ bool Setup::parsePresetBanks(File &file)
 
             presetBanks[id - 1] = PresetBank(id, name, colour);
 
-            logMessage("Setup::parsePresetBanks: preset bank: id=%d, name=%s, "
+            logMessage("Config::parsePresetBanks: preset bank: id=%d, name=%s, "
                        "colour=%s",
                        id,
                        name,
                        colourRGB888);
         }
     } else {
-        logMessage("Setup::parsePresetBanks: no presetBanks definition found");
+        logMessage("Config::parsePresetBanks: no presetBanks definition found");
     }
 
     return (true);
 }
 
-bool Setup::parseUsbHostAssigments(File &file)
+bool Config::parseUsbHostAssigments(File &file)
 {
     const size_t capacityAssigments = JSON_OBJECT_SIZE(1) + 1000;
     const size_t capacityFilter = JSON_OBJECT_SIZE(1) + 100;
@@ -305,7 +305,7 @@ bool Setup::parseUsbHostAssigments(File &file)
     filter["usbHostAssigments"] = true;
 
     if (file.seek(0) == false) {
-        logMessage("Setup::parseUsbHostAssigments: cannot rewind the file");
+        logMessage("Config::parseUsbHostAssigments: cannot rewind the file");
         return (false);
     }
 
@@ -313,7 +313,7 @@ bool Setup::parseUsbHostAssigments(File &file)
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        logMessage("Setup::parseUsbHostAssigments: parsing failed: %s",
+        logMessage("Config::parseUsbHostAssigments: parsing failed: %s",
                    err.c_str());
         return (false);
     }
@@ -337,20 +337,20 @@ bool Setup::parseUsbHostAssigments(File &file)
 
             usbHostAssigments.push_back(UsbHostAssigment(pattern, port));
             logMessage(
-                "Setup::parseUsbHostAssigments: usb assigment: pattern=%s, "
+                "Config::parseUsbHostAssigments: usb assigment: pattern=%s, "
                 "port=%d",
                 pattern,
                 port);
         }
     } else {
         logMessage(
-            "Setup::parseUsbHostAssigments:: no usbHostAssigments definition found");
+            "Config::parseUsbHostAssigments:: no usbHostAssigments definition found");
     }
 
     return (true);
 }
 
-bool Setup::parseMidiControl(File &file)
+bool Config::parseMidiControl(File &file)
 {
     const size_t capacityMidiControls = JSON_OBJECT_SIZE(1) + 2000;
     const size_t capacityFilter = JSON_OBJECT_SIZE(1) + 100;
@@ -360,7 +360,7 @@ bool Setup::parseMidiControl(File &file)
     filter["midiControl"] = true;
 
     if (file.seek(0) == false) {
-        logMessage("Setup::parseMidiControl: cannot rewind the file");
+        logMessage("Config::parseMidiControl: cannot rewind the file");
         return (false);
     }
 
@@ -368,7 +368,7 @@ bool Setup::parseMidiControl(File &file)
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        logMessage("Setup::parseMidiControl: parsing failed: %s", err.c_str());
+        logMessage("Config::parseMidiControl: parsing failed: %s", err.c_str());
         return (false);
     }
 
@@ -412,7 +412,7 @@ bool Setup::parseMidiControl(File &file)
                                                    midiMessageType,
                                                    parameterNumber));
                 logMessage(
-                    "Setup::parseMidiControl: midi control assigment: "
+                    "Config::parseMidiControl: midi control assigment: "
                     "event=%s (%d), eventParameter1=%d, eventParameter2=%d, "
                     "midiMessage=%s (%d), parameterNumber=%d",
                     event,
@@ -444,7 +444,7 @@ bool Setup::parseMidiControl(File &file)
                                                    midiMessageType,
                                                    parameterNumber));
                 logMessage(
-                    "Setup::parseMidiControl: midi control assigment: "
+                    "Config::parseMidiControl: midi control assigment: "
                     "event=%s (%d), eventParameter=%d, midiMessage=%s (%d), "
                     "parameterNumber=%d",
                     event,
@@ -456,13 +456,14 @@ bool Setup::parseMidiControl(File &file)
             }
         }
     } else {
-        logMessage("Setup::parseMidiControl:: no midiControl definition found");
+        logMessage(
+            "Config::parseMidiControl:: no midiControl definition found");
     }
 
     return (true);
 }
 
-bool Setup::parseUiFeatures(File &file)
+bool Config::parseUiFeatures(File &file)
 {
     const size_t capacityUiFeatures = JSON_OBJECT_SIZE(1) + 1000;
     const size_t capacityFilter = JSON_OBJECT_SIZE(1) + 100;
@@ -472,7 +473,7 @@ bool Setup::parseUiFeatures(File &file)
     filter["uiFeatures"] = true;
 
     if (file.seek(0) == false) {
-        logMessage("Setup::parseUiFeatures: cannot rewind the file");
+        logMessage("Config::parseUiFeatures: cannot rewind the file");
         return (false);
     }
 
@@ -480,31 +481,31 @@ bool Setup::parseUiFeatures(File &file)
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        logMessage("Setup::parseUiFeatures: parsing failed: %s", err.c_str());
+        logMessage("Config::parseUiFeatures: parsing failed: %s", err.c_str());
         return (false);
     }
 
     if (doc["uiFeatures"]) {
         uiFeatures.touchSwitchControlSets =
             doc["uiFeatures"]["touchSwitchControlSets"].as<bool>();
-        logMessage("Setup::parseUiFeatures: touchSwitchControlSets=%d",
+        logMessage("Config::parseUiFeatures: touchSwitchControlSets=%d",
                    uiFeatures.touchSwitchControlSets);
         uiFeatures.resetActiveControlSet =
             doc["uiFeatures"]["resetActiveControlSet"].as<bool>();
-        logMessage("Setup::parseUiFeatures: resetActiveControlSet=%d",
+        logMessage("Config::parseUiFeatures: resetActiveControlSet=%d",
                    uiFeatures.resetActiveControlSet);
         uiFeatures.activeControlSetType = translateControlSetType(
             doc["uiFeatures"]["activeControlSetType"].as<char *>());
-        logMessage("Setup::parseUiFeatures: activeControlSetType=%d",
+        logMessage("Config::parseUiFeatures: activeControlSetType=%d",
                    uiFeatures.activeControlSetType);
     } else {
-        logMessage("Setup::parseUiFeatures: no UiFeatures definition found");
+        logMessage("Config::parseUiFeatures: no UiFeatures definition found");
     }
 
     return (true);
 }
 
-void Setup::resetPresetBanks(void)
+void Config::resetPresetBanks(void)
 {
     presetBanks[0] = PresetBank(1, "BANK #1", ElectraColours::white);
     presetBanks[1] = PresetBank(2, "BANK #2", ElectraColours::red);
@@ -514,21 +515,21 @@ void Setup::resetPresetBanks(void)
     presetBanks[5] = PresetBank(6, "BANK #6", ElectraColours::purple);
 }
 
-void Setup::resetUiFeatures(void)
+void Config::resetUiFeatures(void)
 {
     uiFeatures.touchSwitchControlSets = true;
     uiFeatures.resetActiveControlSet = true;
     uiFeatures.activeControlSetType = ActiveControlSetType::dim;
 }
 
-void Setup::useDefault(void)
+void Config::useDefault(void)
 {
     resetPresetBanks();
     resetUiFeatures();
     serialize();
 }
 
-uint8_t Setup::getUsbHostAssigment(const char *productName)
+uint8_t Config::getUsbHostAssigment(const char *productName)
 {
     char productNameUpperCase[50];
 
@@ -538,7 +539,7 @@ uint8_t Setup::getUsbHostAssigment(const char *productName)
 
     for (auto &assigment : usbHostAssigments) {
         if (strstr(productNameUpperCase, assigment.pattern)) {
-            logMessage("Setup::getUsbHostAssigment: assigning to midi bus: "
+            logMessage("Config::getUsbHostAssigment: assigning to midi bus: "
                        "device=%s, midiBus=%d",
                        productName,
                        assigment.port);

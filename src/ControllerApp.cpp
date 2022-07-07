@@ -17,15 +17,9 @@ void Controller::initialise(void)
     // Load application setup file
     LocalFile config(System::context.getCurrentConfigFile());
 
-    if (!loadSetup(config)) {
-        appSetup.useDefault();
+    if (!loadConfig(config)) {
+        appConfig.useDefault();
     }
-
-    // \todo applySetup?
-    MidiOutput::enableThru(
-        MidiInterface::Type::MidiIo, 0, appSetup.router.midiIo1Thru);
-    MidiOutput::enableThru(
-        MidiInterface::Type::MidiIo, 1, appSetup.router.midiIo2Thru);
 
     // Special boot - do not read the default preset
     if (Hardware::buttons[BUTTON_LEFT_TOP]->process() == true) {
@@ -97,9 +91,7 @@ bool Controller::handleCtrlFileReceived(uint8_t port,
                                         ElectraCommand::Object fileType)
 {
     if (fileType == ElectraCommand::Object::FileConfig) {
-        LocalFile config(System::context.getCurrentConfigFile());
-        applySetup(file);
-        loadSetup(config);
+        applyChangesToConfig(file);
     } else {
         sysexApi.process(port, file, fileType);
     }
@@ -154,48 +146,39 @@ void Controller::runUserTask(void)
 /** Apply setup change.
  *
  */
-bool Controller::applySetup(LocalFile file)
+bool Controller::applyChangesToConfig(LocalFile file)
 {
-    bool success = false;
-
-    if (appSetup.load(file.getFilepath())) {
-        appSetup.serialize();
-        success = true;
-
-        configureApp();
+    if (appConfig.load(file.getFilepath())) {
+        appConfig.serialize();
+        LocalFile config(System::context.getCurrentConfigFile());
+        return (loadConfig(config));
     }
-
-    return (success);
+    return (false);
 }
 
 /** Load setup.
  *
  */
-bool Controller::loadSetup(LocalFile file)
+bool Controller::loadConfig(LocalFile file)
 {
-    bool success = false;
-
-    if (appSetup.load(file.getFilepath())) {
-        success = true;
+    if (appConfig.load(file.getFilepath())) {
         configureApp();
+        return (true);
     }
-
-    return (success);
+    return (false);
 }
 
 void Controller::configureApp(void)
 {
-    //  assignUSBdevicesToPorts();
-
-    delegate.setActiveControlSetType(appSetup.uiFeatures.activeControlSetType);
+    delegate.setActiveControlSetType(appConfig.uiFeatures.activeControlSetType);
 
     MidiOutput::enableThru(
-        MidiInterface::Type::MidiIo, 0, appSetup.router.midiIo1Thru);
+        MidiInterface::Type::MidiIo, 0, appConfig.router.midiIo1Thru);
     MidiOutput::enableThru(
-        MidiInterface::Type::MidiIo, 1, appSetup.router.midiIo2Thru);
+        MidiInterface::Type::MidiIo, 1, appConfig.router.midiIo2Thru);
 }
 
 uint8_t Controller::getUsbHostPortAssigment(const char *productName)
 {
-    return appSetup.getUsbHostAssigment(productName);
+    return appConfig.getUsbHostAssigment(productName);
 }

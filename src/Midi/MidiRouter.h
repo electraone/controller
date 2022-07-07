@@ -2,7 +2,7 @@
 
 #include "MidiInterface.h"
 #include "MidiMessage.h"
-#include "Setup/Router.h"
+#include "Config/Router.h"
 #include "InstanceCallback.h"
 #include "helpers.h"
 

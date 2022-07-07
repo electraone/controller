@@ -118,7 +118,7 @@ public:
     virtual void setDefaultValue(uint16_t controlId, uint8_t handle) = 0;
     virtual void closeAllWindows(void) = 0;
 
-    // Setup
+    // Config
     virtual void
         setActiveControlSetType(ActiveControlSetType activeControlSetType) = 0;
 

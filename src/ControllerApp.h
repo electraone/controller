@@ -11,7 +11,7 @@
 #include "Midi.h"
 #include "SysexApi.h"
 #include "MidiApi.h"
-#include "Setup/Setup.h"
+#include "Config/Config.h"
 #include "MidiLearn.h"
 #include "MidiRouter.h"
 
@@ -23,12 +23,12 @@ public:
     Controller()
         : model(getApplicationSandbox()),
           midi(model.currentPreset),
-          mainWindow(MainWindow(model, midi, appSetup)),
+          mainWindow(MainWindow(model, midi, appConfig)),
           delegate(mainWindow),
           sysexApi(mainWindow),
-          midiApi(appSetup.midiControls, mainWindow),
+          midiApi(appConfig.midiControls, mainWindow),
           midiLearn(model.currentPreset),
-          midiRouter(appSetup.router)
+          midiRouter(appConfig.router)
     {
     }
 
@@ -71,17 +71,17 @@ private:
     // Patch requests
     void runUserTask(void);
 
-    // Setup handling
-    bool loadSetup(LocalFile file);
-    bool applySetup(LocalFile file);
+    // Config handling
+    bool applyChangesToConfig(LocalFile file);
+    bool loadConfig(LocalFile file);
     void configureApp(void);
     uint8_t getUsbHostPortAssigment(const char *productName) override;
 
     // Model
     Model model;
 
-    // Setup
-    Setup appSetup;
+    // Config
+    Config appConfig;
 
     // UI
     MainWindow mainWindow;

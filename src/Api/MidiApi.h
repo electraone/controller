@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Setup/Setup.h"
+#include "Config/Config.h"
 #include "MainDelegate.h"
 
 class MidiApi

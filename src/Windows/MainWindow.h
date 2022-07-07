@@ -11,13 +11,13 @@
 #include "MainDelegate.h"
 #include "Model.h"
 #include "Midi/Midi.h"
-#include "Setup/Setup.h"
+#include "Config/Config.h"
 #include "System.h"
 
 class MainWindow : public ParameterMapWindow, public MainDelegate
 {
 public:
-    MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup);
+    MainWindow(Model &newModel, Midi &newMidi, Config &newConfig);
     virtual ~MainWindow() = default;
 
     void onButtonDown(uint8_t buttonId) override;
@@ -160,8 +160,8 @@ private:
     // MIDI Interface
     Midi &midi;
 
-    // Setup
-    Setup &setup;
+    // Config
+    Config &setup;
 
     // UI Activity API handler
     UiApi uiApi;

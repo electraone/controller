@@ -10,10 +10,10 @@
 #include <vector>
 #include <array>
 
-class Setup
+class Config
 {
 public:
-    Setup();
+    Config();
 
     bool load(const char *filename);
     void serialize(void);
@@ -48,4 +48,4 @@ private:
 
 typedef std::vector<UsbHostAssigment> UsbHostAssigments;
 typedef std::vector<MidiControl> MidiControls;
-typedef std::array<PresetBank, Setup::numPresetBanks> PresetBanks;
+typedef std::array<PresetBank, Config::numPresetBanks> PresetBanks;

@@ -2,7 +2,7 @@
 
 #include "Component.h"
 #include "Model/Presets.h"
-#include "Setup/Setup.h"
+#include "Config/Config.h"
 #include "UiApi.h"
 #include "BankButton.h"
 #include "PresetButton.h"

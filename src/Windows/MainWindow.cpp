@@ -5,12 +5,12 @@
 #include "Envelope.h"
 #include "luabridge.h"
 
-MainWindow::MainWindow(Model &newModel, Midi &newMidi, Setup &newSetup)
+MainWindow::MainWindow(Model &newModel, Midi &newMidi, Config &newConfig)
     : preset(newModel.currentPreset),
       snapshots(newModel.snapshots),
       presets(newModel.presets),
       midi(newMidi),
-      setup(newSetup),
+      setup(newConfig),
       uiApi(*this),
       pageView(nullptr),
       presetSelectionWindow(nullptr),
