@@ -744,13 +744,17 @@ bool MainWindow::isDetailOnTheLeft(void) const
 
 void MainWindow::displayPage(void)
 {
-    PageView *newPageView = new PageView(preset,
-                                         *this,
-                                         uiApi,
-                                         setup.uiFeatures,
-                                         currentPageId,
-                                         currentControlSetId);
-    pageView = dynamic_cast<PageView *>(replaceOwnedContent(newPageView));
+    if (pageView) {
+        delete pageView;
+    }
+
+    pageView = new PageView(preset,
+                            *this,
+                            uiApi,
+                            setup.uiFeatures,
+                            currentPageId,
+                            currentControlSetId);
+    replaceOwnedContent(pageView);
 }
 
 void MainWindow::showDetailOfActivePotTouch(void)
