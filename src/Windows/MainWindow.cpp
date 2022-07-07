@@ -343,7 +343,6 @@ void MainWindow::setGroupLabel(uint16_t groupId, const char *newLabel)
             if (Component *component = group.getComponent()) {
                 if (GroupControl *gc =
                         dynamic_cast<GroupControl *>(component)) {
-                    gc->setLabel(newLabel);
                     gc->repaint();
                 }
             }
