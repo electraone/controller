@@ -157,6 +157,7 @@ void SysexApi::switchPreset(uint8_t port, uint8_t bankNumber, uint8_t slot)
 {
     logMessage("SysexApi::switchPreset");
     delegate.switchPreset(bankNumber, slot);
+    sendPresetSwitched(port, bankNumber, slot);
     sendAck(port);
 }
 
@@ -233,6 +234,7 @@ bool SysexApi::loadLua(uint8_t port, LocalFile &file)
 
 bool SysexApi::loadConfig(uint8_t port, LocalFile &file)
 {
+    // this is commented out on purpose. We do not want to load the config here yet.
     //delegate.loadConfig(file);
     //sendAck(port);
     return (true);

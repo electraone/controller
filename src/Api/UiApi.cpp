@@ -10,6 +10,11 @@ void UiApi::switchPreset(uint8_t bankNumber, uint8_t slot)
     delegate.switchPreset(bankNumber, slot);
     delegate.closePresetSelection();
     sendPresetSwitched(USB_MIDI_PORT_CTRL, bankNumber, slot);
+
+    // These are a temporary solution to make sure @jhh's Ableton remote script
+    // can catch the preset changes done by the user on the controller.
+    sendPresetSwitched(0, bankNumber, slot);
+    sendPresetSwitched(1, bankNumber, slot);
 }
 
 void UiApi::switchPresetBank(uint8_t bankNumber)
