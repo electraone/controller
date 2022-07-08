@@ -82,6 +82,7 @@ void SysexApi::process(uint8_t port,
 {
     if (fileType == ElectraCommand::Object::FilePreset) {
         loadPreset(port, file);
+        sendPresetSlotChanged(port);
     } else if (fileType == ElectraCommand::Object::FileLua) {
         loadLua(port, file);
     } else if (fileType == ElectraCommand::Object::FileConfig) {
