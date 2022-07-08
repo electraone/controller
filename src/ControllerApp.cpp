@@ -1,6 +1,4 @@
 #include "ControllerApp.h"
-#include "MidiInputCallback.h"
-#include "MidiLearn.h"
 #include "lualibs.h"
 
 void Controller::initialise(void)
@@ -14,10 +12,8 @@ void Controller::initialise(void)
     // Get info about the last used preset
     uint8_t presetId = System::runtimeInfo.getLastActivePreset();
 
-    // Load application setup file
-    LocalFile config(System::context.getCurrentConfigFile());
-
-    if (!loadConfig(config)) {
+    // Load Configuration or use defaults
+    if (!loadConfig()) {
         appConfig.useDefault();
     }
 
@@ -34,7 +30,7 @@ void Controller::initialise(void)
         //systemTasks.doNotUsePotTouch();
     }
 
-    // Log free RAM
+    // Log free RAM (before the preset is loaded)
     monitorFreeMemory();
 
     // Register ParameterMap onChange callback
@@ -58,7 +54,7 @@ void Controller::initialise(void)
         delegate.switchPreset(presetId / 12, presetId % 12);
     }
 
-    // Log free RAM
+    // Log free RAM (after the preset is loaded and the default page displayed)
     monitorFreeMemory();
 
     // Finalise the initialisation
@@ -82,9 +78,9 @@ void Controller::handleIncomingMidiMessage(const MidiInput &midiInput,
     }
 }
 
-/** Incoming control file received handler.
- *  handleCtrlFileReceived () is called whenever preset file is received on
- *  Electra's control port
+/** Incoming file received handler.
+ *  handleCtrlFileReceived () is called whenever file is received using
+ *  the Electra upload SysEx command.
  */
 bool Controller::handleCtrlFileReceived(uint8_t port,
                                         LocalFile file,
@@ -99,6 +95,10 @@ bool Controller::handleCtrlFileReceived(uint8_t port,
     return (true);
 }
 
+/** File removed handler.
+ *  handleCtrlFileRemoved() is called whenever file is removed using
+ *  the Electra upload SysEx command.
+ */
 bool Controller::handleCtrlFileRemoved(uint8_t bankNumber,
                                        uint8_t slot,
                                        ElectraCommand::Object fileType)
@@ -108,7 +108,7 @@ bool Controller::handleCtrlFileRemoved(uint8_t bankNumber,
 
     if (fileType == ElectraCommand::Object::FilePreset) {
         // If it is a current preset, reload it
-        if ((currentPresetBank == bankNumber) || (currentPreset == slot)) {
+        if ((currentPresetBank == bankNumber) && (currentPreset == slot)) {
             delegate.switchPreset(currentPresetBank, currentPreset);
         }
     }
@@ -116,17 +116,26 @@ bool Controller::handleCtrlFileRemoved(uint8_t bankNumber,
     return (true);
 }
 
+/** Electra SysEx handler
+ *
+ */
 void Controller::handleElectraSysex(uint8_t port, const SysexBlock &sysexBlock)
 {
     sysexApi.process(port, sysexBlock);
 }
 
+/** Electra External Midi control message handler.
+ *
+ */
 void Controller::handleIncomingControlMessage(MidiInput &midiInput,
                                               MidiMessage &midiMessage)
 {
     midiApi.process(midiMessage);
 }
 
+/** User configurable task
+ * Currently misused for sending Patch request messages.
+ */
 void Controller::runUserTask(void)
 {
     PatchRequest request;
@@ -143,31 +152,35 @@ void Controller::runUserTask(void)
     }
 }
 
-/** Apply setup change.
+/** Apply configuation change.
  *
+ * Loads config from a (temp) file, merges it with existing, and writes
+ * the new config file to the standard location
  */
 bool Controller::applyChangesToConfig(LocalFile file)
 {
     if (appConfig.load(file.getFilepath())) {
         appConfig.serialize();
-        LocalFile config(System::context.getCurrentConfigFile());
-        return (loadConfig(config));
+        return (loadConfig());
     }
     return (false);
 }
 
-/** Load setup.
+/** Load configuration.
  *
  */
-bool Controller::loadConfig(LocalFile file)
+bool Controller::loadConfig(void)
 {
-    if (appConfig.load(file.getFilepath())) {
+    if (appConfig.load()) {
         configureApp();
         return (true);
     }
     return (false);
 }
 
+/** Reconfigure Electra at run-time
+ *
+ */
 void Controller::configureApp(void)
 {
     delegate.setActiveControlSetType(appConfig.uiFeatures.activeControlSetType);
@@ -178,6 +191,9 @@ void Controller::configureApp(void)
         MidiInterface::Type::MidiIo, 1, appConfig.router.midiIo2Thru);
 }
 
+/** USB Host port assigment callback
+ * allback to determine assigment of USB device to USB Host ports.
+ */
 uint8_t Controller::getUsbHostPortAssigment(const char *productName)
 {
     return appConfig.getUsbHostAssigment(productName);

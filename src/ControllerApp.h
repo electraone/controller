@@ -3,19 +3,13 @@
 #include "App.h"
 #include "MainWindow.h"
 #include "MidiInputCallback.h"
-#include "MidiCallbacks.h"
-#include "PageView.h"
 #include "Model.h"
-#include "Ui.h"
 #include "MainDelegate.h"
-#include "Midi.h"
 #include "SysexApi.h"
 #include "MidiApi.h"
 #include "Config/Config.h"
 #include "MidiLearn.h"
 #include "MidiRouter.h"
-
-MainDelegate *luaDelegate = nullptr;
 
 class Controller : public App, private MidiInputCallback
 {
@@ -39,17 +33,12 @@ public:
 
     const char *getApplicationVersion(void) const override
     {
-        return ("3.0-a.12");
+        return ("3.0-a.13");
     }
 
     const char *getApplicationSandbox(void) const override
     {
         return ("ctrlv2");
-    }
-
-    Window *getMainWindow(void) override
-    {
-        return (&mainWindow);
     }
 
     void initialise(void) override;
@@ -73,7 +62,7 @@ private:
 
     // Config handling
     bool applyChangesToConfig(LocalFile file);
-    bool loadConfig(LocalFile file);
+    bool loadConfig(void);
     void configureApp(void);
     uint8_t getUsbHostPortAssigment(const char *productName) override;
 
@@ -99,3 +88,6 @@ private:
 
 // This macro instructs main() routine to launch the app.
 START_ELECTRA_APPLICATION(Controller)
+
+// \todo Get rid of this global variable
+MainDelegate *luaDelegate = nullptr;

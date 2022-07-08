@@ -11,6 +11,11 @@ Config::Config()
 {
 }
 
+bool Config::load(void)
+{
+    return (load(System::context.getCurrentConfigFile()));
+}
+
 bool Config::load(const char *filename)
 {
     File file;

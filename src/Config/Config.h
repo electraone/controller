@@ -15,6 +15,7 @@ class Config
 public:
     Config();
 
+    bool load(void);
     bool load(const char *filename);
     void serialize(void);
     void useDefault(void);
