@@ -29,8 +29,7 @@ void SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
         }
     } else if (cmd.isMidiLearnSwitch()) {
         if (object
-            == ElectraCommand::Object::
-                MidiLearnOff) // TODO: this is a fix for backwards compatibility
+            == ElectraCommand::Object::MidiLearnOff)
         {
             disableMidiLearn(port);
         } else {

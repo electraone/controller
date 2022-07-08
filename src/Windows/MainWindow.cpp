@@ -682,7 +682,7 @@ void MainWindow::setActiveControlSetType(
     ActiveControlSetType newActiveControlSetType)
 {
     setup.uiFeatures.activeControlSetType = newActiveControlSetType;
-    displayPage();
+    repaint();
 }
 
 void MainWindow::setActivePotTouch(uint8_t potId, Component *component)
