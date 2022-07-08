@@ -927,7 +927,7 @@ bool Preset::parseOverlayItems(File &file, Overlay &overlay)
         JsonObject item = doc.as<JsonObject>();
 
         if (item) {
-            uint16_t value = item["value"];
+            int16_t value = item["value"];
             const char *label = item["label"] | "";
             const char *bitmap = item["bitmap"];
 

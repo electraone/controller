@@ -126,15 +126,10 @@ private:
         g.fillRect(0, padding, bounds.getWidth(), barHeight);
 
         // Paint the active bar
-        //g.setColour(colourTrack);
-        //g.fillRect(barX, padding - 16, barWidth, 16);
-
-        // Paint the active bar
         g.setColour(colour);
         g.fillRect(barX, padding, barWidth, barHeight);
 
         // Paint the outline
-        //g.drawRect(0, padding, bounds.getWidth(), barHeight);
         g.setColour(backgroundColour);
         g.drawPixel(0, padding);
         g.drawPixel(0, padding + barHeight - 1);
