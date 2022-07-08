@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Component.h"
+#include "ControlComponent.h"
+#include "GroupControl.h"
 #include "BottomBar.h"
 #include "Preset.h"
 #include "MainDelegate.h"
@@ -18,6 +19,7 @@ public:
              uint8_t activeControlSetId = 0);
     virtual ~PageView();
 
+    void setControlSet(uint8_t newControlSetId);
     void onTouchDown(const TouchEvent &touchEvent) override;
     void reassignComponent(const Control &control);
     void changePageName(const char *newName);
@@ -29,6 +31,8 @@ private:
     void addControls(const Controls &controls);
     void addGroups(const Groups &groups);
     void addBottomBar(const char *presetName, const char *pageName);
+    void configureGroup(GroupControl *g, const Group &group);
+    void configureControl(ControlComponent *cc, const Control &control);
 
     const Preset &model;
     MainDelegate &delegate;

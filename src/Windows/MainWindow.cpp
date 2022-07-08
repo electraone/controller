@@ -95,7 +95,7 @@ void MainWindow::switchPagePrev(void)
 
 void MainWindow::setControlSet(uint8_t controlSetId)
 {
-    switchPage(currentPageId, controlSetId);
+    pageView->setControlSet(controlSetId);
 }
 
 void MainWindow::openDetail(uint16_t controlId)

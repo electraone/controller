@@ -1,6 +1,4 @@
 #include "PageView.h"
-#include "ControlComponent.h"
-#include "GroupControl.h"
 
 PageView::PageView(const Preset &preset,
                    MainDelegate &newDelegate,
@@ -42,6 +40,29 @@ PageView::~PageView(void)
     System::tasks.clearRepaintGraphics();
     System::tasks.enableRepaintGraphics();
     parameterMap.enable();
+}
+
+void PageView::setControlSet(uint8_t newControlSetId)
+{
+    controlSetId = newControlSetId;
+
+    for (const auto &[id, control] : model.controls) {
+        if (control.getPageId() == pageId) {
+            auto cc = dynamic_cast<ControlComponent *>(control.getComponent());
+
+            if (cc) {
+                configureControl(cc, control);
+            }
+        }
+    }
+    for (const auto &[id, group] : model.groups) {
+        if (group.getPageId() == pageId) {
+            if (auto g = dynamic_cast<GroupControl *>(group.getComponent())) {
+                configureGroup(g, group);
+            }
+        }
+    }
+    repaint();
 }
 
 void PageView::onTouchDown(const TouchEvent &touchEvent)
@@ -108,27 +129,14 @@ void PageView::addControls(const Controls &controls)
 {
     for (const auto &[id, control] : controls) {
         if (control.getPageId() == pageId) {
-            ControlComponent *c =
+            ControlComponent *cc =
                 ControlComponent::createControlComponent(control, delegate);
 
-            if (c) {
-                if (control.getControlSetId() != controlSetId) {
-                    c->setDimmed(uiFeatures.activeControlSetType
-                                         == ActiveControlSetType::dim
-                                     ? true
-                                     : false);
-                } else {
-                    c->setUseAltBackground(
-                        uiFeatures.activeControlSetType
-                                == ActiveControlSetType::background
-                            ? true
-                            : false);
-                    c->assignPot(control.inputs[0].getPotId(),
-                                 control.values[0].getNumSteps());
-                }
-                addChildComponent(c);
+            if (cc) {
+                configureControl(cc, control);
+                addChildComponent(cc);
 
-                delegate.assignComponentToControl(control.getId(), c);
+                delegate.assignComponentToControl(control.getId(), cc);
             }
         }
     }
@@ -141,18 +149,7 @@ void PageView::addGroups(const Groups &groups)
             GroupControl *g = new GroupControl(group);
 
             if (g) {
-                // Dim groups that are not in the active control set.
-                // This is determined on the group position as the groups are
-                // not linked to the control sets (yet).
-                if (uiFeatures.activeControlSetType
-                    == ActiveControlSetType::dim) {
-                    if ((controlSetId * 165) < g->getY()
-                        && (g->getY() < (controlSetId * 165 + 165))) {
-                        g->setDimmed(false);
-                    } else {
-                        g->setDimmed(true);
-                    }
-                }
+                configureGroup(g, group);
                 addChildComponent(g);
                 delegate.assignComponentToGroup(group.getId(), g);
             }
@@ -167,5 +164,48 @@ void PageView::addBottomBar(const char *presetName, const char *pageName)
 
     if (bottomBar) {
         addAndMakeVisible(bottomBar);
+    }
+}
+
+void PageView::configureGroup(GroupControl *g, const Group &group)
+{
+    if ((controlSetId * 165) < g->getY()
+        && (g->getY() < (controlSetId * 165 + 165))) {
+        if (uiFeatures.activeControlSetType == ActiveControlSetType::dim) {
+            g->setDimmed(false);
+        } else if (uiFeatures.activeControlSetType
+                   == ActiveControlSetType::background) {
+            g->setUseAltBackground(true);
+        }
+    } else {
+        if (uiFeatures.activeControlSetType == ActiveControlSetType::dim) {
+            g->setDimmed(true);
+        } else if (uiFeatures.activeControlSetType
+                   == ActiveControlSetType::background) {
+            g->setUseAltBackground(false);
+        }
+    }
+}
+
+void PageView::configureControl(ControlComponent *cc, const Control &control)
+{
+    if (control.getControlSetId() == controlSetId) {
+        cc->releasePot();
+        cc->assignPot(control.inputs[0].getPotId(),
+                      control.values[0].getNumSteps());
+        if (uiFeatures.activeControlSetType == ActiveControlSetType::dim) {
+            cc->setDimmed(false);
+        } else if (uiFeatures.activeControlSetType
+                   == ActiveControlSetType::background) {
+            cc->setUseAltBackground(true);
+        }
+    } else {
+        cc->releasePot();
+        if (uiFeatures.activeControlSetType == ActiveControlSetType::dim) {
+            cc->setDimmed(true);
+        } else if (uiFeatures.activeControlSetType
+                   == ActiveControlSetType::background) {
+            cc->setUseAltBackground(false);
+        }
     }
 }
