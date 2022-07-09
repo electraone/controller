@@ -116,15 +116,9 @@ bool Presets::loadPreset(LocalFile file)
         // Initialise the parameterMap
         for (auto &[id, control] : preset.controls) {
             for (auto &value : control.values) {
-                control.setDefaultValue(value);
+                control.setDefaultValue(value, false);
             }
         }
-
-        //        snapshots.setProjectId(preset.getProjectId());
-        //preset.print();
-        //parameterMap.print();
-
-        //        displayDefaultPage();
     }
 
     System::tasks.enableRepaintGraphics();

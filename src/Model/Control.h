@@ -77,7 +77,7 @@ public:
     void resetComponent(void);
     Component *getComponent(void) const;
     void addToParameterMap(ControlValue &value);
-    void setDefaultValue(ControlValue &value);
+    void setDefaultValue(ControlValue &value, bool sendMidiMessages);
 
     void print(void) const;
     void printValues(void) const;

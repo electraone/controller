@@ -295,7 +295,7 @@ void Control::addToParameterMap(ControlValue &value)
     lookupEntry->messageDestination.push_back(messageDestination);
 }
 
-void Control::setDefaultValue(ControlValue &value)
+void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 {
     MessageDestination messageDestination(this, &value);
 
@@ -336,7 +336,8 @@ void Control::setDefaultValue(ControlValue &value)
                               value.message.getType(),
                               value.message.getParameterNumber(),
                               midiValue,
-                              Origin::internal);
+                              sendMidiMessages ? Origin::internal
+                                               : Origin::file);
     }
 }
 

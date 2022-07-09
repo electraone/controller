@@ -675,7 +675,7 @@ void MainWindow::setDefaultValue(uint16_t controlId, uint8_t handle)
 {
     Control &control = preset.getControl(controlId);
     ControlValue &value = control.getValue(handle);
-    control.setDefaultValue(value);
+    control.setDefaultValue(value, true);
 }
 
 void MainWindow::setActiveControlSetType(
