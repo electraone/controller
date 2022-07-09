@@ -39,8 +39,7 @@ private:
     ActionButton *addButton(uint16_t id,
                             const char *label,
                             uint32_t colour,
-                            uint32_t colourActive,
-                            const Rectangle &bounds);
+                            uint32_t colourActive);
     void addActionButtons(void);
     void addSnapshotButtons(void);
     void runAction(uint8_t slot);

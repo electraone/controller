@@ -1,33 +1,22 @@
 #pragma once
 
-#include "Component.h"
+#include "Selection.h"
 #include "Model/Page.h"
 #include "UiApi.h"
-#include "Button.h"
 
-class PageSelection : public Component
+class PageSelection : public Selection
 {
 public:
-    PageSelection(Pages newPages, uint8_t newActivePage, UiApi &newUiApi);
+    PageSelection(Pages newPages,
+                  uint8_t newActivePage,
+                  UiApi &newUiApi,
+                  uint32_t newColour,
+                  uint32_t newActiveColour);
     virtual ~PageSelection() = default;
 
-    void paint(Graphics &g) override;
-    void resized(void) override;
-
 private:
-    static void paintTitleBar(Graphics &g,
-                              const char *title,
-                              uint16_t width,
-                              uint32_t colour);
-    static void paintIconPages(Graphics &g, uint16_t x, uint16_t y);
-
     void setActivePage(uint8_t newActivePage);
 
     Pages pages;
-    uint8_t activePage;
     UiApi &uiApi;
-
-    Button *button[12];
-
-    static constexpr uint8_t topPadding = 50;
 };

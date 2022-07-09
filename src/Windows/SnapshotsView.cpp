@@ -26,15 +26,20 @@ SnapshotsView::SnapshotsView(UiApi &newUiApi,
 void SnapshotsView::paint(Graphics &g)
 {
     g.fillAll(Colours::black);
-    paintTitleBar(g, "Snapshots", getWidth(), 0x0002);
 }
 
 void SnapshotsView::resized(void)
 {
+    loadButton->setBounds(10, 30, 154, 50);
+    loadAndStayButton->setBounds(180, 30, 154, 50);
+    sendCurrentButton->setBounds(435, 30, 154, 50);
+    removeButton->setBounds(690, 30, 154, 50);
+    saveButton->setBounds(860, 30, 154, 50);
+
     for (uint16_t x = 0; x < 6; x++) {
         for (uint16_t y = 0; y < 6; y++) {
             snapsButton[y * 6 + x]->setBounds(
-                x * 170 + 10, y * 74 + 125, 150, 55);
+                x * 170 + 10, y * 74 + 115, 150, 55);
         }
     }
 }
@@ -72,39 +77,18 @@ void SnapshotsView::snapshotsSwapped(uint8_t sourceBankNumber,
     repaint();
 }
 
-void SnapshotsView::paintTitleBar(Graphics &g,
-                                  const char *title,
-                                  uint16_t width,
-                                  uint32_t colour)
-{
-    g.setColour(colour);
-    g.fillRect(0, 0, width, 25);
-    paintIcon(g, 16, 5);
-    g.printText(
-        40, 8, title, TextStyle::smallTransparent, width, TextAlign::left);
-}
-
-void SnapshotsView::paintIcon(Graphics &g, uint16_t x, uint16_t y)
-{
-    g.setColour(Colours::white);
-    g.drawRect(x, y, 10, 13);
-    g.fillRect(x + 5, y + 3, 10, 13);
-}
-
 ActionButton *SnapshotsView::addButton(uint16_t id,
                                        const char *label,
                                        uint32_t colour,
-                                       uint32_t colourActive,
-                                       const Rectangle &bounds)
+                                       uint32_t colourActive)
 {
     ActionButton *button = new ActionButton();
 
     if (button) {
+        button->setId(id);
         button->setName(label);
-        button->setBounds(bounds);
         button->setLabel(label);
         button->setColours(colour, colourActive);
-        button->setId(id);
         addAndMakeVisible(button);
     }
     return (button);
@@ -112,8 +96,7 @@ ActionButton *SnapshotsView::addButton(uint16_t id,
 
 void SnapshotsView::addActionButtons(void)
 {
-    loadButton =
-        addButton(101, "LOAD", 0x0003, 0x0009, Rectangle(10, 40, 154, 50));
+    loadButton = addButton(101, "LOAD", 0x0003, 0x0009);
     if (loadButton) {
         loadButton->onClick = [this]() {
             logMessage("SnapshotsView: switch to mode load");
@@ -123,8 +106,7 @@ void SnapshotsView::addActionButtons(void)
         };
     }
 
-    loadAndStayButton = addButton(
-        102, "LOAD & STAY", 0x0003, 0x0009, Rectangle(180, 40, 154, 50));
+    loadAndStayButton = addButton(102, "LOAD & STAY", 0x0003, 0x0009);
     if (loadAndStayButton) {
         loadAndStayButton->onClick = [this]() {
             logMessage("SnapshotsView: switch to mode loadAndStay");
@@ -134,8 +116,7 @@ void SnapshotsView::addActionButtons(void)
         };
     }
 
-    sendCurrentButton = addButton(
-        103, "SEND CURRENT", 0x00e0, 0x00e0, Rectangle(435, 40, 154, 50));
+    sendCurrentButton = addButton(103, "SEND CURRENT", 0x00e0, 0x00e0);
     if (sendCurrentButton) {
         sendCurrentButton->onClick = [this]() {
             logMessage("SnapshotsView: send saved snapshot messages");
@@ -144,8 +125,7 @@ void SnapshotsView::addActionButtons(void)
         };
     }
 
-    removeButton =
-        addButton(104, "REMOVE", 0x1800, 0x4800, Rectangle(690, 40, 154, 50));
+    removeButton = addButton(104, "REMOVE", 0x1800, 0x4800);
     if (removeButton) {
         removeButton->onClick = [this]() {
             logMessage("SnapshotsView: switch to mode remove");
@@ -155,8 +135,7 @@ void SnapshotsView::addActionButtons(void)
         };
     }
 
-    saveButton = addButton(
-        105, "SAVE CURRENT", 0x1800, 0x3800, Rectangle(860, 40, 154, 50));
+    saveButton = addButton(105, "SAVE CURRENT", 0x1800, 0x3800);
 
     if (saveButton) {
         saveButton->onClick = [this]() {

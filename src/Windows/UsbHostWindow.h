@@ -1,30 +1,23 @@
 #pragma once
 
-#include "Window.h"
+#include "PopupWindow.h"
 #include "UsbHostPorts.h"
 #include "UiApi.h"
 
-class UsbHostWindow : public Window
+class UsbHostWindow : public PopupWindow
 {
 private:
-    UsbHostWindow(UiApi &newUiApi) : uiApi(newUiApi), content(nullptr)
+    UsbHostWindow(UiApi &newUiApi)
+        : uiApi(newUiApi),
+          PopupWindow(new UsbHostPorts(newUiApi), colour, activeColour)
     {
-        content = new UsbHostPorts(newUiApi);
-
-        if (content) {
-            setOwnedContent(content);
-        }
-        setName("UsbHostWindow");
-        setVisible(true);
-        logMessage("done");
+        setName("SETTINGS");
+        setBounds(0, 249, 1024, 345);
     }
 
 public:
     virtual ~UsbHostWindow() = default;
 
-    // API
-
-    // Events
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
@@ -44,5 +37,7 @@ public:
 
 private:
     UiApi &uiApi;
-    UsbHostPorts *content;
+
+    static constexpr uint32_t colour = 0x2820;
+    static constexpr uint32_t activeColour = 0x4860;
 };

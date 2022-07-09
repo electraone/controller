@@ -84,10 +84,13 @@ public:
     void snapshotBankSwitched(uint8_t newBankNumber) override
     {
         currentSnapshotBank = newBankNumber;
-        SnapshotsView *newSnapshotsView = new SnapshotsView(
+
+        if (snapshotsView) {
+            delete snapshotsView;
+        }
+        snapshotsView = new SnapshotsView(
             uiApi, projectId, newBankNumber, modes[modeIndex]);
-        snapshotsView = dynamic_cast<SnapshotsView *>(
-            replaceOwnedContent(newSnapshotsView));
+        replaceOwnedContent(snapshotsView);
     }
 
     // Events

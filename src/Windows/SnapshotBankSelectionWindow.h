@@ -1,31 +1,29 @@
 #pragma once
 
-#include "Window.h"
+#include "PopupWindow.h"
 #include "SnapshotBankSelection.h"
 #include "SnapshotsWindowDelegate.h"
 
-class SnapshotBankSelectionWindow : public Window
+class SnapshotBankSelectionWindow : public PopupWindow
 {
 private:
     SnapshotBankSelectionWindow(SnapshotsWindowDelegate &newDelegate,
                                 uint8_t bankNumber)
-        : delegate(newDelegate), content(nullptr)
+        : PopupWindow(new SnapshotBankSelection(newDelegate,
+                                                bankNumber,
+                                                colour,
+                                                activeColour),
+                      colour,
+                      activeColour),
+          delegate(newDelegate)
     {
-        content = new SnapshotBankSelection(newDelegate, bankNumber);
-
-        if (content) {
-            setOwnedContent(content);
-        }
-        setName("SnapshotBankSelectionWindow");
-        setVisible(true);
+        setName("SNAPSHOT BANKS");
+        setBounds(0, 365, 1024, 230);
     }
 
 public:
     virtual ~SnapshotBankSelectionWindow() = default;
 
-    // API
-
-    // Events
     void onButtonUp(uint8_t buttonId)
     {
         if (buttonId == 3) {
@@ -46,5 +44,7 @@ public:
 
 private:
     SnapshotsWindowDelegate &delegate;
-    SnapshotBankSelection *content;
+
+    static constexpr uint32_t colour = 0x0001;
+    static constexpr uint32_t activeColour = 0x0004;
 };

@@ -1,32 +1,30 @@
 #pragma once
 
-#include "Window.h"
+#include "PopupWindow.h"
 #include "PageSelection.h"
 #include "Model/Page.h"
 #include "UiApi.h"
 
-class PageSelectionWindow : public Window
+class PageSelectionWindow : public PopupWindow
 {
 private:
     PageSelectionWindow(Pages pages, uint8_t activePage, UiApi &newUiApi)
-        : uiApi(newUiApi), content(nullptr)
+        : PopupWindow(new PageSelection(pages,
+                                        activePage,
+                                        newUiApi,
+                                        colour,
+                                        activeColour),
+                      colour,
+                      activeColour),
+          uiApi(newUiApi)
     {
-        content = new PageSelection(pages, activePage, newUiApi);
-
-        if (content) {
-            setOwnedContent(content);
-        }
-
-        setName("PageSelectionWindow");
-        setVisible(true);
+        setName("PAGES");
+        setBounds(0, 365, 1024, 230);
     }
 
 public:
     virtual ~PageSelectionWindow() = default;
 
-    // API
-
-    // Events
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
@@ -53,5 +51,7 @@ public:
 
 private:
     UiApi &uiApi;
-    PageSelection *content;
+
+    static constexpr uint32_t colour = 0x0001;
+    static constexpr uint32_t activeColour = 0x0004;
 };

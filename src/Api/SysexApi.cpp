@@ -28,9 +28,7 @@ void SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
             sendPresetList(port);
         }
     } else if (cmd.isMidiLearnSwitch()) {
-        if (object
-            == ElectraCommand::Object::MidiLearnOff)
-        {
+        if (object == ElectraCommand::Object::MidiLearnOff) {
             disableMidiLearn(port);
         } else {
             enableMidiLearn(port);

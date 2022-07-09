@@ -1,33 +1,32 @@
 #pragma once
 
-#include "Window.h"
+#include "PopupWindow.h"
 #include "PresetSelection.h"
 #include "Model/Presets.h"
 #include "UiApi.h"
 
-class PresetSelectionWindow : public Window
+class PresetSelectionWindow : public PopupWindow
 {
 private:
     PresetSelectionWindow(const Presets &presets,
                           const PresetBanks &presetBanks,
                           UiApi &newUiApi)
-        : uiApi(newUiApi), content(nullptr)
+        : uiApi(newUiApi),
+          PopupWindow(new PresetSelection(presets,
+                                          presetBanks,
+                                          newUiApi,
+                                          colour,
+                                          activeColour),
+                      colour,
+                      activeColour)
     {
-        content = new PresetSelection(presets, presetBanks, uiApi);
-
-        if (content) {
-            setName("PresetSelectionWindow");
-            setOwnedContent(content);
-        }
-        setVisible(true);
+        setName("PRESETS");
+        setBounds(0, 275, 1024, 320);
     }
 
 public:
     virtual ~PresetSelectionWindow() = default;
 
-    // API
-
-    // Events
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
@@ -50,5 +49,7 @@ public:
 
 private:
     UiApi &uiApi;
-    PresetSelection *content;
+
+    static constexpr uint32_t colour = 0x2820;
+    static constexpr uint32_t activeColour = 0x4860;
 };

@@ -2,14 +2,15 @@
 
 PresetSelection::PresetSelection(const Presets &newPresets,
                                  const PresetBanks &newPresetBanks,
-                                 UiApi &newUiApi)
-    : presets(newPresets),
+                                 UiApi &newUiApi,
+                                 uint32_t newColour,
+                                 uint32_t newActiveColour)
+    : Selection(newPresets.getCurrentSlot(), newColour, newActiveColour),
+      presets(newPresets),
       presetBanks(newPresetBanks),
       uiApi(newUiApi),
-      active(presets.getCurrentSlot()),
       activeBank(uiApi.getCurrentPresetBank()),
-      bankButton{ nullptr },
-      button{ nullptr }
+      bankButton{ nullptr }
 {
     setName("PresetSelection");
 
@@ -38,51 +39,28 @@ PresetSelection::PresetSelection(const Presets &newPresets,
     }
 
     for (uint8_t i = 0; i < 12; i++) {
-        button[i] = new PresetButton();
-
         if (button[i]) {
-            button[i]->setId(i);
             button[i]->setLabel(presets.getPresetName(i));
-            button[i]->assignPot(i);
-
             button[i]->onClick = [this, i]() {
                 uiApi.switchPreset(presets.getCurrentBankNumber(), i);
                 return (true);
             };
-
-            if (active == i) {
-                button[i]->setSelected(true);
-            }
-            addAndMakeVisible(button[i]);
         }
     }
-    setBounds(0, 265, 1024, 310);
-}
-
-void PresetSelection::paint(Graphics &g)
-{
-    g.dim(0, 0, getWidth(), getHeight(), 0x0000);
-    g.dim(0, 0, getWidth(), getHeight(), 0x0020);
-
-    paintTitleBar(g, "Presets", getWidth(), 0x2820);
 }
 
 void PresetSelection::resized(void)
 {
     uint16_t segmentWidth = getWidth() / 6 - 2;
-    uint16_t segmentHeight = (getHeight() - topPadding - 100) / 2 - 10;
+    uint16_t segmentHeight = 70;
 
     for (uint8_t i = 0; i < 6; i++) {
         uint16_t x = (i % 6) * segmentWidth;
-        uint16_t y = ((i < 6) ? 0 : segmentHeight + 10) + topPadding;
+        uint16_t y = ((i < 6) ? 0 : segmentHeight + 20);
         bankButton[i]->setBounds(x + 12, y, segmentWidth - 10, segmentHeight);
     }
 
-    for (uint8_t i = 0; i < 12; i++) {
-        uint16_t x = (i % 6) * segmentWidth;
-        uint16_t y = ((i < 6) ? 0 : segmentHeight + 10) + topPadding;
-        button[i]->setBounds(x + 12, y + 100, segmentWidth - 10, segmentHeight);
-    }
+    Selection::resized();
 }
 
 void PresetSelection::setActiveBank(uint8_t newActiveBank)
@@ -93,25 +71,7 @@ void PresetSelection::setActiveBank(uint8_t newActiveBank)
     for (uint8_t i = 0; i < 12; i++) {
         button[i]->setLabel(presets.getPresetName(i));
     }
+
     bankButton[activeBank]->setSelected(true);
     repaint();
-}
-
-void PresetSelection::paintTitleBar(Graphics &g,
-                                    const char *title,
-                                    uint16_t width,
-                                    uint32_t colour)
-{
-    g.setColour(colour);
-    g.fillRect(0, 0, width, 25);
-    paintIcon(g, 16, 5);
-    g.printText(
-        40, 8, title, TextStyle::smallTransparent, width, TextAlign::left);
-}
-
-void PresetSelection::paintIcon(Graphics &g, uint16_t x, uint16_t y)
-{
-    g.setColour(Colours::white);
-    g.drawRect(x, y, 10, 13);
-    g.fillRect(x + 5, y + 3, 10, 13);
 }
