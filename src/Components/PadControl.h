@@ -126,8 +126,8 @@ public:
         bounds.setHeight(getHeight() - 6);
         LookAndFeel::paintPad(g, bounds, colour, getState());
         g.printText(
-            2,
-            getHeight() / 2 - 7,
+            0,
+            getHeight() / 2 - 10,
             getName(),
             getState() ? TextStyle::mediumBlackOnWhite
                        : TextStyle::mediumWhiteOnBlack,
