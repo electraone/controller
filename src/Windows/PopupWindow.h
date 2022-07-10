@@ -40,7 +40,7 @@ protected:
                               uint16_t width,
                               uint32_t colour)
     {
-        g.dim(0, 0, width, 10, colour);
+        g.dim(0, 0, width, 10, Colours::black);
         g.setColour(colour);
         g.fillRect(0, 10, width, 30);
         paintIcon(g, 16, 15);

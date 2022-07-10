@@ -23,6 +23,11 @@ MainWindow::MainWindow(Model &newModel, Midi &newMidi, Config &newConfig)
       currentSnapshotBank(0)
 {
     setName("mainWindow");
+    setBounds(0, 25, 1024, 575);
+}
+
+void MainWindow::resized(void)
+{
 }
 
 void MainWindow::onButtonDown(uint8_t buttonId)

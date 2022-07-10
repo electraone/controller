@@ -23,7 +23,11 @@ void ControlComponent::onControlUpdated(void)
 {
     Component *c = this;
 
-    c->setBounds(control.getBounds());
+    // teak control's position. far from optimal,
+    auto bounds = control.getBounds();
+    bounds.setY(bounds.getY() * 1.02f - 10);
+    c->setBounds(bounds);
+
     c->setName(control.getName());
     c->setId(control.getId());
     c->setVisible(control.isVisible());

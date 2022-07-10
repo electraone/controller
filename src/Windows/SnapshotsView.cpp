@@ -20,7 +20,7 @@ SnapshotsView::SnapshotsView(UiApi &newUiApi,
     addActionButtons();
     addSnapshotButtons();
     setMode(newMode);
-    setBounds(0, 6, 1024, 570);
+    setBounds(0, 0, 1024, 554);
 }
 
 void SnapshotsView::paint(Graphics &g)
@@ -30,16 +30,16 @@ void SnapshotsView::paint(Graphics &g)
 
 void SnapshotsView::resized(void)
 {
-    loadButton->setBounds(10, 30, 154, 50);
-    loadAndStayButton->setBounds(180, 30, 154, 50);
-    sendCurrentButton->setBounds(435, 30, 154, 50);
-    removeButton->setBounds(690, 30, 154, 50);
-    saveButton->setBounds(860, 30, 154, 50);
+    loadButton->setBounds(12, 25, 154, 50);
+    loadAndStayButton->setBounds(181, 25, 154, 50);
+    sendCurrentButton->setBounds(442, 25, 154, 50);
+    removeButton->setBounds(688, 25, 154, 50);
+    saveButton->setBounds(857, 25, 154, 50);
 
     for (uint16_t x = 0; x < 6; x++) {
         for (uint16_t y = 0; y < 6; y++) {
             snapsButton[y * 6 + x]->setBounds(
-                x * 170 + 10, y * 74 + 115, 150, 55);
+                x * 169 + 14, y * 74 + 100, 150, 55);
         }
     }
 }

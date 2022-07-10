@@ -183,10 +183,8 @@ bool Presets::loadPresetById(int presetId)
         runPresetLuaScript();
     } else {
         logMessage("loadPresetById: preset loading failed");
-        //bottomBar.update(preset.getName(), preset.pages[0].getName());
     }
 
-    //sendPresetSwitch(presetId / 12, presetId % 12);
     readyForPresetSwitch = true;
 
     return (true);

@@ -12,7 +12,7 @@ private:
           PopupWindow(new UsbHostPorts(newUiApi), colour, activeColour)
     {
         setName("SETTINGS");
-        setBounds(0, 249, 1024, 345);
+        setBounds(0, 223, 1024, 352);
     }
 
 public:

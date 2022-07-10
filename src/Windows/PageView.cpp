@@ -14,12 +14,11 @@ PageView::PageView(const Preset &preset,
       controlSetId(activeControlSetId),
       bottomBar(nullptr)
 {
-    setBounds(0, 0, 1024, 575);
     setName("PageView");
-
     addGroups(model.groups);
     addControls(model.controls);
     addBottomBar(model.getName(), model.getPage(pageId).getName());
+    setBounds(0, 0, 1024, 575);
 }
 
 PageView::~PageView(void)
@@ -123,6 +122,7 @@ void PageView::paint(Graphics &g)
 
 void PageView::resized(void)
 {
+    bottomBar->setBounds(12, 550, 1000, 22);
 }
 
 void PageView::addControls(const Controls &controls)
@@ -160,7 +160,6 @@ void PageView::addGroups(const Groups &groups)
 void PageView::addBottomBar(const char *presetName, const char *pageName)
 {
     bottomBar = new BottomBar(presetName, pageName);
-    bottomBar->setBounds(0, 555, 1024, 19);
 
     if (bottomBar) {
         addAndMakeVisible(bottomBar);

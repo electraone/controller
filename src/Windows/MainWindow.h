@@ -20,6 +20,8 @@ public:
     MainWindow(Model &newModel, Midi &newMidi, Config &newConfig);
     virtual ~MainWindow() = default;
 
+    void resized(void) override;
+
     void onButtonDown(uint8_t buttonId) override;
     void onButtonUp(uint8_t buttonId) override;
 

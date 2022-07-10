@@ -19,7 +19,7 @@ private:
           uiApi(newUiApi)
     {
         setName("PAGES");
-        setBounds(0, 365, 1024, 230);
+        setBounds(0, 340, 1024, 235);
     }
 
 public:
