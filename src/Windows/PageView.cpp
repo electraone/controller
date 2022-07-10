@@ -102,6 +102,12 @@ void PageView::changePageName(const char *newName)
     bottomBar->repaint();
 }
 
+void PageView::setInfoText(const char *newText)
+{
+    bottomBar->setInfoText(newText);
+    bottomBar->repaint();
+}
+
 void PageView::paint(Graphics &g)
 {
     g.fillAll(Colours::black);

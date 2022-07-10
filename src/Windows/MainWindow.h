@@ -63,6 +63,7 @@ public:
     void setControlSlot(uint16_t controlId, uint8_t newSlot) override;
 
     void setPageName(uint8_t pageId, const char *newName) override;
+    void setInfoText(const char *newText) override;
 
     void setGroupLabel(uint16_t groupId, const char *newLabel) override;
     void setGroupColour(uint16_t groupId, uint8_t newColour) override;

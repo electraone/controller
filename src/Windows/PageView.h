@@ -23,6 +23,7 @@ public:
     void onTouchDown(const TouchEvent &touchEvent) override;
     void reassignComponent(const Control &control);
     void changePageName(const char *newName);
+    void setInfoText(const char *newText);
 
     void paint(Graphics &g) override;
     void resized(void) override;

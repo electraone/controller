@@ -332,6 +332,11 @@ void MainWindow::setPageName(uint8_t pageId, const char *newName)
     }
 }
 
+void MainWindow::setInfoText(const char *newText)
+{
+    pageView->setInfoText(newText);
+}
+
 void MainWindow::setGroupLabel(uint16_t groupId, const char *newLabel)
 {
     Group &group = preset.getGroup(groupId);
@@ -554,6 +559,7 @@ void MainWindow::saveSnapshot(const char *projectId,
         newName,
         newColour);
     snapshots.saveSnapshot(projectId, bankNumber, slot, newName, newColour);
+    setInfoText(newName);
     if (snapshotsWindow && strcmp(projectId, preset.getProjectId()) == 0) {
         snapshotsWindow->snapshotSaved(bankNumber, slot, newName, newColour);
     }

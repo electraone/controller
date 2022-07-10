@@ -43,8 +43,9 @@ public:
                                   const Rectangle &bounds) = 0;
     virtual void setControlSlot(uint16_t controlId, uint8_t newSlot) = 0;
 
-    // Pages
+    // BottomBar
     virtual void setPageName(uint8_t pageId, const char *newName) = 0;
+    virtual void setInfoText(const char *newText) = 0;
 
     // Groups
     virtual void setGroupLabel(uint16_t groupId, const char *newLabel) = 0;
