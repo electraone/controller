@@ -24,6 +24,7 @@ public:
     void reassignComponent(const Control &control);
     void changePageName(const char *newName);
     void setInfoText(const char *newText);
+    void setRamPercentage(uint8_t newPercentage);
 
     void paint(Graphics &g) override;
     void resized(void) override;

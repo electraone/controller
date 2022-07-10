@@ -108,6 +108,12 @@ void PageView::setInfoText(const char *newText)
     bottomBar->repaint();
 }
 
+void PageView::setRamPercentage(uint8_t newPercentage)
+{
+    bottomBar->setRamPercentage(newPercentage);
+    bottomBar->repaint();
+}
+
 void PageView::paint(Graphics &g)
 {
     g.fillAll(Colours::black);

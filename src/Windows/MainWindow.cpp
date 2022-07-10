@@ -187,6 +187,7 @@ void MainWindow::repaintControl(uint16_t controlId)
     }
 }
 
+// 'todo Deduplicate loadPreset and switchPreset functions'
 bool MainWindow::loadPreset(LocalFile &file)
 {
     uint8_t attempt = 0;
@@ -335,6 +336,11 @@ void MainWindow::setPageName(uint8_t pageId, const char *newName)
 void MainWindow::setInfoText(const char *newText)
 {
     pageView->setInfoText(newText);
+}
+
+void MainWindow::setRamPercentage(uint8_t newPercentage)
+{
+    pageView->setRamPercentage(newPercentage);
 }
 
 void MainWindow::setGroupLabel(uint16_t groupId, const char *newLabel)
@@ -765,6 +771,7 @@ void MainWindow::displayPage(void)
                             currentPageId,
                             currentControlSetId);
     replaceOwnedContent(pageView);
+    setRamPercentage(getUsedMemory());
 }
 
 void MainWindow::showDetailOfActivePotTouch(void)

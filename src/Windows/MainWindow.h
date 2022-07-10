@@ -64,6 +64,7 @@ public:
 
     void setPageName(uint8_t pageId, const char *newName) override;
     void setInfoText(const char *newText) override;
+    void setRamPercentage(uint8_t newPercentage) override;
 
     void setGroupLabel(uint16_t groupId, const char *newLabel) override;
     void setGroupColour(uint16_t groupId, uint8_t newColour) override;

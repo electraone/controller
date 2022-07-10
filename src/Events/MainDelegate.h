@@ -46,6 +46,7 @@ public:
     // BottomBar
     virtual void setPageName(uint8_t pageId, const char *newName) = 0;
     virtual void setInfoText(const char *newText) = 0;
+    virtual void setRamPercentage(uint8_t newPercentage) = 0;
 
     // Groups
     virtual void setGroupLabel(uint16_t groupId, const char *newLabel) = 0;
