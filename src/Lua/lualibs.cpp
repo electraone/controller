@@ -20,6 +20,7 @@ void loadLuaLibs(void)
                                            { "helpers", luaopen_helpers },
                                            { "window", luaopen_window },
                                            { "patch", luaopen_patch },
+                                           { "info", luaopen_info },
                                            { NULL, NULL } };
 
     luaLE_openEoslibs(L, ctrlv2libs);

@@ -6,7 +6,8 @@
 #include "luabridge.h"
 
 MainWindow::MainWindow(Model &newModel, Midi &newMidi, Config &newConfig)
-    : preset(newModel.currentPreset),
+    : model(newModel),
+      preset(newModel.currentPreset),
       snapshots(newModel.snapshots),
       presets(newModel.presets),
       midi(newMidi),
@@ -204,7 +205,8 @@ bool MainWindow::loadPreset(LocalFile &file)
 
     closeAllWindows();
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
-
+    setInfoText("");
+    
     if (!preset.isValid()) {
         logMessage("handleCtrlFileReceived: preset upload failed");
         return (false);
@@ -335,7 +337,10 @@ void MainWindow::setPageName(uint8_t pageId, const char *newName)
 
 void MainWindow::setInfoText(const char *newText)
 {
-    pageView->setInfoText(newText);
+    model.info.setText(newText);
+    if (pageView) {
+        pageView->setInfoText(newText);
+    }
 }
 
 void MainWindow::setRamPercentage(uint8_t newPercentage)
@@ -491,6 +496,7 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
     snapshots.initialise(preset.getProjectId());
     parameterMap.setProjectId(preset.getProjectId());
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
+    setInfoText("");
 }
 
 void MainWindow::switchPresetNext(void)
@@ -565,7 +571,7 @@ void MainWindow::saveSnapshot(const char *projectId,
         newName,
         newColour);
     snapshots.saveSnapshot(projectId, bankNumber, slot, newName, newColour);
-    setInfoText(newName);
+
     if (snapshotsWindow && strcmp(projectId, preset.getProjectId()) == 0) {
         snapshotsWindow->snapshotSaved(bankNumber, slot, newName, newColour);
     }
@@ -772,6 +778,7 @@ void MainWindow::displayPage(void)
                             currentControlSetId);
     replaceOwnedContent(pageView);
     setRamPercentage(getUsedMemory());
+    setInfoText(model.info.getText());
 }
 
 void MainWindow::showDetailOfActivePotTouch(void)

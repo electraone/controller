@@ -157,6 +157,7 @@ private:
     Rectangle getDetailBounds(const Control &control);
 
     // MainWindow data
+    Model &model;
     Preset &preset;
     Snapshots &snapshots;
     Presets &presets;

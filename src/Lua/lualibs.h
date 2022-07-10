@@ -4,6 +4,7 @@
 #include "Device.h"
 #include "luaWindow.h"
 #include "luaPatch.h"
+#include "luaInfo.h"
 #include "luaParameterMap.h"
 #include "luaLE.h"
 

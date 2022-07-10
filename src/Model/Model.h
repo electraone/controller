@@ -2,6 +2,7 @@
 
 #include "Presets.h"
 #include "Snapshots.h"
+#include "Info.h"
 
 struct Model {
     explicit Model(const char *newAppSandbox)
@@ -16,4 +17,5 @@ struct Model {
     Presets presets;
     Snapshots snapshots;
     Preset &currentPreset;
+    Info info;
 };
