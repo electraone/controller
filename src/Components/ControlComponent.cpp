@@ -21,16 +21,14 @@ ControlComponent::ControlComponent(const Control &controlToAssign,
 
 void ControlComponent::onControlUpdated(void)
 {
-    Component *c = this;
-
     // teak control's position. far from optimal,
     auto bounds = control.getBounds();
     bounds.setY(bounds.getY() * 1.02f - 10);
-    c->setBounds(bounds);
+    setBounds(bounds);
 
-    c->setName(control.getName());
-    c->setId(control.getId());
-    c->setVisible(control.isVisible());
+    setName(control.getName());
+    setId(control.getId());
+    setVisible(control.isVisible());
 }
 
 void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
