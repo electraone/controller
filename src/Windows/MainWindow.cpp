@@ -206,7 +206,7 @@ bool MainWindow::loadPreset(LocalFile &file)
     closeAllWindows();
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
     setInfoText("");
-    
+
     if (!preset.isValid()) {
         logMessage("handleCtrlFileReceived: preset upload failed");
         return (false);
@@ -854,6 +854,7 @@ void MainWindow::closeAllWindows(void)
     closeDetail();
     closePresetSelection();
     closePageSelection();
+    closeUsbHostPorts();
     closeSnapshots();
 }
 
