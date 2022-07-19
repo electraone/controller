@@ -4,6 +4,7 @@
 #include "SnapsButton.h"
 #include "ActionButton.h"
 #include "UiApi.h"
+#include "System.h"
 
 class SnapshotsView : public Component
 {
@@ -14,7 +15,7 @@ public:
                   const char *newProjectId,
                   uint8_t newBankNumber,
                   Mode newMode);
-    virtual ~SnapshotsView() = default;
+    virtual ~SnapshotsView();
 
     void paint(Graphics &g) override;
     void resized(void) override;

@@ -23,6 +23,13 @@ SnapshotsView::SnapshotsView(UiApi &newUiApi,
     setBounds(0, 0, 1024, 554);
 }
 
+SnapshotsView::~SnapshotsView()
+{
+    System::tasks.disableRepaintGraphics();
+    System::tasks.clearRepaintGraphics();
+    System::tasks.enableRepaintGraphics();
+}
+
 void SnapshotsView::paint(Graphics &g)
 {
     g.fillAll(Colours::black);

@@ -169,6 +169,7 @@ void MainWindow::closeSnapshots(void)
 {
     Window::close(snapshotsWindow);
     snapshotsWindow = nullptr;
+    repaintPage();
 }
 
 void MainWindow::repaintPage(void)
