@@ -36,6 +36,8 @@ public:
 protected:
     const Control &control;
     MainDelegate &delegate;
-    bool useAltBackground;
-    bool active;
+    struct {
+        bool useAltBackground : 1;
+        bool active : 1;
+    };
 };
