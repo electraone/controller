@@ -91,6 +91,10 @@ public:
         snapshotsView = new SnapshotsView(
             uiApi, projectId, newBankNumber, modes[modeIndex]);
         replaceOwnedContent(snapshotsView);
+
+        if (snapshotBankSelectionWindow) {
+            snapshotBankSelectionWindow->repaint();
+        }
     }
 
     // Events
