@@ -60,7 +60,7 @@ public:
     void onPotTouchDown(const PotEvent &potEvent) override
     {
         showActiveSegment(true);
-        delegate.setActivePotTouch(potEvent.getPotId(), this);
+        ControlComponent::onPotTouchDown(potEvent);
     }
 
     void onPotChange(const PotEvent &potEvent) override
@@ -75,7 +75,7 @@ public:
     void onPotTouchUp(const PotEvent &potEvent) override
     {
         showActiveSegment(false);
-        delegate.resetActivePotTouch(potEvent.getPotId());
+        ControlComponent::onPotTouchUp(potEvent);
     }
 
     void onMidiValueChange(const ControlValue &value,
@@ -121,6 +121,7 @@ public:
                     getWidth(),
                     TextAlign::center,
                     2);
+        ControlComponent::paint(g);
     }
 
 private:

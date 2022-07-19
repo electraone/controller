@@ -63,6 +63,11 @@ public:
         }
     }
 
+    virtual void onPotTouchDown(const PotEvent &potEvent) override
+    {
+        ControlComponent::onPotTouchDown(potEvent);
+    }
+
     virtual void onPotChange(const PotEvent &potEvent) override
     {
         int16_t delta = potEvent.getAcceleratedChange();
@@ -104,6 +109,7 @@ public:
                 cv.callFunction(false);
             }
         }
+        ControlComponent::onPotTouchUp(potEvent);
     }
 
     virtual void onMidiValueChange(const ControlValue &value,
@@ -119,6 +125,8 @@ public:
 
     void paint(Graphics &g) override
     {
+        g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
+                                        : LookAndFeel::backgroundColour);
         auto bounds = getBounds();
         bounds.setX(0);
         bounds.setY(3);
@@ -134,6 +142,7 @@ public:
             bounds.getWidth(),
             TextAlign::center,
             control.getColour()); // needed to use the legacy text colours
+        ControlComponent::paint(g);
     }
 
     void emitValueChange(int16_t newDisplayValue, const ControlValue &cv)

@@ -15,8 +15,19 @@
 
 ControlComponent::ControlComponent(const Control &controlToAssign,
                                    MainDelegate &newDelegate)
-    : control(controlToAssign), delegate(newDelegate), useAltBackground(false)
+    : control(controlToAssign),
+      delegate(newDelegate),
+      useAltBackground(false),
+      active(false)
 {
+}
+
+void ControlComponent::paint(Graphics &g)
+{
+    if (active) {
+        g.setColour(0x4228);
+        g.fillRect(0, getHeight() - 2, getWidth(), 2);
+    }
 }
 
 void ControlComponent::onControlUpdated(void)
@@ -46,6 +57,18 @@ void ControlComponent::onTouchDoubleClick(const TouchEvent &touchEvent)
         handle = en->getActiveSegment();
     }
     delegate.setDefaultValue(getId(), handle);
+}
+
+void ControlComponent::onPotTouchDown(const PotEvent &potEvent)
+{
+    delegate.setActivePotTouch(potEvent.getPotId(), this);
+    setActive(true);
+}
+
+void ControlComponent::onPotTouchUp(const PotEvent &potEvent)
+{
+    delegate.resetActivePotTouch(potEvent.getPotId());
+    setActive(false);
 }
 
 void ControlComponent::updateValueFromParameterMap(void)
@@ -94,6 +117,12 @@ void ControlComponent::setUseAltBackground(bool shouldUseAltBackground)
 bool ControlComponent::getUseAltBackground(void) const
 {
     return (useAltBackground);
+}
+
+void ControlComponent::setActive(bool shouldBeActive)
+{
+    active = shouldBeActive;
+    repaint();
 }
 
 ControlComponent *

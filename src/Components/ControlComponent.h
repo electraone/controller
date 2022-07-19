@@ -11,6 +11,8 @@ public:
     ControlComponent(const Control &controlToAssign, MainDelegate &newDelegate);
     virtual ~ControlComponent() = default;
 
+    virtual void paint(Graphics &g) override;
+
     virtual void onControlUpdated(void);
     virtual void onMidiValueChange(const ControlValue &value,
                                    int16_t midiValue,
@@ -18,10 +20,13 @@ public:
     virtual void updateValueFromParameterMap(void);
     virtual void onTouchLongHold(const TouchEvent &touchEvent) override;
     virtual void onTouchDoubleClick(const TouchEvent &touchEvent) override;
+    virtual void onPotTouchDown(const PotEvent &potEvent) override;
+    virtual void onPotTouchUp(const PotEvent &potEvent) override;
     virtual void emitValueChange(int16_t newDisplayValue,
                                  const ControlValue &cv);
     void setUseAltBackground(bool shouldUseAltBackground);
     bool getUseAltBackground(void) const;
+    void setActive(bool shouldBeActive);
     static ControlComponent *createControlComponent(const Control &control,
                                                     MainDelegate &newDelegate);
     static ControlComponent *
@@ -32,4 +37,5 @@ protected:
     const Control &control;
     MainDelegate &delegate;
     bool useAltBackground;
+    bool active;
 };

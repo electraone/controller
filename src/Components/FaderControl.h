@@ -42,7 +42,7 @@ public:
 
     virtual void onPotTouchDown(const PotEvent &potEvent) override
     {
-        delegate.setActivePotTouch(potEvent.getPotId(), this);
+        ControlComponent::onPotTouchDown(potEvent);
     }
 
     virtual void onPotChange(const PotEvent &potEvent) override
@@ -55,7 +55,7 @@ public:
 
     virtual void onPotTouchUp(const PotEvent &potEvent) override
     {
-        delegate.resetActivePotTouch(potEvent.getPotId());
+        ControlComponent::onPotTouchUp(potEvent);
     }
 
     virtual void onMidiValueChange(const ControlValue &value,
@@ -93,6 +93,7 @@ public:
                     getWidth(),
                     TextAlign::center,
                     2);
+        ControlComponent::paint(g);
     }
 
     AssignableList list;

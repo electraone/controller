@@ -29,12 +29,22 @@ public:
         emitValueChange(newDisplayValue, control.getValue(0));
     }
 
+    virtual void onPotTouchDown(const PotEvent &potEvent) override
+    {
+        ControlComponent::onPotTouchDown(potEvent);
+    }
+
     virtual void onPotChange(const PotEvent &potEvent) override
     {
         if (int16_t delta = potEvent.getAcceleratedChange()) {
             int16_t newDisplayValue = getValue() + delta;
             emitValueChange(newDisplayValue, control.getValue(0));
         }
+    }
+
+    virtual void onPotTouchUp(const PotEvent &potEvent) override
+    {
+        ControlComponent::onPotTouchUp(potEvent);
     }
 
     virtual void onMidiValueChange(const ControlValue &value,
