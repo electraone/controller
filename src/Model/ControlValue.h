@@ -25,8 +25,8 @@ public:
                  int16_t newMax,
                  uint8_t newOverlayId,
                  Message(newMessage),
-                 const std::string &newFormatter,
-                 const std::string &newFunction,
+                 uint8_t newFormatter,
+                 uint8_t newFunction,
                  Overlay *newOverlay);
 
     virtual ~ControlValue() = default;
@@ -57,14 +57,17 @@ public:
 	 * attributes
 	 */
 private:
-    uint8_t handle;
-    uint8_t index;
+    struct {
+        uint8_t handle : 4;
+        uint8_t index : 4;
+        uint8_t overlayId : 8;
+    };
+
     int16_t defaultValue;
     int16_t min;
     int16_t max;
-    uint8_t overlayId;
-    std::string formatter;
-    std::string function;
+    uint8_t formatter;
+    uint8_t function;
     Control *control;
     Overlay *overlay;
 

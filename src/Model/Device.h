@@ -123,11 +123,14 @@ public:
 private:
     static constexpr uint8_t MaxNameLength = 20;
 
-    uint8_t id;
+    struct {
+        uint8_t id : 6;
+        uint8_t port : 2;
+        uint8_t channel : 5;
+        uint16_t rate : 11;
+    };
+
     char name[MaxNameLength + 1];
-    uint8_t port;
-    uint8_t channel;
-    uint16_t rate;
     uint32_t tsLastMessage;
 
 public:

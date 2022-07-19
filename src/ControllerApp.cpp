@@ -38,7 +38,7 @@ void Controller::initialise(void)
         if (origin != Origin::midi && origin != Origin::file) {
             // \todo taking the first message destination might not be ok
             // in some situations
-            Message message = entry->messageDestination[0].value->message;
+            Message message = entry->messageDestination[0]->message;
             message.setValue(entry->midiValue);
             midi.sendMessage(message);
         }

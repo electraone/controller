@@ -7,7 +7,7 @@ class Rule
 {
 public:
     Rule()
-        : electraMessageType(ElectraMessageType::invalid),
+        : electraMessageType((uint8_t)ElectraMessageType::invalid),
           parameterNumber(0),
           byte(0),
           parameterBitPosition(0),
@@ -22,7 +22,7 @@ public:
          uint8_t newParameterBitPosition,
          uint8_t newByteBitPosition,
          uint8_t newBitWidth)
-        : electraMessageType(newElectraMessageType),
+        : electraMessageType((uint8_t)newElectraMessageType),
           parameterNumber(newParameterNumber),
           byte(newByte),
           parameterBitPosition(newParameterBitPosition),
@@ -33,7 +33,7 @@ public:
 
     ElectraMessageType getType(void) const
     {
-        return (electraMessageType);
+        return ((ElectraMessageType)electraMessageType);
     }
 
     uint8_t getParameterBitPosition(void) const
@@ -62,10 +62,10 @@ public:
     }
 
 private:
-    ElectraMessageType electraMessageType;
     uint16_t parameterNumber;
     uint16_t byte;
     struct {
+        uint8_t electraMessageType : 4;
         uint8_t parameterBitPosition : 4;
         uint8_t byteBitPosition : 4;
         uint8_t bitWidth : 4;

@@ -8,13 +8,16 @@ static const char *valueIdsAdr[] = { "attack", "decay", "release" };
 static const char *valueIdsDx7Env[] = { "l1", "r1", "l2", "r2",
                                         "l3", "r3", "l4", "r4" };
 
+// \todo this is a brute way of reducing memory usage by the ControlValue
+extern std::vector<std::string> luaFunctions;
+
 ControlValue::ControlValue()
     : handle(0),
       index(0),
+      overlayId(0),
       defaultValue(0),
       min(0),
       max(NOT_SET),
-      overlayId(0),
       control(nullptr),
       overlay(nullptr)
 {
@@ -28,8 +31,8 @@ ControlValue::ControlValue(Control *newControl,
                            int16_t newMax,
                            uint8_t newOverlayId,
                            Message(newMessage),
-                           const std::string &newFormatter,
-                           const std::string &newFunction,
+                           uint8_t newFormatter,
+                           uint8_t newFunction,
                            Overlay *newOverlay)
     : control(newControl),
       index(newIndex),
@@ -118,28 +121,29 @@ uint16_t ControlValue::getNumSteps(void) const
 
 const char *ControlValue::ControlValue::getFunction(void) const
 {
-    return (function.c_str());
+    return (luaFunctions[function].c_str());
 }
 
 const std::string ControlValue::getFormatter(void) const
 {
-    return (formatter);
+    return (luaFunctions[formatter]);
 }
 
 void ControlValue::callFormatter(int16_t value,
                                  char *buffer,
                                  size_t length) const
 {
-    if (L != nullptr && !formatter.empty()) {
-        runFormatter(formatter.c_str(), this, value, buffer, length);
+    if (L != nullptr && !luaFunctions[formatter].empty()) {
+        runFormatter(
+            luaFunctions[formatter].c_str(), this, value, buffer, length);
     }
 }
 
 void ControlValue::callFunction(int16_t value) const
 {
     if (L != nullptr && (value != MIDI_VALUE_DO_NOT_SEND)
-        && !function.empty()) {
-        runFunction(function.c_str(), this, value);
+        && !luaFunctions[function].empty()) {
+        runFunction(luaFunctions[function].c_str(), this, value);
     }
 }
 

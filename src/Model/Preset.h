@@ -14,6 +14,9 @@
 #include "Rule.h"
 #include "Checksum.h"
 
+// \todo this is a brute way of reducing memory usage by the ControlValue
+extern std::vector<std::string> luaFunctions;
+
 class Preset
 {
 public:
@@ -186,7 +189,6 @@ public: // Public on the purpose
     Groups groups;
     Controls controls;
     Overlays overlays;
-    std::vector<std::string> luaFunctions;
 
     static Page pageNotFound;
     static Device deviceNotFound;

@@ -287,35 +287,31 @@ Component *Control::getComponent(void) const
 
 void Control::addToParameterMap(ControlValue &value)
 {
-    MessageDestination messageDestination(this, &value);
     LookupEntry *lookupEntry =
         parameterMap.getOrCreate(value.message.getDeviceId(),
                                  value.message.getType(),
                                  value.message.getParameterNumber());
-    lookupEntry->messageDestination.push_back(messageDestination);
+    lookupEntry->messageDestination.push_back(&value);
 }
 
 void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 {
-    MessageDestination messageDestination(this, &value);
-
     // \todo replace this with polymorphism
     if (value.message.getType() == ElectraMessageType::start) {
         parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-            ->messageDestination.push_back(messageDestination);
+            ->messageDestination.push_back(&value);
     } else if (value.message.getType() == ElectraMessageType::stop) {
         parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-            ->messageDestination.push_back(messageDestination);
+            ->messageDestination.push_back(&value);
     } else if (value.message.getType() == ElectraMessageType::tune) {
         parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-            ->messageDestination.push_back(messageDestination);
+            ->messageDestination.push_back(&value);
     } else {
         LookupEntry *lookupEntry =
             parameterMap.getOrCreate(value.message.getDeviceId(),
                                      value.message.getType(),
                                      value.message.getParameterNumber());
-
-        lookupEntry->messageDestination.push_back(messageDestination);
+        lookupEntry->messageDestination.push_back(&value);
 
         int16_t midiValue = 0;
 

@@ -212,7 +212,7 @@ void ParameterMap::reset(void)
     setProjectId("undefined");
 
     for (auto &entry : entries) {
-        entry.messageDestination = std::vector<MessageDestination>();
+        entry.messageDestination = std::vector<ControlValue *>();
     }
     parameterMap.entries = std::vector<LookupEntry>();
 
@@ -237,8 +237,8 @@ void ParameterMap::print(void)
             entry.messageDestination.size());
         for (auto &md : entry.messageDestination) {
             logMessage("control: %s, value handle: %s",
-                       md.control->getName(),
-                       md.value->getId());
+                       md->getControl()->getName(),
+                       md->getId());
         }
     }
     logMessage("--<Parameter Map:end>--");
@@ -478,25 +478,25 @@ void ParameterMap::repaintParameterMap(void)
             for (auto &messageDestination : mapEntry.messageDestination) {
                 for (const auto &window : windows) {
                     Component *rc = window->getOwnedContent();
-                    Component *c =
-                        rc->findChildById(messageDestination.control->getId());
+                    Component *c = rc->findChildById(
+                        messageDestination->getControl()->getId());
 
                     if (c) {
 #ifdef DEBUG
                         logMessage(
                             "repaintParameterMap: repainting component: component: %s, controlId=%d, value=%s",
                             c->getName(),
-                            messageDestination.control->getId(),
-                            messageDestination.value->getId());
+                            messageDestination->getControl()->getId(),
+                            messageDestination->getId());
 #endif
                         ControlComponent *cc =
                             dynamic_cast<ControlComponent *>(c);
 
                         if (cc) {
                             cc->onMidiValueChange(
-                                *messageDestination.value,
+                                *messageDestination,
                                 mapEntry.midiValue,
-                                messageDestination.value->getHandle());
+                                messageDestination->getHandle());
                         }
                     }
                 }

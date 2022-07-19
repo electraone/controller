@@ -38,6 +38,8 @@ public:
     }
 
 private:
-    uint8_t valueId;
-    uint8_t potId;
+    struct {
+        uint8_t valueId : 4;
+        uint8_t potId : 4;
+    };
 };

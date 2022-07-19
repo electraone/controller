@@ -72,10 +72,13 @@ public:
 private:
     static constexpr uint8_t MaxNameLength = 20;
 
-    uint8_t id;
+    struct {
+        uint8_t id : 4;
+        uint8_t defaultControlSetId : 3;
+        bool hasObjects : 1;
+    };
+
     char name[MaxNameLength + 1];
-    uint8_t defaultControlSetId;
-    bool hasObjects;
 };
 
 typedef std::map<uint8_t, Page> Pages;

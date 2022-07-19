@@ -229,18 +229,16 @@ void Midi::runLuaFunction(uint16_t &i,
     i++;
     uint8_t functionId = data[i];
 
-    logMessage("function: %d (%s)",
-               functionId,
-               model.luaFunctions[functionId].c_str());
+    logMessage(
+        "function: %d (%s)", functionId, luaFunctions[functionId].c_str());
 
     parameterId = parameterIdLSB + (parameterIdMSB * 128);
     parameterValue = parameterMap.getValue(
         device.getId(), (ElectraMessageType)type, parameterId);
 
-    if (L && (model.luaFunctions.size() > 0)) {
-        byteToSend = runTemplateFunction(model.luaFunctions[functionId].c_str(),
-                                         (void *)&device,
-                                         parameterValue);
+    if (L && (luaFunctions.size() > 0)) {
+        byteToSend = runTemplateFunction(
+            luaFunctions[functionId].c_str(), (void *)&device, parameterValue);
     }
 
     dataOut[j] = byteToSend & 0x7F;

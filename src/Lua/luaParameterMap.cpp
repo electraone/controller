@@ -58,9 +58,15 @@ int parameterMap_send(lua_State *L)
         parameterMap.get(deviceId, (ElectraMessageType)type, parameterNumber);
 
     if (entry) {
-        for (auto &dest : entry->messageDestination) {
-            dest.value->message.setValue(entry->midiValue);
+        for (auto value : entry->messageDestination) {
+            /*
+            parameterMap.setValue(deviceId,
+                                  (ElectraMessageType)type,
+                                  parameterNumber,
+                                  midiValue,
+                                  Origin::lua);
             dest.value->message.setEvent(Event::change);
+            */
             //electraMidi.sendMessage(&dest.value->message);
         }
     }
@@ -118,12 +124,10 @@ int parameterMap_getValues(lua_State *L)
         if (entry->messageDestination.size() > 0) {
             lua_newtable(L);
 
-            for (auto &dest : entry->messageDestination) {
-                if (dest.control) {
-                    if (dest.value) {
-                        luaLE_pushArrayObject(L, i, "Value", dest.value);
-                        i++;
-                    }
+            for (auto value : entry->messageDestination) {
+                if (value) {
+                    luaLE_pushArrayObject(L, i, "Value", value);
+                    i++;
                 }
             }
             return (1);
@@ -143,12 +147,10 @@ void parameterMap_onChange(LookupEntry *entry, Origin origin)
         if (entry->messageDestination.size() > 0) {
             lua_newtable(L);
 
-            for (auto &dest : entry->messageDestination) {
-                if (dest.control) {
-                    if (dest.value) {
-                        luaLE_pushArrayObject(L, i, "Value", dest.value);
-                        i++;
-                    }
+            for (auto value : entry->messageDestination) {
+                if (value) {
+                    luaLE_pushArrayObject(L, i, "Value", value);
+                    i++;
                 }
             }
         }

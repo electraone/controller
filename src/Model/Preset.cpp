@@ -2,11 +2,15 @@
 #include "Hardware.h"
 #include "Colours.h"
 #include "JsonTools.h"
+#include "System.h"
 
 Page Preset::pageNotFound;
 Device Preset::deviceNotFound;
 Control Preset::controlNotFound;
 Group Preset::groupNotFound;
+
+// \todo this is a brute way of reducing memory usage by the ControlValue
+std::vector<std::string> luaFunctions;
 
 Preset::Preset() : valid(false)
 {
@@ -257,6 +261,8 @@ const Control &Preset::getControl(uint16_t controlId) const
  */
 bool Preset::parse(File &file)
 {
+    monitorFreeMemory();
+    logMessage("<-- root");
     if (!parseRoot(file)) {
         logMessage("Preset::parse: parseName failed");
         reset();
@@ -270,36 +276,47 @@ bool Preset::parse(File &file)
         return (false);
     }
 
+    monitorFreeMemory();
+    logMessage("<-- pages");
     if (!parsePages(file)) {
         logMessage("Preset::parse: parsePages failed");
         reset();
         return (false);
     }
 
+    monitorFreeMemory();
+    logMessage("<-- devices");
     if (!parseDevices(file)) {
         logMessage("Preset::parse: parseDevices failed");
         reset();
         return (false);
     }
 
+    monitorFreeMemory();
+    logMessage("<-- overlays");
     if (!parseOverlays(file)) {
         logMessage("Preset::parse: parseOverlays failed");
         reset();
         return (false);
     }
 
+    monitorFreeMemory();
+    logMessage("<-- groups");
     if (!parseGroups(file)) {
         logMessage("Preset::parse: parseGroups failed");
         reset();
         return (false);
     }
 
+    monitorFreeMemory();
+    logMessage("<-- controls");
     if (!parseControls(file)) {
         logMessage("Preset::parse: parseControls failed");
         reset();
         return (false);
     }
-
+    monitorFreeMemory();
+    logMessage("<-- done");
 #ifdef DEBUG
     logMessage("Preset::parse: successfully parsed preset: name=%s, version=%d",
                name,
@@ -1250,8 +1267,10 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
                          max,
                          overlayId,
                          message,
-                         luaFunctions[formatterIndex],
-                         luaFunctions[functionIndex],
+                         //luaFunctions[formatterIndex],
+                         //luaFunctions[functionIndex],
+                         formatterIndex,
+                         functionIndex,
                          overlay));
 }
 

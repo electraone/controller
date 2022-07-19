@@ -11,16 +11,6 @@
 
 class ParameterMapWindow;
 
-struct MessageDestination {
-    MessageDestination() : control(nullptr), value(nullptr){};
-
-    MessageDestination(Control *newControl, ControlValue *newValue)
-        : control(newControl), value(newValue){};
-
-    Control *control;
-    ControlValue *value;
-};
-
 struct LookupEntry {
     LookupEntry(uint32_t newHash, uint16_t newMidiValue)
         : hash(newHash), midiValue(newMidiValue), dirty(false){};
@@ -28,7 +18,7 @@ struct LookupEntry {
     uint32_t hash;
     uint16_t midiValue;
     bool dirty;
-    std::vector<MessageDestination> messageDestination;
+    std::vector<ControlValue *> messageDestination;
 };
 
 /** Message hash function.
