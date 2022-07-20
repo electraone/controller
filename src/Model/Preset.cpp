@@ -261,8 +261,6 @@ const Control &Preset::getControl(uint16_t controlId) const
  */
 bool Preset::parse(File &file)
 {
-    monitorFreeMemory();
-    logMessage("<-- root");
     if (!parseRoot(file)) {
         logMessage("Preset::parse: parseName failed");
         reset();
@@ -276,47 +274,36 @@ bool Preset::parse(File &file)
         return (false);
     }
 
-    monitorFreeMemory();
-    logMessage("<-- pages");
     if (!parsePages(file)) {
         logMessage("Preset::parse: parsePages failed");
         reset();
         return (false);
     }
 
-    monitorFreeMemory();
-    logMessage("<-- devices");
     if (!parseDevices(file)) {
         logMessage("Preset::parse: parseDevices failed");
         reset();
         return (false);
     }
 
-    monitorFreeMemory();
-    logMessage("<-- overlays");
     if (!parseOverlays(file)) {
         logMessage("Preset::parse: parseOverlays failed");
         reset();
         return (false);
     }
 
-    monitorFreeMemory();
-    logMessage("<-- groups");
     if (!parseGroups(file)) {
         logMessage("Preset::parse: parseGroups failed");
         reset();
         return (false);
     }
 
-    monitorFreeMemory();
-    logMessage("<-- controls");
     if (!parseControls(file)) {
         logMessage("Preset::parse: parseControls failed");
         reset();
         return (false);
     }
-    monitorFreeMemory();
-    logMessage("<-- done");
+
 #ifdef DEBUG
     logMessage("Preset::parse: successfully parsed preset: name=%s, version=%d",
                name,
