@@ -120,8 +120,11 @@ void PageView::paint(Graphics &g)
 
     if (uiFeatures.activeControlSetType == ActiveControlSetType::bars) {
         g.setColour(0x7BCF);
-        g.fillRect(4, 12 + controlSetId * 179, 1, 168);
-        g.fillRect(1018, 12 + controlSetId * 179, 1, 168);
+        g.fillRect(4, 12 + controlSetId * 179, 5, 168);
+        g.fillRect(1014, 12 + controlSetId * 179, 5, 168);
+        g.setColour(Colours::black);
+        g.fillRect(6, 14 + controlSetId * 179, 4, 164);
+        g.fillRect(1014, 14 + controlSetId * 179, 3, 164);
     } else if (uiFeatures.activeControlSetType
                == ActiveControlSetType::background) {
         g.backdrop(10,
