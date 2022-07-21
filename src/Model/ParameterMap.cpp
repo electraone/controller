@@ -144,9 +144,9 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
     if (entry && (midiValue != MIDI_VALUE_DO_NOT_SEND)) {
         // Commented out on purpose. It prevents sending of duplicate messages,
         // but it can be tricky and unwanted in certain situations.
-        // if (entry->midiValue == midiValue) {
-        //    return (nullptr);
-        //}
+        if (entry->midiValue == midiValue) {
+            return (nullptr);
+        }
 
         entry->dirty = true;
         entry->midiValue = midiValue;
