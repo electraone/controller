@@ -30,6 +30,7 @@ public:
     virtual void closeSnapshots(void) = 0;
     virtual void repaintPage(void) = 0;
     virtual void repaintControl(uint16_t controlId) = 0;
+    virtual void displayPage(void) = 0;
 
     // Controls
     virtual void setControlVisible(uint16_t controlId,

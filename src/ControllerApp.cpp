@@ -161,7 +161,10 @@ bool Controller::applyChangesToConfig(LocalFile file)
 {
     if (appConfig.load(file.getFilepath())) {
         appConfig.serialize();
-        return (loadConfig());
+        if (loadConfig()) {
+            delegate.displayPage();
+            return (true);
+        }
     }
     return (false);
 }

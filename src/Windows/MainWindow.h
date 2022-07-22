@@ -44,6 +44,7 @@ public:
     void closeSnapshots(void) override;
     void repaintPage(void) override;
     void repaintControl(uint16_t controlId) override;
+    void displayPage(void) override;
 
     //
     bool loadPreset(LocalFile &file) override;
@@ -147,7 +148,6 @@ public:
     bool isDetailOnTheLeft(void) const override;
 
 private:
-    void displayPage(void);
     void showDetailOfActivePotTouch(void);
     void showActiveHandle(Component *component, bool shouldBeShown);
     void switchToNextHandle(Component *component);
