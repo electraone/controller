@@ -49,6 +49,11 @@ ControlValue::ControlValue(Control *newControl,
     handle = translateId(newValueId);
 }
 
+void ControlValue::setControl(Control *newControl)
+{
+    control = newControl;
+}
+
 Control *ControlValue::getControl(void) const
 {
     return (control);

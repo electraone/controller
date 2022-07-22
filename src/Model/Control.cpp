@@ -287,11 +287,36 @@ Component *Control::getComponent(void) const
 
 void Control::addToParameterMap(ControlValue &value)
 {
+#ifdef DEBUG
+    logMessage("addToParameterMap: controlId: %d, handle: %d, address=%x",
+               value.getControl()->getId(),
+               value.getHandle(),
+               &value);
+#endif
     LookupEntry *lookupEntry =
         parameterMap.getOrCreate(value.message.getDeviceId(),
                                  value.message.getType(),
                                  value.message.getParameterNumber());
-    lookupEntry->messageDestination.push_back(&value);
+    if (lookupEntry) {
+        lookupEntry->messageDestination.push_back(&value);
+    }
+}
+
+void Control::removeFromParameterMap(ControlValue &value)
+{
+    LookupEntry *lookupEntry =
+        parameterMap.getOrCreate(value.message.getDeviceId(),
+                                 value.message.getType(),
+                                 value.message.getParameterNumber());
+    if (lookupEntry) {
+        for (uint16_t i = 0; i < lookupEntry->messageDestination.size(); i++) {
+            if (lookupEntry->messageDestination[i] == &value) {
+                lookupEntry->messageDestination.erase(
+                    lookupEntry->messageDestination.begin() + i);
+                break;
+            }
+        }
+    }
 }
 
 void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)

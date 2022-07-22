@@ -24,6 +24,7 @@ public:
         l1.setName("LEVEL 1");
         l1.setColour(control.getColour());
         l1.setValues(l1Values);
+        l1Values[0].setControl(&l1);
         l1.addToParameterMap(l1Values[0]);
         l1Knob = ControlComponent::createControlComponent(l1, delegate);
         l1Knob->updateValueFromParameterMap();
@@ -36,6 +37,7 @@ public:
         r1.setName("RATE 1");
         r1.setColour(control.getColour());
         r1.setValues(r1Values);
+        r1Values[0].setControl(&r1);
         r1.addToParameterMap(r1Values[0]);
         r1Knob = ControlComponent::createControlComponent(r1, delegate);
         r1Knob->updateValueFromParameterMap();
@@ -48,6 +50,7 @@ public:
         l2.setName("LEVEL 2");
         l2.setColour(control.getColour());
         l2.setValues(l2Values);
+        l2Values[0].setControl(&l2);
         l2.addToParameterMap(l2Values[0]);
         l2Knob = ControlComponent::createControlComponent(l2, delegate);
         l2Knob->updateValueFromParameterMap();
@@ -60,6 +63,7 @@ public:
         r2.setName("RATE 2");
         r2.setColour(control.getColour());
         r2.setValues(r2Values);
+        r2Values[0].setControl(&r2);
         r2.addToParameterMap(r2Values[0]);
         r2Knob = ControlComponent::createControlComponent(r2, delegate);
         r2Knob->updateValueFromParameterMap();
@@ -72,6 +76,7 @@ public:
         l3.setName("LEVEL 3");
         l3.setColour(control.getColour());
         l3.setValues(l3Values);
+        l3Values[0].setControl(&l3);
         l3.addToParameterMap(l3Values[0]);
         l3Knob = ControlComponent::createControlComponent(l3, delegate);
         l3Knob->updateValueFromParameterMap();
@@ -84,6 +89,7 @@ public:
         r3.setName("RATE 3");
         r3.setColour(control.getColour());
         r3.setValues(r3Values);
+        r3Values[0].setControl(&r3);
         r3.addToParameterMap(r3Values[0]);
         r3Knob = ControlComponent::createControlComponent(r3, delegate);
         r3Knob->updateValueFromParameterMap();
@@ -96,6 +102,7 @@ public:
         l4.setName("LEVEL 4");
         l4.setColour(control.getColour());
         l4.setValues(l4Values);
+        l4Values[0].setControl(&l4);
         l4.addToParameterMap(l4Values[0]);
         l4Knob = ControlComponent::createControlComponent(l4, delegate);
         l4Knob->updateValueFromParameterMap();
@@ -108,6 +115,7 @@ public:
         r4.setName("RATE 4");
         r4.setColour(control.getColour());
         r4.setValues(r4Values);
+        r4Values[0].setControl(&r4);
         r4.addToParameterMap(r4Values[0]);
         r4Knob = ControlComponent::createControlComponent(r4, delegate);
         r4Knob->updateValueFromParameterMap();
@@ -119,6 +127,14 @@ public:
 
     virtual ~DetailDx7Env()
     {
+        l1.removeFromParameterMap(l1Values[0]);
+        r1.removeFromParameterMap(r1Values[0]);
+        l2.removeFromParameterMap(l1Values[0]);
+        r2.removeFromParameterMap(r1Values[0]);
+        l3.removeFromParameterMap(l1Values[0]);
+        r3.removeFromParameterMap(r1Values[0]);
+        l4.removeFromParameterMap(l1Values[0]);
+        r4.removeFromParameterMap(r1Values[0]);
         l1Knob->releasePot();
         l2Knob->releasePot();
         l3Knob->releasePot();

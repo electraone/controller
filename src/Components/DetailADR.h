@@ -20,6 +20,7 @@ public:
         attack.setName("ATTACK");
         attack.setColour(control.getColour());
         attack.setValues(attackValues);
+        attackValues[0].setControl(&attack);
         attack.addToParameterMap(attackValues[0]);
         attackKnob = ControlComponent::createControlComponent(attack, delegate);
         attackKnob->updateValueFromParameterMap();
@@ -32,6 +33,7 @@ public:
         decay.setName("DECAY");
         decay.setColour(control.getColour());
         decay.setValues(decayValues);
+        decayValues[0].setControl(&decay);
         decay.addToParameterMap(decayValues[0]);
         decayKnob = ControlComponent::createControlComponent(decay, delegate);
         decayKnob->updateValueFromParameterMap();
@@ -44,6 +46,7 @@ public:
         release.setName("RELEASE");
         release.setColour(control.getColour());
         release.setValues(releaseValues);
+        releaseValues[0].setControl(&release);
         release.addToParameterMap(releaseValues[0]);
         releaseKnob =
             ControlComponent::createControlComponent(release, delegate);
@@ -56,6 +59,9 @@ public:
 
     virtual ~DetailADR()
     {
+        attack.removeFromParameterMap(attackValues[0]);
+        decay.removeFromParameterMap(decayValues[0]);
+        release.removeFromParameterMap(releaseValues[0]);
         attackKnob->releasePot();
         decayKnob->releasePot();
         releaseKnob->releasePot();

@@ -31,6 +31,7 @@ public:
 
     virtual ~ControlValue() = default;
 
+    void setControl(Control *newControl);
     Control *getControl(void) const;
     int16_t getHandle(void) const;
     int16_t getIndex(void) const;
