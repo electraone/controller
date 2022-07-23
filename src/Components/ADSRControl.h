@@ -18,7 +18,7 @@ public:
         setMax(ADSR::sustain, control.values[2].getMax());
         setMin(ADSR::release, control.values[3].getMin());
         setMax(ADSR::release, control.values[3].getMax());
-        setActiveSegment(ADSR::attack);
+        setActiveSegment(control.inputs[0].getValueId());
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
         updateValueFromParameterMap();
     }

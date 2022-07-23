@@ -27,7 +27,7 @@ public:
         values[Env5Seg::rate4].setMin(control.values[7].getMin());
         values[Env5Seg::rate4].setMax(control.values[7].getMax());
 
-        setActiveSegment(Env5Seg::level4);
+        setActiveSegment(control.inputs[0].getValueId());
 
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
         updateValueFromParameterMap();

@@ -16,7 +16,7 @@ public:
         setMax(ADR::decay, control.values[1].getMax());
         setMin(ADR::release, control.values[2].getMin());
         setMax(ADR::release, control.values[2].getMax());
-        setActiveSegment(ADR::attack);
+        setActiveSegment(control.inputs[0].getValueId());
         setColour(ElectraColours::getNumericRgb565(control.getColour()));
         updateValueFromParameterMap();
     }
