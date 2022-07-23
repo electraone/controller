@@ -9,7 +9,9 @@ class FaderControl : public ControlComponent, public BarHorizontal
 {
 public:
     FaderControl(const Control &control, MainDelegate &newDelegate)
-        : ControlComponent(control, newDelegate)
+        : ControlComponent(control, newDelegate),
+          previousScreenX(0),
+          thresholdCrossed(false)
     {
         const auto &controlValue = control.getValue(0);
 
@@ -24,6 +26,7 @@ public:
     virtual void onTouchDown(const TouchEvent &touchEvent) override
     {
         previousScreenX = touchEvent.getScreenX();
+        thresholdCrossed = false;
     }
 
     virtual void onTouchMove(const TouchEvent &touchEvent) override
@@ -32,11 +35,19 @@ public:
         int16_t min = value.getMin();
         float step = getWidth() / (float)(max - min);
         int16_t delta = touchEvent.getScreenX() - previousScreenX;
+
+        if (!thresholdCrossed) {
+            if (delta < 10) {
+                return;
+            } else {
+                thresholdCrossed = true;
+                delta = 0;
+            }
+        }
         previousScreenX = touchEvent.getScreenX();
 
         int16_t newDisplayValue =
             constrain(ceil(getValue() + ((float)delta / step)), min, max);
-
         emitValueChange(newDisplayValue, control.getValue(0));
     }
 
@@ -162,5 +173,8 @@ private:
         }
     }
 
-    uint16_t previousScreenX;
+    struct {
+        uint16_t previousScreenX : 10;
+        bool thresholdCrossed : 1;
+    };
 };
