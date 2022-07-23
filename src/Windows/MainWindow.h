@@ -25,6 +25,9 @@ public:
     void onButtonDown(uint8_t buttonId) override;
     void onButtonUp(uint8_t buttonId) override;
 
+    void switchOff(void) override;
+    void reboot(void) override;
+
     // Actions
     void switchPage(uint8_t pageId) override;
     void switchPage(uint8_t pageId, uint8_t controlSetId) override;
@@ -184,4 +187,6 @@ private:
     uint8_t currentPageId;
     uint8_t currentControlSetId;
     uint8_t currentSnapshotBank;
+
+    bool inSleepMode;
 };

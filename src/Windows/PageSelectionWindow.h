@@ -27,7 +27,9 @@ public:
 
     void onButtonDown(uint8_t buttonId) override
     {
-        if (buttonId == 3) {
+        if (buttonId == 2) {
+            uiApi.switchOff();
+        } else if (buttonId == 3) {
             uiApi.pageSelection_openUsbHostPorts();
         } else if (buttonId == 4) {
             uiApi.pageSelection_openPresetSelection();

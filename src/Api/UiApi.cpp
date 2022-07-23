@@ -5,6 +5,16 @@ UiApi::UiApi(MainDelegate &newDelegate) : delegate(newDelegate)
 {
 }
 
+void UiApi::switchOff(void)
+{
+    delegate.switchOff();
+}
+
+void UiApi::reboot(void)
+{
+    delegate.reboot();
+}
+
 void UiApi::switchPreset(uint8_t bankNumber, uint8_t slot)
 {
     delegate.switchPreset(bankNumber, slot);

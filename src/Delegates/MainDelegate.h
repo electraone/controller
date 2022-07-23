@@ -11,6 +11,9 @@ public:
      * Actions
      */
 
+    virtual void switchOff(void) = 0;
+    virtual void reboot(void) = 0;
+
     // Window state management
     virtual void switchPage(uint8_t pageId) = 0;
     virtual void switchPage(uint8_t pageId, uint8_t controlSetId) = 0;

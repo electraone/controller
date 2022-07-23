@@ -4,6 +4,7 @@
 #include "GroupControl.h"
 #include "Envelope.h"
 #include "luabridge.h"
+#include "System.h"
 
 MainWindow::MainWindow(Model &newModel, Midi &newMidi, Config &newConfig)
     : model(newModel),
@@ -21,7 +22,8 @@ MainWindow::MainWindow(Model &newModel, Midi &newMidi, Config &newConfig)
       usbHostWindow(nullptr),
       currentPageId(0),
       currentControlSetId(0),
-      currentSnapshotBank(0)
+      currentSnapshotBank(0),
+      inSleepMode(false)
 {
     setName("mainWindow");
     setBounds(0, 25, 1024, 575);
@@ -51,8 +53,11 @@ void MainWindow::onButtonDown(uint8_t buttonId)
         } else if (buttonId == 4) {
             openSnapshots();
         } else if (buttonId == 5) {
-            parameterMap.listWindows();
-            openPageSelection();
+            if (inSleepMode == true) {
+                reboot();
+            } else {
+                openPageSelection();
+            }
         }
     }
 }
@@ -61,6 +66,23 @@ void MainWindow::onButtonUp(uint8_t buttonId)
 {
 }
 
+void MainWindow::switchOff(void)
+{
+    for (int i = 0; i < 16000; i += 128) {
+        Hardware::screen.setBacklightbrightness(i);
+        delay(10);
+    }
+    Hardware::screen.setBacklightbrightness(65535);
+    System::tasks.enableSleepMode();
+    usb_stop();
+    usbHost.stop();
+    inSleepMode = true;
+}
+
+void MainWindow::reboot(void)
+{
+    Hardware::reset();
+}
 void MainWindow::switchPage(uint8_t pageId)
 {
     uint8_t controlSet = setup.uiFeatures.resetActiveControlSet

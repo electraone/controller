@@ -8,6 +8,8 @@ public:
     explicit UiApi(MainDelegate &newDelegate);
     virtual ~UiApi() = default;
 
+    void switchOff(void);
+    void reboot(void);
     void switchPreset(uint8_t bankNumber, uint8_t slot);
     void switchPresetBank(uint8_t bankNumber);
     uint8_t getCurrentPresetBank(void);
