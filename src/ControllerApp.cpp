@@ -22,7 +22,7 @@ void Controller::initialise(void)
         logMessage("Special boot mode: do not read preset");
         System::context.setLoadDefaultFiles(false);
     } else if (Hardware::buttons[BUTTON_LEFT_MIDDLE]->process() == true) {
-        //removeAllAppFiles();
+        Hardware::sdcard.format();
         System::runtimeInfo.setLastActivePreset(0);
     } else if (Hardware::buttons[BUTTON_LEFT_BOTTOM]->process() == true) {
         logMessage("Special boot: do not use knob touch");
