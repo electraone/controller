@@ -35,11 +35,11 @@ void MidiLearn::process(const MidiInput &midiInput,
                 midiRpnMessage.isNrpn,
                 midiRpnMessage.is14BitValue);
 
-            ElectraMessageType electraMessageType =
-                (midiRpnMessage.isNrpn) ? ElectraMessageType::nrpn
-                                        : ElectraMessageType::rpn;
+            Message::Type messageType = (midiRpnMessage.isNrpn)
+                                            ? Message::Type::nrpn
+                                            : Message::Type::rpn;
 
-            if (electraMessageType == ElectraMessageType::nrpn) {
+            if (messageType == Message::Type::nrpn) {
                 sendMidiLearn(USB_MIDI_PORT_CTRL,
                               "nrpn",
                               midiPort + 1,

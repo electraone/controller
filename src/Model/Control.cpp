@@ -322,13 +322,13 @@ void Control::removeFromParameterMap(ControlValue &value)
 void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 {
     // \todo replace this with polymorphism
-    if (value.message.getType() == ElectraMessageType::start) {
+    if (value.message.getType() == Message::Type::start) {
         parameterMap.getOrCreate(0xff, value.message.getType(), 0)
             ->messageDestination.push_back(&value);
-    } else if (value.message.getType() == ElectraMessageType::stop) {
+    } else if (value.message.getType() == Message::Type::stop) {
         parameterMap.getOrCreate(0xff, value.message.getType(), 0)
             ->messageDestination.push_back(&value);
-    } else if (value.message.getType() == ElectraMessageType::tune) {
+    } else if (value.message.getType() == Message::Type::tune) {
         parameterMap.getOrCreate(0xff, value.message.getType(), 0)
             ->messageDestination.push_back(&value);
     } else {

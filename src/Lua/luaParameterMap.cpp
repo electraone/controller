@@ -37,11 +37,8 @@ int parameterMap_set(lua_State *L)
     uint16_t parameterNumber = luaLE_checkParameterNumber(L, -2);
     uint16_t midiValue = luaLE_checkMidiValue(L, -1);
 
-    parameterMap.setValue(deviceId,
-                          (ElectraMessageType)type,
-                          parameterNumber,
-                          midiValue,
-                          Origin::lua);
+    parameterMap.setValue(
+        deviceId, (Message::Type)type, parameterNumber, midiValue, Origin::lua);
 
     return (0);
 }
@@ -55,13 +52,13 @@ int parameterMap_send(lua_State *L)
     uint16_t parameterNumber = luaLE_checkParameterNumber(L, -1);
 
     LookupEntry *entry =
-        parameterMap.get(deviceId, (ElectraMessageType)type, parameterNumber);
+        parameterMap.get(deviceId, (Message::Type)type, parameterNumber);
 
     if (entry) {
         for (auto value : entry->messageDestination) {
             /*
             parameterMap.setValue(deviceId,
-                                  (ElectraMessageType)type,
+                                  (Message::Type)type,
                                   parameterNumber,
                                   midiValue,
                                   Origin::lua);
@@ -83,11 +80,8 @@ int parameterMap_apply(lua_State *L)
     uint16_t parameterNumber = luaLE_checkParameterNumber(L, -2);
     uint16_t midiValue = luaLE_checkMidiValue(L, -1);
 
-    parameterMap.applyToValue(deviceId,
-                              (ElectraMessageType)type,
-                              parameterNumber,
-                              midiValue,
-                              Origin::lua);
+    parameterMap.applyToValue(
+        deviceId, (Message::Type)type, parameterNumber, midiValue, Origin::lua);
     return (0);
 }
 
@@ -99,8 +93,8 @@ int parameterMap_get(lua_State *L)
     int type = luaLE_checkParameterType(L, -2);
     uint16_t parameterNumber = luaLE_checkParameterNumber(L, -1);
 
-    uint16_t midiValue = parameterMap.getValue(
-        deviceId, (ElectraMessageType)type, parameterNumber);
+    uint16_t midiValue =
+        parameterMap.getValue(deviceId, (Message::Type)type, parameterNumber);
 
     lua_pushnumber(L, midiValue);
 
@@ -116,7 +110,7 @@ int parameterMap_getValues(lua_State *L)
     uint16_t parameterNumber = luaLE_checkParameterNumber(L, -1);
 
     LookupEntry *entry =
-        parameterMap.get(deviceId, (ElectraMessageType)type, parameterNumber);
+        parameterMap.get(deviceId, (Message::Type)type, parameterNumber);
 
     if (entry) {
         int i = 1;

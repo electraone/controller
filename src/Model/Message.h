@@ -1,15 +1,32 @@
 #pragma once
 
-#include "ElectraMessage.h"
 #include "SignMode.h"
 #include "Macros.h"
 #include "Event.h"
 #include <cstdint>
+#include <cstring>
 #include "helpers.h"
+
+#define MIDI_VALUE_DO_NOT_SEND 16537
 
 class Message
 {
 public:
+    enum Type {
+        virt = 0,
+        cc7 = 1,
+        cc14 = 2,
+        nrpn = 3,
+        rpn = 4,
+        note = 5,
+        program = 6,
+        sysex = 7,
+        start = 8,
+        stop = 9,
+        tune = 10,
+        invalid = 11
+    };
+
     Message()
         : deviceId(0),
           parameterNumber(0),
@@ -20,14 +37,14 @@ public:
           onValue(NOT_SET),
           event(0)
     {
-        type = (uint8_t)ElectraMessageType::invalid;
+        type = (uint8_t)Type::invalid;
         lsbFirst = false;
         signMode = (uint8_t)SignMode::noSign;
         bitWidth = 7;
     }
 
     Message(uint8_t newDeviceId,
-            ElectraMessageType newType,
+            Type newType,
             uint16_t newParameterNumber,
             int16_t newMidiMin,
             int16_t newMidiMax,
@@ -53,7 +70,7 @@ public:
         signMode = (uint8_t)newSignMode;
         bitWidth = newbitWidth;
 
-        if (newType == ElectraMessageType::note) {
+        if (newType == Type::note) {
             offValue = 0;
             onValue = 127; // 0 for note off and 127 for note on.
         }
@@ -71,14 +88,14 @@ public:
         return (deviceId);
     }
 
-    void setType(ElectraMessageType newType)
+    void setType(Type newType)
     {
         type = (uint8_t)newType;
     }
 
-    ElectraMessageType getType(void) const
+    Type getType(void) const
     {
-        return ((ElectraMessageType)type);
+        return ((Type)type);
     }
 
     void setMidiMin(int16_t newMin)
@@ -184,7 +201,8 @@ public:
     void print(void) const
     {
         logMessage("        deviceId: %d", getDeviceId());
-        logMessage("        type: %d", getType());
+        logMessage(
+            "        type: %s (%d)", translateType(getType()), getType());
         logMessage("        parameterNumber: %d", getParameterNumber());
         logMessage("        min: %d", getMidiMin());
         logMessage("        max: %d", getMidiMax());
@@ -194,6 +212,68 @@ public:
         logMessage("        signMode: %d", getSignMode());
         logMessage("        lsbFirst: %d", getLsbFirst());
         logMessage("        bitWidth: %d", getBitWidth());
+    }
+
+    static Type translateType(const char *typeText)
+    {
+        if (typeText) {
+            if (strcmp(typeText, "cc7") == 0) {
+                return (Type::cc7);
+            } else if (strcmp(typeText, "cc14") == 0) {
+                return (Type::cc14);
+            } else if (strcmp(typeText, "nrpn") == 0) {
+                return (Type::nrpn);
+            } else if (strcmp(typeText, "rpn") == 0) {
+                return (Type::rpn);
+            } else if (strcmp(typeText, "note") == 0) {
+                return (Type::note);
+            } else if (strcmp(typeText, "program") == 0) {
+                return (Type::program);
+            } else if (strcmp(typeText, "sysex") == 0) {
+                return (Type::sysex);
+            } else if (strcmp(typeText, "start") == 0) {
+                return (Type::start);
+            } else if (strcmp(typeText, "stop") == 0) {
+                return (Type::stop);
+            } else if (strcmp(typeText, "tune") == 0) {
+                return (Type::tune);
+            } else if (strcmp(typeText, "virtual") == 0) {
+                return (Type::virt);
+            }
+        } else {
+            // default - for rules that do not have type specified
+            return (Type::sysex);
+        }
+        return (Type::invalid);
+    }
+
+    static const char *translateType(Type messageType)
+    {
+        if (messageType == Type::cc7) {
+            return ("cc7");
+        } else if (messageType == Type::cc14) {
+            return ("cc14");
+        } else if (messageType == Type::nrpn) {
+            return ("nrpn");
+        } else if (messageType == Type::rpn) {
+            return ("rpn");
+        } else if (messageType == Type::note) {
+            return ("note");
+        } else if (messageType == Type::program) {
+            return ("program");
+        } else if (messageType == Type::sysex) {
+            return ("sysex");
+        } else if (messageType == Type::start) {
+            return ("start");
+        } else if (messageType == Type::stop) {
+            return ("stop");
+        } else if (messageType == Type::tune) {
+            return ("tune");
+        } else if (messageType == Type::virt) {
+            return ("virtual");
+        }
+
+        return ("invalid");
     }
 
     std::vector<uint8_t> data;

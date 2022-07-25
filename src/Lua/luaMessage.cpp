@@ -31,7 +31,7 @@ int message_delete(lua_State *L)
 int message_getType(lua_State *L)
 {
     lua_settop(L, 1);
-    int messageType = (int)ElectraMessageType::invalid;
+    int messageType = (int)Message::Type::invalid;
 
     if (Message *message = getMessage(L, 1)) {
         messageType = (int)message->getType();
@@ -73,10 +73,9 @@ int message_getValue(lua_State *L)
     int midiValue = 0;
 
     if (Message *message = getMessage(L, 1)) {
-        midiValue =
-            parameterMap.getValue(message->getDeviceId(),
-                                  (ElectraMessageType)message->getType(),
-                                  message->getParameterNumber());
+        midiValue = parameterMap.getValue(message->getDeviceId(),
+                                          (Message::Type)message->getType(),
+                                          message->getParameterNumber());
     }
 
     lua_pushinteger(L, midiValue);
@@ -93,7 +92,7 @@ int message_setValue(lua_State *L)
     if (message) {
         message->setValue(midiValue);
         parameterMap.setValue(message->getDeviceId(),
-                              (ElectraMessageType)message->getType(),
+                              (Message::Type)message->getType(),
                               message->getParameterNumber(),
                               midiValue,
                               Origin::lua);

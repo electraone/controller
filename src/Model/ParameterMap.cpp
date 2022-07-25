@@ -10,7 +10,7 @@ ParameterMap parameterMap;
  *  in ParameterMap unordered_map.
  */
 uint32_t calculateHash(uint8_t deviceId,
-                       ElectraMessageType type,
+                       Message::Type type,
                        uint16_t parameterNumber)
 {
     return (parameterNumber + (((uint8_t)type) << 16) + (deviceId << 24));
@@ -72,7 +72,7 @@ LookupEntry *ParameterMap::findAndCache(uint32_t hash)
  *  If it does not exist, it will created and returned
  */
 LookupEntry *ParameterMap::getOrCreate(uint8_t deviceId,
-                                       ElectraMessageType type,
+                                       Message::Type type,
                                        uint16_t parameterNumber)
 {
     uint32_t hash = calculateHash(deviceId, type, parameterNumber);
@@ -93,7 +93,7 @@ LookupEntry *ParameterMap::getOrCreate(uint8_t deviceId,
  *
  */
 LookupEntry *ParameterMap::get(uint8_t deviceId,
-                               ElectraMessageType type,
+                               Message::Type type,
                                uint16_t parameterNumber)
 {
     uint32_t hash = calculateHash(deviceId, type, parameterNumber);
@@ -106,7 +106,7 @@ LookupEntry *ParameterMap::get(uint8_t deviceId,
  *
  */
 uint16_t ParameterMap::getValue(uint8_t deviceId,
-                                ElectraMessageType type,
+                                Message::Type type,
                                 uint16_t parameterNumber)
 {
     uint32_t hash = calculateHash(deviceId, type, parameterNumber);
@@ -124,7 +124,7 @@ uint16_t ParameterMap::getValue(uint8_t deviceId,
  *  It sets the dirty flag on
  */
 LookupEntry *ParameterMap::setValue(uint8_t deviceId,
-                                    ElectraMessageType type,
+                                    Message::Type type,
                                     uint16_t parameterNumber,
                                     uint16_t midiValue,
                                     Origin origin)
@@ -169,7 +169,7 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
  *  It sets the dirty flag on
  */
 LookupEntry *ParameterMap::applyToValue(uint8_t deviceId,
-                                        ElectraMessageType type,
+                                        Message::Type type,
                                         uint16_t parameterNumber,
                                         uint16_t midiValueFragment,
                                         Origin origin)
@@ -376,7 +376,7 @@ bool ParameterMap::parseParameters(File &file)
             midiValue = item["midiValue"].as<uint16_t>();
 
             setValue(deviceId,
-                     (ElectraMessageType)messageType,
+                     (Message::Type)messageType,
                      parameterNumber,
                      midiValue,
                      Origin::file);

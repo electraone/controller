@@ -9,7 +9,6 @@
 #include "Preset.h"
 #include "Cc14Detector.h"
 #include "RpnDetector.h"
-#include "ElectraMessage.h"
 
 struct PatchRequest {
     PatchRequest() : port(0), deviceId(0)
@@ -21,12 +20,14 @@ struct PatchRequest {
     {
     }
 
-    uint8_t deviceId;
-    uint8_t port;
+    struct {
+        uint8_t deviceId : 6;
+        uint8_t port : 2;
+    };
     std::vector<uint8_t> data;
 };
 
-extern CircularBuffer<PatchRequest, 128> patchRequests;
+extern CircularBuffer<PatchRequest, 32> patchRequests;
 
 class Midi
 {
@@ -119,7 +120,7 @@ private:
     static void sendTuneRequest(uint8_t port);
     static void
         sendSysEx(uint8_t port, uint8_t *data, uint16_t sysexDataLength);
-
+    static void sendSysEx(uint8_t port, SysexBlock &sysexBlock);
     const Preset &model;
 
     RpnDetector rpnDetector;

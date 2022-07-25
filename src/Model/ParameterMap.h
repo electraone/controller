@@ -26,7 +26,7 @@ struct LookupEntry {
  *  in ParameterMap unordered_map.
  */
 uint32_t calculateHash(uint8_t deviceId,
-                       ElectraMessageType type,
+                       Message::Type type,
                        uint16_t parameterNumber);
 
 uint8_t getDeviceId(uint32_t hash);
@@ -41,21 +41,20 @@ public:
 
     LookupEntry *findAndCache(uint32_t hash);
     LookupEntry *getOrCreate(uint8_t deviceId,
-                             ElectraMessageType type,
+                             Message::Type type,
                              uint16_t parameterNumber);
-    LookupEntry *get(uint8_t deviceId,
-                     ElectraMessageType type,
-                     uint16_t parameterNumber);
+    LookupEntry *
+        get(uint8_t deviceId, Message::Type type, uint16_t parameterNumber);
     uint16_t getValue(uint8_t deviceId,
-                      ElectraMessageType type,
+                      Message::Type type,
                       uint16_t parameterNumber);
     LookupEntry *setValue(uint8_t deviceId,
-                          ElectraMessageType type,
+                          Message::Type type,
                           uint16_t parameterNumber,
                           uint16_t midiValue,
                           Origin origin);
     LookupEntry *applyToValue(uint8_t deviceId,
-                              ElectraMessageType type,
+                              Message::Type type,
                               uint16_t parameterNumber,
                               uint16_t midiValueFragment,
                               Origin origin);

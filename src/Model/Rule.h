@@ -1,13 +1,12 @@
 #pragma once
 
-#include "ElectraMessage.h"
-#include <cstdint>
+#include "Message.h"
 
 class Rule
 {
 public:
     Rule()
-        : electraMessageType((uint8_t)ElectraMessageType::invalid),
+        : messageType((uint8_t)Message::Type::invalid),
           parameterNumber(0),
           byte(0),
           parameterBitPosition(0),
@@ -16,13 +15,13 @@ public:
     {
     }
 
-    Rule(ElectraMessageType newElectraMessageType,
+    Rule(Message::Type messageType,
          uint16_t newParameterNumber,
          uint16_t newByte,
          uint8_t newParameterBitPosition,
          uint8_t newByteBitPosition,
          uint8_t newBitWidth)
-        : electraMessageType((uint8_t)newElectraMessageType),
+        : messageType((uint8_t)messageType),
           parameterNumber(newParameterNumber),
           byte(newByte),
           parameterBitPosition(newParameterBitPosition),
@@ -31,9 +30,9 @@ public:
     {
     }
 
-    ElectraMessageType getType(void) const
+    Message::Type getType(void) const
     {
-        return ((ElectraMessageType)electraMessageType);
+        return ((Message::Type)messageType);
     }
 
     uint8_t getParameterBitPosition(void) const
@@ -65,7 +64,7 @@ private:
     uint16_t parameterNumber;
     uint16_t byte;
     struct {
-        uint8_t electraMessageType : 4;
+        uint8_t messageType : 4;
         uint8_t parameterBitPosition : 4;
         uint8_t byteBitPosition : 4;
         uint8_t bitWidth : 4;

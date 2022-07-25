@@ -4,7 +4,7 @@
 #include <cstring>
 #include <string>
 
-#include "ElectraMessage.h"
+#include "Message.h"
 #include "Overlay.h"
 #include "Message.h"
 #include "Macros.h"

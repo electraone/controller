@@ -3,7 +3,6 @@
 #include <vector>
 #include <map>
 
-#include "ElectraMessage.h"
 #include "ControlValue.h"
 #include "Input.h"
 #include "Rectangle.h"

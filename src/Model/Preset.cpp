@@ -884,7 +884,7 @@ uint8_t Preset::registerFunction(const char *functionName)
  */
 std::vector<uint8_t> Preset::parseRequest(JsonArray jRequest, uint8_t deviceId)
 {
-    return (parseData(jRequest, deviceId, ElectraMessageType::sysex));
+    return (parseData(jRequest, deviceId, Message::Type::sysex));
 }
 
 /** Parse Post patch messages
@@ -1280,17 +1280,17 @@ Message Preset::parseMessage(JsonObject jMessage)
     const char *signModeInput = jMessage["signMode"];
     uint8_t bitWidth;
 
-    ElectraMessageType electraMessageType = translateElectraMessageType(type);
+    Message::Type messageType = Message::translateType(type);
 
     std::vector<uint8_t> data =
-        parseData(jMessage["data"], parameterNumber, electraMessageType);
+        parseData(jMessage["data"], parameterNumber, messageType);
 
     SignMode signMode = translateSignMode(signModeInput);
 
     if (!jMessage["bitWidth"].isNull()) {
         bitWidth = jMessage["bitWidth"].as<uint8_t>();
     } else {
-        bitWidth = getDefaultbitWidth(electraMessageType);
+        bitWidth = getDefaultbitWidth(messageType);
     }
 
     if (min < 0) {
@@ -1301,7 +1301,7 @@ Message Preset::parseMessage(JsonObject jMessage)
         max = 16383;
     }
 
-    if (electraMessageType == ElectraMessageType::program) {
+    if (messageType == Message::Type::program) {
         onValue = parameterNumber;
         offValue = MIDI_VALUE_DO_NOT_SEND;
         parameterNumber = 0;
@@ -1312,7 +1312,7 @@ Message Preset::parseMessage(JsonObject jMessage)
         "parseMessage: device=%d, msgType=%s (%d), parameterId=%d, min=%d, max=%d, value=%d, offValue=%d, onValue=%d, lsbFirst=%d, signMode=%d, bitWidth=%d",
         deviceId,
         type,
-        electraMessageType,
+        messageType,
         parameterNumber,
         min,
         max,
@@ -1325,7 +1325,7 @@ Message Preset::parseMessage(JsonObject jMessage)
 #endif
 
     return (Message(deviceId,
-                    electraMessageType,
+                    messageType,
                     parameterNumber,
                     min,
                     max,
@@ -1434,7 +1434,7 @@ Rule Preset::parseRule(JsonObject jRule)
     type = jRule["type"].as<char *>();
     byte = jRule["byte"].as<uint16_t>();
 
-    ElectraMessageType electraMessageType = translateElectraMessageType(type);
+    Message::Type messageType = Message::translateType(type);
 
     if ((bPos + size) > 7) {
         logMessage(
@@ -1453,7 +1453,7 @@ Rule Preset::parseRule(JsonObject jRule)
 #ifdef DEBUG
     logMessage(
         "parseRule: rule: type=%d, parameterNumber=%d, byte=%d, parameterBitPosition=%d, byteBitPosition=%d, bitWidth=%d",
-        electraMessageType,
+        messageType,
         parameterNumber,
         byte,
         pPos,
@@ -1461,7 +1461,7 @@ Rule Preset::parseRule(JsonObject jRule)
         size);
 #endif /* DEBUG */
 
-    return (Rule(electraMessageType, parameterNumber, byte, pPos, bPos, size));
+    return (Rule(messageType, parameterNumber, byte, pPos, bPos, size));
 }
 
 /** Parse JSON sysex data object
@@ -1469,7 +1469,7 @@ Rule Preset::parseRule(JsonObject jRule)
  */
 std::vector<uint8_t> Preset::parseData(JsonArray jData,
                                        int16_t parameterNumber,
-                                       ElectraMessageType electraMessageType)
+                                       Message::Type messageType)
 {
     std::vector<uint8_t> data;
 
@@ -1485,7 +1485,7 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
                     JsonArray jRules = jByte["rules"];
 
                     if (!jRules || (jRules.size() == 0)) {
-                        data.push_back((uint8_t)electraMessageType);
+                        data.push_back((uint8_t)messageType);
                         data.push_back(parameterNumber & 0x7F);
                         data.push_back(parameterNumber >> 7);
                         data.push_back(0);
@@ -1502,14 +1502,14 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
                                 jRule["byteBitPosition"].as<uint8_t>();
                             uint8_t size = jRule["bitWidth"].as<uint8_t>();
 
-                            ElectraMessageType electraMessageType =
-                                translateElectraMessageType(type);
+                            Message::Type messageType =
+                                Message::translateType(type);
 
                             if (!jRule["bitWidth"]) {
                                 size = 7;
                             }
 
-                            data.push_back((uint8_t)electraMessageType);
+                            data.push_back((uint8_t)messageType);
                             data.push_back(parameterId & 0x7F);
                             data.push_back(parameterId >> 7);
                             data.push_back(pPos);
@@ -1534,7 +1534,7 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
                     const char *functionName = jByte["name"].as<char *>();
 
                     data.push_back(LUAFUNCTION);
-                    data.push_back((uint8_t)electraMessageType);
+                    data.push_back((uint8_t)messageType);
                     data.push_back(parameterNumber & 0x7F);
                     data.push_back(parameterNumber >> 7);
                     data.push_back(registerFunction(functionName));
@@ -1787,11 +1787,11 @@ uint8_t Preset::getNumValues(ControlType type)
     }
 }
 
-uint8_t Preset::getDefaultbitWidth(ElectraMessageType electraMessageType)
+uint8_t Preset::getDefaultbitWidth(Message::Type messageType)
 {
-    if (electraMessageType == ElectraMessageType::cc14) {
+    if (messageType == Message::Type::cc14) {
         return (14);
-    } else if (electraMessageType == ElectraMessageType::nrpn) {
+    } else if (messageType == Message::Type::nrpn) {
         return (14);
     }
 

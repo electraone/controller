@@ -128,7 +128,7 @@ private:
     uint8_t registerFunction(const char *functionName);
     std::vector<uint8_t> parseData(JsonArray jData,
                                    int16_t parameterNumber,
-                                   ElectraMessageType electraMessageType);
+                                   Message::Type messageType);
 
     // Bounds
     Rectangle parseBounds(File &file, size_t startPosition, size_t endPosition);
@@ -138,7 +138,7 @@ private:
     static ChecksumAlgorithm translateAlgorithm(const char *algorithm);
     static uint8_t translateValueId(ControlType type, const char *valueId);
     static uint8_t getNumValues(ControlType type);
-    static uint8_t getDefaultbitWidth(ElectraMessageType electraMessageType);
+    static uint8_t getDefaultbitWidth(Message::Type messageType);
     static bool getPresetNameFast(File &file,
                                   char *presetName,
                                   size_t maxPresetNameLength);

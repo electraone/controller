@@ -5,7 +5,9 @@
 #include "luaPatch.h"
 #include "ParameterMap.h"
 
-CircularBuffer<PatchRequest, 128> patchRequests;
+#include "App.h"
+
+CircularBuffer<PatchRequest, 32> patchRequests;
 
 /** Constructor
  *
@@ -34,26 +36,26 @@ void Midi::sendMessage(const Message &message)
     device.setTsLastMessage();
 
     // Send the particular MIDI message
-    if (message.getType() == ElectraMessageType::cc7) {
+    if (message.getType() == Message::Type::cc7) {
         sendControlChange(
             port, channel, message.getParameterNumber(), midiValue);
-    } else if (message.getType() == ElectraMessageType::cc14) {
+    } else if (message.getType() == Message::Type::cc14) {
         sendControlChange14Bit(port,
                                channel,
                                message.getParameterNumber(),
                                midiValue,
                                message.getLsbFirst());
-    } else if (message.getType() == ElectraMessageType::nrpn) {
+    } else if (message.getType() == Message::Type::nrpn) {
         sendNrpn(port,
                  channel,
                  message.getParameterNumber(),
                  midiValue,
                  message.getLsbFirst());
-    } else if (message.getType() == ElectraMessageType::rpn) {
+    } else if (message.getType() == Message::Type::rpn) {
         sendRpn(port, channel, message.getParameterNumber(), midiValue);
-    } else if (message.getType() == ElectraMessageType::program) {
+    } else if (message.getType() == Message::Type::program) {
         sendProgramChange(port, channel, midiValue);
-    } else if (message.getType() == ElectraMessageType::note) {
+    } else if (message.getType() == Message::Type::note) {
         if (event == Event::press) {
             sendNoteOff(port,
                         channel,
@@ -65,19 +67,19 @@ void Midi::sendMessage(const Message &message)
                         message.getParameterNumber(),
                         127); //midiValue);
         }
-    } else if (message.getType() == ElectraMessageType::start) {
+    } else if (message.getType() == Message::Type::start) {
         if (event == Event::press) {
             sendStart(port);
         }
-    } else if (message.getType() == ElectraMessageType::stop) {
+    } else if (message.getType() == Message::Type::stop) {
         if (event == Event::press) {
             sendStop(port);
         }
-    } else if (message.getType() == ElectraMessageType::tune) {
+    } else if (message.getType() == Message::Type::tune) {
         if (event == Event::press) {
             sendTuneRequest(port);
         }
-    } else if (message.getType() == ElectraMessageType::sysex) {
+    } else if (message.getType() == Message::Type::sysex) {
         sendTemplatedSysex(device, message.data);
     }
 }
@@ -88,12 +90,29 @@ void Midi::sendMessage(const Message &message)
 void Midi::sendTemplatedSysex(const Device &device, std::vector<uint8_t> data)
 {
     const int maxSysexSize = 512;
+    uint8_t byte = 0xf0;
+
+    SysexBlock sysexBlock = SysexBlock(App::get()->sysexPool.openMemoryBlock());
+
+    if (data[0] != 0xf0) {
+        sysexBlock.writeBytes(&byte, 1);
+    }
 
     if (data.size() < maxSysexSize) {
         uint8_t sysexData[maxSysexSize];
         uint16_t sysexDataLength = 0;
         sysexDataLength = transformMessage(device, data, sysexData);
-        sendSysEx(device.getPort(), sysexData, sysexDataLength);
+
+        sysexBlock.writeBytes(sysexData, sysexDataLength);
+
+        if (data[0] != 0xf0) {
+            byte = 0xf7;
+            sysexBlock.writeBytes(&byte, 1);
+        }
+
+        sysexBlock.close();
+
+        sendSysEx(device.getPort(), sysexBlock);
     } else {
         logMessage(
             "sendTemplatedSysex: message exceeds allowed maximum length: %d",
@@ -159,12 +178,11 @@ void Midi::runVariable(uint16_t &i,
         i++;
         mask = createMask(pPos, size);
 
-        parameterValue =
-            ((parameterMap.getValue(
-                  device.getId(), (ElectraMessageType)type, parameterId)
-              & mask)
-             >> pPos)
-            << bPos;
+        parameterValue = ((parameterMap.getValue(
+                               device.getId(), (Message::Type)type, parameterId)
+                           & mask)
+                          >> pPos)
+                         << bPos;
         byteToSend |= parameterValue;
     }
 
@@ -233,8 +251,8 @@ void Midi::runLuaFunction(uint16_t &i,
         "function: %d (%s)", functionId, luaFunctions[functionId].c_str());
 
     parameterId = parameterIdLSB + (parameterIdMSB * 128);
-    parameterValue = parameterMap.getValue(
-        device.getId(), (ElectraMessageType)type, parameterId);
+    parameterValue =
+        parameterMap.getValue(device.getId(), (Message::Type)type, parameterId);
 
     if (L && (luaFunctions.size() > 0)) {
         byteToSend = runTemplateFunction(
@@ -298,19 +316,19 @@ void Midi::process(const MidiInput &midiInput, const MidiMessage &midiMessage)
 void Midi::processStart(void)
 {
     logMessage("Midi::processMidi: Start midi message");
-    parameterMap.setValue(0xff, ElectraMessageType::start, 0, 0, Origin::midi);
+    parameterMap.setValue(0xff, Message::Type::start, 0, 0, Origin::midi);
 }
 
 void Midi::processStop(void)
 {
     logMessage("Midi::processMidi: Stop midi message");
-    parameterMap.setValue(0xff, ElectraMessageType::stop, 0, 0, Origin::midi);
+    parameterMap.setValue(0xff, Message::Type::stop, 0, 0, Origin::midi);
 }
 
 void Midi::processTuneRequest(void)
 {
     logMessage("Midi::processMidi: Tune midi message");
-    parameterMap.setValue(0xff, ElectraMessageType::tune, 0, 0, Origin::midi);
+    parameterMap.setValue(0xff, Message::Type::tune, 0, 0, Origin::midi);
 }
 
 void Midi::processCc(uint8_t deviceId,
@@ -334,12 +352,11 @@ void Midi::processCc(uint8_t deviceId,
                    midiRpnMessage.isNrpn,
                    midiRpnMessage.is14BitValue);
 
-        ElectraMessageType electraMessageType = (midiRpnMessage.isNrpn)
-                                                    ? ElectraMessageType::nrpn
-                                                    : ElectraMessageType::rpn;
+        Message::Type messageType =
+            (midiRpnMessage.isNrpn) ? Message::Type::nrpn : Message::Type::rpn;
 
         parameterMap.setValue(deviceId,
-                              electraMessageType,
+                              messageType,
                               midiRpnMessage.parameterNumber,
                               midiRpnMessage.value,
                               Origin::midi);
@@ -354,18 +371,15 @@ void Midi::processCc(uint8_t deviceId,
                    midiCc14Message.parameterNumber,
                    midiCc14Message.value);
         parameterMap.setValue(deviceId,
-                              ElectraMessageType::cc14,
+                              Message::Type::cc14,
                               midiCc14Message.parameterNumber,
                               midiCc14Message.value,
                               Origin::midi);
     }
 
     // Save to the parameter map
-    parameterMap.setValue(deviceId,
-                          ElectraMessageType::cc7,
-                          midiParameterId,
-                          midiValue,
-                          Origin::midi);
+    parameterMap.setValue(
+        deviceId, Message::Type::cc7, midiParameterId, midiValue, Origin::midi);
 }
 
 void Midi::processNote(uint8_t deviceId,
@@ -379,7 +393,7 @@ void Midi::processNote(uint8_t deviceId,
                noteNumber,
                translatedVelocity);
     parameterMap.setValue(deviceId,
-                          ElectraMessageType::note,
+                          Message::Type::note,
                           noteNumber,
                           translatedVelocity,
                           Origin::midi);
@@ -389,7 +403,7 @@ void Midi::processProgramChange(uint8_t deviceId, uint8_t programNumber)
 {
     logMessage("Midi::processMidi: program message: program=%d", programNumber);
     parameterMap.setValue(
-        deviceId, ElectraMessageType::program, 0, programNumber, Origin::midi);
+        deviceId, Message::Type::program, 0, programNumber, Origin::midi);
 }
 
 void Midi::processSysex(const MidiMessage &midiMessage)
@@ -489,7 +503,7 @@ void Midi::applyRulesValues(const Device &device,
                     sysexByte,
                     parameterValue,
                     rule.getParameterNumber(),
-                    translateElectraMessageTypeToText(rule.getType()),
+                    Message::translateType(rule.getType()),
                     entry->midiValue);
             }
         }
@@ -608,4 +622,9 @@ void Midi::sendSysEx(uint8_t port, uint8_t *sysexData, uint16_t sysexDataLength)
 {
     MidiOutput::sendSysEx(
         MidiInterface::Type::MidiAll, port, sysexData, sysexDataLength);
+}
+
+void Midi::sendSysEx(uint8_t port, SysexBlock &sysexBlock)
+{
+    MidiOutput::sendSysEx(MidiInterface::Type::MidiAll, port, sysexBlock);
 }

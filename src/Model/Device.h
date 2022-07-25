@@ -6,11 +6,12 @@
 #include "Response.h"
 #include "Message.h"
 #include "core_pins.h"
+#include "MidiOutput.h"
 
-class Device
+class Device : public MidiOutput
 {
 public:
-    Device() : id(0), port(0), channel(0), rate(0), tsLastMessage(0)
+    Device() : MidiOutput(MidiInterface::Type::MidiAll, 0, 0), id(0)
     {
         *name = '\0';
     }
@@ -20,11 +21,8 @@ public:
            uint8_t newPort,
            uint8_t newChannel,
            uint16_t newRate)
-        : id(newId),
-          port(newPort),
-          channel(newChannel),
-          rate(newRate),
-          tsLastMessage(0)
+        : MidiOutput(MidiInterface::Type::MidiAll, newPort, newChannel),
+          id(newId)
     {
         setName(newName);
     }
@@ -53,46 +51,6 @@ public:
     const char *getName(void) const
     {
         return (name);
-    }
-
-    void setPort(uint8_t newPort)
-    {
-        port = newPort;
-    }
-
-    uint8_t getPort(void) const
-    {
-        return (port);
-    }
-
-    void setChannel(uint8_t newChannel)
-    {
-        channel = newChannel;
-    }
-
-    uint8_t getChannel(void) const
-    {
-        return (channel);
-    }
-
-    void setRate(uint16_t newRate)
-    {
-        rate = newRate;
-    }
-
-    uint16_t getRate(void) const
-    {
-        return (rate);
-    }
-
-    void setTsLastMessage(void)
-    {
-        tsLastMessage = millis();
-    }
-
-    bool isReady(void)
-    {
-        return (((millis() - tsLastMessage) > rate) ? true : false);
     }
 
     uint8_t getResponseIndex(uint8_t id) const
@@ -125,13 +83,8 @@ private:
 
     struct {
         uint8_t id : 6;
-        uint8_t port : 2;
-        uint8_t channel : 5;
-        uint16_t rate : 11;
     };
-
     char name[MaxNameLength + 1];
-    uint32_t tsLastMessage;
 
 public:
     std::vector<std::vector<uint8_t>> requests;
