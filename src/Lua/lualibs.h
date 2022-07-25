@@ -9,7 +9,6 @@
 #include "luaLE.h"
 
 void loadLuaLibs();
-void loadGlobalVariables(lua_State *L);
 
 // table composers
 void luaLE_pushDevice(const Device &device);
