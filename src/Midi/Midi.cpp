@@ -30,10 +30,11 @@ void Midi::sendMessage(const Message &message)
     uint8_t channel = device.getChannel();
     uint8_t port = device.getPort();
     uint16_t midiValue = message.getValue();
-    Event event = message.getEvent();
 
     // Set the timestamp of device last message to current time
     device.setTsLastMessage();
+
+    //message.print();
 
     // Send the particular MIDI message
     if (message.getType() == Message::Type::cc7) {
@@ -56,11 +57,11 @@ void Midi::sendMessage(const Message &message)
     } else if (message.getType() == Message::Type::program) {
         sendProgramChange(port, channel, midiValue);
     } else if (message.getType() == Message::Type::note) {
-        if (event == Event::press) {
-            sendNoteOff(port,
-                        channel,
-                        message.getParameterNumber(),
-                        127); //midiValue);
+        if (midiValue == 127) {
+            sendNoteOn(port,
+                       channel,
+                       message.getParameterNumber(),
+                       127); //midiValue);
         } else {
             sendNoteOff(port,
                         channel,
@@ -68,17 +69,11 @@ void Midi::sendMessage(const Message &message)
                         127); //midiValue);
         }
     } else if (message.getType() == Message::Type::start) {
-        if (event == Event::press) {
-            sendStart(port);
-        }
+        sendStart(port);
     } else if (message.getType() == Message::Type::stop) {
-        if (event == Event::press) {
-            sendStop(port);
-        }
+        sendStop(port);
     } else if (message.getType() == Message::Type::tune) {
-        if (event == Event::press) {
-            sendTuneRequest(port);
-        }
+        sendTuneRequest(port);
     } else if (message.getType() == Message::Type::sysex) {
         sendTemplatedSysex(device, message.data);
     }

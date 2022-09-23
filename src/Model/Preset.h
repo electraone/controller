@@ -91,8 +91,6 @@ private:
                         Device *device);
     std::vector<uint8_t> parseResponseHeader(JsonArray jResponseHeader);
     std::vector<uint8_t> parseRequest(JsonArray jRequest, uint8_t deviceId);
-    std::vector<Message> parsePostMessages(JsonArray jPostPatch,
-                                           uint8_t deviceId);
 
     // Overlays
     bool parseOverlayItems(File &file, Overlay &overlay);
@@ -120,7 +118,7 @@ private:
     ControlValue parseValue(Control *control, JsonObject jValue);
 
     // Messages
-    Message parseMessage(JsonObject jMessage);
+    Message parseMessage(JsonObject jMessage, ControlType controlType);
     std::vector<Rule>
         parseRules(File &file, size_t startPosition, size_t endPosition);
     Rule parseRule(File &file, size_t startPosition);

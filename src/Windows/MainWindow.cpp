@@ -888,7 +888,6 @@ void MainWindow::sendAllControls(void)
                 parameterMap.getValue(value.message.getDeviceId(),
                                       value.message.getType(),
                                       value.message.getParameterNumber()));
-            value.message.setEvent(Event::change);
             midi.sendMessage(value.message);
         }
     }

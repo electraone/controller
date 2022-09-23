@@ -781,8 +781,6 @@ void Preset::parsePatch(File &file,
  */
 void Preset::parsePatch(JsonObject jPatchItem, Device *device)
 {
-    device->postMessages =
-        parsePostMessages(jPatchItem["post"], device->getId());
     device->requests.push_back(
         parseRequest(jPatchItem["request"], device->getId()));
 }
@@ -885,23 +883,6 @@ uint8_t Preset::registerFunction(const char *functionName)
 std::vector<uint8_t> Preset::parseRequest(JsonArray jRequest, uint8_t deviceId)
 {
     return (parseData(jRequest, deviceId, Message::Type::sysex));
-}
-
-/** Parse Post patch messages
- *
- */
-std::vector<Message> Preset::parsePostMessages(JsonArray jPostPatch,
-                                               uint8_t deviceId)
-{
-    std::vector<Message> messages;
-
-    for (auto jPostPatchMessage : jPostPatch) {
-        Message message = parseMessage(jPostPatchMessage);
-        message.setDeviceId(deviceId);
-        messages.push_back(message);
-    }
-
-    return (messages);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1185,7 +1166,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
         maxNotDefined = true;
     }
 
-    Message message = parseMessage(jValue["message"]);
+    Message message = parseMessage(jValue["message"], controlType);
 
     /* If value does not define min or max, take it from the message */
     if (minNotDefined) {
@@ -1210,9 +1191,11 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
         if (defaultValueText) {
             if (strcmp(defaultValueText, "on") == 0) {
                 defaultValue = message.getOnValue();
-            } else if (strcmp(defaultValueText, "off") == 0) {
+            } else {
                 defaultValue = message.getOffValue();
             }
+        } else {
+            defaultValue = message.getOffValue();
         }
     }
 
@@ -1266,7 +1249,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
 /** Parse message JSON object
  *
  */
-Message Preset::parseMessage(JsonObject jMessage)
+Message Preset::parseMessage(JsonObject jMessage, ControlType controlType)
 {
     uint8_t deviceId = jMessage["deviceId"] | 0;
     const char *type = jMessage["type"];
@@ -1301,24 +1284,36 @@ Message Preset::parseMessage(JsonObject jMessage)
         max = 16383;
     }
 
-    if (messageType == Message::Type::program) {
-        onValue = parameterNumber;
-        offValue = MIDI_VALUE_DO_NOT_SEND;
-        parameterNumber = 0;
+    if (controlType == ControlType::pad) {
+        if (messageType == Message::Type::note) {
+            min = 0;
+            max = 127; // 0 for note off and 127 for note on.
+        } else if (messageType == Message::Type::program) {
+            min = MIDI_VALUE_DO_NOT_SEND;
+            max = parameterNumber;
+            parameterNumber = 0;
+        } else if (messageType == Message::Type::start
+                   || messageType == Message::Type::stop
+                   || messageType == Message::Type::tune) {
+            min = MIDI_VALUE_DO_NOT_SEND;
+            max = 127;
+            parameterNumber = 0;
+        } else {
+            min = offValue;
+            max = onValue;
+        }
     }
 
 #ifdef DEBUG
     logMessage(
-        "parseMessage: device=%d, msgType=%s (%d), parameterId=%d, min=%d, max=%d, value=%d, offValue=%d, onValue=%d, lsbFirst=%d, signMode=%d, bitWidth=%d",
+        "parseMessage: device=%d, msgType=%s (%d), parameterId=%d, min=%d, max=%d, value=%d, lsbFirst=%d, signMode=%d, bitWidth=%d",
         deviceId,
         type,
         messageType,
         parameterNumber,
-        min,
-        max,
+        (min == MIDI_VALUE_DO_NOT_SEND) ? -1 : min,
+        (max == MIDI_VALUE_DO_NOT_SEND) ? -1 : max,
         value,
-        (offValue == MIDI_VALUE_DO_NOT_SEND) ? -1 : offValue,
-        (onValue == MIDI_VALUE_DO_NOT_SEND) ? -1 : onValue,
         lsbFirst,
         signMode,
         bitWidth);
@@ -1330,8 +1325,6 @@ Message Preset::parseMessage(JsonObject jMessage)
                     min,
                     max,
                     value,
-                    offValue,
-                    onValue,
                     data,
                     lsbFirst,
                     signMode,

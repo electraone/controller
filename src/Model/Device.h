@@ -11,7 +11,7 @@
 class Device : public MidiOutput
 {
 public:
-    Device() : MidiOutput(MidiInterface::Type::MidiAll, 0, 0), id(0)
+    Device() : MidiOutput(MidiInterface::Type::MidiAll, 0, 0, 0), id(0)
     {
         *name = '\0';
     }
@@ -21,7 +21,10 @@ public:
            uint8_t newPort,
            uint8_t newChannel,
            uint16_t newRate)
-        : MidiOutput(MidiInterface::Type::MidiAll, newPort, newChannel),
+        : MidiOutput(MidiInterface::Type::MidiAll,
+                     newPort,
+                     newChannel,
+                     newRate),
           id(newId)
     {
         setName(newName);

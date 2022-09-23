@@ -36,9 +36,6 @@ public:
                               cv.message.getParameterNumber(),
                               midiValue,
                               Origin::internal);
-        // if this is used. The pad will emit the MIDI value as the value
-        //cv.callFunction(midiValue);
-        // For compatibility reasons it emits the state
         if (midiValue != MIDI_VALUE_DO_NOT_SEND) {
             cv.callFunction(stateToPass);
         }
@@ -48,15 +45,12 @@ public:
     {
         if (control.getMode() == ControlMode::momentary) {
             const ControlValue cv = control.getValue(0);
+
             parameterMap.setValue(cv.message.getDeviceId(),
                                   cv.message.getType(),
                                   cv.message.getParameterNumber(),
                                   cv.message.getOffValue(),
                                   Origin::internal);
-
-            // if this is used. The pad will emit the MIDI value as the value
-            //cv.callFunction(cv.message.getOffValue());
-            // For compatibility reasons it emits the state
             if (cv.message.getOffValue() != MIDI_VALUE_DO_NOT_SEND) {
                 cv.callFunction(false);
             }

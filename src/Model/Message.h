@@ -32,10 +32,7 @@ public:
           parameterNumber(0),
           midiMin(0),
           midiMax(NOT_SET),
-          value(NOT_SET),
-          offValue(0),
-          onValue(NOT_SET),
-          event(0)
+          value(NOT_SET)
     {
         type = (uint8_t)Type::invalid;
         lsbFirst = false;
@@ -49,8 +46,6 @@ public:
             int16_t newMidiMin,
             int16_t newMidiMax,
             int16_t newValue,
-            int16_t newOffValue,
-            int16_t newOnValue,
             std::vector<uint8_t> newData,
             bool newLsbFirst,
             SignMode newSignMode,
@@ -60,20 +55,12 @@ public:
           midiMin(newMidiMin),
           midiMax(newMidiMax),
           value(newValue),
-          offValue(newOffValue),
-          onValue(newOnValue),
-          data(newData),
-          event(0)
+          data(newData)
     {
         type = (uint8_t)newType;
         lsbFirst = newLsbFirst;
         signMode = (uint8_t)newSignMode;
         bitWidth = newbitWidth;
-
-        if (newType == Type::note) {
-            offValue = 0;
-            onValue = 127; // 0 for note off and 127 for note on.
-        }
     }
 
     virtual ~Message() = default;
@@ -150,22 +137,22 @@ public:
 
     void setOffValue(int16_t newOffValue)
     {
-        offValue = newOffValue;
+        midiMin = newOffValue;
     }
 
     int16_t getOffValue(void) const
     {
-        return (offValue);
+        return (midiMin);
     }
 
     void setOnValue(int16_t newOnValue)
     {
-        onValue = newOnValue;
+        midiMax = newOnValue;
     }
 
     int16_t getOnValue(void) const
     {
-        return (onValue);
+        return (midiMax);
     }
 
     void setLsbFirst(bool newLsbFirst)
@@ -188,18 +175,9 @@ public:
         return (bitWidth);
     }
 
-    void setEvent(Event newEvent)
-    {
-        event = (uint8_t)newEvent;
-    }
-
-    Event getEvent(void) const
-    {
-        return ((Event)event);
-    }
-
     void print(void) const
     {
+        logMessage("--");
         logMessage("        deviceId: %d", getDeviceId());
         logMessage(
             "        type: %s (%d)", translateType(getType()), getType());
@@ -207,8 +185,6 @@ public:
         logMessage("        min: %d", getMidiMin());
         logMessage("        max: %d", getMidiMax());
         logMessage("        value: %d", getValue());
-        logMessage("        onValue: %d", getOnValue());
-        logMessage("        offValue: %d", getOffValue());
         logMessage("        signMode: %d", getSignMode());
         logMessage("        lsbFirst: %d", getLsbFirst());
         logMessage("        bitWidth: %d", getBitWidth());
@@ -279,19 +255,16 @@ public:
     std::vector<uint8_t> data;
 
 private:
-    uint8_t deviceId;
     uint16_t parameterNumber;
+    int16_t value;
     int16_t midiMin;
     int16_t midiMax;
-    int16_t value;
-    int16_t offValue;
-    int16_t onValue;
 
     struct {
+        uint8_t deviceId : 5;
         uint8_t type : 4;
         bool lsbFirst : 1;
         uint8_t signMode : 2;
         uint8_t bitWidth : 4;
-        uint8_t event : 2;
     };
 };
