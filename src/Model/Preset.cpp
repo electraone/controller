@@ -1302,6 +1302,11 @@ Message Preset::parseMessage(JsonObject jMessage, ControlType controlType)
             min = offValue;
             max = onValue;
         }
+    } else {
+        if (messageType == Message::Type::program) {
+            value = 0;
+            parameterNumber = 0;
+        }
     }
 
 #ifdef DEBUG

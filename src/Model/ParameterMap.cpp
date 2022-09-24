@@ -129,7 +129,7 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
                                     uint16_t midiValue,
                                     Origin origin)
 {
-#ifdef DEBUG
+    //#ifdef DEBUG
     logMessage(
         "ParameterMap::setValue: deviceId=%d, type=%d, parameterNumber=%d, midiValue=%d, origin=%d",
         deviceId,
@@ -137,7 +137,7 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
         parameterNumber,
         midiValue,
         origin);
-#endif
+    //#endif
 
     // These messages are not device specific
     if (type == Message::Type::start || type == Message::Type::stop
@@ -149,8 +149,6 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
     LookupEntry *entry = findAndCache(hash);
 
     if (entry) {
-        // Commented out on purpose. It prevents sending of duplicate messages,
-        // but it can be tricky and unwanted in certain situations.
         if (entry->midiValue == midiValue) {
             return (nullptr);
         }
@@ -483,28 +481,30 @@ void ParameterMap::repaintParameterMap(void)
                 mapEntry.dirty);
 #endif
 
-            for (auto &messageDestination : mapEntry.messageDestination) {
-                for (const auto &window : windows) {
-                    Component *rc = window->getOwnedContent();
-                    Component *c = rc->findChildById(
-                        messageDestination->getControl()->getId());
+            if (mapEntry.midiValue != MIDI_VALUE_DO_NOT_SEND) {
+                for (auto &messageDestination : mapEntry.messageDestination) {
+                    for (const auto &window : windows) {
+                        Component *rc = window->getOwnedContent();
+                        Component *c = rc->findChildById(
+                            messageDestination->getControl()->getId());
 
-                    if (c) {
+                        if (c) {
 #ifdef DEBUG
-                        logMessage(
-                            "repaintParameterMap: repainting component: component: %s, controlId=%d, value=%s",
-                            c->getName(),
-                            messageDestination->getControl()->getId(),
-                            messageDestination->getId());
+                            logMessage(
+                                "repaintParameterMap: repainting component: component: %s, controlId=%d, valueId=%s",
+                                c->getName(),
+                                messageDestination->getControl()->getId(),
+                                messageDestination->getId());
 #endif
-                        ControlComponent *cc =
-                            dynamic_cast<ControlComponent *>(c);
+                            ControlComponent *cc =
+                                dynamic_cast<ControlComponent *>(c);
 
-                        if (cc) {
-                            cc->onMidiValueChange(
-                                *messageDestination,
-                                mapEntry.midiValue,
-                                messageDestination->getHandle());
+                            if (cc) {
+                                cc->onMidiValueChange(
+                                    *messageDestination,
+                                    mapEntry.midiValue,
+                                    messageDestination->getHandle());
+                            }
                         }
                     }
                 }

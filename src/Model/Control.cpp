@@ -340,18 +340,21 @@ void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 
         int16_t midiValue = 0;
 
-        if (getType() == ControlType::pad) {
-            midiValue = value.getDefault();
-        } else if (getType() == ControlType::list) {
-            midiValue = value.getDefault();
-        } else {
-            midiValue = translateValueToMidiValue(value.message.getSignMode(),
-                                                  value.message.getBitWidth(),
-                                                  value.getDefault(),
-                                                  value.getMin(),
-                                                  value.getMax(),
-                                                  value.message.getMidiMin(),
-                                                  value.message.getMidiMax());
+        if (value.getDefault() != MIDI_VALUE_DO_NOT_SEND) {
+            if (getType() == ControlType::pad) {
+                midiValue = value.getDefault();
+            } else if (getType() == ControlType::list) {
+                midiValue = value.getDefault();
+            } else {
+                midiValue =
+                    translateValueToMidiValue(value.message.getSignMode(),
+                                              value.message.getBitWidth(),
+                                              value.getDefault(),
+                                              value.getMin(),
+                                              value.getMax(),
+                                              value.message.getMidiMin(),
+                                              value.message.getMidiMax());
+            }
         }
         parameterMap.setValue(value.message.getDeviceId(),
                               value.message.getType(),
