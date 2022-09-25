@@ -263,7 +263,6 @@ void MainWindow::setControlVisible(uint16_t controlId, bool shouldBeVisible)
             control.setVisible(shouldBeVisible);
             if (Component *component = control.getComponent()) {
                 component->setVisible(shouldBeVisible);
-                repaintPage();
             }
         }
     }
