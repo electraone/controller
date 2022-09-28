@@ -20,8 +20,14 @@ public:
 
     virtual ~ListButtonControl() = default;
 
+    virtual void onTouchDown(const TouchEvent &touchEvent) override
+    {
+        setActive(true);
+    }
+
     virtual void onTouchUp(const TouchEvent &touchEvent) override
     {
+        setActive(false);
         if (auto list = getList()) {
             uint16_t newIndex = index + 1;
             if (newIndex > list->getMaxIndex()) {
@@ -79,7 +85,8 @@ public:
         bounds.setHeight(getHeight() - 6);
         g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
                                         : LookAndFeel::backgroundColour);
-        LookAndFeel::paintButtonList(g, bounds, colour, getList(), index);
+        LookAndFeel::paintButtonList(
+            g, bounds, colour, getList(), index, getActive());
         ControlComponent::paint(g);
     }
 

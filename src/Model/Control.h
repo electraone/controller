@@ -31,7 +31,7 @@ public:
         UniDirectional = 3
     };
 
-    enum class Variant { Default = 0, Thin = 2, Button = 3, Dial = 4 };
+    enum class Variant { Default = 0, Thin = 2, ValueOnly = 3, Dial = 4 };
 
     Control();
     Control(uint16_t id,

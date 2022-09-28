@@ -27,6 +27,7 @@ public:
     void setUseAltBackground(bool shouldUseAltBackground);
     bool getUseAltBackground(void) const;
     void setActive(bool shouldBeActive);
+    bool getActive(void) const;
     static ControlComponent *createControlComponent(const Control &control,
                                                     MainDelegate &newDelegate);
     static ControlComponent *
@@ -36,6 +37,8 @@ public:
 protected:
     const Control &control;
     MainDelegate &delegate;
+
+private:
     struct {
         bool useAltBackground : 1;
         bool active : 1;

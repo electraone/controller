@@ -130,6 +130,11 @@ void ControlComponent::setActive(bool shouldBeActive)
     repaint();
 }
 
+bool ControlComponent::getActive(void) const
+{
+    return (active);
+}
+
 ControlComponent *
     ControlComponent::createControlComponent(const Control &control,
                                              MainDelegate &newDelegate)
@@ -140,7 +145,7 @@ ControlComponent *
     if (control.getType() == Control::Type::Fader) {
         c = new FaderControl(control, newDelegate);
     } else if (control.getType() == Control::Type::List) {
-        if (control.getVariant() == Control::Variant::Button) {
+        if (control.getVariant() == Control::Variant::ValueOnly) {
             c = new ListButtonControl(control, newDelegate);
         } else {
             c = new ListControl(control, newDelegate);

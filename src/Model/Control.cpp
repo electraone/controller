@@ -196,8 +196,8 @@ Control::Variant Control::translateVariant(const char *variantText)
             return (Control::Variant::Thin);
         } else if (strcmp(variantText, "dial") == 0) {
             return (Control::Variant::Dial);
-        } else if (strcmp(variantText, "button") == 0) {
-            return (Control::Variant::Button);
+        } else if (strcmp(variantText, "valueOnly") == 0) {
+            return (Control::Variant::ValueOnly);
         }
     }
     return (Control::Variant::Default);
