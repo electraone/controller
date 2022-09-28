@@ -155,25 +155,25 @@ void ControlValue::callFunction(int16_t value) const
 const char *ControlValue::translateId(uint8_t id) const
 {
     switch (control->getType()) {
-        case ControlType::fader:
-        case ControlType::list:
-        case ControlType::pad:
+        case Control::Type::Fader:
+        case Control::Type::List:
+        case Control::Type::Pad:
             return ("value");
             break;
 
-        case ControlType::adsr:
+        case Control::Type::Adsr:
             if (id < 4) {
                 return (valueIdsAdsr[id]);
             }
             break;
 
-        case ControlType::adr:
+        case Control::Type::Adr:
             if (id < 3) {
                 return (valueIdsAdr[id]);
             }
             break;
 
-        case ControlType::dx7envelope:
+        case Control::Type::Dx7envelope:
             if (id < 8) {
                 return (valueIdsDx7Env[id]);
             }
@@ -188,20 +188,20 @@ const char *ControlValue::translateId(uint8_t id) const
 uint8_t ControlValue::translateId(const char *handle) const
 {
     switch (control->getType()) {
-        case ControlType::fader:
-        case ControlType::list:
-        case ControlType::pad:
+        case Control::Type::Fader:
+        case Control::Type::List:
+        case Control::Type::Pad:
             return (0);
             break;
 
-        case ControlType::adsr:
+        case Control::Type::Adsr:
             for (uint8_t i = 0; i < 4; i++) {
                 if (strcmp(handle, valueIdsAdsr[i]) == 0) {
                     return (i);
                 }
             }
             break;
-        case ControlType::adr:
+        case Control::Type::Adr:
             for (uint8_t i = 0; i < 3; i++) {
                 if (strcmp(handle, valueIdsAdr[i]) == 0) {
                     return (i);
@@ -209,7 +209,7 @@ uint8_t ControlValue::translateId(const char *handle) const
             }
             break;
 
-        case ControlType::dx7envelope:
+        case Control::Type::Dx7envelope:
             for (uint8_t i = 0; i < 8; i++) {
                 if (strcmp(handle, valueIdsDx7Env[i]) == 0) {
                     return (i);

@@ -22,7 +22,7 @@ public:
         uint16_t midiValue = cv.message.getOnValue();
         bool stateToPass = false;
 
-        if (control.getMode() == ControlMode::toggle) {
+        if (control.getMode() == Control::Mode::Toggle) {
             midiValue = (state == false) ? cv.message.getOnValue()
                                          : cv.message.getOffValue();
             setState(!state);
@@ -43,7 +43,7 @@ public:
 
     virtual void onTouchUp(const TouchEvent &touchEvent) override
     {
-        if (control.getMode() == ControlMode::momentary) {
+        if (control.getMode() == Control::Mode::Momentary) {
             const ControlValue cv = control.getValue(0);
 
             parameterMap.setValue(cv.message.getDeviceId(),
@@ -91,7 +91,7 @@ public:
 
     virtual void onPotTouchUp(const PotEvent &potEvent) override
     {
-        if (control.getMode() == ControlMode::momentary) {
+        if (control.getMode() == Control::Mode::Momentary) {
             const ControlValue cv = control.getValue(0);
 
             parameterMap.setValue(cv.message.getDeviceId(),

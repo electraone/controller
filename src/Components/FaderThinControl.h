@@ -5,10 +5,10 @@
 #include "BarHorizontal.h"
 #include "AssignableList.h"
 
-class FaderControl : public ControlComponent, public BarHorizontal
+class FaderThinControl : public ControlComponent, public BarHorizontal
 {
 public:
-    FaderControl(const Control &control, MainDelegate &newDelegate)
+    FaderThinControl(const Control &control, MainDelegate &newDelegate)
         : ControlComponent(control, newDelegate),
           previousScreenX(0),
           thresholdCrossed(false)
@@ -21,7 +21,7 @@ public:
         updateValueFromParameterMap();
     }
 
-    virtual ~FaderControl() = default;
+    virtual ~FaderThinControl() = default;
 
     virtual void onTouchDown(const TouchEvent &touchEvent) override
     {
@@ -123,8 +123,8 @@ private:
                                         ? LookAndFeel::altBackgroundColour
                                         : LookAndFeel::backgroundColour;
 
-        uint16_t barHeight = 24;
-        uint16_t padding = bounds.getHeight() - 51;
+        uint16_t barHeight = 9;
+        uint16_t padding = bounds.getHeight() - 36;
 
         uint16_t barX =
             map(std::max((int16_t)0, min), min, max, 0, bounds.getWidth());
@@ -165,7 +165,7 @@ private:
                 snprintf(stringValue, sizeof(stringValue), formatString, val);
             }
             g.printText(0,
-                        10,
+                        0,
                         stringValue,
                         TextStyle::mediumTransparent,
                         getWidth(),

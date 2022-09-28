@@ -963,14 +963,14 @@ Control Preset::parseControl(JsonObject jControl)
     uint8_t pageId = constrainPageId(jControl["pageId"]);
     const char *name = jControl["name"];
     Rectangle bounds = parseBounds(jControl["bounds"]);
-    ControlType controlType = Control::translateControlType(jControl["type"]);
-    ControlMode controlMode = Control::translateControlMode(jControl["mode"]);
+    Control::Type controlType = Control::translateType(jControl["type"]);
+    Control::Mode controlMode = Control::translateControlMode(jControl["mode"]);
     Colour colour =
         ElectraColours::translateColour(jControl["color"].as<const char *>());
-    Variant variantType = Control::translateVariant(jControl["variant"]);
+    Control::Variant variantType =
+        Control::translateVariant(jControl["variant"]);
     uint8_t controlSetId = constrainControlSetId(jControl["controlSetId"]);
     bool visible = jControl["visible"] | true;
-
     return (Control(id,
                     pageId,
                     name,
@@ -991,7 +991,7 @@ Control Preset::parseControl(JsonObject jControl)
 std::vector<Input> Preset::parseInputs(File &file,
                                        size_t startPosition,
                                        size_t endPosition,
-                                       ControlType controlType)
+                                       Control::Type controlType)
 {
     std::vector<Input> inputs;
 
@@ -1016,7 +1016,7 @@ std::vector<Input> Preset::parseInputs(File &file,
  */
 Input Preset::parseInput(File &file,
                          size_t startPosition,
-                         ControlType controlType)
+                         Control::Type controlType)
 {
     if (file.seek(startPosition) == false) {
         logMessage("Preset::parseInput: cannot rewind the start position");
@@ -1047,7 +1047,7 @@ Input Preset::parseInput(File &file,
 /** Parse Input JSON object
  *
  */
-Input Preset::parseInput(ControlType controlType, JsonObject jInput)
+Input Preset::parseInput(Control::Type controlType, JsonObject jInput)
 {
     uint8_t potId = constrainPotId(jInput["potId"]);
     uint8_t valueIndex = translateValueId(controlType, jInput["valueId"] | "");
@@ -1142,7 +1142,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
         functionIndex = registerFunction(function);
     }
 
-    ControlType controlType = control->getType();
+    Control::Type controlType = control->getType();
     uint8_t valueIndex = translateValueId(controlType, valueId);
 
     bool minNotDefined = false;
@@ -1180,8 +1180,8 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
     /*
 	 * make sure defaultValue is within min/max boundaries
 	 */
-    if ((controlType != ControlType::pad)
-        && (controlType != ControlType::list)) {
+    if ((controlType != Control::Type::Pad)
+        && (controlType != Control::Type::List)) {
         if (defaultValue > max) {
             defaultValue = max;
         } else if (defaultValue < min) {
@@ -1201,7 +1201,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
 
     Overlay *overlay = getOverlay(overlayId);
 
-    if (controlType == ControlType::list) {
+    if (controlType == Control::Type::List) {
         min = 0;
         max = 1;
 
@@ -1210,7 +1210,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
                 max = overlay->getNumItems();
             }
         }
-    } else if (controlType == ControlType::pad) {
+    } else if (controlType == Control::Type::Pad) {
         min = 0;
         max = 1;
     }
@@ -1249,7 +1249,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
 /** Parse message JSON object
  *
  */
-Message Preset::parseMessage(JsonObject jMessage, ControlType controlType)
+Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
 {
     uint8_t deviceId = jMessage["deviceId"] | 0;
     const char *type = jMessage["type"];
@@ -1284,7 +1284,7 @@ Message Preset::parseMessage(JsonObject jMessage, ControlType controlType)
         max = 16383;
     }
 
-    if (controlType == ControlType::pad) {
+    if (controlType == Control::Type::Pad) {
         if (messageType == Message::Type::note) {
             min = 0;
             max = 127; // 0 for note off and 127 for note on.
@@ -1714,13 +1714,13 @@ ChecksumAlgorithm Preset::translateAlgorithm(const char *algorithm)
 /** Translate ValueId to the Enum type
  *
  */
-uint8_t Preset::translateValueId(ControlType type, const char *valueId)
+uint8_t Preset::translateValueId(Control::Type type, const char *valueId)
 {
     if (!valueId) {
         return (0);
     }
 
-    if (type == ControlType::adsr) {
+    if (type == Control::Type::Adsr) {
         if (strcmp(valueId, "attack") == 0) {
             return (0);
         } else if (strcmp(valueId, "decay") == 0) {
@@ -1732,7 +1732,7 @@ uint8_t Preset::translateValueId(ControlType type, const char *valueId)
         }
     }
 
-    if (type == ControlType::adr) {
+    if (type == Control::Type::Adr) {
         if (strcmp(valueId, "attack") == 0) {
             return (0);
         } else if (strcmp(valueId, "decay") == 0) {
@@ -1742,7 +1742,7 @@ uint8_t Preset::translateValueId(ControlType type, const char *valueId)
         }
     }
 
-    if (type == ControlType::dx7envelope) {
+    if (type == Control::Type::Dx7envelope) {
         if (strcmp(valueId, "r1") == 0) {
             return (1);
         } else if (strcmp(valueId, "r2") == 0) {
@@ -1765,21 +1765,21 @@ uint8_t Preset::translateValueId(ControlType type, const char *valueId)
     return (0);
 }
 
-uint8_t Preset::getNumValues(ControlType type)
+uint8_t Preset::getNumValues(Control::Type type)
 {
     switch (type) {
-        case (ControlType::adr):
+        case (Control::Type::Adr):
             return (3);
 
-        case (ControlType::adsr):
+        case (Control::Type::Adsr):
             return (4);
 
-        case (ControlType::dx7envelope):
+        case (Control::Type::Dx7envelope):
             return (8);
 
-        case (ControlType::fader):
-        case (ControlType::list):
-        case (ControlType::pad):
+        case (Control::Type::Fader):
+        case (Control::Type::List):
+        case (Control::Type::Pad):
         default:
             return (1);
     }

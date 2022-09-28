@@ -20,7 +20,7 @@ public:
     {
         l1Values.push_back(control.getValue(0));
         l1.setId(500);
-        l1.setType(ControlType::knob);
+        l1.setType(Control::Type::Knob);
         l1.setName("LEVEL 1");
         l1.setColour(control.getColour());
         l1.setValues(l1Values);
@@ -33,7 +33,7 @@ public:
 
         r1Values.push_back(control.getValue(1));
         r1.setId(501);
-        r1.setType(ControlType::knob);
+        r1.setType(Control::Type::Knob);
         r1.setName("RATE 1");
         r1.setColour(control.getColour());
         r1.setValues(r1Values);
@@ -46,7 +46,7 @@ public:
 
         l2Values.push_back(control.getValue(2));
         l2.setId(502);
-        l2.setType(ControlType::knob);
+        l2.setType(Control::Type::Knob);
         l2.setName("LEVEL 2");
         l2.setColour(control.getColour());
         l2.setValues(l2Values);
@@ -59,7 +59,7 @@ public:
 
         r2Values.push_back(control.getValue(3));
         r2.setId(503);
-        r2.setType(ControlType::knob);
+        r2.setType(Control::Type::Knob);
         r2.setName("RATE 2");
         r2.setColour(control.getColour());
         r2.setValues(r2Values);
@@ -72,7 +72,7 @@ public:
 
         l3Values.push_back(control.getValue(4));
         l3.setId(504);
-        l3.setType(ControlType::knob);
+        l3.setType(Control::Type::Knob);
         l3.setName("LEVEL 3");
         l3.setColour(control.getColour());
         l3.setValues(l3Values);
@@ -85,7 +85,7 @@ public:
 
         r3Values.push_back(control.getValue(5));
         r3.setId(505);
-        r3.setType(ControlType::knob);
+        r3.setType(Control::Type::Knob);
         r3.setName("RATE 3");
         r3.setColour(control.getColour());
         r3.setValues(r3Values);
@@ -98,7 +98,7 @@ public:
 
         l4Values.push_back(control.getValue(6));
         l4.setId(506);
-        l4.setType(ControlType::knob);
+        l4.setType(Control::Type::Knob);
         l4.setName("LEVEL 4");
         l4.setColour(control.getColour());
         l4.setValues(l4Values);
@@ -111,7 +111,7 @@ public:
 
         r4Values.push_back(control.getValue(7));
         r4.setId(507);
-        r4.setType(ControlType::knob);
+        r4.setType(Control::Type::Knob);
         r4.setName("RATE 4");
         r4.setColour(control.getColour());
         r4.setValues(r4Values);

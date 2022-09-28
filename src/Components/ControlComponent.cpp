@@ -1,6 +1,9 @@
 #include "ControlComponent.h"
 #include "FaderControl.h"
+#include "FaderThinControl.h"
+#include "DialControl.h"
 #include "ListControl.h"
+#include "ListButtonControl.h"
 #include "PadControl.h"
 #include "ADSRControl.h"
 #include "ADRControl.h"
@@ -30,9 +33,12 @@ void ControlComponent::paint(Graphics &g)
     }
 }
 
-void ControlComponent::onControlUpdated(void)
+void ControlComponent::syncComponentProperties(void)
 {
-    // teak control's position. far from optimal,
+    /* \todo tweak control's position. far from optimal,
+             this is done to make sure that presets made originally for
+             firmware 2.x look good on 3.x
+    */
     auto bounds = control.getBounds();
     bounds.setY(bounds.getY() * 1.02f - 10);
     setBounds(bounds);
@@ -129,26 +135,37 @@ ControlComponent *
     ControlComponent::createControlComponent(const Control &control,
                                              MainDelegate &newDelegate)
 {
+    // \todo refactor this to a map function instead of if-else
     ControlComponent *c = nullptr;
 
-    if (control.getType() == ControlType::fader) {
-        c = new FaderControl(control, newDelegate);
-    } else if (control.getType() == ControlType::list) {
-        c = new ListControl(control, newDelegate);
-    } else if (control.getType() == ControlType::pad) {
+    if (control.getType() == Control::Type::Fader) {
+        if (control.getVariant() == Control::Variant::Thin) {
+            c = new FaderThinControl(control, newDelegate);
+        } else if (control.getVariant() == Control::Variant::Dial) {
+            c = new DialControl(control, newDelegate);
+        } else {
+            c = new FaderControl(control, newDelegate);
+        }
+    } else if (control.getType() == Control::Type::List) {
+        if (control.getVariant() == Control::Variant::Button) {
+            c = new ListButtonControl(control, newDelegate);
+        } else {
+            c = new ListControl(control, newDelegate);
+        }
+    } else if (control.getType() == Control::Type::Pad) {
         c = new PadControl(control, newDelegate);
-    } else if (control.getType() == ControlType::adsr) {
+    } else if (control.getType() == Control::Type::Adsr) {
         c = new ADSRControl(control, newDelegate);
-    } else if (control.getType() == ControlType::adr) {
+    } else if (control.getType() == Control::Type::Adr) {
         c = new ADRControl(control, newDelegate);
-    } else if (control.getType() == ControlType::dx7envelope) {
+    } else if (control.getType() == Control::Type::Dx7envelope) {
         c = new Dx7EnvControl(control, newDelegate);
-    } else if (control.getType() == ControlType::knob) {
+    } else if (control.getType() == Control::Type::Knob) {
         c = new KnobControl(control, newDelegate);
     }
 
     if (c) {
-        c->onControlUpdated();
+        c->syncComponentProperties();
     }
 
     return (c);
@@ -160,15 +177,15 @@ ControlComponent *
 {
     ControlComponent *c = nullptr;
 
-    if (control.getType() == ControlType::fader) {
+    if (control.getType() == Control::Type::Fader) {
         c = new FaderDetailControl(control, newDelegate);
-    } else if (control.getType() == ControlType::list) {
+    } else if (control.getType() == Control::Type::List) {
         c = new ListDetailControl(control, newDelegate);
-    } else if (control.getType() == ControlType::adsr) {
+    } else if (control.getType() == Control::Type::Adsr) {
         c = new ADSRDetailControl(control, newDelegate);
-    } else if (control.getType() == ControlType::adr) {
+    } else if (control.getType() == Control::Type::Adr) {
         c = new ADRDetailControl(control, newDelegate);
-    } else if (control.getType() == ControlType::dx7envelope) {
+    } else if (control.getType() == Control::Type::Dx7envelope) {
         c = new Dx7EnvDetailControl(control, newDelegate);
     }
 

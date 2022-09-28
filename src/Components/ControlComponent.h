@@ -13,7 +13,7 @@ public:
 
     virtual void paint(Graphics &g) override;
 
-    virtual void onControlUpdated(void);
+    virtual void syncComponentProperties(void);
     virtual void onMidiValueChange(const ControlValue &value,
                                    int16_t midiValue,
                                    uint8_t handle = 0) = 0;

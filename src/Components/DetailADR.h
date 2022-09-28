@@ -16,7 +16,7 @@ public:
         // \todo to be deduplicated
         attackValues.push_back(control.getValue(0));
         attack.setId(500);
-        attack.setType(ControlType::knob);
+        attack.setType(Control::Type::Knob);
         attack.setName("ATTACK");
         attack.setColour(control.getColour());
         attack.setValues(attackValues);
@@ -29,7 +29,7 @@ public:
 
         decayValues.push_back(control.getValue(1));
         decay.setId(501);
-        decay.setType(ControlType::knob);
+        decay.setType(Control::Type::Knob);
         decay.setName("DECAY");
         decay.setColour(control.getColour());
         decay.setValues(decayValues);
@@ -42,7 +42,7 @@ public:
 
         releaseValues.push_back(control.getValue(2));
         release.setId(502);
-        release.setType(ControlType::knob);
+        release.setType(Control::Type::Knob);
         release.setName("RELEASE");
         release.setColour(control.getColour());
         release.setValues(releaseValues);

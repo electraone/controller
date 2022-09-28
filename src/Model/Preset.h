@@ -105,9 +105,10 @@ private:
     std::vector<Input> parseInputs(File &file,
                                    size_t startPosition,
                                    size_t endPosition,
-                                   ControlType controlType);
-    Input parseInput(File &file, size_t startPosition, ControlType controlType);
-    Input parseInput(ControlType controlType, JsonObject jInput);
+                                   Control::Type controlType);
+    Input
+        parseInput(File &file, size_t startPosition, Control::Type controlType);
+    Input parseInput(Control::Type controlType, JsonObject jInput);
 
     // Values
     std::vector<ControlValue> parseValues(File &file,
@@ -118,7 +119,7 @@ private:
     ControlValue parseValue(Control *control, JsonObject jValue);
 
     // Messages
-    Message parseMessage(JsonObject jMessage, ControlType controlType);
+    Message parseMessage(JsonObject jMessage, Control::Type controlType);
     std::vector<Rule>
         parseRules(File &file, size_t startPosition, size_t endPosition);
     Rule parseRule(File &file, size_t startPosition);
@@ -134,8 +135,8 @@ private:
 
     // Static functions
     static ChecksumAlgorithm translateAlgorithm(const char *algorithm);
-    static uint8_t translateValueId(ControlType type, const char *valueId);
-    static uint8_t getNumValues(ControlType type);
+    static uint8_t translateValueId(Control::Type type, const char *valueId);
+    static uint8_t getNumValues(Control::Type type);
     static uint8_t getDefaultbitWidth(Message::Type messageType);
     static bool getPresetNameFast(File &file,
                                   char *presetName,

@@ -62,23 +62,23 @@ Detail *Detail::createDetail(const Control &control, MainDelegate &newDelegate)
     Detail *detail = nullptr;
 
     switch (control.getType()) {
-        case ControlType::fader:
+        case Control::Type::Fader:
             detail = new DetailFader(control, newDelegate);
             break;
 
-        case ControlType::list:
+        case Control::Type::List:
             detail = new DetailList(control, newDelegate);
             break;
 
-        case ControlType::adsr:
+        case Control::Type::Adsr:
             detail = new DetailADSR(control, newDelegate);
             break;
 
-        case ControlType::adr:
+        case Control::Type::Adr:
             detail = new DetailADR(control, newDelegate);
             break;
 
-        case ControlType::dx7envelope:
+        case Control::Type::Dx7envelope:
             detail = new DetailDx7Env(control, newDelegate);
             break;
 

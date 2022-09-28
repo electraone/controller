@@ -205,7 +205,7 @@ void MainWindow::repaintControl(uint16_t controlId)
         Component *c = pageView->findChildById(controlId);
 
         if (ControlComponent *cc = dynamic_cast<ControlComponent *>(c)) {
-            cc->onControlUpdated();
+            cc->syncComponentProperties();
             cc->repaint();
         }
     }
@@ -850,12 +850,12 @@ void MainWindow::switchToPreviousHandle(Component *component)
 
 Rectangle MainWindow::getDetailBounds(const Control &control)
 {
-    if (control.getType() == ControlType::fader) {
+    if (control.getType() == Control::Type::Fader) {
         return Rectangle(8, 217, 1008, 330);
-    } else if (control.getType() == ControlType::list) {
+    } else if (control.getType() == Control::Type::List) {
         uint16_t xPosition = (control.getBounds().getX() > 510) ? 8 : 577;
         return Rectangle(xPosition, 22, 436, 556);
-    } else if (control.getType() == ControlType::dx7envelope) {
+    } else if (control.getType() == Control::Type::Dx7envelope) {
         return Rectangle(158, 62, 828, 490);
     }
     return Rectangle(158, 110, 828, 380);

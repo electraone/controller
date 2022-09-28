@@ -10,11 +10,11 @@ static const char *valueIdsDx7Env[] = { "l1", "r1", "l2", "r2",
 
 Control::Control() : id(0), pageId(0), controlSetId(0), component(nullptr)
 {
-    type = (uint8_t)ControlType::none;
+    type = (uint8_t)Control::Type::None;
     colour = (uint8_t)ElectraColours::white;
-    mode = (uint8_t)ControlMode::none;
+    mode = (uint8_t)Control::Mode::Default;
     controlSetId = 0;
-    variant = (uint8_t)Variant::automatic;
+    variant = (uint8_t)Control::Variant::Default;
     visible = (uint8_t) false;
     name[0] = '\0';
 }
@@ -23,8 +23,8 @@ Control::Control(uint16_t id,
                  uint8_t newPageId,
                  const char *newName,
                  const Rectangle &newBounds,
-                 ControlType newType,
-                 ControlMode newMode,
+                 Control::Type newType,
+                 Control::Mode newMode,
                  Colour newColour,
                  uint8_t newControlSetId,
                  Variant newVariant,
@@ -63,19 +63,19 @@ uint8_t Control::getPageId(void) const
     return (pageId);
 }
 
-void Control::setType(ControlType newType)
+void Control::setType(Control::Type newType)
 {
     type = (uint8_t)newType;
 }
 
-ControlType Control::getType(void) const
+Control::Type Control::getType(void) const
 {
-    return ((ControlType)type);
+    return ((Control::Type)type);
 }
 
-ControlMode Control::getMode(void) const
+Control::Mode Control::getMode(void) const
 {
-    return ((ControlMode)mode);
+    return ((Control::Mode)mode);
 }
 
 void Control::setColour(Colour newColour)
@@ -108,9 +108,9 @@ uint8_t Control::getControlSetId(void) const
     return (controlSetId);
 }
 
-Variant Control::getVariant(void) const
+Control::Variant Control::getVariant(void) const
 {
-    return ((Variant)variant);
+    return ((Control::Variant)variant);
 }
 
 void Control::setVisible(bool shouldBeVisible)
@@ -153,74 +153,78 @@ const ControlValue &Control::getValueByValueId(const char *valueId) const
     return (values[0]);
 }
 
-ControlType Control::translateControlType(const char *typeText)
+Control::Type Control::translateType(const char *typeText)
 {
     if (typeText) {
         if (strcmp(typeText, "fader") == 0) {
-            return (ControlType::fader);
+            return (Control::Type::Fader);
         } else if (strcmp(typeText, "vfader") == 0) {
-            return (ControlType::vfader);
+            return (Control::Type::Vfader);
         } else if (strcmp(typeText, "list") == 0) {
-            return (ControlType::list);
+            return (Control::Type::List);
         } else if (strcmp(typeText, "pad") == 0) {
-            return (ControlType::pad);
+            return (Control::Type::Pad);
         } else if (strcmp(typeText, "adsr") == 0) {
-            return (ControlType::adsr);
+            return (Control::Type::Adsr);
         } else if (strcmp(typeText, "adr") == 0) {
-            return (ControlType::adr);
+            return (Control::Type::Adr);
         } else if (strcmp(typeText, "dx7envelope") == 0) {
-            return (ControlType::dx7envelope);
+            return (Control::Type::Dx7envelope);
         }
     }
-    return (ControlType::none);
+    return (Control::Type::None);
 }
 
-ControlMode Control::translateControlMode(const char *modeText)
+Control::Mode Control::translateControlMode(const char *modeText)
 {
     if (modeText) {
         if (strcmp(modeText, "momentary") == 0) {
-            return (ControlMode::momentary);
+            return (Control::Mode::Momentary);
         } else if (strcmp(modeText, "toggle") == 0) {
-            return (ControlMode::toggle);
+            return (Control::Mode::Toggle);
         }
     }
 
-    return (ControlMode::none);
+    return (Control::Mode::Default);
 }
 
-Variant Control::translateVariant(const char *variantText)
+Control::Variant Control::translateVariant(const char *variantText)
 {
     if (variantText) {
-        if (strcmp(variantText, "fixedValuePosition") == 0) {
-            return (Variant::fixedValuePosition);
+        if (strcmp(variantText, "thin") == 0) {
+            return (Control::Variant::Thin);
+        } else if (strcmp(variantText, "dial") == 0) {
+            return (Control::Variant::Dial);
+        } else if (strcmp(variantText, "button") == 0) {
+            return (Control::Variant::Button);
         }
     }
 
-    return (Variant::automatic);
+    return (Control::Variant::Default);
 }
 
 const char *Control::translateValueId(uint8_t id) const
 {
     switch (getType()) {
-        case ControlType::fader:
-        case ControlType::list:
-        case ControlType::pad:
+        case Control::Type::Fader:
+        case Control::Type::List:
+        case Control::Type::Pad:
             return ("value");
             break;
 
-        case ControlType::adsr:
+        case Control::Type::Adsr:
             if (id < 4) {
                 return (valueIdsAdsr[id]);
             }
             break;
 
-        case ControlType::adr:
+        case Control::Type::Adr:
             if (id < 3) {
                 return (valueIdsAdr[id]);
             }
             break;
 
-        case ControlType::dx7envelope:
+        case Control::Type::Dx7envelope:
             if (id < 8) {
                 return (valueIdsDx7Env[id]);
             }
@@ -235,20 +239,20 @@ const char *Control::translateValueId(uint8_t id) const
 uint8_t Control::translateValueId(const char *handle) const
 {
     switch (getType()) {
-        case ControlType::fader:
-        case ControlType::list:
-        case ControlType::pad:
+        case Control::Type::Fader:
+        case Control::Type::List:
+        case Control::Type::Pad:
             return (0);
             break;
 
-        case ControlType::adsr:
+        case Control::Type::Adsr:
             for (uint8_t i = 0; i < 4; i++) {
                 if (strcmp(handle, valueIdsAdsr[i]) == 0) {
                     return (i);
                 }
             }
             break;
-        case ControlType::adr:
+        case Control::Type::Adr:
             for (uint8_t i = 0; i < 3; i++) {
                 if (strcmp(handle, valueIdsAdr[i]) == 0) {
                     return (i);
@@ -256,7 +260,7 @@ uint8_t Control::translateValueId(const char *handle) const
             }
             break;
 
-        case ControlType::dx7envelope:
+        case Control::Type::Dx7envelope:
             for (uint8_t i = 0; i < 8; i++) {
                 if (strcmp(handle, valueIdsDx7Env[i]) == 0) {
                     return (i);
@@ -341,9 +345,9 @@ void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
         int16_t midiValue = 0;
 
         if (value.getDefault() != MIDI_VALUE_DO_NOT_SEND) {
-            if (getType() == ControlType::pad) {
+            if (getType() == Control::Type::Pad) {
                 midiValue = value.getDefault();
-            } else if (getType() == ControlType::list) {
+            } else if (getType() == Control::Type::List) {
                 midiValue = value.getDefault();
             } else {
                 midiValue =

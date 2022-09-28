@@ -9,32 +9,32 @@
 #include "Colours.h"
 #include "Component.h"
 
-enum class ControlType {
-    none = 0,
-    fader = 1,
-    vfader = 2,
-    list = 3,
-    pad = 4,
-    adsr = 5,
-    adr = 6,
-    dx7envelope = 7,
-    knob = 8
-};
-
-enum class ControlMode { none = 0, momentary = 1, toggle = 2 };
-
-enum class Variant { automatic = 0, fixedValuePosition = 1 };
-
 class Control
 {
 public:
+    enum class Type {
+        None = 0,
+        Fader = 1,
+        Vfader = 2,
+        List = 3,
+        Pad = 4,
+        Adsr = 5,
+        Adr = 6,
+        Dx7envelope = 7,
+        Knob = 8
+    };
+
+    enum class Mode { Default = 0, Momentary = 1, Toggle = 2 };
+
+    enum class Variant { Default = 0, Thin = 2, Button = 3, Dial = 4 };
+
     Control();
     Control(uint16_t id,
             uint8_t pageId,
             const char *name,
             const Rectangle &bounds,
-            ControlType type,
-            ControlMode mode,
+            Type type,
+            Mode mode,
             Colour colour,
             uint8_t controlSetId,
             Variant variant,
@@ -46,9 +46,9 @@ public:
     void setId(uint16_t newId);
     uint16_t getId(void) const;
     uint8_t getPageId(void) const;
-    void setType(ControlType newType);
-    ControlType getType(void) const;
-    ControlMode getMode(void) const;
+    void setType(Type newType);
+    Type getType(void) const;
+    Mode getMode(void) const;
     void setColour(Colour newColour);
     Colour getColour(void) const;
     void setName(const char *newName);
@@ -65,8 +65,8 @@ public:
     const ControlValue &getValue(uint8_t index) const;
     const ControlValue &getValueByValueId(const char *valueId) const;
 
-    static ControlType translateControlType(const char *typeText);
-    static ControlMode translateControlMode(const char *modeText);
+    static Type translateType(const char *typeText);
+    static Mode translateControlMode(const char *modeText);
     static Variant translateVariant(const char *variantText);
 
     const char *translateValueId(uint8_t id) const;
@@ -93,7 +93,7 @@ private:
         uint8_t mode : 2;
         uint8_t controlSetId : 3;
         uint8_t colour : 3;
-        uint8_t variant : 2;
+        uint8_t variant : 4;
         uint8_t visible : 1;
     };
 
