@@ -1,6 +1,5 @@
 #include "ControlComponent.h"
 #include "FaderControl.h"
-#include "FaderThinControl.h"
 #include "DialControl.h"
 #include "ListControl.h"
 #include "ListButtonControl.h"
@@ -139,13 +138,7 @@ ControlComponent *
     ControlComponent *c = nullptr;
 
     if (control.getType() == Control::Type::Fader) {
-        if (control.getVariant() == Control::Variant::Thin) {
-            c = new FaderThinControl(control, newDelegate);
-        } else if (control.getVariant() == Control::Variant::Dial) {
-            c = new DialControl(control, newDelegate);
-        } else {
-            c = new FaderControl(control, newDelegate);
-        }
+        c = new FaderControl(control, newDelegate);
     } else if (control.getType() == Control::Type::List) {
         if (control.getVariant() == Control::Variant::Button) {
             c = new ListButtonControl(control, newDelegate);

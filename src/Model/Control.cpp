@@ -182,9 +182,10 @@ Control::Mode Control::translateControlMode(const char *modeText)
             return (Control::Mode::Momentary);
         } else if (strcmp(modeText, "toggle") == 0) {
             return (Control::Mode::Toggle);
+        } else if (strcmp(modeText, "unidirectional") == 0) {
+            return (Control::Mode::UniDirectional);
         }
     }
-
     return (Control::Mode::Default);
 }
 
@@ -199,7 +200,6 @@ Control::Variant Control::translateVariant(const char *variantText)
             return (Control::Variant::Button);
         }
     }
-
     return (Control::Variant::Default);
 }
 

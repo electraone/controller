@@ -24,7 +24,12 @@ public:
         Knob = 8
     };
 
-    enum class Mode { Default = 0, Momentary = 1, Toggle = 2 };
+    enum class Mode {
+        Default = 0,
+        Momentary = 1,
+        Toggle = 2,
+        UniDirectional = 3
+    };
 
     enum class Variant { Default = 0, Thin = 2, Button = 3, Dial = 4 };
 
