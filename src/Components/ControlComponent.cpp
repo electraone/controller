@@ -52,6 +52,7 @@ void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
     if (MainWindow *window = dynamic_cast<MainWindow *>(getWindow())) {
         window->openDetail(getId());
     }
+    setActive(false);
 }
 
 void ControlComponent::onTouchDoubleClick(const TouchEvent &touchEvent)
