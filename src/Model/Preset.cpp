@@ -1096,7 +1096,7 @@ ControlValue
         return (ControlValue());
     }
 
-    StaticJsonDocument<2048> doc;
+    StaticJsonDocument<4096> doc;
     auto err = deserializeJson(doc, file);
 
     if (err) {
@@ -1560,6 +1560,11 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
                 data.push_back(byte);
             }
         }
+    }
+
+    if (data[0] != 0xF0) {
+        data.insert(data.begin(), 0xF0);
+        data.push_back(0xF7);
     }
 
     return (data);

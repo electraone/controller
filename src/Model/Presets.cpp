@@ -1,5 +1,5 @@
 #include "Presets.h"
-#include "Midi/Sysex.h"
+#include "MidiOutput.h"
 #include "MidiCallbacks.h"
 #include "lualibs.h"
 #include "luabridge.h"
@@ -86,7 +86,8 @@ void Presets::sendList(uint8_t port)
     presetListFile.print("]");
     presetListFile.close();
 
-    sendSysExFile(port, tempFilename, ElectraCommand::Object::PresetList);
+    MidiOutput::sendSysExFile(
+        port, tempFilename, ElectraCommand::Object::PresetList);
 }
 
 /** Load preset.

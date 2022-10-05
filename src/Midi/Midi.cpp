@@ -85,26 +85,14 @@ void Midi::sendMessage(const Message &message)
 void Midi::sendTemplatedSysex(const Device &device, std::vector<uint8_t> data)
 {
     const int maxSysexSize = 512;
-    uint8_t byte = 0xf0;
 
     SysexBlock sysexBlock = SysexBlock(App::get()->sysexPool.openMemoryBlock());
-
-    if (data[0] != 0xf0) {
-        sysexBlock.writeBytes(&byte, 1);
-    }
 
     if (data.size() < maxSysexSize) {
         uint8_t sysexData[maxSysexSize];
         uint16_t sysexDataLength = 0;
         sysexDataLength = transformMessage(device, data, sysexData);
-
         sysexBlock.writeBytes(sysexData, sysexDataLength);
-
-        if (data[0] != 0xf0) {
-            byte = 0xf7;
-            sysexBlock.writeBytes(&byte, 1);
-        }
-
         sysexBlock.close();
 
         sendSysEx(device.getPort(), sysexBlock);

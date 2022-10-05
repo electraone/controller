@@ -1,5 +1,5 @@
 #include "UiApi.h"
-#include "Midi/Sysex.h"
+#include "MidiOutput.h"
 
 UiApi::UiApi(MainDelegate &newDelegate) : delegate(newDelegate)
 {
@@ -19,12 +19,15 @@ void UiApi::switchPreset(uint8_t bankNumber, uint8_t slot)
 {
     delegate.switchPreset(bankNumber, slot);
     delegate.closePresetSelection();
-    sendPresetSwitched(USB_MIDI_PORT_CTRL, bankNumber, slot);
+    MidiOutput::sendPresetSwitched(
+        MidiInterface::Type::MidiUsbDev, USB_MIDI_PORT_CTRL, bankNumber, slot);
 
     // These are a temporary solution to make sure @jhh's Ableton remote script
     // can catch the preset changes done by the user on the controller.
-    sendPresetSwitched(0, bankNumber, slot);
-    sendPresetSwitched(1, bankNumber, slot);
+    MidiOutput::sendPresetSwitched(
+        MidiInterface::Type::MidiUsbDev, 0, bankNumber, slot);
+    MidiOutput::sendPresetSwitched(
+        MidiInterface::Type::MidiUsbDev, 1, bankNumber, slot);
 }
 
 void UiApi::switchPresetBank(uint8_t bankNumber)
@@ -47,7 +50,8 @@ void UiApi::switchPage(uint8_t pageId)
 void UiApi::switchSnapshotBank(uint8_t bankNumber)
 {
     delegate.setCurrentSnapshotBank(bankNumber);
-    sendSnapshotBankChanged(USB_MIDI_PORT_CTRL, bankNumber);
+    MidiOutput::sendSnapshotBankChanged(
+        MidiInterface::Type::MidiUsbDev, USB_MIDI_PORT_CTRL, bankNumber);
 }
 
 void UiApi::sendAllSnapshotValues(void)
@@ -77,7 +81,8 @@ void UiApi::saveSnapshot(const char *projectId,
                          uint8_t colour)
 {
     delegate.saveSnapshot(projectId, bankNumber, slot, name, colour);
-    sendSnapshotChanged(USB_MIDI_PORT_CTRL);
+    MidiOutput::sendSnapshotChanged(MidiInterface::Type::MidiUsbDev,
+                                    USB_MIDI_PORT_CTRL);
 }
 
 void UiApi::removeSnapshot(const char *projectId,
@@ -85,7 +90,8 @@ void UiApi::removeSnapshot(const char *projectId,
                            uint8_t slot)
 {
     delegate.removeSnapshot(projectId, bankNumber, slot);
-    sendSnapshotChanged(USB_MIDI_PORT_CTRL);
+    MidiOutput::sendSnapshotChanged(MidiInterface::Type::MidiUsbDev,
+                                    USB_MIDI_PORT_CTRL);
 }
 
 void UiApi::presetSelection_openUsbHostPorts(void)

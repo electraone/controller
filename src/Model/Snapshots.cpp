@@ -1,7 +1,7 @@
 #include "Snapshots.h"
 #include "Database.h"
 #include "ParameterMap.h"
-#include "Midi/Sysex.h"
+#include "MidiOutput.h"
 
 Snapshots::Snapshots(const char *newAppSandbox)
     : appSandbox(newAppSandbox), destBankNumber(0), destSlot(0)
@@ -104,7 +104,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
     snapshotJsonFile.close();
     dbSnapshot.close();
 
-    sendSysExFile(
+    MidiOutput::sendSysExFile(
         port, tempSnapshotFilename, ElectraCommand::Object::SnapshotList);
 }
 
@@ -118,7 +118,7 @@ void Snapshots::sendSnapshot(uint8_t port,
     createSnapshotFilename(snapshotFilename, projectId, bankNumber, slot);
 
     if (Hardware::sdcard.exists(snapshotFilename)) {
-        sendSysExFile(
+        MidiOutput::sendSysExFile(
             port, snapshotFilename, ElectraCommand::Object::FileSnapshot);
     }
 }

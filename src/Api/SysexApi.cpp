@@ -1,6 +1,6 @@
 #include "SysexApi.h"
 #include "ArduinoJson.h"
-#include "Midi/Sysex.h"
+#include "MidiOutput.h"
 
 SysexApi::SysexApi(MainDelegate &newDelegate) : delegate(newDelegate)
 {
@@ -79,7 +79,8 @@ void SysexApi::process(uint8_t port,
 {
     if (fileType == ElectraCommand::Object::FilePreset) {
         loadPreset(port, file);
-        sendPresetSlotChanged(port);
+        MidiOutput::sendPresetSlotChanged(MidiInterface::Type::MidiUsbDev,
+                                          port);
     } else if (fileType == ElectraCommand::Object::FileLua) {
         loadLua(port, file);
     } else if (fileType == ElectraCommand::Object::FileConfig) {
@@ -141,22 +142,28 @@ void SysexApi::enableMidiLearn(uint8_t port)
 {
     logMessage("SysexApi::enableMidiLearn");
     delegate.enableMidiLearn();
-    sendAck(port);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
 }
 
 void SysexApi::disableMidiLearn(uint8_t port)
 {
     logMessage("SysexApi::disableMidiLearn");
     delegate.disableMidiLearn();
-    sendAck(port);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    ;
 }
 
 void SysexApi::switchPreset(uint8_t port, uint8_t bankNumber, uint8_t slot)
 {
-    logMessage("SysexApi::switchPreset");
+    logMessage("SysexApi::switchPreset: port=%d, bank=%d, slot=%d",
+               port,
+               bankNumber,
+               slot);
     delegate.switchPreset(bankNumber, slot);
-    sendPresetSwitched(port, bankNumber, slot);
-    sendAck(port);
+    MidiOutput::sendPresetSwitched(
+        MidiInterface::Type::MidiUsbDev, port, bankNumber, slot);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    ;
 }
 
 void SysexApi::updateControl(uint8_t port,
@@ -175,7 +182,7 @@ void SysexApi::updateControl(uint8_t port,
 
     if (err) {
         logMessage("updateControl: control info parsing failed");
-        sendNack(port);
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
         return;
     }
 
@@ -194,7 +201,8 @@ void SysexApi::updateControl(uint8_t port,
         bool shouldBeVisible = doc["visible"].as<bool>();
         delegate.setControlVisible(controlId, shouldBeVisible);
     }
-    sendAck(port);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    ;
 }
 
 void SysexApi::setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload)
@@ -208,7 +216,7 @@ void SysexApi::setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload)
 
     if (err) {
         logMessage("setSnapshotSlot: snapshot info parsing failed");
-        sendNack(port);
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
         return;
     }
 
@@ -217,7 +225,8 @@ void SysexApi::setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload)
     uint8_t slot = doc["slot"].as<uint8_t>();
 
     delegate.setSnapshotSlot(projectId, bankNumber, slot);
-    sendAck(port);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    ;
 }
 
 bool SysexApi::loadPreset(uint8_t port, LocalFile &file)
@@ -234,7 +243,7 @@ bool SysexApi::loadConfig(uint8_t port, LocalFile &file)
 {
     // this is commented out on purpose. We do not want to load the config here yet.
     //delegate.loadConfig(file);
-    //sendAck(port);
+    //MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);;
     return (true);
 }
 
@@ -247,7 +256,8 @@ void SysexApi::setPresetSlot(uint8_t port, uint8_t bankNumber, uint8_t slot)
 {
     logMessage("SysexApi::setPresetSlot");
     delegate.setPresetSlot(bankNumber, slot);
-    sendAck(port);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    ;
 }
 
 void SysexApi::updateSnapshot(uint8_t port, MemoryBlock &sysexPayload)
@@ -261,7 +271,7 @@ void SysexApi::updateSnapshot(uint8_t port, MemoryBlock &sysexPayload)
 
     if (err) {
         logMessage("updateSnapshot: snapshot info parsing failed");
-        sendNack(port);
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
         return;
     }
 
@@ -272,7 +282,8 @@ void SysexApi::updateSnapshot(uint8_t port, MemoryBlock &sysexPayload)
     Colour colour = ElectraColours::translateColour(doc["color"].as<char *>());
 
     delegate.updateSnapshot(projectId, bankNumber, slot, name, colour);
-    sendAck(port);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    ;
 }
 
 void SysexApi::removeSnapshot(uint8_t port, MemoryBlock &sysexPayload)
@@ -286,7 +297,7 @@ void SysexApi::removeSnapshot(uint8_t port, MemoryBlock &sysexPayload)
 
     if (err) {
         logMessage("removeSnapshot: snapshot info parsing failed");
-        sendNack(port);
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
         return;
     }
 
@@ -295,7 +306,8 @@ void SysexApi::removeSnapshot(uint8_t port, MemoryBlock &sysexPayload)
     uint8_t slot = doc["slot"].as<uint8_t>();
 
     delegate.removeSnapshot(projectId, bankNumber, slot);
-    sendAck(port);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    ;
 }
 
 void SysexApi::swapSnapshots(uint8_t port, MemoryBlock &sysexPayload)
@@ -307,7 +319,7 @@ void SysexApi::swapSnapshots(uint8_t port, MemoryBlock &sysexPayload)
 
     if (err) {
         logMessage("swapSnapshots: snapshot info parsing failed");
-        sendNack(port);
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
         return;
     }
 
@@ -319,11 +331,13 @@ void SysexApi::swapSnapshots(uint8_t port, MemoryBlock &sysexPayload)
 
     delegate.swapSnapshots(
         projectId, sourceBankNumber, sourceSlot, destBankNumber, destSlot);
-    sendAck(port);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    ;
 }
 
 void SysexApi::setCurrentSnapshotBank(uint8_t port, uint8_t bankNumber)
 {
     delegate.setCurrentSnapshotBank(bankNumber);
-    sendAck(port);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    ;
 }

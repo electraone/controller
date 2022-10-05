@@ -2,7 +2,6 @@
 
 #include "MidiInterface.h"
 #include "MidiMessage.h"
-#include "Sysex.h"
 #include "Preset.h"
 #include "Message.h"
 #include "Cc14Detector.h"

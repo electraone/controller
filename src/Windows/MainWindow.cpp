@@ -1,5 +1,4 @@
 #include "MainWindow.h"
-#include "sysex.h"
 #include "ControlComponent.h"
 #include "GroupControl.h"
 #include "Envelope.h"

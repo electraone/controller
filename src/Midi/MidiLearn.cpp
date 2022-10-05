@@ -40,19 +40,21 @@ void MidiLearn::process(const MidiInput &midiInput,
                                             : Message::Type::rpn;
 
             if (messageType == Message::Type::nrpn) {
-                sendMidiLearn(USB_MIDI_PORT_CTRL,
-                              "nrpn",
-                              midiPort + 1,
-                              midiChannel,
-                              midiRpnMessage.parameterNumber,
-                              midiRpnMessage.value);
+                MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
+                                          USB_MIDI_PORT_CTRL,
+                                          "nrpn",
+                                          midiPort + 1,
+                                          midiChannel,
+                                          midiRpnMessage.parameterNumber,
+                                          midiRpnMessage.value);
             } else {
-                sendMidiLearn(USB_MIDI_PORT_CTRL,
-                              "rpn",
-                              midiPort + 1,
-                              midiChannel,
-                              midiRpnMessage.parameterNumber,
-                              midiRpnMessage.value);
+                MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
+                                          USB_MIDI_PORT_CTRL,
+                                          "rpn",
+                                          midiPort + 1,
+                                          midiChannel,
+                                          midiRpnMessage.parameterNumber,
+                                          midiRpnMessage.value);
             }
             midiLearnSentAlready = true;
         }
@@ -66,22 +68,24 @@ void MidiLearn::process(const MidiInput &midiInput,
                 "ElectraMidi::processMidiLearn: CC14 detected: parameter=%d, value=%d",
                 midiCc14Message.parameterNumber,
                 midiCc14Message.value);
-            sendMidiLearn(USB_MIDI_PORT_CTRL,
-                          "cc14",
-                          midiPort + 1,
-                          midiChannel,
-                          midiCc14Message.parameterNumber,
-                          midiCc14Message.value);
+            MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
+                                      USB_MIDI_PORT_CTRL,
+                                      "cc14",
+                                      midiPort + 1,
+                                      midiChannel,
+                                      midiCc14Message.parameterNumber,
+                                      midiCc14Message.value);
             midiLearnSentAlready = true;
         }
 
         if (midiLearnSentAlready != true) {
-            sendMidiLearn(USB_MIDI_PORT_CTRL,
-                          "cc7",
-                          midiPort + 1,
-                          midiChannel,
-                          midiParameterId,
-                          midiValue);
+            MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
+                                      USB_MIDI_PORT_CTRL,
+                                      "cc7",
+                                      midiPort + 1,
+                                      midiChannel,
+                                      midiParameterId,
+                                      midiValue);
         }
         return;
     } else if ((midiType == MidiMessage::Type::NoteOn)
@@ -90,27 +94,31 @@ void MidiLearn::process(const MidiInput &midiInput,
         uint8_t value = (midiType == MidiMessage::Type::NoteOn) ? 127 : 0;
         logMessage("ElectraMidi::processMidiLearn: note message: note=%d",
                    midiNoteNr);
-        sendMidiLearn(USB_MIDI_PORT_CTRL,
-                      "note",
-                      midiPort + 1,
-                      midiChannel,
-                      midiNoteNr,
-                      value);
+        MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
+                                  USB_MIDI_PORT_CTRL,
+                                  "note",
+                                  midiPort + 1,
+                                  midiChannel,
+                                  midiNoteNr,
+                                  value);
         return;
     } else if (midiType == MidiMessage::Type::ProgramChange) {
         uint8_t programNumber = midiMessage.getData1();
         logMessage("ElectraMidi::processMidiLearn: program message: program=%d",
                    programNumber);
-        sendMidiLearn(USB_MIDI_PORT_CTRL,
-                      "program",
-                      midiPort + 1,
-                      midiChannel,
-                      programNumber,
-                      0);
+        MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
+                                  USB_MIDI_PORT_CTRL,
+                                  "program",
+                                  midiPort + 1,
+                                  midiChannel,
+                                  programNumber,
+                                  0);
         return;
     } else if (midiType == MidiMessage::Type::SystemExclusive) {
-        sendMidiLearnSysex(
-            USB_MIDI_PORT_CTRL, midiPort + 1, midiMessage.getSysExBlock());
+        MidiOutput::sendMidiLearnSysex(MidiInterface::Type::MidiUsbDev,
+                                       USB_MIDI_PORT_CTRL,
+                                       midiPort + 1,
+                                       midiMessage.getSysExBlock());
     } else {
         logMessage("ElectraMidi::processMidiLearn: learn not supported");
     }
