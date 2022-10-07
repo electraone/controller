@@ -127,15 +127,14 @@ public:
         bounds.setWidth(getWidth());
         bounds.setHeight(getHeight() - 6);
         LookAndFeel::paintPad(g, bounds, colour, getState());
-        g.printText(
-            0,
-            getHeight() / 2 - 10,
-            getName(),
-            getState() ? TextStyle::mediumBlackOnWhite
-                       : TextStyle::mediumWhiteOnBlack,
-            bounds.getWidth(),
-            TextAlign::center,
-            control.getColour()); // needed to use the legacy text colours
+
+        g.setColour(getState() ? 0x0000 : 0xFFFF);
+        g.print(0,
+                getHeight() / 2 - 10,
+                getName(),
+                bounds.getWidth(),
+                TextAlign::center);
+
         ControlComponent::paint(g);
     }
 

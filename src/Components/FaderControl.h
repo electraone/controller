@@ -190,6 +190,7 @@ private:
 
         // Print the label text if exists
         if (items && !items->getByValue(val).isLabelEmpty()) {
+            g.setColour(Colours::white);
             g.printText(0,
                         0,
                         items->getByValue(val).getLabel(),
@@ -204,6 +205,7 @@ private:
             } else {
                 snprintf(stringValue, sizeof(stringValue), formatString, val);
             }
+
             g.printText(0,
                         labelYPosition,
                         stringValue,
@@ -222,7 +224,7 @@ private:
                             Control::Mode mode,
                             Control::Variant variant)
     {
-        uint16_t labelYPosition = 10;
+        uint16_t labelYPosition = 13;
 
         char stringValue[10];
         if (!control.getValue(0).getFormatter().empty()) {
@@ -232,24 +234,19 @@ private:
             snprintf(stringValue, sizeof(stringValue), formatString, val);
         }
         uint16_t textWidth =
-            Text::getTextWidth(stringValue, TextStyle::mediumTransparent);
+            TextBTE::getTextWidth(stringValue, TextStyle::mediumTransparent);
 
-        if ((x + 5 + textWidth) < (getWidth() - 5)) {
-            g.printText(x + 5,
-                        labelYPosition,
-                        stringValue,
-                        val >= 0 ? TextStyle::mediumTransparent
-                                 : TextStyle::mediumInverseTransparent,
-                        textWidth,
-                        TextAlign::left);
+        if ((x + 5 + textWidth) < (getWidth() - 8)) {
+            g.setColour(val >= 0 ? Colours::white : Colours::black);
+            g.print(
+                x + 5, labelYPosition, stringValue, textWidth, TextAlign::left);
         } else {
-            g.printText(x - 5 - textWidth,
-                        labelYPosition,
-                        stringValue,
-                        val >= 0 ? TextStyle::mediumInverseTransparent
-                                 : TextStyle::mediumTransparent,
-                        textWidth,
-                        TextAlign::right);
+            g.setColour(val >= 0 ? Colours::black : Colours::white);
+            g.print(x - 8 - textWidth,
+                    labelYPosition,
+                    stringValue,
+                    textWidth,
+                    TextAlign::right);
         }
     }
 
