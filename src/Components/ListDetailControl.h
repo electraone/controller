@@ -146,10 +146,8 @@ private:
 
             auto listItem = overlay->getByIndex(i);
 
-            g.setColour(i % 2 ? ElectraColours::getNumericRgb565Darker(
-                            control.getColour())
-                              : ElectraColours::getNumericRgb565Dark(
-                                  control.getColour()));
+            g.setColour(i % 2 ? Colours::darker(control.getColour(), 0.5f)
+                              : Colours::darker(control.getColour(), 0.8f));
             g.fillRect(0, j * listItemHeight + 0, listItemWidth, 60);
             g.printText(0,
                         j * listItemHeight + 25,
@@ -160,17 +158,15 @@ private:
 
             if (listItem.isBitmapEmpty() == false) {
                 Bitmap bitmap = listItem.getBitmap();
-                Hardware::memory.bitmapPool.paint(
-                    bitmap,
-                    28,
-                    j * listItemHeight + 22,
-                    ElectraColours::getNumericRgb565(control.getColour()),
-                    SDRAM_PAGE_4);
+                Hardware::memory.bitmapPool.paint(bitmap,
+                                                  28,
+                                                  j * listItemHeight + 22,
+                                                  control.getColour(),
+                                                  SDRAM_PAGE_4);
             }
 
             if (index == i) {
-                g.setColour(
-                    ElectraColours::getNumericRgb565(control.getColour()));
+                g.setColour(control.getColour());
                 g.drawRect(0, j * listItemHeight + 0, listItemWidth, 60);
                 g.drawRect(1, j * listItemHeight + 1, listItemWidth - 2, 58);
             }

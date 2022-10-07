@@ -13,7 +13,7 @@ public:
     Group()
         : id(0),
           pageId(0),
-          colour(ElectraColours::white),
+          colour(Colours::white),
           visible(true),
           component(nullptr)
     {
@@ -24,7 +24,7 @@ public:
           uint8_t newPageId,
           const Rectangle &newBounds,
           const char *newLabel,
-          Colour newColour)
+          uint16_t newColour)
         : id(newId),
           pageId(newPageId),
           colour(newColour),
@@ -76,12 +76,12 @@ public:
         return (pageId);
     }
 
-    void setColour(Colour newColour)
+    void setColour(uint16_t newColour)
     {
         colour = newColour;
     }
 
-    uint8_t getColour(void) const
+    uint16_t getColour(void) const
     {
         return (colour);
     }
@@ -135,12 +135,12 @@ private:
     struct {
         uint16_t id : 9;
         uint8_t pageId : 4;
-        uint8_t colour : 3;
         uint8_t visible : 1;
     };
 
     char label[maxLabelLength + 1];
     Rectangle bounds;
+    uint16_t colour;
 
     Component *component;
 };

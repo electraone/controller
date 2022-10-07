@@ -26,7 +26,7 @@ public:
                       uint8_t bankNumber,
                       uint8_t slot,
                       const char *name,
-                      uint8_t colour);
+                      uint16_t colour);
     void
         removeSnapshot(const char *projectId, uint8_t bankNumber, uint8_t slot);
 

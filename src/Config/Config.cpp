@@ -77,8 +77,7 @@ void Config::serializePresetBanks(JsonDocument &doc)
 
         jPresetBank["id"] = presetBanks[i].id;
         jPresetBank["name"] = presetBanks[i].name;
-        jPresetBank["color"] =
-            ElectraColours::translateColour(presetBanks[i].colour);
+        jPresetBank["color"] = Colours::translateColour(presetBanks[i].colour);
 
         if (jPresetBanks.add(jPresetBank) == false) {
             logMessage(
@@ -283,8 +282,7 @@ bool Config::parsePresetBanks(File &file)
             const char *name = jPresetBank["name"].as<char *>();
             const char *colourRGB888 = jPresetBank["color"].as<char *>();
 
-            Colour colour = ElectraColours::translateColour(colourRGB888);
-
+            uint16_t colour = Colours::translateColour(colourRGB888);
             presetBanks[id - 1] = PresetBank(id, name, colour);
 
             logMessage("Config::parsePresetBanks: preset bank: id=%d, name=%s, "
@@ -512,12 +510,12 @@ bool Config::parseUiFeatures(File &file)
 
 void Config::resetPresetBanks(void)
 {
-    presetBanks[0] = PresetBank(1, "BANK #1", ElectraColours::white);
-    presetBanks[1] = PresetBank(2, "BANK #2", ElectraColours::red);
-    presetBanks[2] = PresetBank(3, "BANK #3", ElectraColours::orange);
-    presetBanks[3] = PresetBank(4, "BANK #4", ElectraColours::blue);
-    presetBanks[4] = PresetBank(5, "BANK #5", ElectraColours::green);
-    presetBanks[5] = PresetBank(6, "BANK #6", ElectraColours::purple);
+    presetBanks[0] = PresetBank(1, "BANK #1", Colours::white);
+    presetBanks[1] = PresetBank(2, "BANK #2", Colours::red);
+    presetBanks[2] = PresetBank(3, "BANK #3", Colours::orange);
+    presetBanks[3] = PresetBank(4, "BANK #4", Colours::blue);
+    presetBanks[4] = PresetBank(5, "BANK #5", Colours::green);
+    presetBanks[5] = PresetBank(6, "BANK #6", Colours::purple);
 }
 
 void Config::resetUiFeatures(void)

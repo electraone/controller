@@ -946,8 +946,8 @@ Group Preset::parseGroup(JsonObject jGroup, uint8_t defaultGroupId)
     uint8_t pageId = constrainPageId(jGroup["pageId"]);
     Rectangle bounds = parseBounds(jGroup["bounds"]);
     const char *name = jGroup["name"];
-    Colour colour =
-        ElectraColours::translateColour(jGroup["color"].as<const char *>());
+    uint16_t colour =
+        Colours::translateColour(jGroup["color"].as<const char *>());
 
     return (Group(groupId, pageId, bounds, name, colour));
 }
@@ -965,8 +965,8 @@ Control Preset::parseControl(JsonObject jControl)
     Rectangle bounds = parseBounds(jControl["bounds"]);
     Control::Type controlType = Control::translateType(jControl["type"]);
     Control::Mode controlMode = Control::translateControlMode(jControl["mode"]);
-    Colour colour =
-        ElectraColours::translateColour(jControl["color"].as<const char *>());
+    uint16_t colour =
+        Colours::translateColour(jControl["color"].as<const char *>());
     Control::Variant variantType =
         Control::translateVariant(jControl["variant"]);
     uint8_t controlSetId = constrainControlSetId(jControl["controlSetId"]);

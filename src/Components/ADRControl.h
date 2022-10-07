@@ -17,7 +17,7 @@ public:
         setMin(ADR::release, control.values[2].getMin());
         setMax(ADR::release, control.values[2].getMax());
         setActiveSegment(control.inputs[0].getValueId());
-        setColour(ElectraColours::getNumericRgb565(control.getColour()));
+        setColour(control.getColour());
         updateValueFromParameterMap();
     }
 

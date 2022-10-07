@@ -35,7 +35,7 @@ public:
     {
         g.fillAll(useAltBackground ? LookAndFeel::altBackgroundColour
                                    : LookAndFeel::backgroundColour);
-        setColour(ElectraColours::getNumericRgb565(group.getColour()));
+        setColour(group.getColour());
         Set::paint(g);
     }
 

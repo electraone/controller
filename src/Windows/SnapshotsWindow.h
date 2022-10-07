@@ -67,7 +67,7 @@ public:
     void snapshotSaved(uint8_t bankNumber,
                        uint8_t slot,
                        const char *name,
-                       uint8_t colour) override
+                       uint16_t colour) override
     {
         snapshotsView->snapshotSaved(bankNumber, slot, name, colour);
     }

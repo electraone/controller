@@ -24,7 +24,7 @@ public:
     void snapshotSaved(uint8_t bankNumber,
                        uint8_t slot,
                        const char *name,
-                       uint8_t colour);
+                       uint16_t colour);
     void snapshotsSwapped(uint8_t sourceBankNumber,
                           uint8_t sourceSlot,
                           uint8_t destBankNumber,
@@ -62,4 +62,7 @@ private:
     SnapsButton *snapsButton[36];
 
     static constexpr uint8_t topPadding = 50;
+
+    static constexpr uint16_t defaultColours[] = { 0x4BC5, 0xF2EA, 0xF4A0,
+                                                   0x54FD, 0x0533, 0xC232 };
 };

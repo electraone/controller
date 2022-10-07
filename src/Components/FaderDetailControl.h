@@ -10,7 +10,7 @@ public:
     {
         assignPot(control.inputs[0].getPotId(),
                   control.values[0].getNumSteps());
-        setColour(ElectraColours::getNumericRgb565(control.getColour()));
+        setColour(control.getColour());
     }
 
     virtual ~FaderDetailControl() = default;

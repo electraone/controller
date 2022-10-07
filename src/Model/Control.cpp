@@ -11,7 +11,7 @@ static const char *valueIdsDx7Env[] = { "l1", "r1", "l2", "r2",
 Control::Control() : id(0), pageId(0), controlSetId(0), component(nullptr)
 {
     type = (uint8_t)Control::Type::None;
-    colour = (uint8_t)ElectraColours::white;
+    colour = Colours::white;
     mode = (uint8_t)Control::Mode::Default;
     controlSetId = 0;
     variant = (uint8_t)Control::Variant::Default;
@@ -25,7 +25,7 @@ Control::Control(uint16_t id,
                  const Rectangle &newBounds,
                  Control::Type newType,
                  Control::Mode newMode,
-                 Colour newColour,
+                 uint16_t newColour,
                  uint8_t newControlSetId,
                  Variant newVariant,
                  bool newVisible)
@@ -37,7 +37,7 @@ Control::Control(uint16_t id,
 {
     copyString(name, newName, MaxNameLength);
     type = (uint8_t)newType;
-    colour = (uint8_t)newColour;
+    colour = newColour;
     mode = (uint8_t)newMode;
     variant = (uint8_t)newVariant;
     visible = (uint8_t)newVisible;
@@ -78,12 +78,12 @@ Control::Mode Control::getMode(void) const
     return ((Control::Mode)mode);
 }
 
-void Control::setColour(Colour newColour)
+void Control::setColour(uint16_t newColour)
 {
     colour = newColour;
 }
 
-Colour Control::getColour(void) const
+uint16_t Control::getColour(void) const
 {
     return (colour);
 }

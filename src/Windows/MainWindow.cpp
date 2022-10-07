@@ -280,7 +280,7 @@ void MainWindow::setControlName(uint16_t controlId, const char *newName)
     }
 }
 
-void MainWindow::setControlColour(uint16_t controlId, uint8_t newColour)
+void MainWindow::setControlColour(uint16_t controlId, uint16_t newColour)
 {
     Control &control = preset.getControl(controlId);
     if (control.isValid()) {
@@ -392,7 +392,7 @@ void MainWindow::setGroupLabel(uint16_t groupId, const char *newLabel)
     }
 }
 
-void MainWindow::setGroupColour(uint16_t groupId, uint8_t newColour)
+void MainWindow::setGroupColour(uint16_t groupId, uint16_t newColour)
 {
     Group &group = preset.getGroup(groupId);
     if (group.isValid()) {
@@ -582,7 +582,7 @@ void MainWindow::saveSnapshot(const char *projectId,
                               uint8_t bankNumber,
                               uint8_t slot,
                               const char *newName,
-                              uint8_t newColour)
+                              uint16_t newColour)
 {
     logMessage(
         "saving snapshot: projectId=%s, bankNumber=%d, slot=%d, name=%s, colour=%d",
@@ -602,7 +602,7 @@ void MainWindow::updateSnapshot(const char *projectId,
                                 uint8_t bankNumber,
                                 uint8_t slot,
                                 const char *name,
-                                Colour colour)
+                                uint16_t colour)
 {
     logMessage(
         "updateSnapshot: projectId=%s, bankNumber=%d, slot=%d, name=%s, colour=%d",

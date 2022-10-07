@@ -12,7 +12,7 @@ public:
     {
         setMinimum(control.values[0].getMin());
         setMaximum(control.values[0].getMax());
-        setColour(ElectraColours::getNumericRgb565(control.getColour()));
+        setColour(control.getColour());
     }
 
     virtual ~KnobControl() = default;

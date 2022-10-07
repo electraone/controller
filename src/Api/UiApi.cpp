@@ -78,7 +78,7 @@ void UiApi::saveSnapshot(const char *projectId,
                          uint8_t bankNumber,
                          uint8_t slot,
                          const char *name,
-                         uint8_t colour)
+                         uint16_t colour)
 {
     delegate.saveSnapshot(projectId, bankNumber, slot, name, colour);
     MidiOutput::sendSnapshotChanged(MidiInterface::Type::MidiUsbDev,

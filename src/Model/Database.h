@@ -8,7 +8,7 @@
 struct SnapshotRecord {
     uint16_t slot;
     uint8_t bankNumber;
-    uint8_t colour;
+    uint16_t colour;
     char name[MAX_SNAPSHOT_NAME_LENGTH + 1];
 };
 

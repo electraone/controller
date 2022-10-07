@@ -13,7 +13,7 @@ public:
         : ControlComponent(control, newDelegate),
           List(control.values[0].getOverlay())
     {
-        setColour(ElectraColours::getNumericRgb565(control.getColour()));
+        setColour(control.getColour());
         updateValueFromParameterMap();
         enableEncoderMode(true);
     }

@@ -63,13 +63,12 @@ void SnapshotsView::snapshotRemoved(uint8_t bankNumber, uint8_t slot)
 void SnapshotsView::snapshotSaved(uint8_t bankNumber,
                                   uint8_t slot,
                                   const char *name,
-                                  uint8_t colour)
+                                  uint16_t colour)
 {
     if (bankNumber == currentBankNumber) {
         uint16_t id = slot;
         snapsButton[id]->setLabel(name);
-        snapsButton[id]->setColour(
-            ElectraColours::getNumericRgb565Darker(colour));
+        snapsButton[id]->setColour(Colours::darker(colour, 0.5f));
         snapsButton[id]->setUsed(true);
         repaint();
     }
@@ -215,8 +214,7 @@ void SnapshotsView::updateSnapsButtons(void)
             if (dbSnapshot.select(id, DB_RECORD snapRec)) {
                 button->setUsed(true);
                 button->setLabel(snapRec.name);
-                button->setColour(
-                    ElectraColours::getNumericRgb565Darker(snapRec.colour));
+                button->setColour(Colours::darker(snapRec.colour, 0.5f));
             } else {
                 button->setUsed(false);
             }
@@ -266,7 +264,7 @@ void SnapshotsView::removeSnapshot(uint8_t slot)
 
 void SnapshotsView::saveSnapshot(uint8_t slot)
 {
-    uint8_t colour = slot % 6;
+    uint16_t colour = defaultColours[slot % 6];
     char name[20 + 1];
     sprintf(name, "%c%d", 65 + slot % 6, slot / 6);
     uiApi.saveSnapshot(currentProjectId, currentBankNumber, slot, name, colour);

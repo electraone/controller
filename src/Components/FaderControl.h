@@ -86,7 +86,7 @@ public:
 
     void paint(Graphics &g) override
     {
-        colour = ElectraColours::getNumericRgb565(control.getColour());
+        colour = control.getColour();
         Rectangle sliderBounds = getBounds();
 
         paintFader(g,
@@ -236,13 +236,13 @@ private:
         uint16_t textWidth =
             TextBTE::getTextWidth(stringValue, TextStyle::mediumTransparent);
 
-        if ((x + 5 + textWidth) < (getWidth() - 8)) {
+        if ((x + 5 + textWidth) < (getWidth() - 10)) {
             g.setColour(val >= 0 ? Colours::white : Colours::black);
             g.print(
                 x + 5, labelYPosition, stringValue, textWidth, TextAlign::left);
         } else {
             g.setColour(val >= 0 ? Colours::black : Colours::white);
-            g.print(x - 8 - textWidth,
+            g.print(x - 10 - textWidth,
                     labelYPosition,
                     stringValue,
                     textWidth,

@@ -39,7 +39,7 @@ public:
     virtual void setControlVisible(uint16_t controlId,
                                    bool shouldBeVisible) = 0;
     virtual void setControlName(uint16_t controlId, const char *newName) = 0;
-    virtual void setControlColour(uint16_t controlId, uint8_t newColour) = 0;
+    virtual void setControlColour(uint16_t controlId, uint16_t newColour) = 0;
     virtual void setControlPot(uint16_t controlId,
                                uint8_t newControlSetId,
                                uint8_t newPotId) = 0;
@@ -54,7 +54,7 @@ public:
 
     // Groups
     virtual void setGroupLabel(uint16_t groupId, const char *newLabel) = 0;
-    virtual void setGroupColour(uint16_t groupId, uint8_t newColour) = 0;
+    virtual void setGroupColour(uint16_t groupId, uint16_t newColour) = 0;
     virtual void setGroupVisible(uint16_t groupId, bool shouldBeVisible) = 0;
     virtual void setGroupBounds(uint16_t groupId, const Rectangle &bounds) = 0;
     virtual void setGroupSlot(uint16_t groupId,
@@ -85,12 +85,12 @@ public:
                               uint8_t bankNumber,
                               uint8_t slot,
                               const char *newName,
-                              uint8_t newColour) = 0;
+                              uint16_t newColour) = 0;
     virtual void updateSnapshot(const char *projectId,
                                 uint8_t bankNumber,
                                 uint8_t slot,
                                 const char *name,
-                                Colour colour) = 0;
+                                uint16_t colour) = 0;
     virtual void removeSnapshot(const char *projectId,
                                 uint8_t bankNumber,
                                 uint8_t slot) = 0;

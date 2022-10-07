@@ -20,8 +20,7 @@ PresetSelection::PresetSelection(const Presets &newPresets,
         if (bankButton[i]) {
             bankButton[i]->setId(i + 100); // offset the id
             bankButton[i]->setLabel(presetBanks[i].name);
-            auto colour =
-                ElectraColours::getNumericRgb565(presetBanks[i].colour);
+            auto colour = presetBanks[i].colour;
 
             bankButton[i]->setColours(colour, Colours::darker(colour, 0.3f));
 

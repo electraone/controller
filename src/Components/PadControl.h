@@ -10,7 +10,7 @@ public:
     PadControl(const Control &control, MainDelegate &newDelegate)
         : ControlComponent(control, newDelegate)
     {
-        setColour(ElectraColours::getNumericRgb565(control.getColour()));
+        setColour(control.getColour());
         updateValueFromParameterMap();
     }
 

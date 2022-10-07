@@ -29,7 +29,7 @@ public:
 
         setActiveSegment(control.inputs[0].getValueId());
 
-        setColour(ElectraColours::getNumericRgb565(control.getColour()));
+        setColour(control.getColour());
         updateValueFromParameterMap();
     }
 

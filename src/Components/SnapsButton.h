@@ -59,7 +59,7 @@ public:
             g.setColour(Colours::black);
             g.fillRoundRect(0, 0, getWidth(), getHeight(), 4);
 
-            g.setColour(ElectraColours::rgb565NumericButtonOutlineInactive);
+            g.setColour(0x2104);
             for (uint16_t i = 4; i < getWidth() - 4; i += 4) {
                 g.drawPixel(i, 0);
                 g.drawPixel(i, getHeight());
