@@ -102,7 +102,7 @@ ActionButton *SnapshotsView::addButton(uint16_t id,
 
 void SnapshotsView::addActionButtons(void)
 {
-    loadButton = addButton(101, "LOAD", 0x0003, 0x0009);
+    loadButton = addButton(101, "LOAD", 0x0003, 0x0007);
     if (loadButton) {
         loadButton->onClick = [this]() {
             logMessage("SnapshotsView: switch to mode load");
@@ -112,7 +112,7 @@ void SnapshotsView::addActionButtons(void)
         };
     }
 
-    loadAndStayButton = addButton(102, "LOAD & STAY", 0x0003, 0x0009);
+    loadAndStayButton = addButton(102, "LOAD & STAY", 0x0003, 0x0007);
     if (loadAndStayButton) {
         loadAndStayButton->onClick = [this]() {
             logMessage("SnapshotsView: switch to mode loadAndStay");

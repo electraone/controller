@@ -36,6 +36,13 @@ public:
                     TextStyle::smallTransparent,
                     getWidth(),
                     TextAlign::center);
+
+        if (selected) {
+            g.setColour(Colours::lighter(backgroundColour, 0.1f));
+            g.fillRoundRect(0, 0, 20, getHeight() - 4, radius);
+            g.setColour(backgroundColour);
+            g.fillRect(15, 0, 5, getHeight() - 4);
+        }
         if (dimmed == true) {
             g.dimAll();
         }

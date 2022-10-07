@@ -163,12 +163,30 @@ private:
         g.setColour(colour);
         g.fillRect(barX, padding, barWidth, barHeight);
 
+        if (barWidth > 1) {
+            g.setColour(Colours::black);
+            uint16_t separatorX = 0;
+            separatorX = ((val > 0) ? barX + barWidth : barX + barWidth - 1);
+            g.drawLine(
+                separatorX, padding, separatorX, padding + barHeight - 1);
+        }
+
         // Paint the outline
         g.setColour(backgroundColour);
         g.drawPixel(0, padding);
         g.drawPixel(0, padding + barHeight - 1);
         g.drawPixel(getWidth(), padding);
         g.drawPixel(getWidth(), padding + barHeight - 1);
+
+        g.setColour(Colours::darker(colourTrack, 0.9f));
+        g.drawPixel(1, padding);
+        g.drawPixel(0, padding + 1);
+        g.drawPixel(1, padding + barHeight - 1);
+        g.drawPixel(0, padding + barHeight - 2);
+        g.drawPixel(getWidth() - 2, padding);
+        g.drawPixel(getWidth(), padding + 1);
+        g.drawPixel(getWidth() - 2, padding + barHeight - 1);
+        g.drawPixel(getWidth(), padding + barHeight - 2);
 
         if (variant == Control::Variant::Thin) {
             paintValueFixed(g, bounds, colour, val, items, mode, variant);

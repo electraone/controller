@@ -54,6 +54,6 @@ public:
 private:
     UiApi &uiApi;
 
-    static constexpr uint32_t colour = 0x0001;
-    static constexpr uint32_t activeColour = 0x0004;
+    static constexpr uint32_t colour = 0x0003;
+    static constexpr uint32_t activeColour = 0x0006;
 };

@@ -122,13 +122,18 @@ public:
         g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
                                         : LookAndFeel::backgroundColour);
         auto bounds = getBounds();
+        auto isMomentary = (control.getMode() == Control::Mode::Momentary);
         bounds.setX(0);
         bounds.setY(3);
         bounds.setWidth(getWidth());
         bounds.setHeight(getHeight() - 6);
-        LookAndFeel::paintPad(g, bounds, colour, getState());
+        LookAndFeel::paintPad(g, bounds, colour, isMomentary, getState());
 
-        g.setColour(getState() ? 0x0000 : 0xFFFF);
+        if (isMomentary) {
+            g.setColour(Colours::white);
+        } else {
+            g.setColour(getState() ? Colours::white : Colours::black);
+        }
         g.print(0,
                 getHeight() / 2 - 10,
                 getName(),
