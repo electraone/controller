@@ -12,7 +12,7 @@ public:
     virtual void snapshotSaved(uint8_t bankNumber,
                                uint8_t slot,
                                const char *name,
-                               uint16_t colour) = 0;
+                               uint32_t colour) = 0;
     virtual void snapshotsSwapped(uint8_t sourceBankNumber,
                                   uint8_t sourceSlot,
                                   uint8_t destBankNumber,

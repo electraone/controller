@@ -4,12 +4,12 @@
 #include "Colours.h"
 
 struct PresetBank {
-    PresetBank() : id(0), colour(Colours::white)
+    PresetBank() : id(0), colour(Colours565::white)
     {
         copyString(name, "", MaxNameLength);
     }
 
-    PresetBank(uint8_t newId, const char *newName, uint16_t newColour)
+    PresetBank(uint8_t newId, const char *newName, uint32_t newColour)
         : id(newId), colour(newColour)
     {
         copyString(name, newName, MaxNameLength);
@@ -19,5 +19,5 @@ struct PresetBank {
 
     uint8_t id;
     char name[MaxNameLength + 1];
-    uint16_t colour;
+    uint32_t colour;
 };

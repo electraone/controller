@@ -192,7 +192,7 @@ void SysexApi::updateControl(uint8_t port,
     }
 
     if (!doc["color"].isNull()) {
-        uint16_t colour = Colours::translateColour(doc["color"].as<char *>());
+        uint32_t colour = Colours565::fromString(doc["color"].as<char *>());
         delegate.setControlColour(controlId, colour);
     }
 
@@ -278,7 +278,7 @@ void SysexApi::updateSnapshot(uint8_t port, MemoryBlock &sysexPayload)
     uint8_t bankNumber = doc["bankNumber"].as<uint8_t>();
     uint8_t slot = doc["slot"].as<uint8_t>();
     const char *name = doc["name"].as<char *>();
-    uint16_t colour = Colours::translateColour(doc["color"].as<char *>());
+    uint32_t colour = Colours565::fromString(doc["color"].as<char *>());
 
     delegate.updateSnapshot(projectId, bankNumber, slot, name, colour);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);

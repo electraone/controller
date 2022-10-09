@@ -22,7 +22,7 @@ PresetSelection::PresetSelection(const Presets &newPresets,
             bankButton[i]->setLabel(presetBanks[i].name);
             auto colour = presetBanks[i].colour;
 
-            bankButton[i]->setColours(colour, Colours::darker(colour, 0.3f));
+            bankButton[i]->setColours(colour, Colours565::darker(colour, 0.3f));
 
             if (i == activeBank) {
                 bankButton[i]->setSelected(true);

@@ -32,7 +32,7 @@ UsbHostPorts::UsbHostPorts(UiApi &newUiApi)
 
 void UsbHostPorts::paint(Graphics &g)
 {
-    g.fillAll(Colours::black);
+    g.fillAll(Colours565::black);
 }
 
 void UsbHostPorts::resized(void)

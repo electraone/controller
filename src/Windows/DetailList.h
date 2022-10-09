@@ -25,11 +25,11 @@ public:
             xPositionDim = 0;
         }
 
-        g.setColour(Colours::black);
+        g.setColour(Colours565::black);
         g.fillRect(xPosition, 0, getWidth() - 100, getHeight());
-        g.setColour(Colours::darkgrey);
+        g.setColour(Colours565::darkgrey);
         g.drawRect(xPosition, 0, getWidth() - 100, getHeight());
-        g.dim(xPositionDim, 0, 100, getHeight(), Colours::black);
+        g.dim(xPositionDim, 0, 100, getHeight(), Colours565::black);
     }
 
     void resized(void)

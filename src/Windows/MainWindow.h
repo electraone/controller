@@ -58,7 +58,7 @@ public:
     // Lua
     void setControlVisible(uint16_t controlId, bool shouldBeVisible) override;
     void setControlName(uint16_t controlId, const char *newName) override;
-    void setControlColour(uint16_t controlId, uint16_t newColour) override;
+    void setControlColour(uint16_t controlId, uint32_t newColour) override;
 
     void setControlPot(uint16_t controlId,
                        uint8_t newControlSetId,
@@ -71,7 +71,7 @@ public:
     void setRamPercentage(uint8_t newPercentage) override;
 
     void setGroupLabel(uint16_t groupId, const char *newLabel) override;
-    void setGroupColour(uint16_t groupId, uint16_t newColour) override;
+    void setGroupColour(uint16_t groupId, uint32_t newColour) override;
     void setGroupVisible(uint16_t groupId, bool shouldBeVisible) override;
     void setGroupBounds(uint16_t groupId, const Rectangle &bounds) override;
     void setGroupSlot(uint16_t groupId,
@@ -103,12 +103,12 @@ public:
                       uint8_t bankNumber,
                       uint8_t slot,
                       const char *newName,
-                      uint16_t newColour) override;
+                      uint32_t newColour) override;
     void updateSnapshot(const char *projectId,
                         uint8_t bankNumber,
                         uint8_t slot,
                         const char *name,
-                        uint16_t colour) override;
+                        uint32_t colour) override;
     void removeSnapshot(const char *projectId,
                         uint8_t bankNumber,
                         uint8_t slot) override;

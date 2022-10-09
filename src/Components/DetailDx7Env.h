@@ -22,7 +22,7 @@ public:
         l1.setId(500);
         l1.setType(Control::Type::Knob);
         l1.setName("LEVEL 1");
-        l1.setColour(control.getColour());
+        l1.setColour(control.getColour565());
         l1.setValues(l1Values);
         l1Values[0].setControl(&l1);
         l1.addToParameterMap(l1Values[0]);
@@ -35,7 +35,7 @@ public:
         r1.setId(501);
         r1.setType(Control::Type::Knob);
         r1.setName("RATE 1");
-        r1.setColour(control.getColour());
+        r1.setColour(control.getColour565());
         r1.setValues(r1Values);
         r1Values[0].setControl(&r1);
         r1.addToParameterMap(r1Values[0]);
@@ -48,7 +48,7 @@ public:
         l2.setId(502);
         l2.setType(Control::Type::Knob);
         l2.setName("LEVEL 2");
-        l2.setColour(control.getColour());
+        l2.setColour(control.getColour565());
         l2.setValues(l2Values);
         l2Values[0].setControl(&l2);
         l2.addToParameterMap(l2Values[0]);
@@ -61,7 +61,7 @@ public:
         r2.setId(503);
         r2.setType(Control::Type::Knob);
         r2.setName("RATE 2");
-        r2.setColour(control.getColour());
+        r2.setColour(control.getColour565());
         r2.setValues(r2Values);
         r2Values[0].setControl(&r2);
         r2.addToParameterMap(r2Values[0]);
@@ -74,7 +74,7 @@ public:
         l3.setId(504);
         l3.setType(Control::Type::Knob);
         l3.setName("LEVEL 3");
-        l3.setColour(control.getColour());
+        l3.setColour(control.getColour565());
         l3.setValues(l3Values);
         l3Values[0].setControl(&l3);
         l3.addToParameterMap(l3Values[0]);
@@ -87,7 +87,7 @@ public:
         r3.setId(505);
         r3.setType(Control::Type::Knob);
         r3.setName("RATE 3");
-        r3.setColour(control.getColour());
+        r3.setColour(control.getColour565());
         r3.setValues(r3Values);
         r3Values[0].setControl(&r3);
         r3.addToParameterMap(r3Values[0]);
@@ -100,7 +100,7 @@ public:
         l4.setId(506);
         l4.setType(Control::Type::Knob);
         l4.setName("LEVEL 4");
-        l4.setColour(control.getColour());
+        l4.setColour(control.getColour565());
         l4.setValues(l4Values);
         l4Values[0].setControl(&l4);
         l4.addToParameterMap(l4Values[0]);
@@ -113,7 +113,7 @@ public:
         r4.setId(507);
         r4.setType(Control::Type::Knob);
         r4.setName("RATE 4");
-        r4.setColour(control.getColour());
+        r4.setColour(control.getColour565());
         r4.setValues(r4Values);
         r4Values[0].setControl(&r4);
         r4.addToParameterMap(r4Values[0]);
@@ -147,11 +147,11 @@ public:
 
     void paint(Graphics &g)
     {
-        g.setColour(Colours::black);
+        g.setColour(Colours565::black);
         g.fillRect(0, 0, getWidth() - 120, getHeight());
-        g.setColour(Colours::darkgrey);
+        g.setColour(Colours565::darkgrey);
         g.drawRect(0, 0, getWidth() - 120, getHeight());
-        g.dim(getWidth() - 120, 0, 120, getHeight(), Colours::black);
+        g.dim(getWidth() - 120, 0, 120, getHeight(), Colours565::black);
     }
 
     void resized(void)

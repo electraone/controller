@@ -19,7 +19,7 @@ public:
         setMin(ADSR::release, control.values[3].getMin());
         setMax(ADSR::release, control.values[3].getMax());
         setActiveSegment(control.inputs[0].getValueId());
-        setColour(control.getColour());
+        setColour(control.getColour565());
         updateValueFromParameterMap();
     }
 

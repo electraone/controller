@@ -32,12 +32,12 @@ public:
                       uint8_t bankNumber,
                       uint8_t slot,
                       const char *newName,
-                      uint16_t newColour);
+                      uint32_t newColour);
     void updateSnapshot(const char *projectId,
                         uint8_t bankNumber,
                         uint8_t slot,
                         const char *newName,
-                        uint16_t newColour);
+                        uint32_t newColour);
     void
         removeSnapshot(const char *projectId, uint8_t bankNumber, uint8_t slot);
     void swapSnapshot(const char *projectId,
@@ -58,7 +58,7 @@ private:
                           uint8_t bankNumber,
                           uint8_t slot,
                           const char *name,
-                          uint16_t colour);
+                          uint32_t colour);
     void removeSnapshotDb(const char *projectId,
                           uint8_t bankNumber,
                           uint8_t slot);

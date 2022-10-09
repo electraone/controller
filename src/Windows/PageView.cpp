@@ -116,13 +116,13 @@ void PageView::setRamPercentage(uint8_t newPercentage)
 
 void PageView::paint(Graphics &g)
 {
-    g.fillAll(Colours::black);
+    g.fillAll(Colours565::black);
 
     if (uiFeatures.activeControlSetType == ActiveControlSetType::bars) {
         g.setColour(0x7BCF);
         g.fillRect(4, 12 + controlSetId * 179, 5, 168);
         g.fillRect(1014, 12 + controlSetId * 179, 5, 168);
-        g.setColour(Colours::black);
+        g.setColour(Colours565::black);
         g.fillRect(6, 14 + controlSetId * 179, 4, 164);
         g.fillRect(1014, 14 + controlSetId * 179, 3, 164);
     } else if (uiFeatures.activeControlSetType

@@ -23,7 +23,7 @@ public:
 
     virtual void paint(Graphics &g) override
     {
-        g.setColour(Colours::black);
+        g.setColour(Colours565::black);
         g.fillRect(0, 40, getWidth(), getHeight() - topPadding);
         paintTitleBar(g, getName(), getWidth(), colour);
         Window::paint(g);
@@ -40,8 +40,8 @@ protected:
                               uint16_t width,
                               uint32_t colour)
     {
-        g.dim(0, 0, width, 10, Colours::black);
-        g.setColour(colour);
+        g.dim(0, 0, width, 10, Colours565::black);
+        g.setColour(Colours888::toRGB565(colour));
         g.fillRect(0, 10, width, 30);
         paintIcon(g, 16, 15);
         g.printText(40,
@@ -54,7 +54,7 @@ protected:
 
     static void paintIcon(Graphics &g, uint16_t x, uint16_t y)
     {
-        g.setColour(Colours::white);
+        g.setColour(Colours565::white);
         g.drawRect(x, y, 10, 13);
         g.fillRect(x + 5, y + 3, 10, 13);
     }

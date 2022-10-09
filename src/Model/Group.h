@@ -13,7 +13,7 @@ public:
     Group()
         : id(0),
           pageId(0),
-          colour(Colours::white),
+          colour(Colours565::white),
           visible(true),
           component(nullptr)
     {
@@ -24,7 +24,7 @@ public:
           uint8_t newPageId,
           const Rectangle &newBounds,
           const char *newLabel,
-          uint16_t newColour)
+          uint32_t newColour)
         : id(newId),
           pageId(newPageId),
           colour(newColour),
@@ -76,14 +76,19 @@ public:
         return (pageId);
     }
 
-    void setColour(uint16_t newColour)
+    void setColour(uint32_t newColour)
     {
         colour = newColour;
     }
 
-    uint16_t getColour(void) const
+    uint32_t getColour(void) const
     {
         return (colour);
+    }
+
+    uint16_t getColour565(void) const
+    {
+        return (Colours888::toRGB565(colour));
     }
 
     void setVisible(bool shouldBeVisible)
@@ -136,11 +141,11 @@ private:
         uint16_t id : 9;
         uint8_t pageId : 4;
         uint8_t visible : 1;
+        uint32_t colour : 24;
     };
 
     char label[maxLabelLength + 1];
     Rectangle bounds;
-    uint16_t colour;
 
     Component *component;
 };

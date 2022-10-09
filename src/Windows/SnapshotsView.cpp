@@ -32,7 +32,7 @@ SnapshotsView::~SnapshotsView()
 
 void SnapshotsView::paint(Graphics &g)
 {
-    g.fillAll(Colours::black);
+    g.fillAll(Colours565::black);
 }
 
 void SnapshotsView::resized(void)
@@ -63,12 +63,12 @@ void SnapshotsView::snapshotRemoved(uint8_t bankNumber, uint8_t slot)
 void SnapshotsView::snapshotSaved(uint8_t bankNumber,
                                   uint8_t slot,
                                   const char *name,
-                                  uint16_t colour)
+                                  uint32_t colour)
 {
     if (bankNumber == currentBankNumber) {
         uint16_t id = slot;
         snapsButton[id]->setLabel(name);
-        snapsButton[id]->setColour(Colours::darker(colour, 0.5f));
+        snapsButton[id]->setColour(Colours565::darker(colour, 0.5f));
         snapsButton[id]->setUsed(true);
         repaint();
     }
@@ -102,7 +102,7 @@ ActionButton *SnapshotsView::addButton(uint16_t id,
 
 void SnapshotsView::addActionButtons(void)
 {
-    loadButton = addButton(101, "LOAD", 0x0003, 0x0007);
+    loadButton = addButton(101, "LOAD", 0x07021a, 0x00053c);
     if (loadButton) {
         loadButton->onClick = [this]() {
             logMessage("SnapshotsView: switch to mode load");
@@ -112,7 +112,7 @@ void SnapshotsView::addActionButtons(void)
         };
     }
 
-    loadAndStayButton = addButton(102, "LOAD & STAY", 0x0003, 0x0007);
+    loadAndStayButton = addButton(102, "LOAD & STAY", 0x07021a, 0x00053c);
     if (loadAndStayButton) {
         loadAndStayButton->onClick = [this]() {
             logMessage("SnapshotsView: switch to mode loadAndStay");
@@ -122,7 +122,7 @@ void SnapshotsView::addActionButtons(void)
         };
     }
 
-    sendCurrentButton = addButton(103, "SEND CURRENT", 0x00e0, 0x00e0);
+    sendCurrentButton = addButton(103, "SEND CURRENT", 0x162800, 0x162800);
     if (sendCurrentButton) {
         sendCurrentButton->onClick = [this]() {
             logMessage("SnapshotsView: send saved snapshot messages");
@@ -131,7 +131,7 @@ void SnapshotsView::addActionButtons(void)
         };
     }
 
-    removeButton = addButton(104, "REMOVE", 0x1800, 0x4800);
+    removeButton = addButton(104, "REMOVE", 0x270800, 0x300a00);
     if (removeButton) {
         removeButton->onClick = [this]() {
             logMessage("SnapshotsView: switch to mode remove");
@@ -141,7 +141,7 @@ void SnapshotsView::addActionButtons(void)
         };
     }
 
-    saveButton = addButton(105, "SAVE CURRENT", 0x1800, 0x3800);
+    saveButton = addButton(105, "SAVE CURRENT", 0x270800, 0x300a00);
 
     if (saveButton) {
         saveButton->onClick = [this]() {
@@ -214,7 +214,7 @@ void SnapshotsView::updateSnapsButtons(void)
             if (dbSnapshot.select(id, DB_RECORD snapRec)) {
                 button->setUsed(true);
                 button->setLabel(snapRec.name);
-                button->setColour(Colours::darker(snapRec.colour, 0.5f));
+                button->setColour(Colours565::darker(snapRec.colour, 0.5f));
             } else {
                 button->setUsed(false);
             }
@@ -264,7 +264,7 @@ void SnapshotsView::removeSnapshot(uint8_t slot)
 
 void SnapshotsView::saveSnapshot(uint8_t slot)
 {
-    uint16_t colour = defaultColours[slot % 6];
+    uint32_t colour = defaultColours[slot % 6];
     char name[20 + 1];
     sprintf(name, "%c%d", 65 + slot % 6, slot / 6);
     uiApi.saveSnapshot(currentProjectId, currentBankNumber, slot, name, colour);

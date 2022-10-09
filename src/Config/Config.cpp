@@ -77,7 +77,8 @@ void Config::serializePresetBanks(JsonDocument &doc)
 
         jPresetBank["id"] = presetBanks[i].id;
         jPresetBank["name"] = presetBanks[i].name;
-        jPresetBank["color"] = Colours::translateColour(presetBanks[i].colour);
+        jPresetBank["color"] =
+            Config::translatePresetBankColour(presetBanks[i].colour);
 
         if (jPresetBanks.add(jPresetBank) == false) {
             logMessage(
@@ -252,7 +253,7 @@ bool Config::parseRouter(File &file)
 
 bool Config::parsePresetBanks(File &file)
 {
-    const size_t capacityPresetBanks = JSON_OBJECT_SIZE(1) + 1000;
+    const size_t capacityPresetBanks = JSON_OBJECT_SIZE(1) + 2000;
     const size_t capacityFilter = JSON_OBJECT_SIZE(1) + 100;
     StaticJsonDocument<capacityPresetBanks> doc;
     StaticJsonDocument<capacityFilter> filter;
@@ -278,11 +279,11 @@ bool Config::parsePresetBanks(File &file)
 
     if (doc["presetBanks"]) {
         for (JsonVariant jPresetBank : jPresetBanks) {
-            uint8_t id = jPresetBank["id"].as<uint8_t>();
-            const char *name = jPresetBank["name"].as<char *>();
-            const char *colourRGB888 = jPresetBank["color"].as<char *>();
+            uint8_t id = jPresetBank["id"];
+            const char *name = jPresetBank["name"];
+            const char *colourRGB888 = jPresetBank["color"];
 
-            uint16_t colour = Colours::translateColour(colourRGB888);
+            uint32_t colour = Colours565::fromString(colourRGB888);
             presetBanks[id - 1] = PresetBank(id, name, colour);
 
             logMessage("Config::parsePresetBanks: preset bank: id=%d, name=%s, "
@@ -510,12 +511,12 @@ bool Config::parseUiFeatures(File &file)
 
 void Config::resetPresetBanks(void)
 {
-    presetBanks[0] = PresetBank(1, "BANK #1", Colours::white);
-    presetBanks[1] = PresetBank(2, "BANK #2", Colours::red);
-    presetBanks[2] = PresetBank(3, "BANK #3", Colours::orange);
-    presetBanks[3] = PresetBank(4, "BANK #4", Colours::blue);
-    presetBanks[4] = PresetBank(5, "BANK #5", Colours::green);
-    presetBanks[5] = PresetBank(6, "BANK #6", Colours::purple);
+    presetBanks[0] = PresetBank(1, "BANK #1", Colours565::white);
+    presetBanks[1] = PresetBank(2, "BANK #2", Colours565::red);
+    presetBanks[2] = PresetBank(3, "BANK #3", Colours565::orange);
+    presetBanks[3] = PresetBank(4, "BANK #4", Colours565::blue);
+    presetBanks[4] = PresetBank(5, "BANK #5", Colours565::green);
+    presetBanks[5] = PresetBank(6, "BANK #6", Colours565::purple);
 }
 
 void Config::resetUiFeatures(void)
@@ -550,4 +551,20 @@ uint8_t Config::getUsbHostAssigment(const char *productName)
         }
     }
     return (0);
+}
+
+const char *Config::translatePresetBankColour(uint32_t rgb888)
+{
+    if (rgb888 == 0xF45C51) {
+        return ("F45C51");
+    } else if (rgb888 == 0xF49500) {
+        return ("F49500");
+    } else if (rgb888 == 0x529DEC) {
+        return ("529DEC");
+    } else if (rgb888 == 0x03A598) {
+        return ("03A598");
+    } else if (rgb888 == 0xC44795) {
+        return ("C44795");
+    }
+    return ("FFFFFF");
 }

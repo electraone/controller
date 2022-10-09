@@ -10,7 +10,7 @@ public:
     {
         assignPot(control.inputs[0].getPotId(),
                   control.values[0].getNumSteps());
-        setColour(control.getColour());
+        setColour(control.getColour565());
     }
 
     virtual ~FaderDetailControl() = default;
@@ -28,7 +28,7 @@ public:
 
     void paint(Graphics &g)
     {
-        g.fillAll(Colours::black);
+        g.fillAll(Colours565::black);
         BarHorizontal::paint(g);
     }
 

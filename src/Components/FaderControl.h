@@ -86,7 +86,7 @@ public:
 
     void paint(Graphics &g) override
     {
-        colour = control.getColour();
+        colour = control.getColour565();
         Rectangle sliderBounds = getBounds();
 
         paintFader(g,
@@ -122,7 +122,7 @@ private:
                     Control::Mode mode,
                     Control::Variant variant)
     {
-        uint32_t colourTrack = Colours::darker(colour, 0.3f);
+        uint32_t colourTrack = Colours565::darker(colour, 0.3f);
         uint32_t backgroundColour = getUseAltBackground()
                                         ? LookAndFeel::altBackgroundColour
                                         : LookAndFeel::backgroundColour;
@@ -164,7 +164,7 @@ private:
         g.fillRect(barX, padding, barWidth, barHeight);
 
         if (barWidth > 1) {
-            g.setColour(Colours::black);
+            g.setColour(Colours565::black);
             uint16_t separatorX = 0;
             separatorX = ((val > 0) ? barX + barWidth : barX + barWidth - 1);
             g.drawLine(
@@ -178,7 +178,7 @@ private:
         g.drawPixel(getWidth(), padding);
         g.drawPixel(getWidth(), padding + barHeight - 1);
 
-        g.setColour(Colours::darker(colourTrack, 0.9f));
+        g.setColour(Colours565::darker(colourTrack, 0.9f));
         g.drawPixel(1, padding);
         g.drawPixel(0, padding + 1);
         g.drawPixel(1, padding + barHeight - 1);
@@ -208,7 +208,7 @@ private:
 
         // Print the label text if exists
         if (items && !items->getByValue(val).isLabelEmpty()) {
-            g.setColour(Colours::white);
+            g.setColour(Colours565::white);
             g.printText(0,
                         0,
                         items->getByValue(val).getLabel(),
@@ -255,11 +255,11 @@ private:
             TextBTE::getTextWidth(stringValue, TextStyle::mediumTransparent);
 
         if ((x + 5 + textWidth) < (getWidth() - 10)) {
-            g.setColour(val >= 0 ? Colours::white : Colours::black);
+            g.setColour(val >= 0 ? Colours565::white : Colours565::black);
             g.print(
                 x + 5, labelYPosition, stringValue, textWidth, TextAlign::left);
         } else {
-            g.setColour(val >= 0 ? Colours::black : Colours::white);
+            g.setColour(val >= 0 ? Colours565::black : Colours565::white);
             g.print(x - 10 - textWidth,
                     labelYPosition,
                     stringValue,

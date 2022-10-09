@@ -29,7 +29,7 @@ public:
 
         setActiveSegment(control.inputs[0].getValueId());
 
-        setColour(control.getColour());
+        setColour(control.getColour565());
         updateValueFromParameterMap();
     }
 

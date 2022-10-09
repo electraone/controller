@@ -93,7 +93,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
                 snapRec.slot,
                 snapRec.bankNumber,
                 snapRec.name,
-                Colours::translateColour(snapRec.colour));
+                snapRec.colour & 0xffffff);
             snapshotJsonFile.write(buf, strlen(buf));
             firstRecord = false;
         }
@@ -167,7 +167,7 @@ void Snapshots::saveSnapshot(const char *projectId,
                              uint8_t bankNumber,
                              uint8_t slot,
                              const char *newName,
-                             uint16_t newColour)
+                             uint32_t newColour)
 {
     char filename[MAX_FILENAME_LENGTH + 1];
     createSnapshotFilename(filename, projectId, bankNumber, slot);
@@ -179,7 +179,7 @@ void Snapshots::updateSnapshot(const char *projectId,
                                uint8_t bankNumber,
                                uint8_t slot,
                                const char *newName,
-                               uint16_t newColour)
+                               uint32_t newColour)
 {
     updateSnapshotDb(projectId, bankNumber, slot, newName, newColour);
 }
@@ -205,7 +205,7 @@ void Snapshots::updateSnapshotDb(const char *projectId,
                                  uint8_t bankNumber,
                                  uint8_t slot,
                                  const char *name,
-                                 uint16_t colour)
+                                 uint32_t colour)
 {
     char dbFile[MAX_FILENAME_LENGTH + 1];
 

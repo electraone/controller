@@ -12,7 +12,7 @@ public:
     {
         setMinimum(control.values[0].getMin());
         setMaximum(control.values[0].getMax());
-        setColour(control.getColour());
+        setColour(control.getColour565());
     }
 
     virtual ~KnobControl() = default;

@@ -13,7 +13,7 @@ public:
 
     void paint(Graphics &g) override
     {
-        uint16_t backgroundColour = getColour();
+        uint16_t backgroundColour = getColour565();
 
         g.fillAll(LookAndFeel::backgroundColour);
 
@@ -22,7 +22,7 @@ public:
             g.fillRoundRect(0, 0, getWidth(), getHeight(), getRadius());
             g.dimAll();
         } else if (isHighlighted()) {
-            backgroundColour = Colours::lighter(backgroundColour, 0.1f);
+            backgroundColour = Colours565::lighter(backgroundColour, 0.1f);
             g.setColour(backgroundColour);
             g.fillRoundRect(0, 0, getWidth(), getHeight(), getRadius());
             g.dimAll();

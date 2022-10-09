@@ -19,7 +19,7 @@ public:
         attack.setId(500);
         attack.setType(Control::Type::Knob);
         attack.setName("ATTACK");
-        attack.setColour(control.getColour());
+        attack.setColour(control.getColour565());
         attack.setValues(attackValues);
         attackValues[0].setControl(&attack);
         attack.addToParameterMap(attackValues[0]);
@@ -32,7 +32,7 @@ public:
         decay.setId(501);
         decay.setType(Control::Type::Knob);
         decay.setName("DECAY");
-        decay.setColour(control.getColour());
+        decay.setColour(control.getColour565());
         decay.setValues(decayValues);
         decayValues[0].setControl(&decay);
         decay.addToParameterMap(decayValues[0]);
@@ -45,7 +45,7 @@ public:
         sustain.setId(502);
         sustain.setType(Control::Type::Knob);
         sustain.setName("SUSTAIN");
-        sustain.setColour(control.getColour());
+        sustain.setColour(control.getColour565());
         sustain.setValues(sustainValues);
         sustainValues[0].setControl(&sustain);
         sustain.addToParameterMap(sustainValues[0]);
@@ -59,7 +59,7 @@ public:
         release.setId(503);
         release.setType(Control::Type::Knob);
         release.setName("RELEASE");
-        release.setColour(control.getColour());
+        release.setColour(control.getColour565());
         release.setValues(releaseValues);
         releaseValues[0].setControl(&release);
         release.addToParameterMap(releaseValues[0]);
@@ -86,11 +86,11 @@ public:
 
     void paint(Graphics &g)
     {
-        g.setColour(Colours::black);
+        g.setColour(Colours565::black);
         g.fillRect(0, 0, getWidth() - 120, getHeight());
-        g.setColour(Colours::darkgrey);
+        g.setColour(Colours565::darkgrey);
         g.drawRect(0, 0, getWidth() - 120, getHeight());
-        g.dim(getWidth() - 120, 0, 120, getHeight(), Colours::black);
+        g.dim(getWidth() - 120, 0, 120, getHeight(), Colours565::black);
     }
 
     void resized(void)

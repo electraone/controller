@@ -45,6 +45,8 @@ private:
     void serializeUsbHostAssigments(JsonDocument &doc);
     void serializeMidiControl(JsonDocument &doc);
     void serializeUiFeatures(JsonDocument &doc);
+
+    static const char *translatePresetBankColour(uint32_t rgb888);
 };
 
 typedef std::vector<UsbHostAssigment> UsbHostAssigments;

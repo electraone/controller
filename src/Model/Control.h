@@ -40,7 +40,7 @@ public:
             const Rectangle &bounds,
             Type type,
             Mode mode,
-            uint16_t colour,
+            uint32_t colour,
             uint8_t controlSetId,
             Variant variant,
             bool visible);
@@ -54,8 +54,9 @@ public:
     void setType(Type newType);
     Type getType(void) const;
     Mode getMode(void) const;
-    void setColour(uint16_t newColour);
-    uint16_t getColour(void) const;
+    void setColour(uint32_t newColour);
+    uint32_t getColour(void) const;
+    uint16_t getColour565(void) const;
     void setName(const char *newName);
     const char *getName(void) const;
     void setControlSetId(uint8_t newControlSetId);
@@ -99,10 +100,10 @@ private:
         uint8_t controlSetId : 3;
         uint8_t variant : 4;
         uint8_t visible : 1;
+        uint32_t colour : 24;
     };
 
     Rectangle bounds;
-    uint16_t colour;
     char name[MaxNameLength + 1];
 
     Component *component;

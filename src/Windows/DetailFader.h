@@ -14,11 +14,11 @@ public:
 
     void paint(Graphics &g)
     {
-        g.setColour(Colours::black);
+        g.setColour(Colours565::black);
         g.fillRect(0, 0, getWidth(), getHeight() - 120);
-        g.setColour(Colours::darkgrey);
+        g.setColour(Colours565::darkgrey);
         g.drawRect(0, 0, getWidth(), getHeight() - 120);
-        g.dim(0, getHeight() - 120, getWidth(), 120, Colours::black);
+        g.dim(0, getHeight() - 120, getWidth(), 120, Colours565::black);
     }
 
     void resized(void)

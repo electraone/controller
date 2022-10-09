@@ -70,7 +70,7 @@ private:
         uint16_t radius = bounds.getWidth() / 2;
         uint16_t quaterOfRadius = radius / 4;
 
-        g.setColour(Colours::white);
+        g.setColour(Colours565::white);
         g.drawLine(
             radius, radius, radius + quaterOfRadius, radius + quaterOfRadius);
         g.drawLine(
@@ -89,7 +89,7 @@ private:
         uint16_t pinSymbolX = radius - (quaterOfRadius);
         uint16_t pinSymbolY = radius - (quaterOfRadius) + (radius / 8) - 2;
 
-        g.setColour(Colours::lightcoral);
+        g.setColour(Colours565::lightcoral);
         g.drawElipse(pinSymbolX + (quaterOfRadius),
                      pinSymbolY,
                      (quaterOfRadius),
@@ -99,7 +99,7 @@ private:
                      (quaterOfRadius - 1),
                      (quaterOfRadius - 1));
         g.fillRect(pinSymbolX, pinSymbolY, halfOfRadius + 1, halfOfRadius);
-        g.setColour(Colours::black);
+        g.setColour(Colours565::black);
         g.fillRect(pinSymbolX + quaterOfRadius - 2,
                    pinSymbolY + quaterOfRadius - 4,
                    5,

@@ -13,7 +13,7 @@ public:
         : ControlComponent(control, newDelegate),
           List(control.values[0].getOverlay())
     {
-        setColour(control.getColour());
+        setColour(control.getColour565());
         updateValueFromParameterMap();
         enableEncoderMode(true);
     }

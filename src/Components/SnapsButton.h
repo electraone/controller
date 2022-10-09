@@ -38,7 +38,7 @@ public:
             uint32_t colour = getColour();
 
             if (isHighlighted()) {
-                colour = Colours::lighter(colour, 0.1f);
+                colour = Colours565::lighter(colour, 0.1f);
             }
 
             g.setColour(colour);
@@ -56,7 +56,7 @@ public:
                         40,
                         TextAlign::left);
         } else {
-            g.setColour(Colours::black);
+            g.setColour(Colours565::black);
             g.fillRoundRect(0, 0, getWidth(), getHeight(), 4);
 
             g.setColour(0x2104);

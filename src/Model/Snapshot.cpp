@@ -1,6 +1,6 @@
 #include "Snapshot.h"
 
-Snapshot::Snapshot(const char *filename) : colour(0xFFFFFF)
+Snapshot::Snapshot(const char *filename) : colour(Colours565::white)
 {
     logMessage("Snapshots: file: filename=%s", filename);
 
@@ -23,9 +23,14 @@ const char *Snapshot::getName(void) const
     return name;
 }
 
-uint16_t Snapshot::getColour(void) const
+uint32_t Snapshot::getColour(void) const
 {
     return colour;
+}
+
+uint16_t Snapshot::getColour565(void) const
+{
+    return (Colours888::toRGB565(colour));
 }
 
 bool Snapshot::parse(File &file)
@@ -51,7 +56,7 @@ bool Snapshot::parse(File &file)
         return (false);
     }
 
-    colour = Colours::translateColour(doc["color"].as<char *>());
+    colour = Colours565::fromString(doc["color"].as<char *>());
     copyString(name, doc["name"].as<char *>(), MAX_SNAPSHOT_NAME_LENGTH);
 
     return true;

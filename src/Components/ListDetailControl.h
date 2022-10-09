@@ -24,7 +24,7 @@ public:
 
     void paint(Graphics &g) override
     {
-        g.fillAll(Colours::black);
+        g.fillAll(Colours565::black);
         paintListItems(g, offsetY);
         g.copy(SDRAM_PAGE_4,
                0,
@@ -136,7 +136,7 @@ private:
         g.setActiveWindowPosition(0, 0);
         g.setActiveWindowSize(1024, virtualWindowHeight);
 
-        g.setColour(Colours::black);
+        g.setColour(Colours565::black);
         g.fillRect(0, 0, listItemWidth, virtualWindowHeight);
 
         for (uint8_t i = firstItem; i < numItems; i++) {
@@ -146,8 +146,9 @@ private:
 
             auto listItem = overlay->getByIndex(i);
 
-            g.setColour(i % 2 ? Colours::darker(control.getColour(), 0.5f)
-                              : Colours::darker(control.getColour(), 0.8f));
+            g.setColour(i % 2
+                            ? Colours565::darker(control.getColour565(), 0.5f)
+                            : Colours565::darker(control.getColour565(), 0.8f));
             g.fillRect(0, j * listItemHeight + 0, listItemWidth, 60);
             g.printText(0,
                         j * listItemHeight + 25,
@@ -161,12 +162,12 @@ private:
                 Hardware::memory.bitmapPool.paint(bitmap,
                                                   28,
                                                   j * listItemHeight + 22,
-                                                  control.getColour(),
+                                                  control.getColour565(),
                                                   SDRAM_PAGE_4);
             }
 
             if (index == i) {
-                g.setColour(control.getColour());
+                g.setColour(control.getColour565());
                 g.drawRect(0, j * listItemHeight + 0, listItemWidth, 60);
                 g.drawRect(1, j * listItemHeight + 1, listItemWidth - 2, 58);
             }

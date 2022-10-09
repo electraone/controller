@@ -28,7 +28,7 @@ Selection::Selection(uint8_t newActive,
 
 void Selection::paint(Graphics &g)
 {
-    g.fillAll(Colours::black);
+    g.fillAll(Colours565::black);
 }
 
 void Selection::resized(void)
