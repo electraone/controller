@@ -147,8 +147,8 @@ private:
             auto listItem = overlay->getByIndex(i);
 
             g.setColour(i % 2
-                            ? Colours565::darker(control.getColour565(), 0.5f)
-                            : Colours565::darker(control.getColour565(), 0.8f));
+                            ? Colours565::darker(control.getColour565(), 0.2f)
+                            : Colours565::darker(control.getColour565(), 0.5f));
             g.fillRect(0, j * listItemHeight + 0, listItemWidth, 60);
             g.printText(0,
                         j * listItemHeight + 25,
@@ -162,7 +162,7 @@ private:
                 Hardware::memory.bitmapPool.paint(bitmap,
                                                   28,
                                                   j * listItemHeight + 22,
-                                                  control.getColour565(),
+                                                  Colours565::white,
                                                   SDRAM_PAGE_4);
             }
 

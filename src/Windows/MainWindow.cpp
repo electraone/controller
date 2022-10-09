@@ -853,7 +853,7 @@ Rectangle MainWindow::getDetailBounds(const Control &control)
         return Rectangle(8, 217, 1008, 330);
     } else if (control.getType() == Control::Type::List) {
         uint16_t xPosition = (control.getBounds().getX() > 510) ? 8 : 577;
-        return Rectangle(xPosition, 22, 436, 556);
+        return Rectangle(xPosition, 25, 436, 550);
     } else if (control.getType() == Control::Type::Dx7envelope) {
         return Rectangle(158, 62, 828, 490);
     }
