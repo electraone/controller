@@ -51,7 +51,8 @@ void Midi::sendMessage(const Message &message)
                  channel,
                  message.getParameterNumber(),
                  midiValue,
-                 message.getLsbFirst());
+                 message.getLsbFirst(),
+                 message.getResetRpn());
     } else if (message.getType() == Message::Type::rpn) {
         sendRpn(port, channel, message.getParameterNumber(), midiValue);
     } else if (message.getType() == Message::Type::program) {
@@ -596,14 +597,16 @@ void Midi::sendNrpn(uint8_t port,
                     uint8_t channel,
                     uint16_t parameterNumber,
                     uint16_t midiValue,
-                    bool lsbFirst)
+                    bool lsbFirst,
+                    bool resetRpn)
 {
     MidiOutput::sendNrpn(MidiInterface::Type::MidiAll,
                          port,
                          channel,
                          parameterNumber,
                          midiValue,
-                         lsbFirst);
+                         lsbFirst,
+                         resetRpn);
 }
 
 void Midi::sendRpn(uint8_t port,

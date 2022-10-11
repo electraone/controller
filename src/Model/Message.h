@@ -40,6 +40,7 @@ public:
     {
         type = (uint8_t)Type::invalid;
         lsbFirst = false;
+        resetRpn = true;
         signMode = (uint8_t)SignMode::noSign;
         bitWidth = 7;
     }
@@ -52,6 +53,7 @@ public:
             int16_t newValue,
             std::vector<uint8_t> newData,
             bool newLsbFirst,
+            bool newResetRpn,
             SignMode newSignMode,
             uint8_t newbitWidth)
         : deviceId(newDeviceId),
@@ -63,6 +65,7 @@ public:
     {
         type = (uint8_t)newType;
         lsbFirst = newLsbFirst;
+        resetRpn = newResetRpn;
         signMode = (uint8_t)newSignMode;
         bitWidth = newbitWidth;
     }
@@ -167,6 +170,16 @@ public:
     bool getLsbFirst(void) const
     {
         return (lsbFirst);
+    }
+
+    void setResetRpn(bool newResetRpn)
+    {
+        resetRpn = newResetRpn;
+    }
+
+    bool getResetRpn(void) const
+    {
+        return (resetRpn);
     }
 
     void setBitWidth(uint8_t newBitWidth)
@@ -284,6 +297,7 @@ private:
         uint8_t deviceId : 5;
         uint8_t type : 4;
         bool lsbFirst : 1;
+        bool resetRpn : 1;
         uint8_t signMode : 2;
         uint8_t bitWidth : 4;
     };

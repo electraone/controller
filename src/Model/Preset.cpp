@@ -1266,6 +1266,7 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
     int16_t offValue = jMessage["offValue"] | MIDI_VALUE_DO_NOT_SEND;
     int16_t onValue = jMessage["onValue"] | MIDI_VALUE_DO_NOT_SEND;
     bool lsbFirst = jMessage["lsbFirst"];
+    bool resetRpn = jMessage["resetRpn"];
     const char *signModeInput = jMessage["signMode"];
     uint8_t bitWidth;
 
@@ -1329,7 +1330,7 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
 #ifdef DEBUG
     logMessage(
         "parseMessage: device=%d, msgType=%s (%d), parameterId=%d, min=%d, "
-        "max=%d, value=%d, lsbFirst=%d, signMode=%d, bitWidth=%d",
+        "max=%d, value=%d, lsbFirst=%d, resetRpn=%d, signMode=%d, bitWidth=%d",
         deviceId,
         type,
         messageType,
@@ -1338,6 +1339,7 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
         (max == MIDI_VALUE_DO_NOT_SEND) ? -1 : max,
         value,
         lsbFirst,
+        resetRpn,
         signMode,
         bitWidth);
 #endif
@@ -1350,6 +1352,7 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
                     value,
                     data,
                     lsbFirst,
+                    resetRpn,
                     signMode,
                     bitWidth));
 }
