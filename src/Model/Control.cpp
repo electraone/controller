@@ -187,8 +187,8 @@ Control::Mode Control::translateControlMode(const char *modeText)
             return (Control::Mode::Momentary);
         } else if (strcmp(modeText, "toggle") == 0) {
             return (Control::Mode::Toggle);
-        } else if (strcmp(modeText, "unidirectional") == 0) {
-            return (Control::Mode::UniDirectional);
+        } else if (strcmp(modeText, "unipolar") == 0) {
+            return (Control::Mode::Unipolar);
         }
     }
     return (Control::Mode::Default);

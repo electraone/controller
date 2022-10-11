@@ -971,6 +971,12 @@ Control Preset::parseControl(JsonObject jControl)
         Control::translateVariant(jControl["variant"]);
     uint8_t controlSetId = constrainControlSetId(jControl["controlSetId"]);
     bool visible = jControl["visible"] | true;
+
+    if ((controlType == Control::Type::Fader)
+        && (controlMode == Control::Mode::Default)) {
+        controlMode = Control::Mode::Bipolar;
+    }
+
     return (Control(id,
                     pageId,
                     name,

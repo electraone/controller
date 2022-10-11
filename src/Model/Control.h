@@ -28,7 +28,8 @@ public:
         Default = 0,
         Momentary = 1,
         Toggle = 2,
-        UniDirectional = 3
+        Unipolar = 3,
+        Bipolar = 4
     };
 
     enum class Variant { Default = 0, Thin = 2, ValueOnly = 3, Dial = 4 };
@@ -96,7 +97,7 @@ private:
         uint16_t id : 9;
         uint8_t pageId : 4;
         uint8_t type : 4;
-        uint8_t mode : 2;
+        uint8_t mode : 3;
         uint8_t controlSetId : 3;
         uint8_t variant : 4;
         uint8_t visible : 1;

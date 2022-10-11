@@ -145,7 +145,7 @@ private:
         uint16_t barX = 0;
 
         // For zero based faders, fing the start position of the bar
-        if (mode == Control::Mode::Default) {
+        if (mode == Control::Mode::Bipolar) {
             barX =
                 map(std::max((int16_t)0, min), min, max, 0, bounds.getWidth());
         }
