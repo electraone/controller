@@ -76,6 +76,15 @@ void Midi::sendMessage(const Message &message)
         sendTuneRequest(port);
     } else if (message.getType() == Message::Type::sysex) {
         sendTemplatedSysex(device, message.data);
+    } else if (message.getType() == Message::Type::atchannel) {
+        sendAfterTouchChannel(port, channel, midiValue);
+    } else if (message.getType() == Message::Type::atpoly) {
+        sendAfterTouchPoly(
+            port, channel, message.getParameterNumber(), midiValue);
+    } else if (message.getType() == Message::Type::pitchbend) {
+        sendPitchBend(port, channel, midiValue);
+    } else if (message.getType() == Message::Type::spp) {
+        sendSongPosition(port, midiValue);
     }
 }
 
@@ -272,6 +281,8 @@ void Midi::process(const MidiInput &midiInput, const MidiMessage &midiMessage)
             processStop();
         } else if (midiMessage.isMidiTuneRequest()) {
             processTuneRequest();
+        } else if (midiMessage.isSongPositionPointer()) {
+            processSongPosition(midiMessage.getData1(), midiMessage.getData2());
         } else if (midiMessage.isSysEx()) {
             processSysex(midiMessage);
         }
@@ -290,8 +301,16 @@ void Midi::process(const MidiInput &midiInput, const MidiMessage &midiMessage)
                         midiMessage.getData2());
         } else if (midiMessage.isProgramChange()) {
             processProgramChange(deviceId, midiMessage.getData1());
+        } else if (midiMessage.isAftertouch()) {
+            processAfterTouchPoly(
+                deviceId, midiMessage.getData1(), midiMessage.getData2());
+        } else if (midiMessage.isChannelPressure()) {
+            processAfterTouchChannel(deviceId, midiMessage.getData1());
+        } else if (midiMessage.isPitchWheel()) {
+            processPitchBend(
+                deviceId, midiMessage.getData1(), midiMessage.getData2());
         } else {
-            // logMessage("Midi::processMidi: other midi message. ignoring it.");
+            logMessage("Midi::processMidi: other midi message. ignoring it.");
         }
     }
 }
@@ -387,6 +406,45 @@ void Midi::processProgramChange(uint8_t deviceId, uint8_t programNumber)
     logMessage("Midi::processMidi: program message: program=%d", programNumber);
     parameterMap.setValue(
         deviceId, Message::Type::program, 0, programNumber, Origin::midi);
+}
+
+void Midi::processAfterTouchChannel(uint8_t deviceId, uint8_t pressure)
+{
+    logMessage("Midi::processMidi: aftertouch channel message: pressure=%d",
+               pressure);
+    parameterMap.setValue(
+        deviceId, Message::Type::atchannel, 0, pressure, Origin::midi);
+}
+
+void Midi::processAfterTouchPoly(uint8_t deviceId,
+                                 uint8_t noteNumber,
+                                 uint8_t pressure)
+{
+    logMessage(
+        "Midi::processMidi: aftertouch poly message: noteNumber=%d, pressure=%d",
+        noteNumber,
+        pressure);
+    parameterMap.setValue(
+        deviceId, Message::Type::atpoly, noteNumber, pressure, Origin::midi);
+}
+
+void Midi::processPitchBend(uint8_t deviceId,
+                            uint8_t valueFine,
+                            uint8_t valueCoarse)
+{
+    uint16_t midiValue = (valueCoarse << 7) | valueFine;
+    logMessage("Midi::processMidi: pitchbend message: midiValue=%d", midiValue);
+    parameterMap.setValue(
+        deviceId, Message::Type::pitchbend, 0, midiValue, Origin::midi);
+}
+
+void Midi::processSongPosition(uint8_t valueFine, uint8_t valueCoarse)
+{
+    uint16_t midiValue = (valueCoarse << 7) | valueFine;
+    logMessage("Midi::processMidi: song position message: midiValue=%d",
+               midiValue);
+    parameterMap.setValue(0xff, Message::Type::spp, 0, midiValue, Origin::midi);
+    parameterMap.print();
 }
 
 void Midi::processSysex(const MidiMessage &midiMessage)
@@ -610,4 +668,32 @@ void Midi::sendSysEx(uint8_t port, uint8_t *sysexData, uint16_t sysexDataLength)
 void Midi::sendSysEx(uint8_t port, SysexBlock &sysexBlock)
 {
     MidiOutput::sendSysEx(MidiInterface::Type::MidiAll, port, sysexBlock);
+}
+
+void Midi::sendAfterTouchChannel(uint8_t port,
+                                 uint8_t channel,
+                                 uint8_t pressure)
+{
+    MidiOutput::sendAfterTouchChannel(
+        MidiInterface::Type::MidiAll, port, channel, pressure);
+}
+
+void Midi::sendAfterTouchPoly(uint8_t port,
+                              uint8_t channel,
+                              uint8_t noteNumber,
+                              uint8_t value)
+{
+    MidiOutput::sendAfterTouchPoly(
+        MidiInterface::Type::MidiAll, port, channel, noteNumber, value);
+}
+
+void Midi::sendPitchBend(uint8_t port, uint8_t channel, uint16_t value)
+{
+    MidiOutput::sendPitchBend(
+        MidiInterface::Type::MidiAll, port, channel, value);
+}
+
+void Midi::sendSongPosition(uint8_t port, uint16_t beats)
+{
+    MidiOutput::sendSongPosition(MidiInterface::Type::MidiAll, port, beats);
 }

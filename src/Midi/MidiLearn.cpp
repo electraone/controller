@@ -114,6 +114,60 @@ void MidiLearn::process(const MidiInput &midiInput,
                                   programNumber,
                                   0);
         return;
+    } else if (midiType == MidiMessage::Type::AfterTouchPoly) {
+        uint8_t noteNumber = midiMessage.getData1();
+        uint8_t pressure = midiMessage.getData2();
+        logMessage("ElectraMidi::processMidiLearn: aftertouch poly message: "
+                   "program=%d, pressure=%d",
+                   noteNumber,
+                   pressure);
+        MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
+                                  USB_MIDI_PORT_CTRL,
+                                  "atpoly",
+                                  midiPort + 1,
+                                  midiChannel,
+                                  noteNumber,
+                                  pressure);
+        return;
+    } else if (midiType == MidiMessage::Type::AfterTouchChannel) {
+        uint8_t pressure = midiMessage.getData1();
+        logMessage("ElectraMidi::processMidiLearn: aftertouch channel message: "
+                   "pressure=%d",
+                   pressure);
+        MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
+                                  USB_MIDI_PORT_CTRL,
+                                  "atchannel",
+                                  midiPort + 1,
+                                  midiChannel,
+                                  0,
+                                  pressure);
+        return;
+    } else if (midiType == MidiMessage::Type::PitchBend) {
+        uint16_t value = midiMessage.getData2() << 7 | midiMessage.getData1();
+        logMessage("ElectraMidi::processMidiLearn: pitchbend message: "
+                   "value=%d",
+                   value);
+        MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
+                                  USB_MIDI_PORT_CTRL,
+                                  "pitchbend",
+                                  midiPort + 1,
+                                  midiChannel,
+                                  0,
+                                  value);
+        return;
+    } else if (midiType == MidiMessage::Type::SongPosition) {
+        uint16_t value = midiMessage.getData2() << 7 | midiMessage.getData1();
+        logMessage("ElectraMidi::processMidiLearn: song position message: "
+                   "value=%d",
+                   value);
+        MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
+                                  USB_MIDI_PORT_CTRL,
+                                  "spp",
+                                  midiPort + 1,
+                                  0,
+                                  0,
+                                  value);
+        return;
     } else if (midiType == MidiMessage::Type::SystemExclusive) {
         MidiOutput::sendMidiLearnSysex(MidiInterface::Type::MidiUsbDev,
                                        USB_MIDI_PORT_CTRL,

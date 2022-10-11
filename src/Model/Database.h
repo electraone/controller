@@ -12,7 +12,7 @@ struct SnapshotRecord {
     char name[MAX_SNAPSHOT_NAME_LENGTH + 1];
 };
 
-#define DB_RECORD (byte *)(void *) &
+#define DB_RECORD (byte *)(void *)&
 
 class Database
 {

@@ -24,7 +24,11 @@ public:
         start = 8,
         stop = 9,
         tune = 10,
-        invalid = 11
+        atpoly = 11,
+        atchannel = 12,
+        pitchbend = 13,
+        spp = 14,
+        invalid = 15
     };
 
     Message()
@@ -215,6 +219,14 @@ public:
                 return (Type::tune);
             } else if (strcmp(typeText, "virtual") == 0) {
                 return (Type::virt);
+            } else if (strcmp(typeText, "atpoly") == 0) {
+                return (Type::atpoly);
+            } else if (strcmp(typeText, "atchannel") == 0) {
+                return (Type::atchannel);
+            } else if (strcmp(typeText, "pitchbend") == 0) {
+                return (Type::pitchbend);
+            } else if (strcmp(typeText, "spp") == 0) {
+                return (Type::spp);
             }
         } else {
             // default - for rules that do not have type specified
@@ -247,6 +259,14 @@ public:
             return ("tune");
         } else if (messageType == Type::virt) {
             return ("virtual");
+        } else if (messageType == Type::atpoly) {
+            return ("atpoly");
+        } else if (messageType == Type::atchannel) {
+            return ("atchannel");
+        } else if (messageType == Type::pitchbend) {
+            return ("pitchbend");
+        } else if (messageType == Type::spp) {
+            return ("spp");
         }
 
         return ("invalid");

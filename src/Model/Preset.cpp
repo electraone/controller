@@ -1284,6 +1284,7 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
         max = 16383;
     }
 
+    // this sets up the message for storing it in the ParameterMap
     if (controlType == Control::Type::Pad) {
         if (messageType == Message::Type::note) {
             min = 0;
@@ -1292,6 +1293,10 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
             min = MIDI_VALUE_DO_NOT_SEND;
             max = parameterNumber;
             parameterNumber = 0;
+        } else if (messageType == Message::Type::atchannel) {
+            parameterNumber = 0;
+            min = offValue;
+            max = onValue;
         } else if (messageType == Message::Type::start
                    || messageType == Message::Type::stop
                    || messageType == Message::Type::tune) {
@@ -1306,12 +1311,19 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
         if (messageType == Message::Type::program) {
             value = 0;
             parameterNumber = 0;
+        } else if (messageType == Message::Type::atchannel) {
+            parameterNumber = 0;
+        } else if (messageType == Message::Type::pitchbend) {
+            parameterNumber = 0;
+        } else if (messageType == Message::Type::spp) {
+            parameterNumber = 0;
         }
     }
 
 #ifdef DEBUG
     logMessage(
-        "parseMessage: device=%d, msgType=%s (%d), parameterId=%d, min=%d, max=%d, value=%d, lsbFirst=%d, signMode=%d, bitWidth=%d",
+        "parseMessage: device=%d, msgType=%s (%d), parameterId=%d, min=%d, "
+        "max=%d, value=%d, lsbFirst=%d, signMode=%d, bitWidth=%d",
         deviceId,
         type,
         messageType,

@@ -74,6 +74,14 @@ private:
                      uint8_t noteNumber,
                      uint8_t velocity);
     void processProgramChange(uint8_t deviceId, uint8_t programNumber);
+    void processAfterTouchChannel(uint8_t deviceId, uint8_t pressure);
+    void processAfterTouchPoly(uint8_t deviceId,
+                               uint8_t noteNumber,
+                               uint8_t pressure);
+    void processPitchBend(uint8_t deviceId,
+                          uint8_t valueFine,
+                          uint8_t valueCoarse);
+    void processSongPosition(uint8_t valueFine, uint8_t valueCoarse);
     void processSysex(const MidiMessage &midiMessage);
 
     bool doesHeaderMatch(const SysexBlock &sysexBlock,
@@ -121,6 +129,15 @@ private:
     static void
         sendSysEx(uint8_t port, uint8_t *data, uint16_t sysexDataLength);
     static void sendSysEx(uint8_t port, SysexBlock &sysexBlock);
+    static void
+        sendAfterTouchChannel(uint8_t port, uint8_t channel, uint8_t pressure);
+    static void sendAfterTouchPoly(uint8_t port,
+                                   uint8_t channel,
+                                   uint8_t noteNumber,
+                                   uint8_t value);
+    static void sendPitchBend(uint8_t port, uint8_t channel, uint16_t value);
+    static void sendSongPosition(uint8_t port, uint16_t beats);
+
     const Preset &model;
 
     RpnDetector rpnDetector;
