@@ -22,7 +22,8 @@ MainWindow::MainWindow(Model &newModel, Midi &newMidi, Config &newConfig)
       currentPageId(0),
       currentControlSetId(0),
       currentSnapshotBank(0),
-      inSleepMode(false)
+      inSleepMode(false),
+      controlPort(USB_MIDI_PORT_CTRL)
 {
     setName("mainWindow");
     setBounds(0, 25, 1024, 575);
@@ -673,6 +674,16 @@ void MainWindow::setCurrentSnapshotBank(uint8_t bankNumber)
     if (snapshotsWindow) {
         snapshotsWindow->snapshotBankSwitched(currentSnapshotBank);
     }
+}
+
+void MainWindow::setControlPort(uint8_t newControlPort)
+{
+    controlPort = newControlPort;
+}
+
+uint8_t MainWindow::getControlPort(void)
+{
+    return (controlPort);
 }
 
 void MainWindow::requestAllPatches(void)

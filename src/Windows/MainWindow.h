@@ -118,6 +118,8 @@ public:
                        uint8_t destBankNumber,
                        uint8_t destSlot) override;
     void setCurrentSnapshotBank(uint8_t bankNumber) override;
+    void setControlPort(uint8_t newControlPort) override;
+    uint8_t getControlPort(void) override;
 
     void sendAllControls(void);
 
@@ -184,9 +186,12 @@ private:
     SnapshotsWindow *snapshotsWindow;
     UsbHostWindow *usbHostWindow;
 
+    // Current state
     uint8_t currentPageId;
     uint8_t currentControlSetId;
     uint8_t currentSnapshotBank;
 
+    // Controller status
     bool inSleepMode;
+    uint8_t controlPort;
 };

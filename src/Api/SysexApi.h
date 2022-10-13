@@ -34,6 +34,8 @@ private:
     void removeSnapshot(uint8_t port, MemoryBlock &sysexPayload);
     void swapSnapshots(uint8_t port, MemoryBlock &sysexPayload);
     void setCurrentSnapshotBank(uint8_t port, uint8_t bankNumber);
+    void setControlPort(uint8_t port, uint8_t newControlPort);
+    uint8_t getControlPort(void);
 
     MainDelegate &delegate;
 };

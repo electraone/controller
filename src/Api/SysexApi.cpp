@@ -45,6 +45,8 @@ void SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
             setSnapshotSlot(port, sysexPayload);
         } else if (object == ElectraCommand::Object::PresetSlot) {
             setPresetSlot(port, cmd.getByte1(), cmd.getByte2());
+        } else if (object == ElectraCommand::Object::ControlPort) {
+            setControlPort(port, cmd.getByte1());
         }
     } else if (cmd.isUpdate()) {
         if (object == ElectraCommand::Object::SnapshotInfo) {
@@ -150,7 +152,6 @@ void SysexApi::disableMidiLearn(uint8_t port)
     logMessage("SysexApi::disableMidiLearn");
     delegate.disableMidiLearn();
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
-    ;
 }
 
 void SysexApi::switchPreset(uint8_t port, uint8_t bankNumber, uint8_t slot)
@@ -163,7 +164,6 @@ void SysexApi::switchPreset(uint8_t port, uint8_t bankNumber, uint8_t slot)
     MidiOutput::sendPresetSwitched(
         MidiInterface::Type::MidiUsbDev, port, bankNumber, slot);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
-    ;
 }
 
 void SysexApi::updateControl(uint8_t port,
@@ -201,7 +201,6 @@ void SysexApi::updateControl(uint8_t port,
         delegate.setControlVisible(controlId, shouldBeVisible);
     }
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
-    ;
 }
 
 void SysexApi::setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload)
@@ -225,7 +224,6 @@ void SysexApi::setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload)
 
     delegate.setSnapshotSlot(projectId, bankNumber, slot);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
-    ;
 }
 
 bool SysexApi::loadPreset(uint8_t port, LocalFile &file)
@@ -256,7 +254,6 @@ void SysexApi::setPresetSlot(uint8_t port, uint8_t bankNumber, uint8_t slot)
     logMessage("SysexApi::setPresetSlot");
     delegate.setPresetSlot(bankNumber, slot);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
-    ;
 }
 
 void SysexApi::updateSnapshot(uint8_t port, MemoryBlock &sysexPayload)
@@ -282,7 +279,6 @@ void SysexApi::updateSnapshot(uint8_t port, MemoryBlock &sysexPayload)
 
     delegate.updateSnapshot(projectId, bankNumber, slot, name, colour);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
-    ;
 }
 
 void SysexApi::removeSnapshot(uint8_t port, MemoryBlock &sysexPayload)
@@ -306,7 +302,6 @@ void SysexApi::removeSnapshot(uint8_t port, MemoryBlock &sysexPayload)
 
     delegate.removeSnapshot(projectId, bankNumber, slot);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
-    ;
 }
 
 void SysexApi::swapSnapshots(uint8_t port, MemoryBlock &sysexPayload)
@@ -331,12 +326,22 @@ void SysexApi::swapSnapshots(uint8_t port, MemoryBlock &sysexPayload)
     delegate.swapSnapshots(
         projectId, sourceBankNumber, sourceSlot, destBankNumber, destSlot);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
-    ;
 }
 
 void SysexApi::setCurrentSnapshotBank(uint8_t port, uint8_t bankNumber)
 {
     delegate.setCurrentSnapshotBank(bankNumber);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
-    ;
+}
+
+void SysexApi::setControlPort(uint8_t port, uint8_t newControlPort)
+{
+    logMessage("setControlPort: new controlPort=%d", newControlPort);
+    delegate.setControlPort(newControlPort);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+}
+
+uint8_t SysexApi::getControlPort(void)
+{
+    return (delegate.getControlPort());
 }

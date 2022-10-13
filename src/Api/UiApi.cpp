@@ -33,7 +33,8 @@ void UiApi::switchPreset(uint8_t bankNumber, uint8_t slot)
 void UiApi::switchPresetBank(uint8_t bankNumber)
 {
     delegate.switchPresetBank(bankNumber);
-    // \todo sendPresetBankSwitched()
+    MidiOutput::sendPresetBankSwitched(
+        MidiInterface::Type::MidiUsbDev, delegate.getControlPort(), bankNumber);
 }
 
 uint8_t UiApi::getCurrentPresetBank(void)
@@ -44,14 +45,15 @@ uint8_t UiApi::getCurrentPresetBank(void)
 void UiApi::switchPage(uint8_t pageId)
 {
     delegate.switchPage(pageId);
-    // \todo sendPageSwicthed()
+    MidiOutput::sendPageSwitched(
+        MidiInterface::Type::MidiUsbDev, delegate.getControlPort(), pageId);
 }
 
 void UiApi::switchSnapshotBank(uint8_t bankNumber)
 {
     delegate.setCurrentSnapshotBank(bankNumber);
     MidiOutput::sendSnapshotBankChanged(
-        MidiInterface::Type::MidiUsbDev, USB_MIDI_PORT_CTRL, bankNumber);
+        MidiInterface::Type::MidiUsbDev, delegate.getControlPort(), bankNumber);
 }
 
 void UiApi::sendAllSnapshotValues(void)
@@ -82,7 +84,7 @@ void UiApi::saveSnapshot(const char *projectId,
 {
     delegate.saveSnapshot(projectId, bankNumber, slot, name, colour);
     MidiOutput::sendSnapshotChanged(MidiInterface::Type::MidiUsbDev,
-                                    USB_MIDI_PORT_CTRL);
+                                    delegate.getControlPort());
 }
 
 void UiApi::removeSnapshot(const char *projectId,
@@ -91,7 +93,7 @@ void UiApi::removeSnapshot(const char *projectId,
 {
     delegate.removeSnapshot(projectId, bankNumber, slot);
     MidiOutput::sendSnapshotChanged(MidiInterface::Type::MidiUsbDev,
-                                    USB_MIDI_PORT_CTRL);
+                                    delegate.getControlPort());
 }
 
 void UiApi::presetSelection_openUsbHostPorts(void)
