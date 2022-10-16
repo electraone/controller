@@ -15,11 +15,11 @@ public:
     virtual void reboot(void) = 0;
 
     // Window state management
-    virtual void switchPage(uint8_t pageId) = 0;
-    virtual void switchPage(uint8_t pageId, uint8_t controlSetId) = 0;
-    virtual void switchPageNext(void) = 0;
-    virtual void switchPagePrev(void) = 0;
-    virtual void setControlSet(uint8_t controlSetId) = 0;
+    virtual bool switchPage(uint8_t pageId) = 0;
+    virtual bool switchPage(uint8_t pageId, uint8_t controlSetId) = 0;
+    virtual bool switchPageNext(void) = 0;
+    virtual bool switchPagePrev(void) = 0;
+    virtual bool switchControlSet(uint8_t controlSetId) = 0;
     virtual void openDetail(uint16_t controlId) = 0;
     virtual void lockDetail(void) = 0;
     virtual void closeDetail(void) = 0;

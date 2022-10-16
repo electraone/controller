@@ -82,7 +82,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
     snapshotJsonFile.print("\"version\":1,");
     snapshotJsonFile.print("\"projectId\":\"");
     snapshotJsonFile.print(projectId);
-    snapshotJsonFile.print("\",\"parameters\":[");
+    snapshotJsonFile.print("\",\"snapshots\":[");
 
     for (uint16_t i = 0; i < dbSnapshot.getNumRecords(); i++) {
         if (dbSnapshot.select(i, DB_RECORD snapRec)) {

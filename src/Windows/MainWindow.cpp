@@ -45,7 +45,7 @@ void MainWindow::onButtonDown(uint8_t buttonId)
         }
     } else {
         if (0 <= buttonId && buttonId <= 2) {
-            setControlSet(buttonId);
+            uiApi.switchControlSet(buttonId);
         } else if (buttonId == 3) {
             System::windowManager.listWindows();
             buttonBroadcaster.listListeners();
@@ -83,47 +83,64 @@ void MainWindow::reboot(void)
 {
     Hardware::reset();
 }
-void MainWindow::switchPage(uint8_t pageId)
+
+bool MainWindow::switchPage(uint8_t pageId)
 {
-    uint8_t controlSet = setup.uiFeatures.resetActiveControlSet
-                             ? preset.pages.at(pageId).getDefaultControlSetId()
-                             : currentControlSetId;
-    switchPage(pageId, controlSet);
+    if (preset.getPage(pageId).getHasObjects()) {
+        uint8_t controlSet =
+            setup.uiFeatures.resetActiveControlSet
+                ? preset.pages.at(pageId).getDefaultControlSetId()
+                : currentControlSetId;
+        return (switchPage(pageId, controlSet));
+    }
+    return (false);
 }
 
-void MainWindow::switchPage(uint8_t pageId, uint8_t controlSetId)
+bool MainWindow::switchPage(uint8_t pageId, uint8_t controlSetId)
 {
     currentPageId = pageId;
     currentControlSetId = controlSetId;
-    displayPage();
-    logMessage("Page switched: page=%d, controlSetId=%d",
-               currentPageId,
-               currentControlSetId);
+
+    if (preset.getPage(pageId).getHasObjects()) {
+        displayPage();
+        logMessage("switchPage: Page switched: page=%d, controlSetId=%d",
+                   currentPageId,
+                   currentControlSetId);
+        return (true);
+    }
+    logMessage("switchPage: Page does not exist: page=%d", pageId);
+    return (false);
 }
 
-void MainWindow::switchPageNext(void)
+bool MainWindow::switchPageNext(void)
 {
     for (uint8_t i = (currentPageId + 1); i < 12; i++) {
         if (preset.getPage(i).getHasObjects()) {
             switchPage(i);
-            break;
+            return (true);
         }
     }
+    return (false);
 }
 
-void MainWindow::switchPagePrev(void)
+bool MainWindow::switchPagePrev(void)
 {
     for (int8_t i = (currentPageId - 1); i > 0; i--) {
         if (preset.getPage(i).getHasObjects()) {
             switchPage(i);
-            break;
+            return (true);
         }
     }
+    return (false);
 }
 
-void MainWindow::setControlSet(uint8_t controlSetId)
+bool MainWindow::switchControlSet(uint8_t controlSetId)
 {
-    pageView->setControlSet(controlSetId);
+    if (0 <= controlSetId && controlSetId <= 2) {
+        pageView->setControlSet(controlSetId);
+        return (true);
+    }
+    return (false);
 }
 
 void MainWindow::openDetail(uint16_t controlId)

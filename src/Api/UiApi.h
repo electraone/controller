@@ -15,7 +15,7 @@ public:
     uint8_t getCurrentPresetBank(void);
 
     void switchPage(uint8_t pageId);
-
+    void switchControlSet(uint8_t controlSetId);
     void switchSnapshotBank(uint8_t newBankNumber);
     void sendAllSnapshotValues(void);
     void loadSnapshot(const char *projectId, uint8_t bankNumber, uint8_t slot);

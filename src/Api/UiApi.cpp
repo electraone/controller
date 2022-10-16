@@ -19,15 +19,10 @@ void UiApi::switchPreset(uint8_t bankNumber, uint8_t slot)
 {
     delegate.switchPreset(bankNumber, slot);
     delegate.closePresetSelection();
-    MidiOutput::sendPresetSwitched(
-        MidiInterface::Type::MidiUsbDev, USB_MIDI_PORT_CTRL, bankNumber, slot);
-
-    // These are a temporary solution to make sure @jhh's Ableton remote script
-    // can catch the preset changes done by the user on the controller.
-    MidiOutput::sendPresetSwitched(
-        MidiInterface::Type::MidiUsbDev, 0, bankNumber, slot);
-    MidiOutput::sendPresetSwitched(
-        MidiInterface::Type::MidiUsbDev, 1, bankNumber, slot);
+    MidiOutput::sendPresetSwitched(MidiInterface::Type::MidiUsbDev,
+                                   delegate.getControlPort(),
+                                   bankNumber,
+                                   slot);
 }
 
 void UiApi::switchPresetBank(uint8_t bankNumber)
@@ -46,7 +41,15 @@ void UiApi::switchPage(uint8_t pageId)
 {
     delegate.switchPage(pageId);
     MidiOutput::sendPageSwitched(
-        MidiInterface::Type::MidiUsbDev, delegate.getControlPort(), pageId);
+        MidiInterface::Type::MidiUsbDev, delegate.getControlPort(), pageId - 1);
+}
+
+void UiApi::switchControlSet(uint8_t controlSetId)
+{
+    delegate.switchControlSet(controlSetId);
+    MidiOutput::sendControlSetSwitched(MidiInterface::Type::MidiUsbDev,
+                                       delegate.getControlPort(),
+                                       controlSetId);
 }
 
 void UiApi::switchSnapshotBank(uint8_t bankNumber)

@@ -25,6 +25,8 @@ private:
     void enableMidiLearn(uint8_t port);
     void disableMidiLearn(uint8_t port);
     void switchPreset(uint8_t port, uint8_t bankNumber, uint8_t slot);
+    void switchPage(uint8_t port, uint8_t pageNumber);
+    void switchControlSet(uint8_t port, uint8_t controlSetId);
     void updateControl(uint8_t port,
                        uint16_t controlId,
                        MemoryBlock &sysexPayload);
@@ -36,6 +38,8 @@ private:
     void setCurrentSnapshotBank(uint8_t port, uint8_t bankNumber);
     void setControlPort(uint8_t port, uint8_t newControlPort);
     uint8_t getControlPort(void);
+
+    void setControlLabel(uint8_t port, const char *newLabel);
 
     MainDelegate &delegate;
 };

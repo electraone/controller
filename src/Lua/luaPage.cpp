@@ -67,7 +67,7 @@ int pages_setActiveControlSet(lua_State *L)
 {
     lua_settop(L, 1);
     int controlSetId = luaLE_checkControlSetId(L, 1);
-    luaDelegate->setControlSet(controlSetId); // freezes E1
+    luaDelegate->switchControlSet(controlSetId); // freezes E1
     return (0);
 }
 

@@ -70,11 +70,11 @@ void PageView::onTouchDown(const TouchEvent &touchEvent)
         auto y = touchEvent.getScreenY();
 
         if (y < 240) {
-            delegate.setControlSet(0);
+            delegate.switchControlSet(0);
         } else if (y > 400) {
-            delegate.setControlSet(2);
+            delegate.switchControlSet(2);
         } else {
-            delegate.setControlSet(1);
+            delegate.switchControlSet(1);
         }
     }
 }

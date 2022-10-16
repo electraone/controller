@@ -36,6 +36,10 @@ void SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
     } else if (cmd.isSwitch()) {
         if (object == ElectraCommand::Object::PresetSlot) {
             switchPreset(port, cmd.getByte1(), cmd.getByte2());
+        } else if (object == ElectraCommand::Object::Page) {
+            switchPage(port, cmd.getByte1());
+        } else if (object == ElectraCommand::Object::ControlSet) {
+            switchControlSet(port, cmd.getByte1());
         }
     } else if (cmd.isUpdateRuntime()) {
         if (object == ElectraCommand::Object::Control) {
@@ -47,6 +51,8 @@ void SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
             setPresetSlot(port, cmd.getByte1(), cmd.getByte2());
         } else if (object == ElectraCommand::Object::ControlPort) {
             setControlPort(port, cmd.getByte1());
+        } else if (object == ElectraCommand::Object::Value) {
+            setControlLabel(port, "value");
         }
     } else if (cmd.isUpdate()) {
         if (object == ElectraCommand::Object::SnapshotInfo) {
@@ -164,6 +170,32 @@ void SysexApi::switchPreset(uint8_t port, uint8_t bankNumber, uint8_t slot)
     MidiOutput::sendPresetSwitched(
         MidiInterface::Type::MidiUsbDev, port, bankNumber, slot);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+}
+
+void SysexApi::switchPage(uint8_t port, uint8_t pageNumber)
+{
+    logMessage("SysexApi::switchPreset: port=%d, page=%d", port, pageNumber);
+    if (delegate.switchPage(pageNumber + 1)) {
+        MidiOutput::sendPageSwitched(
+            MidiInterface::Type::MidiUsbDev, port, pageNumber);
+        MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    } else {
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
+    }
+}
+
+void SysexApi::switchControlSet(uint8_t port, uint8_t controlSetId)
+{
+    logMessage("SysexApi::switchControlSet: port=%d, controlSetId=%d",
+               port,
+               controlSetId);
+    if (delegate.switchControlSet(controlSetId)) {
+        MidiOutput::sendControlSetSwitched(
+            MidiInterface::Type::MidiUsbDev, port, controlSetId);
+        MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    } else {
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
+    }
 }
 
 void SysexApi::updateControl(uint8_t port,
@@ -344,4 +376,9 @@ void SysexApi::setControlPort(uint8_t port, uint8_t newControlPort)
 uint8_t SysexApi::getControlPort(void)
 {
     return (delegate.getControlPort());
+}
+
+void SysexApi::setControlLabel(uint8_t port, const char *newLabel)
+{
+    logMessage("setting a new label: %s", newLabel);
 }

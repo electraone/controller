@@ -29,11 +29,11 @@ public:
     void reboot(void) override;
 
     // Actions
-    void switchPage(uint8_t pageId) override;
-    void switchPage(uint8_t pageId, uint8_t controlSetId) override;
-    void switchPageNext(void) override;
-    void switchPagePrev(void) override;
-    void setControlSet(uint8_t controlSetId) override;
+    bool switchPage(uint8_t pageId) override;
+    bool switchPage(uint8_t pageId, uint8_t controlSetId) override;
+    bool switchPageNext(void) override;
+    bool switchPagePrev(void) override;
+    bool switchControlSet(uint8_t controlSetId) override;
     void openDetail(uint16_t controlId) override;
     void lockDetail(void) override;
     void closeDetail(void) override;
