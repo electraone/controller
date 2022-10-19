@@ -101,15 +101,12 @@ bool MainWindow::switchPage(uint8_t pageId, uint8_t controlSetId)
     currentPageId = pageId;
     currentControlSetId = controlSetId;
 
-    if (preset.getPage(pageId).getHasObjects()) {
-        displayPage();
-        logMessage("switchPage: Page switched: page=%d, controlSetId=%d",
-                   currentPageId,
-                   currentControlSetId);
-        return (true);
-    }
-    logMessage("switchPage: Page does not exist: page=%d", pageId);
-    return (false);
+    logMessage("switchPage: Page switched: page=%d, controlSetId=%d",
+               currentPageId,
+               currentControlSetId);
+
+    displayPage();
+    return (true);
 }
 
 bool MainWindow::switchPageNext(void)
