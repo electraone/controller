@@ -52,6 +52,8 @@ void Controller::initialise(void)
     // load the default preset
     if (System::context.getLoadDefaultFiles()) {
         delegate.switchPreset(presetId / 12, presetId % 12);
+    } else {
+        delegate.switchPage(1, 0);
     }
 
     // Log free RAM (after the preset is loaded and the default page displayed)
