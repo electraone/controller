@@ -135,6 +135,7 @@ bool MainWindow::switchControlSet(uint8_t controlSetId)
 {
     if (0 <= controlSetId && controlSetId <= 2) {
         pageView->setControlSet(controlSetId);
+        currentControlSetId = controlSetId;
         return (true);
     }
     return (false);
