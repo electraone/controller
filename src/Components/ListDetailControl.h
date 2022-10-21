@@ -139,7 +139,7 @@ private:
         g.setColour(Colours565::black);
         g.fillRect(0, 0, listItemWidth, virtualWindowHeight);
 
-        for (uint8_t i = firstItem; i < numItems; i++) {
+        for (uint16_t i = firstItem; i < numItems; i++) {
             if (j > maxItemsInViewport) {
                 break;
             }
