@@ -1194,14 +1194,16 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
             defaultValue = min;
         }
     } else {
-        if (defaultValueText) {
+        if (controlType == Control::Type::Pad && defaultValueText) {
             if (strcmp(defaultValueText, "on") == 0) {
                 defaultValue = message.getOnValue();
             } else {
                 defaultValue = message.getOffValue();
             }
         } else {
-            defaultValue = message.getOffValue();
+            if (controlType == Control::Type::Pad) {
+                defaultValue = message.getOffValue();
+            }
         }
     }
 
