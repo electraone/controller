@@ -12,10 +12,12 @@ void MidiLearn::process(const MidiInput &midiInput,
 
     Device midiLearnDevice(MidiLearnDeviceId, "ml", midiPort, midiChannel, 0);
 
+#ifdef DEBUG
     logMessage(
         "ElectraMidi::processMidiLearn: getting a device: port=%d, channel=%d",
         midiPort,
         midiChannel);
+#endif
 
     if (midiType == MidiMessage::Type::ControlChange) {
         uint8_t midiParameterId = midiMessage.getData1();

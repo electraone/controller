@@ -103,15 +103,19 @@ bool RpnDetector::DeviceState::sendIfReady(int deviceId, MidiRpnMessage &result)
             result.isNrpn = isNrpn;
 
             if (valueLSB < 0x80) {
+#ifdef DEBUG
                 logMessage("value 14bit (valueMsb=%d, valueLsb=%d)",
                            valueMSB,
                            valueLSB);
+#endif
                 result.value = (valueMSB << 7) + valueLSB;
                 result.is14BitValue = true;
             } else {
+#ifdef DEBUG
                 logMessage("value 7bit (valueMsb=%d, valueLsb=%d)",
                            valueMSB,
                            valueLSB);
+#endif
                 result.value = valueMSB;
                 result.is14BitValue = false;
             }
