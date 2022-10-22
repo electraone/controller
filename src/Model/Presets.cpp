@@ -46,7 +46,7 @@ void Presets::sendList(uint8_t port)
     bool firstRecord = true;
     char buf[256]; // TODO: fix buffer overflow issue
 
-    presetListFile.print("[");
+    presetListFile.print("{\"version\":1,\"presets\":[");
 
     for (uint8_t i = 0; i < 72; i++) {
         char filename[MAX_FILENAME_LENGTH + 1];
@@ -83,7 +83,7 @@ void Presets::sendList(uint8_t port)
         }
     }
 
-    presetListFile.print("]");
+    presetListFile.print("]}");
     presetListFile.close();
 
     MidiOutput::sendSysExFile(
