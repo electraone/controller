@@ -16,6 +16,7 @@ public:
           maxItemsInViewport(7),
           itemTop(offsetY / listItemHeight)
     {
+        determineOffsetY();
         assignPot(control.inputs[0].getPotId(),
                   control.values[0].getNumSteps());
     }
@@ -120,7 +121,6 @@ private:
     void paintListItems(Graphics &g, int16_t offset)
     {
         auto overlay = getList();
-
         uint16_t firstItem = offset / listItemHeight;
         uint16_t j = 0;
         uint16_t numItems = overlay->getNumItems();
@@ -167,7 +167,7 @@ private:
             }
 
             if (index == i) {
-                g.setColour(control.getColour565());
+                g.setColour(Colours565::white);
                 g.drawRect(0, j * listItemHeight + 0, listItemWidth, 60);
                 g.drawRect(1, j * listItemHeight + 1, listItemWidth - 2, 58);
             }
