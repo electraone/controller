@@ -204,9 +204,6 @@ void PageView::configureGroup(GroupControl *g, const Group &group)
 void PageView::configureControl(ControlComponent *cc, const Control &control)
 {
     if (control.getControlSetId() == controlSetId) {
-        cc->releasePot();
-        cc->assignPot(control.inputs[0].getPotId(),
-                      control.values[0].getNumSteps());
         if (uiFeatures.activeControlSetType == ActiveControlSetType::dim) {
             cc->setDimmed(false);
         } else if (uiFeatures.activeControlSetType
@@ -214,12 +211,19 @@ void PageView::configureControl(ControlComponent *cc, const Control &control)
             cc->setUseAltBackground(true);
         }
     } else {
-        cc->releasePot();
         if (uiFeatures.activeControlSetType == ActiveControlSetType::dim) {
             cc->setDimmed(true);
         } else if (uiFeatures.activeControlSetType
                    == ActiveControlSetType::background) {
             cc->setUseAltBackground(false);
         }
+    }
+
+    if (control.isVisible() && control.getControlSetId() == controlSetId) {
+        cc->releasePot();
+        cc->assignPot(control.inputs[0].getPotId(),
+                      control.values[0].getNumSteps());
+    } else {
+        cc->releasePot();
     }
 }
