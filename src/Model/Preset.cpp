@@ -25,9 +25,9 @@ bool Preset::load(const char *filename)
     File file;
     valid = false; // invalidate the preset
 
-#ifdef DEBUG
+    //#ifdef DEBUG
     logMessage("Preset::load: file: filename=%s", filename);
-#endif /* DEBUG */
+    //#endif /* DEBUG */
 
     file = Hardware::sdcard.createInputStream(filename);
 
@@ -261,54 +261,54 @@ const Control &Preset::getControl(uint16_t controlId) const
  */
 bool Preset::parse(File &file)
 {
+    logMessage("1");
     if (!parseRoot(file)) {
         logMessage("Preset::parse: parseName failed");
         reset();
         return (false);
     }
-
+    logMessage("2");
     if (version != 2) {
         logMessage("Preset::parse: incorrect preset version number: version=%d",
                    version);
         reset();
         return (false);
     }
-
+    logMessage("3");
     if (!parsePages(file)) {
         logMessage("Preset::parse: parsePages failed");
         reset();
         return (false);
     }
-
+    logMessage("4");
     if (!parseDevices(file)) {
         logMessage("Preset::parse: parseDevices failed");
         reset();
         return (false);
     }
-
+    logMessage("5");
     if (!parseOverlays(file)) {
         logMessage("Preset::parse: parseOverlays failed");
         reset();
         return (false);
     }
-
+    logMessage("6");
     if (!parseGroups(file)) {
         logMessage("Preset::parse: parseGroups failed");
         reset();
         return (false);
     }
-
+    logMessage("7");
     if (!parseControls(file)) {
         logMessage("Preset::parse: parseControls failed");
         reset();
         return (false);
     }
-
-#ifdef DEBUG
+    //#ifdef DEBUG
     logMessage("Preset::parse: successfully parsed preset: name=%s, version=%d",
                name,
                version);
-#endif /* DEBUG */
+    //#endif /* DEBUG */
 
     return (true);
 }
@@ -627,7 +627,9 @@ bool Preset::parseControls(File &file)
     filter["bounds"] = true;
 
     do {
+        logMessage(".");
         uint32_t controlStartPosition = file.position();
+        logMessage("p: %d", controlStartPosition);
         auto err =
             deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
@@ -656,6 +658,7 @@ bool Preset::parseControls(File &file)
                                                      controlEndPosition,
                                                      control.getType());
             pages[controls[controlId].getPageId()].setHasObjects(true);
+
         } else {
             break;
         }
@@ -976,7 +979,7 @@ Control Preset::parseControl(JsonObject jControl)
         && (controlMode == Control::Mode::Default)) {
         controlMode = Control::Mode::Bipolar;
     }
-
+    logMessage("name=%s", name);
     return (Control(id,
                     pageId,
                     name,
@@ -1082,8 +1085,8 @@ std::vector<ControlValue> Preset::parseValues(File &file,
     if (findElement(file, "\"values\"", ARRAY, endPosition)) {
         do {
             size_t valueStartPosition = file.position();
-
             ControlValue value = parseValue(file, valueStartPosition, control);
+            logMessage("v");
             values[value.getIndex()] = value;
         } while (file.findUntil(",", "]"));
     }

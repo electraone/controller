@@ -141,4 +141,6 @@ public:
     virtual const char *getCurrentProjectId(void) const = 0;
     virtual bool isDetailLocked(void) const = 0;
     virtual bool isDetailOnTheLeft(void) const = 0;
+
+    virtual void initialiseEmpty(void) = 0;
 };

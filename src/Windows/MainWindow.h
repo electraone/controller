@@ -152,6 +152,8 @@ public:
     bool isDetailLocked(void) const override;
     bool isDetailOnTheLeft(void) const override;
 
+    void initialiseEmpty(void) override;
+
 private:
     void showDetailOfActivePotTouch(void);
     void showActiveHandle(Component *component, bool shouldBeShown);
