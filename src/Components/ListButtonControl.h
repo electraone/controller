@@ -13,7 +13,6 @@ public:
         : ControlComponent(control, newDelegate),
           List(control.values[0].getOverlay())
     {
-        setColour(control.getColour565());
         updateValueFromParameterMap();
         enableEncoderMode(true);
     }
@@ -86,7 +85,7 @@ public:
         g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
                                         : LookAndFeel::backgroundColour);
         LookAndFeel::paintButtonList(
-            g, bounds, colour, getList(), index, getActive());
+            g, bounds, control.getColour565(), getList(), index, getActive());
         ControlComponent::paint(g);
     }
 

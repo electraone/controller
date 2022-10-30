@@ -12,7 +12,6 @@ public:
     {
         setMinimum(control.values[0].getMin());
         setMaximum(control.values[0].getMax());
-        setColour(control.getColour565());
     }
 
     virtual ~DialControl() = default;
@@ -64,6 +63,7 @@ public:
 
     void paint(Graphics &g) override
     {
+        colour = control.getColour565();
         Knob::paint(g);
     }
 

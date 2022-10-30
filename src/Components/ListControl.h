@@ -13,7 +13,6 @@ public:
         : ControlComponent(control, newDelegate),
           List(control.values[0].getOverlay())
     {
-        setColour(control.getColour565());
         updateValueFromParameterMap();
         enableEncoderMode(true);
     }
@@ -75,7 +74,8 @@ public:
         listBounds.setHeight(listBounds.getHeight() / 2);
         g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
                                         : LookAndFeel::backgroundColour);
-        LookAndFeel::paintList(g, listBounds, colour, getList(), index);
+        LookAndFeel::paintList(
+            g, listBounds, control.getColour565(), getList(), index);
         g.printText(0,
                     getHeight() - 20,
                     getName(),

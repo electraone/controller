@@ -86,12 +86,11 @@ public:
 
     void paint(Graphics &g) override
     {
-        colour = control.getColour565();
         Rectangle sliderBounds = getBounds();
 
         paintFader(g,
                    sliderBounds,
-                   colour,
+                   control.getColour565(),
                    value.getMin(),
                    value.getMax(),
                    value.get(),

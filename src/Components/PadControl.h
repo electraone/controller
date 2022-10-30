@@ -10,7 +10,6 @@ public:
     PadControl(const Control &control, MainDelegate &newDelegate)
         : ControlComponent(control, newDelegate)
     {
-        setColour(control.getColour565());
         updateValueFromParameterMap();
     }
 
@@ -127,13 +126,10 @@ public:
         bounds.setY(3);
         bounds.setWidth(getWidth());
         bounds.setHeight(getHeight() - 6);
-        LookAndFeel::paintPad(g, bounds, colour, isMomentary, getState());
+        LookAndFeel::paintPad(
+            g, bounds, control.getColour565(), isMomentary, getState());
 
-        if (isMomentary) {
-            g.setColour(Colours565::white);
-        } else {
-            g.setColour(getState() ? Colours565::white : Colours565::black);
-        }
+        g.setColour(Colours565::white);
         g.print(0,
                 getHeight() / 2 - 10,
                 getName(),

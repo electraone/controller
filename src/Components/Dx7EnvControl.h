@@ -28,8 +28,6 @@ public:
         values[Env5Seg::rate4].setMax(control.values[7].getMax());
 
         setActiveSegment(control.inputs[0].getValueId());
-
-        setColour(control.getColour565());
         updateValueFromParameterMap();
     }
 
@@ -108,7 +106,7 @@ public:
                                         : LookAndFeel::backgroundColour);
         LookAndFeel::paintEnvelope(g,
                                    envBounds,
-                                   colour,
+                                   control.getColour565(),
                                    baselineY,
                                    points,
                                    activeSegment,

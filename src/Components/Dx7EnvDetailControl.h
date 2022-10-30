@@ -37,6 +37,6 @@ public:
         computePoints(envBounds);
         g.fillAll(LookAndFeel::backgroundColour);
         LookAndFeel::paintEnvelope(
-            g, envBounds, colour, baselineY, points, 0, false);
+            g, envBounds, control.getColour565(), baselineY, points, 0, false);
     }
 };

@@ -35,7 +35,7 @@ public:
     {
         g.fillAll(useAltBackground ? LookAndFeel::altBackgroundColour
                                    : LookAndFeel::backgroundColour);
-        setColour(group.getColour());
+        colour = group.getColour565();
         Set::paint(g);
     }
 

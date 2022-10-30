@@ -12,7 +12,6 @@ public:
     {
         setMinimum(control.values[0].getMin());
         setMaximum(control.values[0].getMax());
-        setColour(control.getColour565());
     }
 
     virtual ~KnobControl() = default;
@@ -65,7 +64,7 @@ public:
     void paint(Graphics &g) override
     {
         Rectangle knobBounds = getBounds();
-
+        colour = control.getColour565();
         Knob::paint(g);
 
         char stringValue[10];

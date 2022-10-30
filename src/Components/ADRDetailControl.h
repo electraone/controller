@@ -38,7 +38,7 @@ public:
         g.fillAll(LookAndFeel::backgroundColour);
         LookAndFeel::paintEnvelope(g,
                                    envBounds,
-                                   colour,
+                                   control.getColour565(),
                                    baselineY,
                                    points,
                                    activeSegment,
