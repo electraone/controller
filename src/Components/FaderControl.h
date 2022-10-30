@@ -205,8 +205,12 @@ private:
     {
         uint16_t labelYPosition = 0;
 
-        // Print the label text if exists
-        if (items && !items->getByValue(val).isLabelEmpty()) {
+        // Print the label text / Bitmap if exists
+        if (items && !items->getByValue(val).isBitmapEmpty()) {
+            uint16_t paddingBitmap =
+                ((bounds.getWidth() - BITMAP_WIDTH)) / 2 - 1;
+            items->getByIndex(val).paintBitmap(paddingBitmap, 0, colour);
+        } else if (items && !items->getByValue(val).isLabelEmpty()) {
             g.setColour(Colours565::white);
             g.printText(0,
                         0,
