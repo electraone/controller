@@ -62,6 +62,7 @@ private:
     SnapsButton *snapsButton[36];
 
     static constexpr uint8_t topPadding = 50;
-    static constexpr uint16_t defaultColours[] = { 0x4BC5, 0xF2EA, 0xF4A0,
-                                                   0x54FD, 0x0533, 0xC232 };
+    static constexpr uint32_t defaultColours[] = {
+        0x271b4f, 0x7a2e29, 0x7a4b00, 0x294f76, 0x02534c, 0x62244b
+    };
 };

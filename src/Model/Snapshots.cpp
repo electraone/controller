@@ -96,6 +96,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
                 snapRec.colour & 0xffffff);
             snapshotJsonFile.write(buf, strlen(buf));
             firstRecord = false;
+            logMessage("color: %06X", snapRec.colour);
         }
     }
 
@@ -169,6 +170,7 @@ void Snapshots::saveSnapshot(const char *projectId,
                              const char *newName,
                              uint32_t newColour)
 {
+    logMessage("newColor: %06X", newColour);
     char filename[MAX_FILENAME_LENGTH + 1];
     createSnapshotFilename(filename, projectId, bankNumber, slot);
     parameterMap.save(filename);
