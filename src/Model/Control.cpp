@@ -376,7 +376,7 @@ void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 
 void Control::print(void) const
 {
-    if (isValid()) {
+    if (true) {
         logMessage("address: %x", this);
         logMessage("id: %d", getId());
         logMessage("type: %d", getType());

@@ -122,7 +122,7 @@ int luaLE_checkControlId(lua_State *L, int idx)
 {
     int controlId = luaL_checkinteger(L, idx);
 
-    if ((controlId < 1) || (controlId > 432)) {
+    if ((controlId < 1) || (controlId > 864)) {
         return (luaL_error(L, "invalid controlId: %d", controlId));
     }
     return (controlId);
@@ -162,7 +162,7 @@ int luaLE_checkGroupId(lua_State *L, int idx)
 {
     int groupId = luaL_checkinteger(L, idx);
 
-    if ((groupId < 1) || (groupId > 120)) {
+    if ((groupId < 1) || (groupId > 864)) {
         return (luaL_error(L, "invalid groupId: %d", groupId));
     }
     return (groupId);

@@ -199,7 +199,7 @@ Overlay *Preset::getOverlay(uint8_t overlayId)
 /** Get group by the Id
  *
  */
-Group &Preset::getGroup(uint8_t groupId)
+Group &Preset::getGroup(uint16_t groupId)
 {
     try {
         return groups.at(groupId);
@@ -213,7 +213,7 @@ Group &Preset::getGroup(uint8_t groupId)
 /** Get const group by the Id
  *
  */
-const Group &Preset::getGroup(uint8_t groupId) const
+const Group &Preset::getGroup(uint16_t groupId) const
 {
     try {
         return groups.at(groupId);
@@ -261,44 +261,37 @@ const Control &Preset::getControl(uint16_t controlId) const
  */
 bool Preset::parse(File &file)
 {
-    logMessage("1");
     if (!parseRoot(file)) {
         logMessage("Preset::parse: parseName failed");
         reset();
         return (false);
     }
-    logMessage("2");
     if (version != 2) {
         logMessage("Preset::parse: incorrect preset version number: version=%d",
                    version);
         reset();
         return (false);
     }
-    logMessage("3");
     if (!parsePages(file)) {
         logMessage("Preset::parse: parsePages failed");
         reset();
         return (false);
     }
-    logMessage("4");
     if (!parseDevices(file)) {
         logMessage("Preset::parse: parseDevices failed");
         reset();
         return (false);
     }
-    logMessage("5");
     if (!parseOverlays(file)) {
         logMessage("Preset::parse: parseOverlays failed");
         reset();
         return (false);
     }
-    logMessage("6");
     if (!parseGroups(file)) {
         logMessage("Preset::parse: parseGroups failed");
         reset();
         return (false);
     }
-    logMessage("7");
     if (!parseControls(file)) {
         logMessage("Preset::parse: parseControls failed");
         reset();
@@ -564,7 +557,6 @@ bool Preset::parseGroups(File &file)
         return (true);
     }
 
-    uint8_t groupId = 1;
     StaticJsonDocument<256> doc;
 
     do {
@@ -579,13 +571,12 @@ bool Preset::parseGroups(File &file)
         JsonObject jGroup = doc.as<JsonObject>();
 
         if (jGroup) {
-            Group group = parseGroup(jGroup, groupId);
+            Group group = parseGroup(jGroup);
             groups[group.getId()] = group;
+            group.print();
         } else {
             break;
         }
-
-        groupId++;
     } while (file.findUntil(",", "]"));
 
     return (true);
@@ -627,9 +618,7 @@ bool Preset::parseControls(File &file)
     filter["bounds"] = true;
 
     do {
-        logMessage(".");
         uint32_t controlStartPosition = file.position();
-        logMessage("p: %d", controlStartPosition);
         auto err =
             deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
@@ -658,7 +647,8 @@ bool Preset::parseControls(File &file)
                                                      controlEndPosition,
                                                      control.getType());
             pages[controls[controlId].getPageId()].setHasObjects(true);
-
+            logMessage("------");
+control.print();
         } else {
             break;
         }
@@ -943,15 +933,15 @@ bool Preset::parseOverlayItems(File &file, Overlay &overlay)
  * This is here for backwards compatibility.
  *
  */
-Group Preset::parseGroup(JsonObject jGroup, uint8_t defaultGroupId)
+Group Preset::parseGroup(JsonObject jGroup)
 {
-    uint8_t groupId = jGroup["id"] | defaultGroupId;
+    uint16_t groupId = jGroup["id"];
     uint8_t pageId = constrainPageId(jGroup["pageId"]);
     Rectangle bounds = parseBounds(jGroup["bounds"]);
     const char *name = jGroup["name"];
     uint32_t colour =
         Colours565::fromString(jGroup["color"].as<const char *>());
-
+logMessage("GroupId: %d", groupId);
     return (Group(groupId, pageId, bounds, name, colour));
 }
 
@@ -979,7 +969,6 @@ Control Preset::parseControl(JsonObject jControl)
         && (controlMode == Control::Mode::Default)) {
         controlMode = Control::Mode::Bipolar;
     }
-    logMessage("name=%s", name);
     return (Control(id,
                     pageId,
                     name,
@@ -1086,7 +1075,6 @@ std::vector<ControlValue> Preset::parseValues(File &file,
         do {
             size_t valueStartPosition = file.position();
             ControlValue value = parseValue(file, valueStartPosition, control);
-            logMessage("v");
             values[value.getIndex()] = value;
         } while (file.findUntil(",", "]"));
     }

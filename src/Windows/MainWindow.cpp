@@ -733,7 +733,7 @@ void MainWindow::removeComponentFromControl(uint16_t controlId)
     assignComponentToControl(controlId, nullptr);
 }
 
-void MainWindow::assignComponentToGroup(uint8_t groupId, Component *component)
+void MainWindow::assignComponentToGroup(uint16_t groupId, Component *component)
 {
 #ifdef DEBUG
     if (component) {
@@ -745,7 +745,7 @@ void MainWindow::assignComponentToGroup(uint8_t groupId, Component *component)
     preset.getGroup(groupId).setComponent(component);
 }
 
-void MainWindow::removeComponentFromGroup(uint8_t groupId)
+void MainWindow::removeComponentFromGroup(uint16_t groupId)
 {
     assignComponentToGroup(groupId, nullptr);
 }

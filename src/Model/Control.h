@@ -94,7 +94,7 @@ private:
     static const int MaxNameLength = 15;
 
     struct {
-        uint16_t id : 9;
+        uint16_t id : 10;
         uint8_t pageId : 4;
         uint8_t type : 4;
         uint8_t mode : 3;

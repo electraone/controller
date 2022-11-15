@@ -116,9 +116,9 @@ public:
     virtual void assignComponentToControl(uint16_t controlId,
                                           Component *component) = 0;
     virtual void removeComponentFromControl(uint16_t controlId) = 0;
-    virtual void assignComponentToGroup(uint8_t groupId,
+    virtual void assignComponentToGroup(uint16_t groupId,
                                         Component *component) = 0;
-    virtual void removeComponentFromGroup(uint8_t groupId) = 0;
+    virtual void removeComponentFromGroup(uint16_t groupId) = 0;
 
     // Control management actions
     virtual void setActivePotTouch(uint8_t potId, Component *component) = 0;

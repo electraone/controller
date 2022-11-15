@@ -36,8 +36,8 @@ public:
     const Device &getDevice(uint8_t deviceId) const;
     const Device &getDevice(uint8_t port, uint8_t channel) const;
     Overlay *getOverlay(uint8_t overlayId);
-    Group &getGroup(uint8_t groupId);
-    const Group &getGroup(uint8_t groupId) const;
+    Group &getGroup(uint16_t groupId);
+    const Group &getGroup(uint16_t groupId) const;
     Control &getControl(uint16_t controlId);
     const Control &getControl(uint16_t controlId) const;
     static void
@@ -96,7 +96,7 @@ private:
     bool parseOverlayItems(File &file, Overlay &overlay);
 
     // Groups
-    Group parseGroup(JsonObject jGroup, uint8_t groupId);
+    Group parseGroup(JsonObject jGroup);
 
     // Controls
     Control parseControl(JsonObject jControl);

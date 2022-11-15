@@ -208,7 +208,7 @@ int group_setSlot(lua_State *L)
     if (group) {
         luaDelegate->setGroupSlot(group->getId(), slot, width, height);
     } else {
-        return (luaL_error(L, "failed: not a valid control"));
+        return (luaL_error(L, "failed: not a valid group"));
     }
     return (0);
 }

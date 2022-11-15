@@ -20,7 +20,7 @@ public:
         setLabel(nullptr);
     }
 
-    Group(uint8_t newId,
+    Group(uint16_t newId,
           uint8_t newPageId,
           const Rectangle &newBounds,
           const char *newLabel,
@@ -42,12 +42,12 @@ public:
         return (id != 0);
     }
 
-    void setId(uint8_t newId)
+    void setId(uint16_t newId)
     {
         id = newId;
     }
 
-    uint8_t getId(void) const
+    uint16_t getId(void) const
     {
         return (id);
     }
@@ -138,7 +138,7 @@ public:
 
 private:
     struct {
-        uint16_t id : 9;
+        uint16_t id : 10;
         uint8_t pageId : 4;
         uint8_t visible : 1;
         uint32_t colour : 24;
@@ -150,4 +150,4 @@ private:
     Component *component;
 };
 
-typedef std::map<uint8_t, Group> Groups;
+typedef std::map<uint16_t, Group> Groups;
