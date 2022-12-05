@@ -47,8 +47,6 @@ void MainWindow::onButtonDown(uint8_t buttonId)
         if (0 <= buttonId && buttonId <= 2) {
             uiApi.switchControlSet(buttonId);
         } else if (buttonId == 3) {
-            System::windowManager.listWindows();
-            buttonBroadcaster.listListeners();
             requestAllPatches();
         } else if (buttonId == 4) {
             openSnapshots();

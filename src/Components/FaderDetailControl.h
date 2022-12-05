@@ -41,7 +41,8 @@ public:
                                         ? LookAndFeel::altBackgroundColour
                                         : LookAndFeel::backgroundColour;
 
-        uint16_t barHeight = bounds.getHeight();;
+        uint16_t barHeight = bounds.getHeight();
+        ;
         uint16_t padding = 0;
         uint16_t barX = 0;
 

@@ -490,7 +490,9 @@ bool Preset::parseOverlays(File &file)
     }
 
     if (isElementEmpty(file)) {
+#ifdef DEBUG
         logMessage("Preset::parseOverlays: no overlays defined");
+#endif
         return (true);
     }
 
@@ -553,7 +555,9 @@ bool Preset::parseGroups(File &file)
     }
 
     if (isElementEmpty(file)) {
+#ifdef DEBUG
         logMessage("Preset::parseGroups: no groups defined");
+#endif
         return (true);
     }
 
@@ -647,8 +651,6 @@ bool Preset::parseControls(File &file)
                                                      controlEndPosition,
                                                      control.getType());
             pages[controls[controlId].getPageId()].setHasObjects(true);
-            logMessage("------");
-control.print();
         } else {
             break;
         }
@@ -817,7 +819,9 @@ void Preset::parseResponses(File &file,
             response.headers = parseResponseHeader(doc["header"]);
 
 #ifdef DEBUG
-            logMessage("parseResponses: id=%d", response.id);
+            logMessage("parseResponses: id=%d, length=%d",
+                       response.getId(),
+                       response.headers.size());
 #endif /* DEBUG */
 
             response.rules =
@@ -941,7 +945,7 @@ Group Preset::parseGroup(JsonObject jGroup)
     const char *name = jGroup["name"];
     uint32_t colour =
         Colours565::fromString(jGroup["color"].as<const char *>());
-logMessage("GroupId: %d", groupId);
+    logMessage("GroupId: %d", groupId);
     return (Group(groupId, pageId, bounds, name, colour));
 }
 
@@ -1362,14 +1366,16 @@ std::vector<Rule>
         logMessage("Preset::parseRules: cannot rewind to the end position");
         return (rules);
     }
-
     if (findElement(file, "\"rules\"", ARRAY, endPosition)) {
-        do {
-            size_t valueStartPosition = file.position();
-            rules.push_back(parseRule(file, valueStartPosition));
-        } while (file.findUntil(",", "]"));
+        if (!isElementEmpty(file)) {
+            do {
+                size_t valueStartPosition = file.position();
+                rules.push_back(parseRule(file, valueStartPosition));
+            } while (file.findUntil(",", "]"));
+        } else {
+            file.seek(file.position() + 1);
+        }
     }
-
     return (rules);
 }
 
@@ -1391,6 +1397,7 @@ Rule Preset::parseRule(File &file, size_t startPosition)
     if (err) {
         logMessage("Preset::parseRule: deserializeJson() failed: %s",
                    err.c_str());
+        file.seek(startPosition + 2);
         return (Rule());
     }
 

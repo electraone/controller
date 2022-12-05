@@ -129,7 +129,8 @@ public:
     void assignComponentToControl(uint16_t controlId,
                                   Component *component) override;
     void removeComponentFromControl(uint16_t controlId) override;
-    void assignComponentToGroup(uint16_t groupId, Component *component) override;
+    void assignComponentToGroup(uint16_t groupId,
+                                Component *component) override;
     void removeComponentFromGroup(uint16_t groupId) override;
 
     void setDefaultValue(uint16_t controlId, uint8_t handle) override;
