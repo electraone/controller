@@ -59,7 +59,7 @@ int pages_display(lua_State *L)
         controlSetId = luaLE_checkControlSetId(L, 2);
     }
 
-    luaDelegate->switchPage(pageId, controlSetId); // freezes E1
+    luaDelegate->switchPage(pageId, controlSetId);
     return (0);
 }
 
@@ -67,14 +67,15 @@ int pages_setActiveControlSet(lua_State *L)
 {
     lua_settop(L, 1);
     int controlSetId = luaLE_checkControlSetId(L, 1);
-    luaDelegate->switchControlSet(controlSetId); // freezes E1
+    controlSetId--;
+    luaDelegate->switchControlSet(controlSetId);
     return (0);
 }
 
 int pages_getActiveControlSet(lua_State *L)
 {
     lua_settop(L, 0);
-    lua_pushinteger(L, luaDelegate->getCurrentControlSetId());
+    lua_pushinteger(L, luaDelegate->getCurrentControlSetId() + 1);
 
     return (1);
 }
