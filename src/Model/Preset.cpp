@@ -295,14 +295,12 @@ bool Preset::parse(File &file)
     if (!parseControls(file)) {
         logMessage("Preset::parse: parseControls failed");
         reset();
-        return (false);
     }
     //#ifdef DEBUG
     logMessage("Preset::parse: successfully parsed preset: name=%s, version=%d",
                name,
                version);
     //#endif /* DEBUG */
-
     return (true);
 }
 
@@ -527,10 +525,6 @@ bool Preset::parseOverlays(File &file)
                     "Preset::parseOverlays: parsing of overlay items has failed");
                 return (false);
             }
-
-#ifdef DEBUG
-            overlays[id].print();
-#endif
         } else {
             break;
         }
@@ -577,7 +571,6 @@ bool Preset::parseGroups(File &file)
         if (jGroup) {
             Group group = parseGroup(jGroup);
             groups[group.getId()] = group;
-            group.print();
         } else {
             break;
         }
@@ -641,7 +634,6 @@ bool Preset::parseControls(File &file)
 
             uint16_t controlId = control.getId();
             controls[controlId] = control;
-
             controls[controlId].values = parseValues(file,
                                                      controlStartPosition,
                                                      controlEndPosition,
@@ -652,6 +644,7 @@ bool Preset::parseControls(File &file)
                                                      control.getType());
             pages[controls[controlId].getPageId()].setHasObjects(true);
         } else {
+            logMessage("parseControls: broken control");
             break;
         }
 
@@ -945,7 +938,6 @@ Group Preset::parseGroup(JsonObject jGroup)
     const char *name = jGroup["name"];
     uint32_t colour =
         Colours565::fromString(jGroup["color"].as<const char *>());
-    logMessage("GroupId: %d", groupId);
     return (Group(groupId, pageId, bounds, name, colour));
 }
 
@@ -1001,15 +993,14 @@ std::vector<Input> Preset::parseInputs(File &file,
         logMessage("Preset::parseInputs: cannot rewind the start position");
         return (inputs);
     }
-
     if (findElement(file, "\"inputs\"", ARRAY, endPosition)) {
         do {
             size_t valueStartPosition = file.position();
 
-            inputs.push_back(parseInput(file, valueStartPosition, controlType));
+            auto input = parseInput(file, valueStartPosition, controlType);
+            inputs.push_back(input);
         } while (file.findUntil(",", "]"));
     }
-
     return (inputs);
 }
 
@@ -1074,7 +1065,6 @@ std::vector<ControlValue> Preset::parseValues(File &file,
         logMessage("Preset::parseValues: cannot rewind the start position");
         return (values);
     }
-
     if (findElement(file, "\"values\"", ARRAY, endPosition)) {
         do {
             size_t valueStartPosition = file.position();
@@ -1112,7 +1102,6 @@ ControlValue
     if (file.seek(valueEndPosition) == false) {
         logMessage("Preset::parseValue: cannot rewind to the end position");
     }
-
     return (value);
 }
 
@@ -1231,7 +1220,6 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
         function,
         overlay);
 #endif /* DEBUG */
-
     return (ControlValue(control,
                          valueId,
                          valueIndex,
@@ -1240,8 +1228,6 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
                          max,
                          overlayId,
                          message,
-                         //luaFunctions[formatterIndex],
-                         //luaFunctions[functionIndex],
                          formatterIndex,
                          functionIndex,
                          overlay));
@@ -1270,7 +1256,7 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
     Message::Type messageType = Message::translateType(type);
 
     std::vector<uint8_t> data =
-        parseData(jMessage["data"], parameterNumber, messageType);
+      parseData(jMessage["data"], parameterNumber, messageType);
 
     SignMode signMode = translateSignMode(signModeInput);
 
@@ -1495,14 +1481,11 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
     for (JsonVariant jByte : jData) {
         if (jByte.is<JsonObject>()) {
             const char *type = jByte["type"];
-            //logMessage ("parseData: Placeholder type: %s", type);
-
             if (type) {
                 if (strcmp(type, "value") == 0) {
                     data.push_back(VARIABLE_DATA);
 
                     JsonArray jRules = jByte["rules"];
-
                     if (!jRules || (jRules.size() == 0)) {
                         data.push_back((uint8_t)messageType);
                         data.push_back(parameterNumber & 0x7F);
@@ -1513,24 +1496,43 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
                     } else {
                         for (JsonObject jRule : jRules) {
                             const char *type = jRule["type"].as<char *>();
-                            uint16_t parameterId =
-                                jRule["parameterNumber"].as<uint16_t>();
-                            uint8_t pPos =
-                                jRule["parameterBitPosition"].as<uint8_t>();
-                            uint8_t bPos =
-                                jRule["byteBitPosition"].as<uint8_t>();
-                            uint8_t size = jRule["bitWidth"].as<uint8_t>();
+
+                            uint16_t parameterNumber = 0;
+                            if (!jRule["parameterNumber"].isNull()) {
+                                parameterNumber = jRule["parameterNumber"].as<uint16_t>();
+                            } else {
+                                parameterNumber = jRule["id"].as<uint16_t>();
+                            }
+
+                            uint8_t pPos = 0;
+                            if (!jRule["parameterBitPosition"].isNull()) {
+                                pPos = jRule["parameterBitPosition"].as<uint8_t>();
+                            } else {
+                                pPos = jRule["pPos"].as<uint8_t>();
+                            }
+
+                            uint8_t bPos = 0;
+                            if (!jRule["byteBitPosition"].isNull()) {
+                                bPos = jRule["byteBitPosition"].as<uint8_t>();
+                            } else {
+                                bPos = jRule["bPos"].as<uint8_t>();
+                            }
+
+                            uint8_t size = 0;
+                            if (!jRule["bitWidth"].isNull()) {
+                                size = jRule["bitWidth"].as<uint8_t>();
+                            } else if (!jRule["size"].isNull()) {
+                                size = jRule["size"].as<uint8_t>();
+                            } else {
+                                size = 7;
+                            }
 
                             Message::Type messageType =
                                 Message::translateType(type);
 
-                            if (!jRule["bitWidth"]) {
-                                size = 7;
-                            }
-
                             data.push_back((uint8_t)messageType);
-                            data.push_back(parameterId & 0x7F);
-                            data.push_back(parameterId >> 7);
+                            data.push_back(parameterNumber & 0x7F);
+                            data.push_back(parameterNumber >> 7);
                             data.push_back(pPos);
                             data.push_back(bPos);
                             data.push_back(size);
@@ -1561,13 +1563,13 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
             }
         } else {
             /*
-			 * Add plain byte
-			 */
+             * Add plain byte
+             */
             uint8_t byte;
 
             /*
-			 * Support both Hex and Dec notation
-			 */
+             * Support both Hex and Dec notation
+             */
             if (jByte.is<char *>()) {
                 byte = strtol(jByte, 0, 16);
             } else {
@@ -1575,8 +1577,8 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
             }
 
             /*
-			 * Add byte, unless it is a SysEx start or stop byte
-			 */
+             * Add byte, unless it is a SysEx start or stop byte
+             */
             if ((byte != 0xF0) && (byte != 0xF7)) {
                 data.push_back(byte);
             }
