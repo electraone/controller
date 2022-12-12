@@ -364,6 +364,7 @@ void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
                                               value.message.getMidiMin(),
                                               value.message.getMidiMax());
             }
+            value.callFunction(value.getDefault());
         }
         parameterMap.setValue(value.message.getDeviceId(),
                               value.message.getType(),
