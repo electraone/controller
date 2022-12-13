@@ -1256,7 +1256,7 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
     Message::Type messageType = Message::translateType(type);
 
     std::vector<uint8_t> data =
-      parseData(jMessage["data"], parameterNumber, messageType);
+        parseData(jMessage["data"], parameterNumber, messageType);
 
     SignMode signMode = translateSignMode(signModeInput);
 
@@ -1499,14 +1499,16 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
 
                             uint16_t parameterNumber = 0;
                             if (!jRule["parameterNumber"].isNull()) {
-                                parameterNumber = jRule["parameterNumber"].as<uint16_t>();
+                                parameterNumber =
+                                    jRule["parameterNumber"].as<uint16_t>();
                             } else {
                                 parameterNumber = jRule["id"].as<uint16_t>();
                             }
 
                             uint8_t pPos = 0;
                             if (!jRule["parameterBitPosition"].isNull()) {
-                                pPos = jRule["parameterBitPosition"].as<uint8_t>();
+                                pPos =
+                                    jRule["parameterBitPosition"].as<uint8_t>();
                             } else {
                                 pPos = jRule["pPos"].as<uint8_t>();
                             }
