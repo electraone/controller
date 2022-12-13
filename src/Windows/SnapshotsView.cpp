@@ -214,7 +214,9 @@ void SnapshotsView::updateSnapsButtons(void)
             if (dbSnapshot.select(id, DB_RECORD snapRec)) {
                 button->setUsed(true);
                 button->setLabel(snapRec.name);
-                button->setColour(Colours888::toRGB565(snapRec.colour));
+                button->setColour(Colours565::darker(
+                    Colours888::toRGB565(snapRec.colour), 0.5f));
+                logMessage("color: %06X", snapRec.colour);
             } else {
                 button->setUsed(false);
             }

@@ -36,7 +36,7 @@ public:
         if (used) {
             uint16_t textOffsetY = (getHeight() / 2) - 2;
             uint32_t colour = getColour();
-
+            logMessage("-> %06X", colour);
             if (isHighlighted()) {
                 colour = Colours565::lighter(colour, 0.1f);
             }

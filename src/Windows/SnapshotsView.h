@@ -63,6 +63,6 @@ private:
 
     static constexpr uint8_t topPadding = 50;
     static constexpr uint32_t defaultColours[] = {
-        0x271b4f, 0x7a2e29, 0x7a4b00, 0x294f76, 0x02534c, 0x62244b
+        0xFFFFFF, 0xF45C51, 0xF49500, 0x529DEC, 0x03A598, 0xC44795
     };
 };

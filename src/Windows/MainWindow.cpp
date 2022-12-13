@@ -628,7 +628,7 @@ void MainWindow::updateSnapshot(const char *projectId,
                                 uint32_t colour)
 {
     logMessage(
-        "updateSnapshot: projectId=%s, bankNumber=%d, slot=%d, name=%s, colour=%d",
+        "updateSnapshot: projectId=%s, bankNumber=%d, slot=%d, name=%s, colour=%06x",
         projectId,
         bankNumber,
         slot,
