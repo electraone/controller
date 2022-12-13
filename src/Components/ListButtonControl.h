@@ -84,7 +84,7 @@ public:
         bounds.setHeight(getHeight() - 6);
         g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
                                         : LookAndFeel::backgroundColour);
-        LookAndFeel::paintButtonList(
+        paintButtonList(
             g, bounds, control.getColour565(), getList(), index, getActive());
         ControlComponent::paint(g);
     }
@@ -106,5 +106,49 @@ public:
     }
 
 private:
+    void paintButtonList(Graphics &g,
+                         const Rectangle &bounds,
+                         uint32_t colour,
+                         const ListData *items,
+                         uint16_t activeIndex,
+                         bool active)
+    {
+        if (active) {
+            g.setColour(Colours565::darker(colour, 0.2f));
+            g.fillRoundRect(0, 0, bounds.getWidth(), bounds.getHeight(), 5);
+        }
+
+        g.setColour(colour);
+        g.drawRoundRect(0, 0, bounds.getWidth(), bounds.getHeight(), 5);
+
+        if (items->getByIndex(activeIndex).isBitmapEmpty()) {
+            char stringValue[20];
+            if (!control.getValue(0).getFormatter().empty()) {
+                control.getValue(0).callFormatter(
+                    activeIndex, stringValue, sizeof(stringValue));
+            } else {
+                snprintf(stringValue,
+                         sizeof(stringValue),
+                         "%s",
+                         items->getByIndex(activeIndex).getLabel());
+            }
+            // Print the label
+            g.printText(0,
+                        bounds.getHeight() * 0.3f,
+                        stringValue,
+                        TextStyle::mediumTransparent,
+                        bounds.getWidth(),
+                        TextAlign::center);
+        } else {
+            // display bitmap image
+            uint16_t paddingBitmap =
+                ((bounds.getWidth() - BITMAP_WIDTH)) / 2 - 1;
+            items->getByIndex(activeIndex)
+                .paintBitmap(paddingBitmap,
+                             bounds.getHeight() * 0.3f,
+                             Colours565::white);
+        }
+    }
+
     static Overlay empty;
 };

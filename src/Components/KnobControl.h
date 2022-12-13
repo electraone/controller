@@ -67,7 +67,7 @@ public:
         colour = control.getColour565();
         Knob::paint(g);
 
-        char stringValue[10];
+        char stringValue[20];
         if (!control.getValue(0).getFormatter().empty()) {
             control.getValue(0).callFormatter(
                 getValue(), stringValue, sizeof(stringValue));

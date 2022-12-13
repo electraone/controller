@@ -74,8 +74,7 @@ public:
         listBounds.setHeight(listBounds.getHeight() / 2);
         g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
                                         : LookAndFeel::backgroundColour);
-        LookAndFeel::paintList(
-            g, listBounds, control.getColour565(), getList(), index);
+        paintList(g, listBounds, control.getColour565(), getList(), index);
         g.printText(0,
                     getHeight() - 20,
                     getName(),
@@ -103,5 +102,44 @@ public:
     }
 
 private:
+    void paintList(Graphics &g,
+                   const Rectangle &bounds,
+                   uint32_t colour,
+                   const ListData *items,
+                   uint16_t activeIndex)
+    {
+        if (items->getByIndex(activeIndex).isBitmapEmpty()) {
+            char stringValue[20];
+            if (!control.getValue(0).getFormatter().empty()) {
+                control.getValue(0).callFormatter(
+                    activeIndex, stringValue, sizeof(stringValue));
+            } else {
+                snprintf(stringValue,
+                         sizeof(stringValue),
+                         "%s",
+                         items->getByIndex(activeIndex).getLabel());
+            }
+
+            g.printText(0,
+                        0,
+                        stringValue,
+                        TextStyle::mediumTransparent,
+                        bounds.getWidth(),
+                        TextAlign::center);
+        } else {
+            // display bitmap image
+            uint16_t paddingBitmap =
+                ((bounds.getWidth() - BITMAP_WIDTH)) / 2 - 1;
+            items->getByIndex(activeIndex)
+                .paintBitmap(paddingBitmap, 0, colour);
+        }
+        // Paint the graphics
+        if (items->getNumItems() < 16) {
+            LookAndFeel::paintDots(g, bounds, colour, items, activeIndex);
+        } else {
+            LookAndFeel::paintBar(g, bounds, colour, items, activeIndex);
+        }
+    }
+
     static Overlay empty;
 };

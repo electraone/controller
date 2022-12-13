@@ -150,9 +150,21 @@ private:
                             ? Colours565::darker(control.getColour565(), 0.2f)
                             : Colours565::darker(control.getColour565(), 0.5f));
             g.fillRect(0, j * listItemHeight + 0, listItemWidth, 60);
+
+            char stringValue[20];
+            if (!control.getValue(0).getFormatter().empty()) {
+                control.getValue(0).callFormatter(
+                    i, stringValue, sizeof(stringValue));
+            } else {
+                snprintf(stringValue,
+                         sizeof(stringValue),
+                         "%s",
+                         listItem.getLabel());
+            }
+
             g.printText(0,
                         j * listItemHeight + 25,
-                        listItem.getLabel(),
+                        stringValue,
                         TextStyle::mediumTransparent,
                         listItemWidth,
                         TextAlign::center);

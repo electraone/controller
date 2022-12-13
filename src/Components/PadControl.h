@@ -130,9 +130,18 @@ public:
             g, bounds, control.getColour565(), isMomentary, getState());
 
         g.setColour(Colours565::white);
+
+        char stringValue[20];
+        if (!control.getValue(0).getFormatter().empty()) {
+            control.getValue(0).callFormatter(
+                getState(), stringValue, sizeof(stringValue));
+        } else {
+            snprintf(stringValue, sizeof(stringValue), "%s", getName());
+        }
+
         g.print(0,
                 getHeight() / 2 - 10,
-                getName(),
+                stringValue,
                 bounds.getWidth(),
                 TextAlign::center);
 

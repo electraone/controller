@@ -219,7 +219,7 @@ private:
                         bounds.getWidth(),
                         TextAlign::center);
         } else {
-            char stringValue[10];
+            char stringValue[20];
             if (!control.getValue(0).getFormatter().empty()) {
                 control.getValue(0).callFormatter(
                     val, stringValue, sizeof(stringValue));
@@ -247,7 +247,7 @@ private:
     {
         uint16_t labelYPosition = 13;
 
-        char stringValue[10];
+        char stringValue[20];
         if (!control.getValue(0).getFormatter().empty()) {
             control.getValue(0).callFormatter(
                 val, stringValue, sizeof(stringValue));
