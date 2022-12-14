@@ -209,7 +209,7 @@ private:
         if (items && !items->getByValue(val).isBitmapEmpty()) {
             uint16_t paddingBitmap =
                 ((bounds.getWidth() - BITMAP_WIDTH)) / 2 - 1;
-            items->getByIndex(val).paintBitmap(paddingBitmap, 0, colour);
+            items->getByValue(val).paintBitmap(paddingBitmap, 0, colour);
         } else if (items && !items->getByValue(val).isLabelEmpty()) {
             g.setColour(Colours565::white);
             g.printText(0,
