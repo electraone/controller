@@ -33,6 +33,9 @@ void Controller::initialise(void)
     // Log free RAM (before the preset is loaded)
     monitorFreeMemory();
 
+    // Let parameterMap know what the app sandbox is
+    parameterMap.setAppSandbox(getApplicationSandbox());
+
     // Register ParameterMap onChange callback
     parameterMap.onChange = [this](LookupEntry *entry, Origin origin) {
         if (origin != Origin::midi && origin != Origin::file) {

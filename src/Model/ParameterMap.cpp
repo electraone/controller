@@ -46,6 +46,14 @@ void ParameterMap::setProjectId(const char *newProjectId)
     copyString(projectId, newProjectId, 20);
 }
 
+/*
+ * Set the associated application sandbox
+ */
+void ParameterMap::setAppSandbox(const char *newAppSandbox)
+{
+    copyString(appSandbox, newAppSandbox, 20);
+}
+
 /** locate and cache entry in the ParameterMap
  *
  */
@@ -253,6 +261,14 @@ void ParameterMap::print(void)
 /*
  * Saving and loading the parameterMap functions
  */
+void ParameterMap::keep(void)
+{
+    char mapStateFilename[MAX_FILENAME_LENGTH + 1];
+    prepareMapStateFilename(mapStateFilename, MAX_FILENAME_LENGTH);
+    logMessage("keep %s", mapStateFilename);
+    save(mapStateFilename);
+}
+
 void ParameterMap::save(const char *filename)
 {
     serialize(filename);
@@ -315,6 +331,28 @@ void ParameterMap::serializeRoot(File &file)
     file.print("\"projectId\":\"");
     file.print(projectId);
     file.print("\"");
+}
+
+bool ParameterMap::recall(void)
+{
+    bool status = false;
+    char mapStateFilename[MAX_FILENAME_LENGTH + 1];
+    prepareMapStateFilename(mapStateFilename, MAX_FILENAME_LENGTH);
+    logMessage("recall %s", mapStateFilename);
+    if (Hardware::sdcard.exists(mapStateFilename)) {
+        status = load(mapStateFilename);
+    }
+    return (status);
+}
+
+void ParameterMap::forget(void)
+{
+    char mapStateFilename[MAX_FILENAME_LENGTH + 1];
+    prepareMapStateFilename(mapStateFilename, MAX_FILENAME_LENGTH);
+    if (Hardware::sdcard.deleteFile(mapStateFilename)) {
+        logMessage("ParameterMap::forget: cannot remove file: %s",
+                   mapStateFilename);
+    }
 }
 
 bool ParameterMap::load(const char *filename)
@@ -512,4 +550,9 @@ void ParameterMap::repaintParameterMap(void)
             mapEntry.dirty = false;
         }
     }
+}
+
+void ParameterMap::prepareMapStateFilename(char *buffer, size_t maxLength)
+{
+    snprintf(buffer, maxLength, "%s/%s.map", appSandbox, projectId);
 }

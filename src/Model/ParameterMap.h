@@ -38,6 +38,7 @@ class ParameterMap
 public:
     ParameterMap();
     void setProjectId(const char *newProjectId);
+    void setAppSandbox(const char *newAppSandbox);
 
     LookupEntry *findAndCache(uint32_t hash);
     LookupEntry *getOrCreate(uint8_t deviceId,
@@ -62,11 +63,14 @@ public:
     void reset(void);
     void print(void);
 
+    void keep(void);
     void save(const char *filename);
     void serialize(const char *filename);
     void serializeMap(File &file);
     void serializeRoot(File &file);
 
+    bool recall(void);
+    void forget(void);
     bool load(const char *filename);
     bool parse(File &file);
     bool parseParameters(File &file);
@@ -85,10 +89,12 @@ public:
     std::function<void(LookupEntry *entry, Origin origin)> onChange;
 
 private:
+    void prepareMapStateFilename(char *buffer, size_t maxLength);
     std::vector<LookupEntry> entries;
     uint16_t lastRead;
     uint16_t lastWritten;
     char projectId[20 + 1];
+    char appSandbox[20 + 1];
 
     std::vector<ParameterMapWindow *> windows;
 

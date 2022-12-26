@@ -1,9 +1,6 @@
 #include "luaParameterMap.h"
 #include "lualibs.h"
 
-//#include "ElectraMidi.h"
-//ElectraMidi electraMidi;
-
 int luaopen_parameterMap(lua_State *L)
 {
     luaL_newlib(L, parameterMap_functions);
@@ -129,6 +126,27 @@ int parameterMap_getValues(lua_State *L)
     }
 
     return (luaL_error(L, "failed: empty parameterMap entry"));
+}
+
+int parameterMap_keep(lua_State *L)
+{
+    lua_settop(L, 0);
+    parameterMap.keep();
+    return (0);
+}
+
+int parameterMap_recall(lua_State *L)
+{
+    lua_settop(L, 0);
+    parameterMap.recall();
+    return (0);
+}
+
+int parameterMap_forget(lua_State *L)
+{
+    lua_settop(L, 0);
+    parameterMap.forget();
+    return (0);
 }
 
 void parameterMap_onChange(LookupEntry *entry, Origin origin)
