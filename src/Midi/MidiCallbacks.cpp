@@ -124,37 +124,37 @@ void resetMidiCallbacks(void)
  */
 void onMidiClock(MidiInput midiInput)
 {
-    midi_onSingleByte("onClock", midiInput);
+    midi_onSingleByte("midi", "onClock", midiInput);
 }
 
 void onMidiStart(MidiInput midiInput)
 {
-    midi_onSingleByte("onStart", midiInput);
+    midi_onSingleByte("midi", "onStart", midiInput);
 }
 
 void onMidiStop(MidiInput midiInput)
 {
-    midi_onSingleByte("onStop", midiInput);
+    midi_onSingleByte("midi", "onStop", midiInput);
 }
 
 void onMidiContinue(MidiInput midiInput)
 {
-    midi_onSingleByte("onContinue", midiInput);
+    midi_onSingleByte("midi", "onContinue", midiInput);
 }
 
 void onMidiActiveSensing(MidiInput midiInput)
 {
-    midi_onSingleByte("onActiveSensing", midiInput);
+    midi_onSingleByte("midi", "onActiveSensing", midiInput);
 }
 
 void onMidiSystemReset(MidiInput midiInput)
 {
-    midi_onSingleByte("onSystemReset", midiInput);
+    midi_onSingleByte("midi", "onSystemReset", midiInput);
 }
 
 void onMidiTuneRequest(MidiInput midiInput)
 {
-    midi_onSingleByte("onTuneRequest", midiInput);
+    midi_onSingleByte("midi", "onTuneRequest", midiInput);
 }
 
 void onMidiProgramChange(MidiInput midiInput,
@@ -162,7 +162,7 @@ void onMidiProgramChange(MidiInput midiInput,
                          uint8_t programNumber)
 {
     midi_onTwoBytesWithChannel(
-        "onProgramChange", midiInput, channel, programNumber);
+        "midi", "onProgramChange", midiInput, channel, programNumber);
 }
 
 void onMidiAfterTouchChannel(MidiInput midiInput,
@@ -170,22 +170,23 @@ void onMidiAfterTouchChannel(MidiInput midiInput,
                              uint8_t pressure)
 {
     midi_onTwoBytesWithChannel(
-        "onAfterTouchChannel", midiInput, channel, pressure);
+        "midi", "onAfterTouchChannel", midiInput, channel, pressure);
 }
 
 void onMidiSongSelect(MidiInput midiInput, uint8_t songNumber)
 {
-    midi_onTwoBytes("onSongSelect", midiInput, songNumber);
+    midi_onTwoBytes("midi", "onSongSelect", midiInput, songNumber);
 }
 
 void onMidiPitchBend(MidiInput midiInput, uint8_t channel, int value)
 {
-    midi_onTwoBytesWithChannel("onPitchBend", midiInput, channel, value);
+    midi_onTwoBytesWithChannel(
+        "midi", "onPitchBend", midiInput, channel, value);
 }
 
 void onMidiSongPosition(MidiInput midiInput, int position)
 {
-    midi_onTwoBytes("onSongPosition", midiInput, position);
+    midi_onTwoBytes("midi", "onSongPosition", midiInput, position);
 }
 
 void onMidiControlChange(MidiInput midiInput,
@@ -194,7 +195,7 @@ void onMidiControlChange(MidiInput midiInput,
                          uint8_t value)
 {
     midi_onThreeBytesWithChannel(
-        "onControlChange", midiInput, channel, controllerNumber, value);
+        "midi", "onControlChange", midiInput, channel, controllerNumber, value);
 }
 
 void onMidiNoteOn(MidiInput midiInput,
@@ -203,7 +204,7 @@ void onMidiNoteOn(MidiInput midiInput,
                   uint8_t velocity)
 {
     midi_onThreeBytesWithChannel(
-        "onNoteOn", midiInput, channel, noteNumber, velocity);
+        "midi", "onNoteOn", midiInput, channel, noteNumber, velocity);
 }
 
 void onMidiNoteOff(MidiInput midiInput,
@@ -212,7 +213,7 @@ void onMidiNoteOff(MidiInput midiInput,
                    uint8_t velocity)
 {
     midi_onThreeBytesWithChannel(
-        "onNoteOff", midiInput, channel, noteNumber, velocity);
+        "midi", "onNoteOff", midiInput, channel, noteNumber, velocity);
 }
 
 void onMidiAfterTouchPoly(MidiInput midiInput,
@@ -221,7 +222,7 @@ void onMidiAfterTouchPoly(MidiInput midiInput,
                           uint8_t pressure)
 {
     midi_onThreeBytesWithChannel(
-        "onAfterTouchPoly", midiInput, channel, noteNumber, pressure);
+        "midi", "onAfterTouchPoly", midiInput, channel, noteNumber, pressure);
 }
 
 void onMidiSysex(MidiInput &midiInput, MidiMessage &midiMessage)
