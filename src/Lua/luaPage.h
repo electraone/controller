@@ -5,6 +5,7 @@
 int pages_get(lua_State *L);
 int pages_getActive(lua_State *L);
 int pages_display(lua_State *L);
+void pages_onChange(uint8_t oldPageId, uint8_t newPageId);
 int pages_setActiveControlSet(lua_State *L);
 int pages_getActiveControlSet(lua_State *L);
 int page_delete(lua_State *L);

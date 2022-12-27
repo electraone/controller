@@ -3,6 +3,7 @@
 #include "MidiCallbacks.h"
 #include "lualibs.h"
 #include "luabridge.h"
+#include "luaPreset.h"
 
 Preset *luaPreset = nullptr;
 
@@ -137,6 +138,11 @@ void Presets::reset(void)
     // Disable the ParameterMap sync
     parameterMap.disable();
 
+    // trigger Lua onLoad function
+    if (L) {
+        preset_onExit();
+    }
+
     // Reset Lua callbacks
     resetMidiCallbacks();
 
@@ -208,6 +214,9 @@ void Presets::runPresetLuaScript(void)
 
         // assign Lua callbacks
         assignLuaCallbacks();
+
+        // trigger Lua onLoad function
+        preset_onLoad();
     }
 }
 

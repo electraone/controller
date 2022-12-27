@@ -8,6 +8,7 @@
 #include "luaDevice.h"
 #include "luaControl.h"
 #include "luaMessage.h"
+#include "luaPreset.h"
 
 void loadLuaLibs(void)
 {
@@ -20,6 +21,7 @@ void loadLuaLibs(void)
                                            { "helpers", luaopen_helpers },
                                            { "window", luaopen_window },
                                            { "patch", luaopen_patch },
+                                           { "preset", luaopen_preset },
                                            { "info", luaopen_info },
                                            { NULL, NULL } };
 

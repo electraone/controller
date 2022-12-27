@@ -3,6 +3,7 @@
 #include "GroupControl.h"
 #include "Envelope.h"
 #include "luabridge.h"
+#include "luaPage.h"
 #include "System.h"
 
 MainWindow::MainWindow(Model &newModel, Midi &newMidi, Config &newConfig)
@@ -96,6 +97,7 @@ bool MainWindow::switchPage(uint8_t pageId)
 
 bool MainWindow::switchPage(uint8_t pageId, uint8_t controlSetId)
 {
+    uint8_t prevCurrentPageId = currentPageId;
     currentPageId = pageId;
     currentControlSetId = controlSetId;
 
@@ -104,6 +106,12 @@ bool MainWindow::switchPage(uint8_t pageId, uint8_t controlSetId)
                currentControlSetId);
 
     displayPage();
+
+    if (prevCurrentPageId != currentPageId) {
+        if (L) {
+            pages_onChange(prevCurrentPageId, currentPageId);
+        }
+    }
     return (true);
 }
 

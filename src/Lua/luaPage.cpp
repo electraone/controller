@@ -140,3 +140,22 @@ void page_register(lua_State *L)
 
     lua_pop(L, 1);
 }
+
+void pages_onChange(uint8_t oldPageId, uint8_t newPageId)
+{
+    const char *function = "onChange";
+    luaLE_getModuleFunction("pages", function);
+
+    if (lua_isfunction(L, -1)) {
+        lua_pushnumber(L, oldPageId);
+        lua_pushnumber(L, newPageId);
+        if (lua_pcall(L, 2, 0, 0) != 0) {
+            logMessage("error running function '%s': %s",
+                       function,
+                       lua_tostring(L, -1));
+        }
+    } else {
+        luaLE_handleNonexistentFunction(L, function);
+    }
+    luaLE_postFunctionCleanUp(L);
+}
