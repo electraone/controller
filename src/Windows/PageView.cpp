@@ -185,19 +185,23 @@ void PageView::addBottomBar(const char *presetName, const char *pageName)
 
 void PageView::configureGroup(GroupControl *g, const Group &group)
 {
-    if ((controlSetId * 165) < g->getY()
-        && (g->getY() < (controlSetId * 165 + 165))) {
-        if (uiFeatures.activeControlSetType == ActiveControlSetType::dim) {
+    uint16_t topY = controlSetId * 177 + 6;
+    uint16_t bottomY = controlSetId * 177 + 177 + 6;
+    uint16_t groupBottomY = g->getY() + g->getHeight();
+
+    if (uiFeatures.activeControlSetType == ActiveControlSetType::dim) {
+        if (((topY >= g->getY()) && (topY <= groupBottomY))
+            || ((topY <= g->getY()) && (bottomY >= groupBottomY))
+            || ((topY <= g->getY()) && (bottomY >= g->getY()))) {
             g->setDimmed(false);
-        } else if (uiFeatures.activeControlSetType
-                   == ActiveControlSetType::background) {
-            g->setUseAltBackground(true);
-        }
-    } else {
-        if (uiFeatures.activeControlSetType == ActiveControlSetType::dim) {
+        } else {
             g->setDimmed(true);
-        } else if (uiFeatures.activeControlSetType
-                   == ActiveControlSetType::background) {
+        }
+    } else if (uiFeatures.activeControlSetType
+               == ActiveControlSetType::background) {
+        if (topY < g->getY() && (g->getY() < bottomY)) {
+            g->setUseAltBackground(true);
+        } else {
             g->setUseAltBackground(false);
         }
     }

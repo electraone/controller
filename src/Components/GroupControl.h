@@ -32,8 +32,6 @@ public:
 
     void paint(Graphics &g) override
     {
-        g.fillAll(useAltBackground ? LookAndFeel::altBackgroundColour
-                                   : LookAndFeel::backgroundColour);
         colour = group.getColour565();
         Set::paint(g);
     }
