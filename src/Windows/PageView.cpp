@@ -120,24 +120,26 @@ void PageView::paint(Graphics &g)
 
     if (uiFeatures.activeControlSetType == ActiveControlSetType::bars) {
         g.setColour(0x7BCF);
-        g.fillRect(4, 12 + controlSetId * 179, 5, 168);
-        g.fillRect(1014, 12 + controlSetId * 179, 5, 168);
+        g.fillRect(4, 12 + controlSetId * 180, 3, 166);
+        g.fillRect(1014, 12 + controlSetId * 180, 3, 166);
         g.setColour(Colours565::black);
-        g.fillRect(6, 14 + controlSetId * 179, 4, 164);
-        g.fillRect(1014, 14 + controlSetId * 179, 3, 164);
+        g.fillRect(6, 14 + controlSetId * 180, 2, 162);
+        g.fillRect(1014, 14 + controlSetId * 180, 1, 162);
     } else if (uiFeatures.activeControlSetType
                == ActiveControlSetType::background) {
-        g.backdrop(10,
-                   12 + controlSetId * 179,
-                   1003,
-                   168,
-                   LookAndFeel::altBackgroundColour);
+        g.setColour(LookAndFeel::altBackgroundColour);
+        g.fillRect(10, 12 + controlSetId * 180, 1003, 168);
+        g.setColour(0x0000);
+        g.drawPixel(10, 12 + controlSetId * 180);
+        g.drawPixel(10, 12 + controlSetId * 180 + 167);
+        g.drawPixel(10 + 1002, 12 + controlSetId * 180);
+        g.drawPixel(10 + 1002, 12 + controlSetId * 180 + 167);
     }
 }
 
 void PageView::resized(void)
 {
-    bottomBar->setBounds(12, 550, 1000, 22);
+    bottomBar->setBounds(12, 543, 1000, 22);
 }
 
 void PageView::addControls(const Controls &controls)

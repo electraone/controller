@@ -1603,8 +1603,8 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
  */
 Rectangle Preset::parseBounds(JsonArray jBounds)
 {
-    return (Rectangle(jBounds[0].as<uint16_t>() + 13,
-                      jBounds[1].as<uint16_t>(), // + 24,
+    return (Rectangle(jBounds[0].as<uint16_t>(),
+                      jBounds[1].as<uint16_t>(),
                       jBounds[2].as<uint16_t>(),
                       jBounds[3].as<uint16_t>()));
 }

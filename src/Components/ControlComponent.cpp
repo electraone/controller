@@ -34,12 +34,7 @@ void ControlComponent::paint(Graphics &g)
 
 void ControlComponent::syncComponentProperties(void)
 {
-    /* \todo tweak control's position. far from optimal,
-             this is done to make sure that presets made originally for
-             firmware 2.x look good on 3.x
-    */
     auto bounds = control.getBounds();
-    bounds.setY(bounds.getY() * 1.02f - 10);
     setBounds(bounds);
 
     setName(control.getName());

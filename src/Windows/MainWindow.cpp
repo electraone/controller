@@ -487,7 +487,7 @@ void MainWindow::setGroupSlot(uint16_t groupId,
         bounds.setY(bounds.getY() - 24);
 
         if (newHeight > 0) {
-            bounds.setHeight(newHeight * 80 + ((newHeight - 1) * 8) + 2);
+            bounds.setHeight(newHeight * 81 + ((newHeight - 1) * 8) + 2);
         } else {
             bounds.setHeight(16);
         }

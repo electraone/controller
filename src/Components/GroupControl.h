@@ -9,9 +9,7 @@ public:
     explicit GroupControl(const Group &groupToAssign)
         : group(groupToAssign), useAltBackground(false)
     {
-        // tweak group's position. far from optimal,
         auto bounds = group.getBounds();
-        bounds.setY(bounds.getY() * 1.02f - 5);
         setBounds(bounds);
 
         setLabel(group.getLabel());
@@ -38,8 +36,6 @@ public:
                                    : LookAndFeel::backgroundColour);
         colour = group.getColour565();
         Set::paint(g);
-        //g.setColour(0x2258);
-        //g.drawRect(0, 0, getWidth(), getHeight());
     }
 
 private:
