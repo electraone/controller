@@ -1,12 +1,14 @@
 #include "PageSelection.h"
 #include "Window.h"
 
-PageSelection::PageSelection(Pages newPages,
+PageSelection::PageSelection(PageSelectionWindowDelegate &newDelegate,
+                             Pages newPages,
                              uint8_t newActivePage,
                              UiApi &newUiApi,
                              uint32_t newColour,
                              uint32_t newActiveColour)
     : Selection(newActivePage - 1, newColour, newActiveColour),
+      delegate(newDelegate),
       pages(newPages),
       uiApi(newUiApi)
 {
@@ -37,4 +39,5 @@ void PageSelection::setActivePage(uint8_t newActivePage)
     button[previousActivePage]->setSelected(false);
     button[active]->setSelected(true);
     getWindow()->repaint();
+    delegate.userBrowsedPages();
 }
