@@ -938,7 +938,8 @@ Group Preset::parseGroup(JsonObject jGroup)
     const char *name = jGroup["name"];
     uint32_t colour =
         Colours565::fromString(jGroup["color"].as<const char *>());
-    return (Group(groupId, pageId, bounds, name, colour));
+    Group::Variant variantType = Group::translateVariant(jGroup["variant"]);
+    return (Group(groupId, pageId, bounds, name, colour, variantType));
 }
 
 /*--------------------------------------------------------------------------*/

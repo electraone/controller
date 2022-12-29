@@ -10,6 +10,8 @@ private:
     static constexpr uint8_t maxLabelLength = 40;
 
 public:
+    enum class Variant { Default = 0, Highlighted = 1 };
+
     Group()
         : id(0),
           pageId(0),
@@ -18,13 +20,15 @@ public:
           component(nullptr)
     {
         setLabel(nullptr);
+        variant = (uint8_t)Variant::Default;
     }
 
     Group(uint16_t newId,
           uint8_t newPageId,
           const Rectangle &newBounds,
           const char *newLabel,
-          uint32_t newColour)
+          uint32_t newColour,
+          Group::Variant newVariant)
         : id(newId),
           pageId(newPageId),
           colour(newColour),
@@ -33,6 +37,7 @@ public:
           component(nullptr)
     {
         setLabel(newLabel);
+        variant = (uint8_t)newVariant;
     }
 
     virtual ~Group() = default;
@@ -91,6 +96,16 @@ public:
         return (Colours888::toRGB565(colour));
     }
 
+    void setVariant(Variant newVariant)
+    {
+        variant = (uint8_t)newVariant;
+    }
+
+    Variant getVariant(void) const
+    {
+        return ((Variant)variant);
+    }
+
     void setVisible(bool shouldBeVisible)
     {
         visible = shouldBeVisible;
@@ -133,7 +148,18 @@ public:
         logMessage("pageId: %d", getPageId());
         logMessage("colour: %d", getColour());
         logMessage("visible: %d", isVisible());
+        logMessage("variant: %d", getVariant());
         getBounds().print();
+    }
+
+    static Variant translateVariant(const char *variantText)
+    {
+        if (variantText) {
+            if (strcmp(variantText, "highlighted") == 0) {
+                return (Variant::Highlighted);
+            }
+        }
+        return (Variant::Default);
     }
 
 private:
@@ -142,6 +168,7 @@ private:
         uint8_t pageId : 4;
         uint8_t visible : 1;
         uint32_t colour : 24;
+        uint8_t variant : 2;
     };
 
     char label[maxLabelLength + 1];

@@ -16,6 +16,7 @@ public:
 
         setLabel(group.getLabel());
         setName(group.getLabel());
+        setHighlighted(group.getVariant() == Group::Variant::Highlighted);
         setVisible(group.isVisible());
     }
 
@@ -37,6 +38,8 @@ public:
                                    : LookAndFeel::backgroundColour);
         colour = group.getColour565();
         Set::paint(g);
+        //g.setColour(0x2258);
+        //g.drawRect(0, 0, getWidth(), getHeight());
     }
 
 private:
