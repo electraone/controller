@@ -20,7 +20,8 @@ private:
                       colour,
                       activeColour),
           uiApi(newUiApi),
-          pagesBrowsed(false)
+          pagesBrowsed(false),
+          menuButtonReleased(false)
     {
         setName("PAGES");
         setBounds(0, 333, 1024, 235);
@@ -48,11 +49,15 @@ public:
             if (pagesBrowsed) {
                 uiApi.pageSelection_close();
             }
+            menuButtonReleased = true;
         }
     }
 
     void userBrowsedPages(void) override
     {
+        if (menuButtonReleased) {
+            uiApi.pageSelection_close();
+        }
         pagesBrowsed = true;
     }
 
@@ -67,6 +72,7 @@ public:
 private:
     UiApi &uiApi;
     bool pagesBrowsed;
+    bool menuButtonReleased;
 
     static constexpr uint32_t colour = 0x00091A;
     static constexpr uint32_t activeColour = 0x001130;
