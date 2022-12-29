@@ -18,7 +18,7 @@ private:
           delegate(newDelegate)
     {
         setName("SNAPSHOT BANKS");
-        setBounds(0, 340, 1024, 235);
+        setBounds(0, 333, 1024, 235);
     }
 
 public:

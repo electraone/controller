@@ -20,7 +20,7 @@ SnapshotsView::SnapshotsView(UiApi &newUiApi,
     addActionButtons();
     addSnapshotButtons();
     setMode(newMode);
-    setBounds(0, 0, 1024, 554);
+    setBounds(0, 0, 1024, 546);
 }
 
 SnapshotsView::~SnapshotsView()

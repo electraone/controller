@@ -21,7 +21,7 @@ private:
                       activeColour)
     {
         setName("PRESETS");
-        setBounds(0, 250, 1024, 325);
+        setBounds(0, 243, 1024, 325);
     }
 
 public:
