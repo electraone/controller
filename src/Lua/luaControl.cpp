@@ -176,7 +176,7 @@ int control_setBounds(lua_State *L)
 
     if (control) {
         luaDelegate->setControlBounds(control->getId(),
-                                      Rectangle(x + 13, y + 24, width, height));
+                                      Rectangle(x, y, width, height));
     } else {
         return (luaL_error(L, "failed: not a valid control"));
     }

@@ -149,7 +149,7 @@ int group_setBounds(lua_State *L)
 
     if (group) {
         luaDelegate->setGroupBounds(group->getId(),
-                                    Rectangle(x + 13, y + 24, width, height));
+                                    Rectangle(x, y, width, height));
     } else {
         return (luaL_error(L, "failed: not a valid group"));
     }
@@ -163,10 +163,9 @@ int group_getBounds(lua_State *L)
 
     if (Group *group = getGroup(L, 1)) {
         bounds = group->getBounds();
-
         lua_newtable(L);
-        luaLE_pushArrayInteger(L, 1, bounds.getX() - 13);
-        luaLE_pushArrayInteger(L, 2, bounds.getY() - 24);
+        luaLE_pushArrayInteger(L, 1, bounds.getX());
+        luaLE_pushArrayInteger(L, 2, bounds.getY());
         luaLE_pushArrayInteger(L, 3, bounds.getWidth());
         luaLE_pushArrayInteger(L, 4, bounds.getHeight());
 

@@ -21,7 +21,7 @@ int helpers_slotToBounds(lua_State *L)
     lua_newtable(L);
     luaLE_pushArrayInteger(L, 1, bounds.getX());
     luaLE_pushArrayInteger(L, 2, bounds.getY());
-    luaLE_pushArrayInteger(L, 3, 146);
+    luaLE_pushArrayInteger(L, 3, 158);
     luaLE_pushArrayInteger(L, 4, 56);
 
     return (1);

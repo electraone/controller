@@ -356,8 +356,10 @@ void MainWindow::setControlSlot(uint16_t controlId, uint8_t newSlot)
         uint8_t newPotId = (newSlot - 1) % Preset::MaxNumPots;
         uint8_t newControlSetId = (newSlot - 1) / Preset::MaxNumPots;
         Rectangle bounds = slotToBounds(newSlot);
-        bounds.setX(bounds.getX());
-        bounds.setY(bounds.getY());
+        // adjust position from parent group slot
+        bounds.setX(bounds.getX() + 6);
+        bounds.setY(bounds.getY() + 22);
+        bounds.setWidth(bounds.getWidth() - 12);
 
         control.setBounds(bounds);
         control.setVisible(true);
@@ -483,16 +485,13 @@ void MainWindow::setGroupSlot(uint16_t groupId,
             newHeight -= colPosition;
         }
 
-        bounds.setX(bounds.getX() - 8);
-        bounds.setY(bounds.getY() - 24);
-
         if (newHeight > 0) {
-            bounds.setHeight(newHeight * 81 + ((newHeight - 1) * 8) + 2);
+            bounds.setHeight(newHeight * 90 - 9);
         } else {
             bounds.setHeight(16);
         }
 
-        bounds.setWidth(bounds.getWidth() + 16);
+        bounds.setWidth(bounds.getWidth());
         group.setBounds(bounds);
 
         if (Component *component = group.getComponent()) {
