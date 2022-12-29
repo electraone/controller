@@ -78,6 +78,9 @@ public:
                       uint8_t newSlot,
                       uint8_t newWidth,
                       uint8_t newHeight) override;
+    void setGroupHorizontalSpan(uint16_t groupId, uint8_t newWidth) override;
+    void setGroupVerticalSpan(uint16_t groupId, uint8_t newHeight) override;
+    void setGroupVariant(uint16_t groupId, uint8_t newVariant) override;
 
     // API
     void sendSnapshotList(uint8_t port, const char *projectId) override;

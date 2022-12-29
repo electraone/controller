@@ -201,11 +201,74 @@ int group_setSlot(lua_State *L)
 
     luaL_argcheck(L,
                   0 <= height && height <= 6,
-                  3,
-                  "failed: height must be between 1 and 6");
+                  4,
+                  "failed: height must be between 0 and 6");
 
     if (group) {
         luaDelegate->setGroupSlot(group->getId(), slot, width, height);
+    } else {
+        return (luaL_error(L, "failed: not a valid group"));
+    }
+    return (0);
+}
+
+int group_setHorizontalSpan(lua_State *L)
+{
+    lua_settop(L, 2);
+
+    Group *group = getGroup(L, 1);
+
+    int width = luaL_checkinteger(L, 2);
+
+    luaL_argcheck(L,
+                  1 <= width && width <= 6,
+                  2,
+                  "failed: width must be between 1 and 6");
+
+    if (group) {
+        luaDelegate->setGroupHorizontalSpan(group->getId(), width);
+    } else {
+        return (luaL_error(L, "failed: not a valid group"));
+    }
+    return (0);
+}
+
+int group_setVerticalSpan(lua_State *L)
+{
+    lua_settop(L, 2);
+
+    Group *group = getGroup(L, 1);
+
+    int height = luaL_checkinteger(L, 2);
+
+    luaL_argcheck(L,
+                  0 <= height && height <= 6,
+                  2,
+                  "failed: height must be between 0 and 6");
+
+    if (group) {
+        luaDelegate->setGroupVerticalSpan(group->getId(), height);
+    } else {
+        return (luaL_error(L, "failed: not a valid group"));
+    }
+    return (0);
+}
+
+int group_setVariant(lua_State *L)
+{
+    lua_settop(L, 2);
+
+    Group *group = getGroup(L, 1);
+
+    int variant = luaL_checkinteger(L, 2);
+
+    luaL_argcheck(L,
+                  0 <= variant && variant <= 1,
+                  2,
+                  "failed: variant must be between 0 and 1");
+
+    if (group) {
+        luaDelegate->setGroupVariant(group->getId(), variant);
     } else {
         return (luaL_error(L, "failed: not a valid group"));
     }

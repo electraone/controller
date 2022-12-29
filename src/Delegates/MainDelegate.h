@@ -61,6 +61,10 @@ public:
                               uint8_t newSlot,
                               uint8_t newWidth,
                               uint8_t newHeight) = 0;
+    virtual void setGroupHorizontalSpan(uint16_t groupId, uint8_t newWidth) = 0;
+    virtual void setGroupVerticalSpan(uint16_t groupId, uint8_t newHeight) = 0;
+    virtual void setGroupVariant(uint16_t groupId, uint8_t newVariant) = 0;
+
     // Api
     virtual void sendSnapshotList(uint8_t port, const char *projectId) = 0;
     virtual void sendSnapshot(uint8_t port,

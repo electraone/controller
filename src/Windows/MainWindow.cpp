@@ -478,6 +478,8 @@ void MainWindow::setGroupSlot(uint16_t groupId,
             newWidth -= rowPosition;
         }
 
+        bounds.setWidth((newWidth * 158) + (newWidth - 1) * 9);
+
         // Keep height within the boundaries
         int colPosition = (newSlot - 1) / 6;
 
@@ -491,12 +493,80 @@ void MainWindow::setGroupSlot(uint16_t groupId,
             bounds.setHeight(16);
         }
 
-        bounds.setWidth(bounds.getWidth());
         group.setBounds(bounds);
 
         if (Component *component = group.getComponent()) {
             component->setBounds(bounds);
             repaintPage();
+        }
+    }
+}
+
+void MainWindow::setGroupHorizontalSpan(uint16_t groupId, uint8_t newWidth)
+{
+    Group &group = preset.getGroup(groupId);
+    if (group.isValid()) {
+        Rectangle bounds = group.getBounds();
+
+        int slot = boundsToSlot(bounds);
+        int rowPosition = (slot - 1) % 6;
+
+        if ((rowPosition + newWidth) > 7) {
+            newWidth -= rowPosition;
+        }
+
+        bounds.setWidth((newWidth * 158) + (newWidth - 1) * 9);
+        group.setBounds(bounds);
+
+        if (Component *component = group.getComponent()) {
+            component->setBounds(bounds);
+            repaintPage();
+        }
+    }
+}
+
+void MainWindow::setGroupVerticalSpan(uint16_t groupId, uint8_t newHeight)
+{
+    Group &group = preset.getGroup(groupId);
+    if (group.isValid()) {
+        Rectangle bounds = group.getBounds();
+
+        int slot = boundsToSlot(bounds);
+        logMessage("slot: %d", slot);
+
+        // Keep height within the boundaries
+        int colPosition = (slot - 1) / 6;
+
+        if ((colPosition + newHeight) > 6) {
+            newHeight -= colPosition;
+        }
+
+        if (newHeight > 0) {
+            bounds.setHeight(newHeight * 90 - 9);
+        } else {
+            bounds.setHeight(16);
+        }
+
+        group.setBounds(bounds);
+
+        if (Component *component = group.getComponent()) {
+            component->setBounds(bounds);
+            repaintPage();
+        }
+    }
+}
+
+void MainWindow::setGroupVariant(uint16_t groupId, uint8_t newVariant)
+{
+    Group &group = preset.getGroup(groupId);
+    if (group.isValid()) {
+        group.setVariant((Group::Variant)newVariant);
+
+        if (Component *c = group.getComponent()) {
+            if (GroupControl *gc = dynamic_cast<GroupControl *>(c)) {
+                gc->setHighlighted(newVariant);
+                repaintPage();
+            }
         }
     }
 }
