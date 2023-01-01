@@ -108,7 +108,8 @@ void SysexApi::sendSnapshotList(uint8_t port, MemoryBlock &sysexPayload)
     DeserializationError err = deserializeJson(doc, sysexPayload);
 
     if (err) {
-        logMessage("sendSnapshotList: snapshot info parsing failed");
+        logMessage("sendSnapshotList: snapshot list parsing failed: %s",
+                   err.c_str());
         return;
     }
 

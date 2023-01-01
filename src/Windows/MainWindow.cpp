@@ -614,7 +614,10 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
                slot,
                bankNumber * Preset::MaxNumPots + slot);
     presets.loadPresetById(bankNumber * Preset::MaxNumPots + slot);
-    snapshots.initialise(preset.getProjectId());
+    if (!snapshots.initialise(preset.getProjectId())) {
+        logMessage(
+            "MainWindow::switchPreset: cannot initialize snapshot storage");
+    }
     parameterMap.setProjectId(preset.getProjectId());
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
     setInfoText("");

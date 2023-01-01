@@ -13,7 +13,6 @@ Presets::Presets(const char *newAppSandbox)
       currentBankNumber(0),
       readyForPresetSwitch(true)
 {
-    snprintf(tempFilename, MAX_FILENAME_LENGTH, "%s/eprxfer.tmp", appSandbox);
 }
 
 void Presets::assignPresetNames(uint8_t bankNumber)
@@ -37,11 +36,25 @@ void Presets::assignPresetNames(uint8_t bankNumber)
 
 void Presets::sendList(uint8_t port)
 {
+    char filenameList[MAX_FILENAME_LENGTH + 1];
+    snprintf(filenameList,
+             MAX_FILENAME_LENGTH,
+             "%s/%08ld.tmp",
+             appSandbox,
+             millis());
+
     File presetListFile = Hardware::sdcard.createOutputStream(
-        tempFilename, FILE_WRITE | O_CREAT | O_TRUNC);
+        filenameList, FILE_WRITE | O_CREAT | O_TRUNC);
 
     if (!presetListFile) {
-        logMessage("Presets::sendList: cannot open transfer file");
+        logMessage("Presets::sendList: cannot open transfer file: %s",
+                   filenameList);
+
+        if (!Hardware::sdcard.deleteFile(filenameList)) {
+            logMessage("Presets::sendList: cannot remove temporary file: %s",
+                       filenameList);
+        }
+        return;
     }
 
     bool firstRecord = true;
@@ -66,8 +79,11 @@ void Presets::sendList(uint8_t port)
                 Preset::getPresetName(file, presetName, Preset::MaxNameLength);
                 Preset::getPresetProjectId(
                     file, projectId, Preset::MaxProjectIdLength);
+                file.close();
+            } else {
+                logMessage("Presets::sendList: cannot read preset file: %s",
+                           filename);
             }
-            file.close();
         }
 
         if (strlen(presetName) > 0) {
@@ -88,7 +104,12 @@ void Presets::sendList(uint8_t port)
     presetListFile.close();
 
     MidiOutput::sendSysExFile(
-        port, tempFilename, ElectraCommand::Object::PresetList);
+        port, filenameList, ElectraCommand::Object::PresetList);
+
+    if (!Hardware::sdcard.deleteFile(filenameList)) {
+        logMessage("Presets::sendList: cannot remove temporary file: %s",
+                   filenameList);
+    }
 }
 
 /** Load preset.

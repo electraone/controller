@@ -55,8 +55,8 @@ public:
         }
 
         /*
-			 * open database file
-			 */
+         * open database file
+         */
         file = Hardware::sdcard.createOutputStream(
             filename, FILE_WRITE | O_CREAT | O_TRUNC);
 
@@ -70,8 +70,8 @@ public:
         }
 
         /*
-			 * write header
-			 */
+         * write header
+         */
         if (!writeHeader()) {
             logMessage("Database::create: write header failed: file=%s",
                        filename);
@@ -215,7 +215,12 @@ private:
             rc = file.read(record, header.recordSize);
         }
 
-        //logMessage ("read address=%d, read=%d, (%s)", address, rc, ((SnapshotRecord *)record)->name);
+#ifdef DEBUG
+        logMessage("read address=%d, read=%d, (%s)",
+                   address,
+                   rc,
+                   ((SnapshotRecord *)record)->name);
+#endif
         return (((isNotNull == 1) && (rc > 0)) ? true : false);
     }
 

@@ -204,6 +204,7 @@ void SnapshotsView::updateSnapsButtons(void)
 
     if (!dbSnapshot.open()) {
         logMessage("SnapsWindow::paint: cannot open the snapshot database");
+        return;
     }
 
     for (uint8_t i = 0; i < 36; i++) {
@@ -216,7 +217,6 @@ void SnapshotsView::updateSnapsButtons(void)
                 button->setLabel(snapRec.name);
                 button->setColour(Colours565::darker(
                     Colours888::toRGB565(snapRec.colour), 0.5f));
-                logMessage("color: %06X", snapRec.colour);
             } else {
                 button->setUsed(false);
             }

@@ -9,7 +9,7 @@ public:
     explicit Snapshots(const char *newAppSandbox);
     virtual ~Snapshots() = default;
 
-    void initialise(const char *newProjectId);
+    bool initialise(const char *newProjectId);
     const char *getCurrentProjectId(void) const;
     void setDestProjectId(const char *newProjectId);
     const char *getDestProjectId(void) const;
@@ -52,8 +52,8 @@ public:
                                 uint8_t slot);
 
 private:
-    void createSnapshotDir(const char *projectId);
-    void createSnapshotDatabase(const char *projectId);
+    bool createSnapshotDir(const char *projectId);
+    bool createSnapshotDatabase(const char *projectId);
     void updateSnapshotDb(const char *projectId,
                           uint8_t bankNumber,
                           uint8_t slot,
@@ -72,5 +72,4 @@ private:
     char destProjectId[20 + 1];
     uint8_t destBankNumber;
     uint8_t destSlot;
-    char tempSnapshotFilename[MAX_FILENAME_LENGTH + 1];
 };

@@ -7,16 +7,21 @@ Snapshots::Snapshots(const char *newAppSandbox)
     : appSandbox(newAppSandbox), destBankNumber(0), destSlot(0)
 {
     copyString(destProjectId, "noProjectId", 20);
-    snprintf(tempSnapshotFilename,
-             MAX_FILENAME_LENGTH,
-             "%s/snapxfer.tmp",
-             appSandbox);
 }
 
-void Snapshots::initialise(const char *newProjectId)
+bool Snapshots::initialise(const char *newProjectId)
 {
-    createSnapshotDir(newProjectId);
-    createSnapshotDatabase(newProjectId);
+    if (!createSnapshotDir(newProjectId)) {
+        logMessage("Snapshots::initialise: cannot create snapshot directories");
+        return (false);
+    }
+
+    if (!createSnapshotDatabase(newProjectId)) {
+        logMessage("Snapshots::initialise: cannot create snapshot database");
+        return (false);
+    }
+
+    return (true);
 }
 
 void Snapshots::setDestProjectId(const char *newProjectId)
@@ -52,6 +57,7 @@ uint8_t Snapshots::getDestSlot(void) const
 void Snapshots::sendList(uint8_t port, const char *projectId)
 {
     char dbFile[MAX_FILENAME_LENGTH + 1];
+    char tempSnapshotFilename[MAX_FILENAME_LENGTH + 1];
 
     snprintf(dbFile,
              MAX_FILENAME_LENGTH,
@@ -59,11 +65,17 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
              appSandbox,
              projectId);
 
+    snprintf(tempSnapshotFilename,
+             MAX_FILENAME_LENGTH,
+             "%s/%08ld.tmp",
+             appSandbox,
+             millis());
+
     Database dbSnapshot(dbFile);
 
     if (!dbSnapshot.open()) {
         logMessage("Snapshots::sendList: cannot open the snapshot storage");
-        return; // \todo possible leak?
+        return;
     }
 
     File snapshotJsonFile = Hardware::sdcard.createOutputStream(
@@ -71,7 +83,8 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
 
     if (!snapshotJsonFile) {
         logMessage("Snapshots::sendList: cannot open transfer file");
-        return; // \todo leak - database is open
+        dbSnapshot.close();
+        return;
     }
 
     SnapshotRecord snapRec;
@@ -96,7 +109,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
                 snapRec.colour & 0xffffff);
             snapshotJsonFile.write(buf, strlen(buf));
             firstRecord = false;
-            logMessage("color: %06X", snapRec.colour);
+            logMessage("buff: %s", buf);
         }
     }
 
@@ -107,6 +120,11 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
 
     MidiOutput::sendSysExFile(
         port, tempSnapshotFilename, ElectraCommand::Object::SnapshotList);
+
+    if (!Hardware::sdcard.deleteFile(tempSnapshotFilename)) {
+        logMessage("Snapshots::sendList: cannot remove temporary file: %s",
+                   tempSnapshotFilename);
+    }
 }
 
 void Snapshots::sendSnapshot(uint8_t port,
@@ -388,7 +406,7 @@ void Snapshots::swapSnapshotDb(const char *projectId,
     dbSnapshot.close();
 }
 
-void Snapshots::createSnapshotDir(const char *projectId)
+bool Snapshots::createSnapshotDir(const char *projectId)
 {
     char dirname[MAX_DIRNAME_LENGTH + 1];
     snprintf(dirname, MAX_DIRNAME_LENGTH, "%s/snaps", appSandbox);
@@ -396,8 +414,10 @@ void Snapshots::createSnapshotDir(const char *projectId)
     if (!Hardware::sdcard.exists(dirname)) {
         if (!Hardware::sdcard.createDirectory(dirname)) {
             logMessage(
-                "Snapshots::createSnapshotDir: cannot create snaps directory");
+                "Snapshots::createSnapshotDir: cannot create snaps directory: %s",
+                dirname);
         }
+        return (false);
     }
 
     snprintf(dirname, MAX_DIRNAME_LENGTH, "%s/snaps/%s", appSandbox, projectId);
@@ -406,17 +426,17 @@ void Snapshots::createSnapshotDir(const char *projectId)
         if (!Hardware::sdcard.createDirectory(dirname)) {
             logMessage(
                 "Snapshots::createSnapshotDir: cannot create preset snaphot storage");
+            return (false);
         } else {
             logMessage("Snapshots::createSnapshotDir: directory created: %s",
                        dirname);
         }
-    } else {
-        logMessage("Snapshots::createSnapshotDir: directory already exists: %s",
-                   dirname);
     }
+
+    return (true);
 }
 
-void Snapshots::createSnapshotDatabase(const char *projectId)
+bool Snapshots::createSnapshotDatabase(const char *projectId)
 {
     char snapshotDbFilename[MAX_FILENAME_LENGTH + 1];
     snprintf(snapshotDbFilename,
@@ -429,8 +449,14 @@ void Snapshots::createSnapshotDatabase(const char *projectId)
     if (!Hardware::sdcard.exists(snapshotDbFilename)) {
         logMessage("ElectraApp::createSnapshotDatabase: creating db file %s",
                    snapshotDbFilename);
-        dbSnapshot.create(432, sizeof(SnapshotRecord));
+        if (!dbSnapshot.create(432, sizeof(SnapshotRecord))) {
+            logMessage("Snapshots::createSnapshotDatabase: "
+                       "failed to initialize snapshot database: %s",
+                       snapshotDbFilename);
+            return (false);
+        }
     }
+    return (true);
 }
 
 void Snapshots::createSnapshotFilename(char *buffer,

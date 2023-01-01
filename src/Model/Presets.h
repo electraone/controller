@@ -39,7 +39,5 @@ private:
     uint8_t currentBankNumber;
     uint8_t currentSlot;
     bool readyForPresetSwitch;
-
-    char tempFilename[MAX_FILENAME_LENGTH + 1];
     char presetNames[NumPresetsInBank][Preset::MaxNameLength + 1];
 };
