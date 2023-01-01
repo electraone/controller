@@ -68,7 +68,8 @@ void SnapshotsView::snapshotSaved(uint8_t bankNumber,
     if (bankNumber == currentBankNumber) {
         uint16_t id = slot;
         snapsButton[id]->setLabel(name);
-        snapsButton[id]->setColour(Colours565::darker(colour, 0.5f));
+        snapsButton[id]->setColour(Colours565::darker(
+            Colours888::toRGB565(colour), 0.5f));
         snapsButton[id]->setUsed(true);
         repaint();
     }
