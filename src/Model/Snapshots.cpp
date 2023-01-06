@@ -238,6 +238,7 @@ void Snapshots::updateSnapshotDb(const char *projectId,
 
     if (!dbSnapshot.open()) {
         logMessage("updateSnapshotDb: cannot open database: file=%s", dbFile);
+        return;
     }
 
     uint16_t id = (bankNumber * 36) + slot;
