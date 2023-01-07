@@ -145,6 +145,10 @@ void Config::serializeUiFeatures(JsonDocument &doc)
         uiFeatures.resetActiveControlSet;
     doc["uiFeatures"]["activeControlSetType"] =
         translateControlSetTypeToText(uiFeatures.activeControlSetType);
+    doc["uiFeatures"]["keepPresetState"] =
+        uiFeatures.keepPresetState;
+    doc["uiFeatures"]["loadPresetStateOnStartup"] =
+        uiFeatures.loadPresetStateOnStartup;
 }
 
 void Config::serialize(void)
@@ -502,6 +506,14 @@ bool Config::parseUiFeatures(File &file)
             doc["uiFeatures"]["activeControlSetType"].as<char *>());
         logMessage("Config::parseUiFeatures: activeControlSetType=%d",
                    uiFeatures.activeControlSetType);
+        uiFeatures.keepPresetState =
+            doc["uiFeatures"]["keepPresetState"].as<bool>();
+        logMessage("Config::parseUiFeatures: keepPresetState=%d",
+                   uiFeatures.keepPresetState);
+        uiFeatures.loadPresetStateOnStartup =
+            doc["uiFeatures"]["loadPresetStateOnStartup"].as<bool>();
+        logMessage("Config::parseUiFeatures: loadPresetStateOnStartup=%d",
+                   uiFeatures.loadPresetStateOnStartup);
     } else {
         logMessage("Config::parseUiFeatures: no UiFeatures definition found");
     }
@@ -524,6 +536,8 @@ void Config::resetUiFeatures(void)
     uiFeatures.touchSwitchControlSets = true;
     uiFeatures.resetActiveControlSet = true;
     uiFeatures.activeControlSetType = ActiveControlSetType::dim;
+    uiFeatures.keepPresetState = true;
+    uiFeatures.loadPresetStateOnStartup = true;
 }
 
 void Config::useDefault(void)

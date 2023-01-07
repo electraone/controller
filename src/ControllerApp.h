@@ -15,7 +15,7 @@ class Controller : public App, private MidiInputCallback
 {
 public:
     Controller()
-        : model(getApplicationSandbox()),
+        : model(getApplicationSandbox(), appConfig),
           midi(model.currentPreset),
           mainWindow(MainWindow(model, midi, appConfig)),
           delegate(mainWindow),
@@ -33,7 +33,7 @@ public:
 
     const char *getApplicationVersion(void) const override
     {
-        return ("3.0.5");
+        return ("3.0.6");
     }
 
     const char *getApplicationSandbox(void) const override

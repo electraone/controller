@@ -3,10 +3,13 @@
 #include "Presets.h"
 #include "Snapshots.h"
 #include "Info.h"
+#include "Config/Config.h"
 
 struct Model {
-    explicit Model(const char *newAppSandbox)
-        : presets(newAppSandbox),
+    explicit Model(const char *newAppSandbox, const Config &newConfig)
+        : presets(newAppSandbox,
+                  newConfig.uiFeatures.keepPresetState,
+                  newConfig.uiFeatures.loadPresetStateOnStartup),
           snapshots(newAppSandbox),
           currentPreset(presets.preset)
     {

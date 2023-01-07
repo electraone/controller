@@ -7,7 +7,9 @@
 class Presets
 {
 public:
-    explicit Presets(const char *newAppSandbox);
+    Presets(const char *newAppSandbox,
+            const bool &shouldKeepPresetState,
+            const bool &shouldLoadPresetStateOnStartup);
     virtual ~Presets() = default;
 
     void assignPresetNames(uint8_t bankNumber);
@@ -31,6 +33,7 @@ public:
 
 private:
     static constexpr uint8_t NumPresetsInBank = 12;
+    static constexpr uint8_t NumBanks = 6;
 
     void setDefaultFiles(uint8_t newBankNumber, uint8_t newSlot);
 
@@ -40,4 +43,7 @@ private:
     uint8_t currentSlot;
     bool readyForPresetSwitch;
     char presetNames[NumPresetsInBank][Preset::MaxNameLength + 1];
+    bool presetAlreadyLoaded[NumPresetsInBank * NumBanks];
+    const bool &keepPresetState;
+    const bool &loadPresetStateOnStartup;
 };

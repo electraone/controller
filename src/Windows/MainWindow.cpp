@@ -618,7 +618,6 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
         logMessage(
             "MainWindow::switchPreset: cannot initialize snapshot storage");
     }
-    parameterMap.setProjectId(preset.getProjectId());
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
     setInfoText("");
 }

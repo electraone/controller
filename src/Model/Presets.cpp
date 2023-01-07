@@ -7,12 +7,17 @@
 
 Preset *luaPreset = nullptr;
 
-Presets::Presets(const char *newAppSandbox)
+Presets::Presets(const char *newAppSandbox,
+                 const bool &shouldKeepPresetState,
+                 const bool &shouldLoadPresetStateOnStartup)
     : appSandbox(newAppSandbox),
       currentSlot(0),
       currentBankNumber(0),
-      readyForPresetSwitch(true)
+      readyForPresetSwitch(true),
+      keepPresetState(shouldKeepPresetState),
+      loadPresetStateOnStartup(shouldLoadPresetStateOnStartup)
 {
+  memset(presetAlreadyLoaded, false, sizeof(presetAlreadyLoaded));
 }
 
 void Presets::assignPresetNames(uint8_t bankNumber)
@@ -145,8 +150,20 @@ bool Presets::loadPreset(LocalFile file)
     }
 
     System::tasks.enableRepaintGraphics();
+    parameterMap.setProjectId(preset.getProjectId());
     parameterMap.enable();
+    uint8_t presetId = (currentBankNumber * NumBanks) + currentSlot;
+
+    if (!loadPresetStateOnStartup && !presetAlreadyLoaded[presetId]) {
+      parameterMap.forget();
+    }
+    if (keepPresetState) {
+      parameterMap.recall();
+    }
     assignPresetNames(currentBankNumber);
+
+    // mark reset as loaded in this session
+    presetAlreadyLoaded[presetId] = true;
 
     return (true);
 }
@@ -158,6 +175,9 @@ void Presets::reset(void)
 {
     // Disable the ParameterMap sync
     parameterMap.disable();
+    if (keepPresetState) {
+      parameterMap.keep();
+    }
 
     // trigger Lua onLoad function
     if (L) {
