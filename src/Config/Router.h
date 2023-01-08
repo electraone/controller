@@ -3,30 +3,32 @@
 #include <stdint.h>
 
 struct Router {
-    const static uint8_t notSet = 255;
-
     Router()
         : usbDevToMidiIo(true),
           usbDevToUsbHost(true),
+          usbDevToMidiControl(true),
           midiIoToUsbDev(true),
           midiIoToUsbHost(true),
           usbHostToMidiIo(true),
           usbHostToUsbDev(true),
           midiIo1Thru(false),
           midiIo2Thru(false),
-          usbDevCtrl(notSet),
-          midiControlChannel(notSet)
+          midiControlPort(2),
+          midiControlChannel(0),
+          midiControlDrop(true)
     {
     }
 
     bool usbDevToMidiIo;
     bool usbDevToUsbHost;
+    bool usbDevToMidiControl;
     bool midiIoToUsbDev;
     bool midiIoToUsbHost;
     bool usbHostToMidiIo;
     bool usbHostToUsbDev;
     bool midiIo1Thru;
     bool midiIo2Thru;
-    uint8_t usbDevCtrl;
+    uint8_t midiControlPort;
     uint8_t midiControlChannel;
+    bool midiControlDrop;
 };

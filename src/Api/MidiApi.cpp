@@ -14,7 +14,6 @@ void MidiApi::process(const MidiMessage &midiMessage)
     } else if (midiMessage.isProgramChange()) {
         processProgramChange(midiMessage.getData1());
     }
-
     processMidiControl(midiMessage.getType(), midiMessage.getData1());
 }
 

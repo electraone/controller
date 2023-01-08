@@ -108,7 +108,7 @@ public:
                                  midiMessage.getData1(),
                                  midiMessage.getData2());
             }
-            if (routerConfig.midiIoToUsbHost) {
+            if (routerConfig.usbHostToUsbDev) {
                 MidiOutput::send(MidiInterface::Type::MidiUsbDev,
                                  midiInput.getPort(),
                                  midiMessage.getType(),
@@ -179,5 +179,5 @@ public:
     }
 
 private:
-    Router routerConfig;
+    const Router &routerConfig;
 };

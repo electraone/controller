@@ -51,20 +51,16 @@ void Config::serializeRouter(JsonDocument &doc)
 {
     doc["router"]["usbDevToMidiIo"] = router.usbDevToMidiIo;
     doc["router"]["usbDevToUsbHost"] = router.usbDevToUsbHost;
+    doc["router"]["usbDevToMidiControl"] = router.usbDevToMidiControl;
     doc["router"]["midiIoToUsbDev"] = router.midiIoToUsbDev;
     doc["router"]["midiIoToUsbHost"] = router.midiIoToUsbHost;
     doc["router"]["usbHostToMidiIo"] = router.usbHostToMidiIo;
     doc["router"]["usbHostToUsbDev"] = router.usbHostToUsbDev;
     doc["router"]["midiIo1Thru"] = router.midiIo1Thru;
     doc["router"]["midiIo2Thru"] = router.midiIo2Thru;
-
-    if (router.usbDevCtrl != Router::notSet) {
-        doc["router"]["usbDevCtrl"] = router.usbDevCtrl;
-    }
-
-    if (router.midiControlChannel != Router::notSet) {
-        doc["router"]["midiControlChannel"] = router.midiControlChannel;
-    }
+    doc["router"]["midiControlPort"] = router.midiControlPort;
+    doc["router"]["midiControlChannel"] = router.midiControlChannel;
+    doc["router"]["midiControlDrop"] = router.midiControlDrop;
 }
 
 void Config::serializePresetBanks(JsonDocument &doc)
@@ -145,8 +141,7 @@ void Config::serializeUiFeatures(JsonDocument &doc)
         uiFeatures.resetActiveControlSet;
     doc["uiFeatures"]["activeControlSetType"] =
         translateControlSetTypeToText(uiFeatures.activeControlSetType);
-    doc["uiFeatures"]["keepPresetState"] =
-        uiFeatures.keepPresetState;
+    doc["uiFeatures"]["keepPresetState"] = uiFeatures.keepPresetState;
     doc["uiFeatures"]["loadPresetStateOnStartup"] =
         uiFeatures.loadPresetStateOnStartup;
 }
@@ -211,6 +206,8 @@ bool Config::parseRouter(File &file)
     if (doc["router"]) {
         router.usbDevToUsbHost = doc["router"]["usbDevToUsbHost"].as<bool>();
         router.usbDevToMidiIo = doc["router"]["usbDevToMidiIo"].as<bool>();
+        router.usbDevToMidiControl =
+            doc["router"]["usbDevToMidiControl"] | true;
         router.usbHostToUsbDev = doc["router"]["usbHostToUsbDev"].as<bool>();
         router.usbHostToMidiIo = doc["router"]["usbHostToMidiIo"].as<bool>();
         router.midiIoToUsbDev = doc["router"]["midiIoToUsbDev"].as<bool>();
@@ -218,23 +215,16 @@ bool Config::parseRouter(File &file)
         router.midiIo1Thru = doc["router"]["midiIo1Thru"].as<bool>();
         router.midiIo2Thru = doc["router"]["midiIo2Thru"].as<bool>();
 
-        if (doc["router"].containsKey("usbDevCtrl")) {
-            router.usbDevCtrl = doc["router"]["usbDevCtrl"].as<uint8_t>();
-        } else {
-            router.usbDevCtrl = Router::notSet;
-        }
-
-        if (doc["router"].containsKey("midiControlChannel")) {
-            router.midiControlChannel =
-                doc["router"]["midiControlChannel"].as<uint8_t>();
-        } else {
-            router.midiControlChannel = Router::notSet;
-        }
+        router.midiControlPort = doc["router"]["midiControlPort"] | 2;
+        router.midiControlChannel = doc["router"]["midiControlChannel"] | 0;
+        router.midiControlDrop = doc["router"]["midiControlDrop"] | true;
 
         logMessage("Config::parseRouter: usbDevToUsbHost=%d",
                    router.usbDevToUsbHost);
         logMessage("Config::parseRouter: usbDevToMidiIo=%d",
                    router.usbDevToMidiIo);
+        logMessage("Config::parseRouter: usbDevToMidiControl=%d",
+                   router.usbDevToMidiControl);
         logMessage("Config::parseRouter: usbHostToUsbDev=%d",
                    router.usbHostToUsbDev);
         logMessage("Config::parseRouter: usbHostToMidiIo=%d",
@@ -245,9 +235,12 @@ bool Config::parseRouter(File &file)
                    router.midiIoToUsbHost);
         logMessage("Config::parseRouter: midiIo1Thru=%d", router.midiIo1Thru);
         logMessage("Config::parseRouter: midiIo2Thru=%d", router.midiIo2Thru);
-        logMessage("Config::parseRouter: usbDevCtrl=%d", router.usbDevCtrl);
+        logMessage("Config::parseRouter: midiControlPort=%d",
+                   router.midiControlPort);
         logMessage("Config::parseRouter: midiControlChannel=%d",
                    router.midiControlChannel);
+        logMessage("Config::parseRouter: midiControlDrop=%d",
+                   router.midiControlDrop);
     } else {
         logMessage("Config::parseRouter: no router definition found");
     }

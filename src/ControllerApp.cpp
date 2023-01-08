@@ -76,6 +76,16 @@ void Controller::initialise(void)
 void Controller::handleIncomingMidiMessage(const MidiInput &midiInput,
                                            const MidiMessage &midiMessage)
 {
+    if ((appConfig.router.usbDevToMidiControl == true)
+        && (midiInput.getPort() == appConfig.router.midiControlPort)
+        && (midiMessage.getChannel()
+            == appConfig.router.midiControlChannel)) {
+        midiApi.process(midiMessage);
+        if (appConfig.router.midiControlDrop) {
+            return;
+        }
+    }
+
     if (System::context.getMidiLearn()) {
         midiLearn.process(midiInput, midiMessage);
     } else {
