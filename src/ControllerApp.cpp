@@ -78,8 +78,7 @@ void Controller::handleIncomingMidiMessage(const MidiInput &midiInput,
 {
     if ((appConfig.router.usbDevToMidiControl == true)
         && (midiInput.getPort() == appConfig.router.midiControlPort)
-        && (midiMessage.getChannel()
-            == appConfig.router.midiControlChannel)) {
+        && (midiMessage.getChannel() == appConfig.router.midiControlChannel)) {
         midiApi.process(midiMessage);
         if (appConfig.router.midiControlDrop) {
             return;
@@ -137,15 +136,6 @@ bool Controller::handleCtrlFileRemoved(uint8_t bankNumber,
 void Controller::handleElectraSysex(uint8_t port, const SysexBlock &sysexBlock)
 {
     sysexApi.process(port, sysexBlock);
-}
-
-/** Electra External Midi control message handler.
- *
- */
-void Controller::handleIncomingControlMessage(MidiInput &midiInput,
-                                              MidiMessage &midiMessage)
-{
-    midiApi.process(midiMessage);
 }
 
 /** User configurable task

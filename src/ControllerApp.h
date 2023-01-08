@@ -54,8 +54,6 @@ private:
                                ElectraCommand::Object fileType) override;
     void handleElectraSysex(uint8_t port,
                             const SysexBlock &sysexBlock) override;
-    void handleIncomingControlMessage(MidiInput &midiInput,
-                                      MidiMessage &midiMessage) override;
 
     // Patch requests
     void runUserTask(void);
