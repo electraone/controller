@@ -17,7 +17,7 @@ Presets::Presets(const char *newAppSandbox,
       keepPresetState(shouldKeepPresetState),
       loadPresetStateOnStartup(shouldLoadPresetStateOnStartup)
 {
-  memset(presetAlreadyLoaded, false, sizeof(presetAlreadyLoaded));
+    memset(presetAlreadyLoaded, false, sizeof(presetAlreadyLoaded));
 }
 
 void Presets::assignPresetNames(uint8_t bankNumber)
@@ -155,10 +155,10 @@ bool Presets::loadPreset(LocalFile file)
     uint8_t presetId = (currentBankNumber * NumBanks) + currentSlot;
 
     if (!loadPresetStateOnStartup && !presetAlreadyLoaded[presetId]) {
-      parameterMap.forget();
+        parameterMap.forget();
     }
     if (keepPresetState) {
-      parameterMap.recall();
+        parameterMap.recall();
     }
     assignPresetNames(currentBankNumber);
 
@@ -176,7 +176,7 @@ void Presets::reset(void)
     // Disable the ParameterMap sync
     parameterMap.disable();
     if (keepPresetState) {
-      parameterMap.keep();
+        parameterMap.keep();
     }
 
     // trigger Lua onLoad function
