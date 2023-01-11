@@ -9,8 +9,8 @@ public:
     explicit SysexApi(MainDelegate &newDelegate);
     virtual ~SysexApi() = default;
 
-    void process(uint8_t port, const SysexBlock &sysexBlock);
-    void
+    bool process(uint8_t port, const SysexBlock &sysexBlock);
+    bool
         process(uint8_t port, LocalFile &file, ElectraCommand::Object fileType);
 
 private:

@@ -102,13 +102,15 @@ bool Controller::handleCtrlFileReceived(uint8_t port,
                                         LocalFile file,
                                         ElectraCommand::Object fileType)
 {
+    bool status = false;
+
     if (fileType == ElectraCommand::Object::FileConfig) {
-        applyChangesToConfig(file);
+        status = applyChangesToConfig(file);
     } else {
-        sysexApi.process(port, file, fileType);
+        status = sysexApi.process(port, file, fileType);
     }
 
-    return (true);
+    return (status);
 }
 
 /** File removed handler.

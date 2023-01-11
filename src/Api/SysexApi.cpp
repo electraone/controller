@@ -6,7 +6,7 @@ SysexApi::SysexApi(MainDelegate &newDelegate) : delegate(newDelegate)
 {
 }
 
-void SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
+bool SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
 {
     ElectraCommand cmd = sysexBlock.getElectraSysexCommand();
     MemoryBlock sysexPayload = sysexBlock.getElectraSysexPayload();
@@ -79,23 +79,32 @@ void SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
     } else {
         logMessage("SysexApi::process: unknown sysex request");
     }
+    /* \todo This needs to be reviewed. Commands are taking care of ACK/NACK
+     * by themselves. That is not in line with the file processing.
+     */
+    return (true);
 }
 
-void SysexApi::process(uint8_t port,
+bool SysexApi::process(uint8_t port,
                        LocalFile &file,
                        ElectraCommand::Object fileType)
 {
+    bool status = false;
+
     if (fileType == ElectraCommand::Object::FilePreset) {
-        loadPreset(port, file);
-        MidiOutput::sendPresetSlotChanged(MidiInterface::Type::MidiUsbDev,
-                                          port);
+        status = loadPreset(port, file);
+        if (status) {
+            MidiOutput::sendPresetSlotChanged(MidiInterface::Type::MidiUsbDev,
+                                              port);
+        }
     } else if (fileType == ElectraCommand::Object::FileLua) {
-        loadLua(port, file);
+        status = loadLua(port, file);
     } else if (fileType == ElectraCommand::Object::FileConfig) {
-        loadConfig(port, file);
+        status = loadConfig(port, file);
     } else if (fileType == ElectraCommand::Object::FileSnapshot) {
-        importSnapshot(port, file);
+        status = importSnapshot(port, file);
     }
+    return (status);
 }
 
 void SysexApi::sendSnapshotList(uint8_t port, MemoryBlock &sysexPayload)
