@@ -78,7 +78,9 @@ void Controller::handleIncomingMidiMessage(const MidiInput &midiInput,
 {
     if ((appConfig.router.usbDevToMidiControl == true)
         && (midiInput.getPort() == appConfig.router.midiControlPort)
-        && (midiMessage.getChannel() == appConfig.router.midiControlChannel)) {
+        && ((appConfig.router.midiControlChannel == 0)
+            || (midiMessage.getChannel()
+                == appConfig.router.midiControlChannel))) {
         midiApi.process(midiMessage);
         if (appConfig.router.midiControlDrop) {
             return;
