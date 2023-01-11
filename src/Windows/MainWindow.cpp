@@ -67,6 +67,10 @@ void MainWindow::onButtonUp(uint8_t buttonId)
 
 void MainWindow::switchOff(void)
 {
+    if (setup.uiFeatures.keepPresetState
+        || setup.uiFeatures.loadPresetStateOnStartup) {
+        parameterMap.keep();
+    }
     for (int i = 0; i < 16000; i += 128) {
         Hardware::screen.setBacklightbrightness(i);
         delay(10);
