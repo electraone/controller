@@ -33,7 +33,9 @@ public:
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 2) {
-            uiApi.switchOff();
+            if (Hardware::buttons[BUTTON_RIGHT_BOTTOM]->isPressed()) {
+                uiApi.switchOff();
+            }
         } else if (buttonId == 3) {
             uiApi.pageSelection_openUsbHostPorts();
         } else if (buttonId == 4) {
