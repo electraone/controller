@@ -17,7 +17,6 @@ public:
 
     bool load(void);
     bool load(const char *filename);
-    void serialize(void);
     void useDefault(void);
     void resetPresetBanks(void);
     void resetUiFeatures(void);
@@ -38,13 +37,6 @@ private:
     bool parseUsbHostAssigments(File &file);
     bool parseMidiControl(File &file);
     bool parseUiFeatures(File &file);
-
-    void serializeRoot(JsonDocument &doc);
-    void serializeRouter(JsonDocument &doc);
-    void serializePresetBanks(JsonDocument &doc);
-    void serializeUsbHostAssigments(JsonDocument &doc);
-    void serializeMidiControl(JsonDocument &doc);
-    void serializeUiFeatures(JsonDocument &doc);
 
     static const char *translatePresetBankColour(uint32_t rgb888);
 };

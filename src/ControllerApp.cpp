@@ -165,11 +165,14 @@ void Controller::runUserTask(void)
 bool Controller::applyChangesToConfig(LocalFile file)
 {
     if (appConfig.load(file.getFilepath())) {
-        appConfig.serialize();
-        if (loadConfig()) {
-            delegate.displayPage();
-            return (true);
+        configureApp();
+        delegate.displayPage();
+        Hardware::sdcard.deleteFile(System::context.getCurrentConfigFile());
+        if (!file.rename(System::context.getCurrentConfigFile())) {
+            logMessage("applyChangesToConfig: failed to update config: %s",
+                       System::context.getCurrentConfigFile());
         }
+        return (true);
     }
     return (false);
 }

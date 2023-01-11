@@ -2,6 +2,7 @@
 #include "PersistentStorage.h"
 #include "Hardware.h"
 #include "System.h"
+#include "JsonTools.h"
 
 /** Config contructor
  *  an object that keeps information about the Electra base system settings that
@@ -40,134 +41,6 @@ bool Config::load(const char *filename)
     }
 
     return (true);
-}
-
-void Config::serializeRoot(JsonDocument &doc)
-{
-    doc["version"] = 1;
-}
-
-void Config::serializeRouter(JsonDocument &doc)
-{
-    doc["router"]["usbDevToMidiIo"] = router.usbDevToMidiIo;
-    doc["router"]["usbDevToUsbHost"] = router.usbDevToUsbHost;
-    doc["router"]["usbDevToMidiControl"] = router.usbDevToMidiControl;
-    doc["router"]["midiIoToUsbDev"] = router.midiIoToUsbDev;
-    doc["router"]["midiIoToUsbHost"] = router.midiIoToUsbHost;
-    doc["router"]["usbHostToMidiIo"] = router.usbHostToMidiIo;
-    doc["router"]["usbHostToUsbDev"] = router.usbHostToUsbDev;
-    doc["router"]["midiIo1Thru"] = router.midiIo1Thru;
-    doc["router"]["midiIo2Thru"] = router.midiIo2Thru;
-    doc["router"]["midiControlPort"] = router.midiControlPort;
-    doc["router"]["midiControlChannel"] = router.midiControlChannel;
-    doc["router"]["midiControlDrop"] = router.midiControlDrop;
-}
-
-void Config::serializePresetBanks(JsonDocument &doc)
-{
-    JsonArray jPresetBanks = doc.createNestedArray("presetBanks");
-
-    for (uint8_t i = 0; i < numPresetBanks; i++) {
-        StaticJsonDocument<128> presetBankObject;
-        JsonObject jPresetBank = presetBankObject.createNestedObject();
-
-        jPresetBank["id"] = presetBanks[i].id;
-        jPresetBank["name"] = presetBanks[i].name;
-        jPresetBank["color"] =
-            Config::translatePresetBankColour(presetBanks[i].colour);
-
-        if (jPresetBanks.add(jPresetBank) == false) {
-            logMessage(
-                "Config::serialize: cannot add a presetBank to the setup");
-        }
-    }
-}
-
-void Config::serializeUsbHostAssigments(JsonDocument &doc)
-{
-    JsonArray jUsbHostAssigments = doc.createNestedArray("usbHostAssigments");
-
-    for (auto &assigment : usbHostAssigments) {
-        StaticJsonDocument<128> usbHostAssigmentObject;
-        JsonObject jUsbHostAssigment =
-            usbHostAssigmentObject.createNestedObject();
-
-        jUsbHostAssigment["pattern"] = assigment.pattern;
-        jUsbHostAssigment["port"] = assigment.port + 1;
-
-        if (jUsbHostAssigments.add(jUsbHostAssigment) == false) {
-            logMessage(
-                "Config::serialize: cannot add a usbHostAssigment to the setup");
-        }
-    }
-}
-
-void Config::serializeMidiControl(JsonDocument &doc)
-{
-    JsonArray jMidiControls = doc.createNestedArray("midiControl");
-
-    for (auto &midiControl : midiControls) {
-        StaticJsonDocument<256> MidiControlObject;
-        JsonObject jMidiControl = MidiControlObject.createNestedObject();
-
-        jMidiControl["midiMessage"] =
-            MidiMessage::translateTypeToText(midiControl.midiMessageType);
-        jMidiControl["parameterNumber"] = midiControl.parameterNumber;
-
-        if (!midiControl.command) {
-            jMidiControl["event"] =
-                translateAppEventTypeToText(midiControl.eventType);
-            jMidiControl["eventParameter"] = midiControl.eventParameter1;
-        } else {
-            jMidiControl["command"]["type"] =
-                translateAppEventTypeToText(midiControl.eventType);
-            jMidiControl["command"]["pageId"] = midiControl.eventParameter1;
-            jMidiControl["command"]["controlSetId"] =
-                midiControl.eventParameter2;
-        }
-
-        if (jMidiControls.add(jMidiControl) == false) {
-            logMessage(
-                "Config::serialize: cannot add a midiControl to the setup");
-        }
-    }
-}
-
-void Config::serializeUiFeatures(JsonDocument &doc)
-{
-    doc["uiFeatures"]["touchSwitchControlSets"] =
-        uiFeatures.touchSwitchControlSets;
-    doc["uiFeatures"]["resetActiveControlSet"] =
-        uiFeatures.resetActiveControlSet;
-    doc["uiFeatures"]["activeControlSetType"] =
-        translateControlSetTypeToText(uiFeatures.activeControlSetType);
-    doc["uiFeatures"]["keepPresetState"] = uiFeatures.keepPresetState;
-    doc["uiFeatures"]["loadPresetStateOnStartup"] =
-        uiFeatures.loadPresetStateOnStartup;
-}
-
-void Config::serialize(void)
-{
-    StaticJsonDocument<2048> doc;
-
-    File file = Hardware::sdcard.createOutputStream(
-        System::context.getCurrentConfigFile(), FILE_WRITE | O_CREAT | O_TRUNC);
-
-    if (!file) {
-        logMessage("Config::serialize: cannot open setup file for writing");
-        return;
-    }
-
-    serializeRoot(doc);
-    serializeRouter(doc);
-    serializePresetBanks(doc);
-    serializeUsbHostAssigments(doc);
-    serializeMidiControl(doc);
-    serializeUiFeatures(doc);
-
-    serializeJson(doc, file);
-
-    file.close();
 }
 
 bool Config::parse(File &file)
@@ -353,32 +226,38 @@ bool Config::parseUsbHostAssigments(File &file)
 
 bool Config::parseMidiControl(File &file)
 {
-    const size_t capacityMidiControls = JSON_OBJECT_SIZE(1) + 2000;
-    const size_t capacityFilter = JSON_OBJECT_SIZE(1) + 100;
+    const size_t capacityMidiControls = JSON_OBJECT_SIZE(1) + 3000;
+    const size_t capacityFilter = JSON_OBJECT_SIZE(1) + 200;
     StaticJsonDocument<capacityMidiControls> doc;
     StaticJsonDocument<capacityFilter> filter;
-
-    filter["midiControl"] = true;
 
     if (file.seek(0) == false) {
         logMessage("Config::parseMidiControl: cannot rewind the file");
         return (false);
     }
 
-    DeserializationError err =
-        deserializeJson(doc, file, DeserializationOption::Filter(filter));
-
-    if (err) {
-        logMessage("Config::parseMidiControl: parsing failed: %s", err.c_str());
-        return (false);
+    if (findElement(file, "\"midiControl\"", ARRAY) == false) {
+        logMessage("Config::parseMidiControl: midiControl array not found");
+        return (true);
     }
 
-    JsonArray jMidiControls = doc["midiControl"];
+    if (isElementEmpty(file)) {
+        logMessage("Config::parseMidiControl: no midiControl defined");
+        return (true);
+    }
 
-    if (jMidiControls) {
-        midiControls = std::vector<MidiControl>();
+    do {
+        DeserializationError err = deserializeJson(doc, file);
 
-        for (JsonVariant jMidiControl : jMidiControls) {
+        if (err) {
+            logMessage("Config::parseMidiControl: parsing failed: %s",
+                       err.c_str());
+            return (false);
+        }
+
+        JsonObject jMidiControl = doc.as<JsonObject>();
+
+        if (jMidiControl) {
             const char *midiMessage = jMidiControl["midiMessage"].as<char *>();
             uint8_t parameterNumber =
                 jMidiControl["parameterNumber"].as<uint8_t>();
@@ -428,10 +307,11 @@ bool Config::parseMidiControl(File &file)
                 uint8_t eventParameter =
                     jMidiControl["eventParameter"].as<uint8_t>();
 
+                /*
                 if (eventParameter > 12) {
                     eventParameter = 0;
                 }
-
+    */
                 if (parameterNumber > 127) {
                     parameterNumber = 0;
                 }
@@ -455,11 +335,11 @@ bool Config::parseMidiControl(File &file)
                     midiMessageType,
                     parameterNumber);
             }
+        } else {
+            logMessage(
+                "Config::parseMidiControl:: no midiControl definition found");
         }
-    } else {
-        logMessage(
-            "Config::parseMidiControl:: no midiControl definition found");
-    }
+    } while (file.findUntil(",", "]"));
 
     return (true);
 }
@@ -529,15 +409,14 @@ void Config::resetUiFeatures(void)
     uiFeatures.touchSwitchControlSets = true;
     uiFeatures.resetActiveControlSet = true;
     uiFeatures.activeControlSetType = ActiveControlSetType::dim;
-    uiFeatures.keepPresetState = true;
-    uiFeatures.loadPresetStateOnStartup = true;
+    uiFeatures.keepPresetState = false;
+    uiFeatures.loadPresetStateOnStartup = false;
 }
 
 void Config::useDefault(void)
 {
     resetPresetBanks();
     resetUiFeatures();
-    serialize();
 }
 
 uint8_t Config::getUsbHostAssigment(const char *productName)
