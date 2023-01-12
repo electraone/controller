@@ -178,6 +178,9 @@ bool Config::parseUsbHostAssigments(File &file)
 
     filter["usbHostAssigments"] = true;
 
+    // any previous USB host assigments
+    usbHostAssigments.clear();
+
     if (file.seek(0) == false) {
         logMessage("Config::parseUsbHostAssigments: cannot rewind the file");
         return (false);
@@ -230,6 +233,9 @@ bool Config::parseMidiControl(File &file)
     const size_t capacityFilter = JSON_OBJECT_SIZE(1) + 200;
     StaticJsonDocument<capacityMidiControls> doc;
     StaticJsonDocument<capacityFilter> filter;
+
+    // clear any previous MIDI Controls
+    midiControls.clear();
 
     if (file.seek(0) == false) {
         logMessage("Config::parseMidiControl: cannot rewind the file");
@@ -307,11 +313,6 @@ bool Config::parseMidiControl(File &file)
                 uint8_t eventParameter =
                     jMidiControl["eventParameter"].as<uint8_t>();
 
-                /*
-                if (eventParameter > 12) {
-                    eventParameter = 0;
-                }
-    */
                 if (parameterNumber > 127) {
                     parameterNumber = 0;
                 }
