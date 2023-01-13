@@ -1012,6 +1012,13 @@ void MainWindow::sendAllControls(void)
     }
 }
 
+void MainWindow::sendPotTouchEvent(uint8_t potId,
+                                   uint16_t controlId,
+                                   bool touched)
+{
+    uiApi.sendPotTouchEvent(potId, controlId, touched);
+}
+
 void MainWindow::initialiseEmpty(void)
 {
     switchPage(1, 0);

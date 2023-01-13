@@ -123,8 +123,10 @@ public:
     void setCurrentSnapshotBank(uint8_t bankNumber) override;
     void setControlPort(uint8_t newControlPort) override;
     uint8_t getControlPort(void) override;
-
-    void sendAllControls(void);
+    void sendAllControls(void) override;
+    void sendPotTouchEvent(uint8_t potId,
+                           uint16_t controlId,
+                           bool touched) override;
 
     // Misc
     void requestAllPatches(void) override;

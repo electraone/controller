@@ -110,6 +110,8 @@ public:
     virtual void setCurrentSnapshotBank(uint8_t bankNumber) = 0;
     virtual void setControlPort(uint8_t newControlPort) = 0;
     virtual uint8_t getControlPort(void) = 0;
+    virtual void
+        sendPotTouchEvent(uint8_t potId, uint16_t controlId, bool touched) = 0;
 
     virtual void sendAllControls(void) = 0;
 

@@ -64,12 +64,14 @@ void ControlComponent::onPotTouchDown(const PotEvent &potEvent)
 {
     delegate.setActivePotTouch(potEvent.getPotId(), this);
     setActive(true);
+    delegate.sendPotTouchEvent(potEvent.getPotId(), this->getId(), true);
 }
 
 void ControlComponent::onPotTouchUp(const PotEvent &potEvent)
 {
     delegate.resetActivePotTouch(potEvent.getPotId());
     setActive(false);
+    delegate.sendPotTouchEvent(potEvent.getPotId(), this->getId(), false);
 }
 
 void ControlComponent::updateValueFromParameterMap(void)

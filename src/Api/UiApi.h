@@ -29,6 +29,7 @@ public:
                       uint32_t colour);
     void
         removeSnapshot(const char *projectId, uint8_t bankNumber, uint8_t slot);
+    void sendPotTouchEvent(uint8_t potId, uint16_t controlId, bool touched);
 
     void presetSelection_openUsbHostPorts(void);
     void presetSelection_close(void);
