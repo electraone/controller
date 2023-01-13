@@ -5,7 +5,7 @@
 #include "Event.h"
 #include <cstdint>
 #include <cstring>
-#include "helpers.h"
+#include "System.h"
 
 #define MIDI_VALUE_DO_NOT_SEND 16537
 
@@ -194,17 +194,18 @@ public:
 
     void print(void) const
     {
-        logMessage("--");
-        logMessage("        deviceId: %d", getDeviceId());
-        logMessage(
+        System::logger.write("--");
+        System::logger.write("        deviceId: %d", getDeviceId());
+        System::logger.write(
             "        type: %s (%d)", translateType(getType()), getType());
-        logMessage("        parameterNumber: %d", getParameterNumber());
-        logMessage("        min: %d", getMidiMin());
-        logMessage("        max: %d", getMidiMax());
-        logMessage("        value: %d", getValue());
-        logMessage("        signMode: %d", getSignMode());
-        logMessage("        lsbFirst: %d", getLsbFirst());
-        logMessage("        bitWidth: %d", getBitWidth());
+        System::logger.write("        parameterNumber: %d",
+                             getParameterNumber());
+        System::logger.write("        min: %d", getMidiMin());
+        System::logger.write("        max: %d", getMidiMax());
+        System::logger.write("        value: %d", getValue());
+        System::logger.write("        signMode: %d", getSignMode());
+        System::logger.write("        lsbFirst: %d", getLsbFirst());
+        System::logger.write("        bitWidth: %d", getBitWidth());
     }
 
     static Type translateType(const char *typeText)

@@ -72,7 +72,7 @@ uint16_t getUnsignedMidiValue(int16_t value,
 	 */
     midiValue = constrain(midiValue, midiMin, midiMax);
 #ifdef DEBUG
-    logMessage(
+    System::logger.write(
         "getUnsignedMidiValue: value=%d, minValue=%d, maxValue=%d, midiMin=%d,"
         " midiMax=%d results in midiValue=%d (%f)",
         value,
@@ -166,7 +166,7 @@ int16_t getUnsignedValue(uint16_t midiValue,
     int16_t value = round(fValue);
 
 #ifdef DEBUG
-    logMessage(
+    System::logger.write(
         "getUnsignedValue: midiValue=%d, minValue=%d, maxValue=%d, midiMin=%d,"
         " midiMax=%d results in value=%d (%f)",
         midiValue,

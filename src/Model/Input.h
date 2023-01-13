@@ -33,8 +33,8 @@ public:
 
     void print(void) const
     {
-        logMessage("    potId: %d", getPotId());
-        logMessage("    valueId: %d", getValueId());
+        System::logger.write("    potId: %d", getPotId());
+        System::logger.write("    valueId: %d", getValueId());
     }
 
 private:

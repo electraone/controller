@@ -138,7 +138,7 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
                                     Origin origin)
 {
     //#ifdef DEBUG
-    logMessage(
+    System::logger.write(
         "ParameterMap::setValue: deviceId=%d, type=%d, parameterNumber=%d, midiValue=%d, origin=%d",
         deviceId,
         type,
@@ -239,9 +239,9 @@ void ParameterMap::reset(void)
  */
 void ParameterMap::print(void)
 {
-    logMessage("--<Parameter Map:start>--");
+    System::logger.write("--<Parameter Map:start>--");
     for (auto &entry : entries) {
-        logMessage(
+        System::logger.write(
             "ParameterMap entry: deviceId: %d, type=%d, parameterNumber=%d,"
             " midiValue=%d, numDestinations=%d",
             getDeviceId(entry.hash),
@@ -250,12 +250,12 @@ void ParameterMap::print(void)
             entry.midiValue,
             entry.messageDestination.size());
         for (auto &md : entry.messageDestination) {
-            logMessage("control: %s, value handle: %s",
-                       md->getControl()->getName(),
-                       md->getId());
+            System::logger.write("control: %s, value handle: %s",
+                                 md->getControl()->getName(),
+                                 md->getId());
         }
     }
-    logMessage("--<Parameter Map:end>--");
+    System::logger.write("--<Parameter Map:end>--");
 }
 
 /*
@@ -265,7 +265,7 @@ void ParameterMap::keep(void)
 {
     char mapStateFilename[MAX_FILENAME_LENGTH + 1];
     prepareMapStateFilename(mapStateFilename, MAX_FILENAME_LENGTH);
-    logMessage("keep %s", mapStateFilename);
+    System::logger.write("keep %s", mapStateFilename);
     save(mapStateFilename);
 }
 
@@ -280,7 +280,7 @@ void ParameterMap::serialize(const char *filename)
         filename, FILE_WRITE | O_CREAT | O_TRUNC);
 
     if (!file) {
-        logMessage(
+        System::logger.write(
             "ParameterMap::serialize: cannot open the patch file for writing");
         return;
     }
@@ -315,7 +315,7 @@ void ParameterMap::serializeMap(File &file)
         file.print(entry.midiValue);
         file.print("}");
 
-        logMessage(
+        System::logger.write(
             "entry: deviceI=%d, type=%d, parameterNumber=%d, midiValue=%d",
             getDeviceId(entry.hash),
             getType(entry.hash),
@@ -338,7 +338,7 @@ bool ParameterMap::recall(void)
     bool status = false;
     char mapStateFilename[MAX_FILENAME_LENGTH + 1];
     prepareMapStateFilename(mapStateFilename, MAX_FILENAME_LENGTH);
-    logMessage("recall %s", mapStateFilename);
+    System::logger.write("recall %s", mapStateFilename);
     if (Hardware::sdcard.exists(mapStateFilename)) {
         status = load(mapStateFilename);
     }
@@ -350,27 +350,28 @@ void ParameterMap::forget(void)
     char mapStateFilename[MAX_FILENAME_LENGTH + 1];
     prepareMapStateFilename(mapStateFilename, MAX_FILENAME_LENGTH);
     if (Hardware::sdcard.deleteFile(mapStateFilename)) {
-        logMessage("ParameterMap::forget: cannot remove file: %s",
-                   mapStateFilename);
+        System::logger.write("ParameterMap::forget: cannot remove file: %s",
+                             mapStateFilename);
     }
 }
 
 bool ParameterMap::load(const char *filename)
 {
-    logMessage("ParameterMap::load: file: filename=%s", filename);
+    System::logger.write("ParameterMap::load: file: filename=%s", filename);
 
     File file = Hardware::sdcard.createInputStream(filename);
 
     if (!file) {
-        logMessage("ParameterMap::load: cannot open setup file: %s", filename);
+        System::logger.write("ParameterMap::load: cannot open setup file: %s",
+                             filename);
         return (false);
     }
 
     file.setTimeout(100);
 
     if (!parse(file)) {
-        logMessage("ParameterMap::load: cannot parse setup: filename=%s",
-                   filename);
+        System::logger.write(
+            "ParameterMap::load: cannot parse setup: filename=%s", filename);
         file.close();
         return (false);
     } else {
@@ -397,7 +398,8 @@ bool ParameterMap::parseParameters(File &file)
     uint16_t midiValue;
 
     if (findElement(file, "\"parameters\"", ARRAY) == false) {
-        logMessage("ParameterMap::parseParameters: parameters array not found");
+        System::logger.write(
+            "ParameterMap::parseParameters: parameters array not found");
         return (false);
     }
 
@@ -405,7 +407,7 @@ bool ParameterMap::parseParameters(File &file)
         DeserializationError err = deserializeJson(doc, file);
 
         if (err && (err.code() != DeserializationError::InvalidInput)) {
-            logMessage(
+            System::logger.write(
                 "ParameterMap::parseParameters: deserializeJson() failed: %s",
                 err.c_str());
             return (false);
@@ -425,7 +427,7 @@ bool ParameterMap::parseParameters(File &file)
                      midiValue,
                      Origin::file);
 
-            logMessage(
+            System::logger.write(
                 "ParameterMap::parseParameters: deviceId=%d, messageType=%d, "
                 "parameterNumber=%d, midiValue=%d",
                 deviceId,
@@ -442,23 +444,23 @@ bool ParameterMap::parseParameters(File &file)
 
 bool ParameterMap::addWindow(ParameterMapWindow *windowToAdd)
 {
-    logMessage("Pmap: addWindow: window=%s, address=%x",
-               windowToAdd->getName(),
-               windowToAdd);
+    System::logger.write("Pmap: addWindow: window=%s, address=%x",
+                         windowToAdd->getName(),
+                         windowToAdd);
     windows.push_back(windowToAdd);
     return (true);
 }
 
 void ParameterMap::removeWindow(ParameterMapWindow *windowToRemove)
 {
-    logMessage("Pmap: removeWindow: window=%s, address=%x",
-               windowToRemove->getName(),
-               windowToRemove);
+    System::logger.write("Pmap: removeWindow: window=%s, address=%x",
+                         windowToRemove->getName(),
+                         windowToRemove);
 
     for (auto i = windows.begin(); i != windows.end(); i++) {
         if (*i == windowToRemove) {
             windows.erase(i);
-            logMessage("Pmap: window removed");
+            System::logger.write("Pmap: window removed");
             // note: iterator is invalid!
             return;
         }
@@ -473,10 +475,10 @@ void ParameterMap::listWindows(void)
     uint8_t index = 0;
 
     for (const auto &window : windows) {
-        logMessage("Pmap: listWindows: index=%d, name=%s, address=%x",
-                   index,
-                   window->getName(),
-                   window);
+        System::logger.write("Pmap: listWindows: index=%d, name=%s, address=%x",
+                             index,
+                             window->getName(),
+                             window);
         index++;
     }
 }
@@ -509,7 +511,7 @@ void ParameterMap::repaintParameterMap(void)
     for (auto &mapEntry : entries) {
         if (mapEntry.dirty) {
 #ifdef DEBUG
-            logMessage(
+            System::logger.write(
                 "repaintParameterMap: dirty entry found: device=%d, type=%d, "
                 "parameterNumber=%d, midiValue=%d",
                 getDeviceId(mapEntry.hash),
@@ -528,7 +530,7 @@ void ParameterMap::repaintParameterMap(void)
 
                         if (c) {
 #ifdef DEBUG
-                            logMessage(
+                            System::logger.write(
                                 "repaintParameterMap: repainting component: component: %s, controlId=%d, valueId=%s",
                                 c->getName(),
                                 messageDestination->getControl()->getId(),

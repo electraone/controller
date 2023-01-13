@@ -13,7 +13,7 @@ void MidiLearn::process(const MidiInput &midiInput,
     Device midiLearnDevice(MidiLearnDeviceId, "ml", midiPort, midiChannel, 0);
 
 #ifdef DEBUG
-    logMessage(
+    System::logger.write(
         "ElectraMidi::processMidiLearn: getting a device: port=%d, channel=%d",
         midiPort,
         midiChannel);
@@ -29,7 +29,7 @@ void MidiLearn::process(const MidiInput &midiInput,
 
         if (rpnDetector.parseControllerMessage(
                 device.getId(), midiParameterId, midiValue, midiRpnMessage)) {
-            logMessage(
+            System::logger.write(
                 "ElectraMidi::processMidiLearn: RPN detected: parameter=%d, "
                 "value=%d, isNrpn=%d, is14bit=%d",
                 midiRpnMessage.parameterNumber,
@@ -66,7 +66,7 @@ void MidiLearn::process(const MidiInput &midiInput,
 
         if (cc14Detector.parseControllerMessage(
                 device.getId(), midiParameterId, midiValue, midiCc14Message)) {
-            logMessage(
+            System::logger.write(
                 "ElectraMidi::processMidiLearn: CC14 detected: parameter=%d, value=%d",
                 midiCc14Message.parameterNumber,
                 midiCc14Message.value);
@@ -94,8 +94,8 @@ void MidiLearn::process(const MidiInput &midiInput,
                || (midiType == MidiMessage::Type::NoteOff)) {
         uint8_t midiNoteNr = midiMessage.getData1();
         uint8_t value = (midiType == MidiMessage::Type::NoteOn) ? 127 : 0;
-        logMessage("ElectraMidi::processMidiLearn: note message: note=%d",
-                   midiNoteNr);
+        System::logger.write(
+            "ElectraMidi::processMidiLearn: note message: note=%d", midiNoteNr);
         MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
                                   USB_MIDI_PORT_CTRL,
                                   "note",
@@ -106,8 +106,9 @@ void MidiLearn::process(const MidiInput &midiInput,
         return;
     } else if (midiType == MidiMessage::Type::ProgramChange) {
         uint8_t programNumber = midiMessage.getData1();
-        logMessage("ElectraMidi::processMidiLearn: program message: program=%d",
-                   programNumber);
+        System::logger.write(
+            "ElectraMidi::processMidiLearn: program message: program=%d",
+            programNumber);
         MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
                                   USB_MIDI_PORT_CTRL,
                                   "program",
@@ -119,10 +120,11 @@ void MidiLearn::process(const MidiInput &midiInput,
     } else if (midiType == MidiMessage::Type::AfterTouchPoly) {
         uint8_t noteNumber = midiMessage.getData1();
         uint8_t pressure = midiMessage.getData2();
-        logMessage("ElectraMidi::processMidiLearn: aftertouch poly message: "
-                   "program=%d, pressure=%d",
-                   noteNumber,
-                   pressure);
+        System::logger.write(
+            "ElectraMidi::processMidiLearn: aftertouch poly message: "
+            "program=%d, pressure=%d",
+            noteNumber,
+            pressure);
         MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
                                   USB_MIDI_PORT_CTRL,
                                   "atpoly",
@@ -133,9 +135,10 @@ void MidiLearn::process(const MidiInput &midiInput,
         return;
     } else if (midiType == MidiMessage::Type::AfterTouchChannel) {
         uint8_t pressure = midiMessage.getData1();
-        logMessage("ElectraMidi::processMidiLearn: aftertouch channel message: "
-                   "pressure=%d",
-                   pressure);
+        System::logger.write(
+            "ElectraMidi::processMidiLearn: aftertouch channel message: "
+            "pressure=%d",
+            pressure);
         MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
                                   USB_MIDI_PORT_CTRL,
                                   "atchannel",
@@ -146,9 +149,10 @@ void MidiLearn::process(const MidiInput &midiInput,
         return;
     } else if (midiType == MidiMessage::Type::PitchBend) {
         uint16_t value = midiMessage.getData2() << 7 | midiMessage.getData1();
-        logMessage("ElectraMidi::processMidiLearn: pitchbend message: "
-                   "value=%d",
-                   value);
+        System::logger.write(
+            "ElectraMidi::processMidiLearn: pitchbend message: "
+            "value=%d",
+            value);
         MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
                                   USB_MIDI_PORT_CTRL,
                                   "pitchbend",
@@ -159,9 +163,10 @@ void MidiLearn::process(const MidiInput &midiInput,
         return;
     } else if (midiType == MidiMessage::Type::SongPosition) {
         uint16_t value = midiMessage.getData2() << 7 | midiMessage.getData1();
-        logMessage("ElectraMidi::processMidiLearn: song position message: "
-                   "value=%d",
-                   value);
+        System::logger.write(
+            "ElectraMidi::processMidiLearn: song position message: "
+            "value=%d",
+            value);
         MidiOutput::sendMidiLearn(MidiInterface::Type::MidiUsbDev,
                                   USB_MIDI_PORT_CTRL,
                                   "spp",
@@ -176,6 +181,7 @@ void MidiLearn::process(const MidiInput &midiInput,
                                        midiPort + 1,
                                        midiMessage.getSysExBlock());
     } else {
-        logMessage("ElectraMidi::processMidiLearn: learn not supported");
+        System::logger.write(
+            "ElectraMidi::processMidiLearn: learn not supported");
     }
 }

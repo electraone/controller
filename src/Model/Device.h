@@ -71,14 +71,14 @@ public:
 
     void print(void) const
     {
-        logMessage("id: %d", getId());
-        logMessage("name: %s", getName());
-        logMessage("port: %d", getPort());
-        logMessage("channel: %d", getChannel());
-        logMessage("rate: %d", getRate());
-        logMessage("requests: %d", requests.size());
-        logMessage("responses: %d", responses.size());
-        logMessage("postMessages: %d", postMessages.size());
+        System::logger.write("id: %d", getId());
+        System::logger.write("name: %s", getName());
+        System::logger.write("port: %d", getPort());
+        System::logger.write("channel: %d", getChannel());
+        System::logger.write("rate: %d", getRate());
+        System::logger.write("requests: %d", requests.size());
+        System::logger.write("responses: %d", responses.size());
+        System::logger.write("postMessages: %d", postMessages.size());
     }
 
 private:

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "helpers.h"
 extern "C" {
 #include "lauxlib.h"
 #include "lua.h"

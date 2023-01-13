@@ -106,7 +106,7 @@ void SnapshotsView::addActionButtons(void)
     loadButton = addButton(101, "LOAD", 0x07021a, 0x00053c);
     if (loadButton) {
         loadButton->onClick = [this]() {
-            logMessage("SnapshotsView: switch to mode load");
+            System::logger.write("SnapshotsView: switch to mode load");
             setMode(load);
             repaint();
             return (true);
@@ -116,7 +116,7 @@ void SnapshotsView::addActionButtons(void)
     loadAndStayButton = addButton(102, "LOAD & STAY", 0x07021a, 0x00053c);
     if (loadAndStayButton) {
         loadAndStayButton->onClick = [this]() {
-            logMessage("SnapshotsView: switch to mode loadAndStay");
+            System::logger.write("SnapshotsView: switch to mode loadAndStay");
             setMode(loadAndStay);
             repaint();
             return (true);
@@ -126,7 +126,7 @@ void SnapshotsView::addActionButtons(void)
     sendCurrentButton = addButton(103, "SEND CURRENT", 0x162800, 0x162800);
     if (sendCurrentButton) {
         sendCurrentButton->onClick = [this]() {
-            logMessage("SnapshotsView: send saved snapshot messages");
+            System::logger.write("SnapshotsView: send saved snapshot messages");
             uiApi.sendAllSnapshotValues();
             return (false);
         };
@@ -135,7 +135,7 @@ void SnapshotsView::addActionButtons(void)
     removeButton = addButton(104, "REMOVE", 0x270800, 0x300a00);
     if (removeButton) {
         removeButton->onClick = [this]() {
-            logMessage("SnapshotsView: switch to mode remove");
+            System::logger.write("SnapshotsView: switch to mode remove");
             setMode(remove);
             repaint();
             return (true);
@@ -146,7 +146,7 @@ void SnapshotsView::addActionButtons(void)
 
     if (saveButton) {
         saveButton->onClick = [this]() {
-            logMessage("SnapshotsView: switch to mode save");
+            System::logger.write("SnapshotsView: switch to mode save");
             setMode(save);
             repaint();
             return (true);
@@ -204,7 +204,8 @@ void SnapshotsView::updateSnapsButtons(void)
     Database dbSnapshot(snapshotFilename);
 
     if (!dbSnapshot.open()) {
-        logMessage("SnapsWindow::paint: cannot open the snapshot database");
+        System::logger.write(
+            "SnapsWindow::paint: cannot open the snapshot database");
         return;
     }
 

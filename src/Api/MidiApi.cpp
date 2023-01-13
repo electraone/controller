@@ -1,4 +1,5 @@
 #include "MidiApi.h"
+#include "System.h"
 
 MidiApi::MidiApi(const MidiControls &newMidiControls, MainDelegate &newDelegate)
     : midiControls(newMidiControls),
@@ -21,11 +22,12 @@ void MidiApi::processBankSelect(uint8_t bankNumber)
 {
     // Bank numbers 1 .. 12 are for the snapshot banks
     if ((0 < bankNumber) && (bankNumber <= 12)) {
-        logMessage("processBankSelect: switching to the snapshot mode");
+        System::logger.write(
+            "processBankSelect: switching to the snapshot mode");
         programChangeMode = Snapshots;
         delegate.setCurrentSnapshotBank(bankNumber - 1);
     } else if (bankNumber == 0) {
-        logMessage("processBankSelect: switching to the preset mode");
+        System::logger.write("processBankSelect: switching to the preset mode");
         programChangeMode = Presets;
     }
 }

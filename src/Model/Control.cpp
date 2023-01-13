@@ -297,10 +297,11 @@ Component *Control::getComponent(void) const
 void Control::addToParameterMap(ControlValue &value)
 {
 #ifdef DEBUG
-    logMessage("addToParameterMap: controlId: %d, handle: %d, address=%x",
-               value.getControl()->getId(),
-               value.getHandle(),
-               &value);
+    System::logger.write(
+        "addToParameterMap: controlId: %d, handle: %d, address=%x",
+        value.getControl()->getId(),
+        value.getHandle(),
+        &value);
 #endif
     LookupEntry *lookupEntry =
         parameterMap.getOrCreate(value.message.getDeviceId(),
@@ -378,16 +379,16 @@ void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 void Control::print(void) const
 {
     if (true) {
-        logMessage("address: %x", this);
-        logMessage("id: %d", getId());
-        logMessage("type: %d", getType());
-        logMessage("mode: %d", getMode());
-        logMessage("variant: %d", getVariant());
-        logMessage("visible: %d", isVisible());
-        logMessage("name: %s", getName());
-        logMessage("pageId: %d", getPageId());
-        logMessage("colour: %d", getColour());
-        logMessage("controlSetId: %d", getControlSetId());
+        System::logger.write("address: %x", this);
+        System::logger.write("id: %d", getId());
+        System::logger.write("type: %d", getType());
+        System::logger.write("mode: %d", getMode());
+        System::logger.write("variant: %d", getVariant());
+        System::logger.write("visible: %d", isVisible());
+        System::logger.write("name: %s", getName());
+        System::logger.write("pageId: %d", getPageId());
+        System::logger.write("colour: %d", getColour());
+        System::logger.write("controlSetId: %d", getControlSetId());
         getBounds().print();
         printInputs();
         printValues();
@@ -396,7 +397,7 @@ void Control::print(void) const
 
 void Control::printValues(void) const
 {
-    logMessage("    --[Values]------------------------------------");
+    System::logger.write("    --[Values]------------------------------------");
     for (const auto &value : values) {
         value.print();
     }
@@ -404,7 +405,7 @@ void Control::printValues(void) const
 
 void Control::printInputs(void) const
 {
-    logMessage("    --[Inputs]------------------------------------");
+    System::logger.write("    --[Inputs]------------------------------------");
     for (const auto &input : inputs) {
         input.print();
     }

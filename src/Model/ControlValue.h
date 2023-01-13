@@ -8,7 +8,6 @@
 #include "Overlay.h"
 #include "Message.h"
 #include "Macros.h"
-#include "helpers.h"
 #include "luahooks.h"
 
 class Control;

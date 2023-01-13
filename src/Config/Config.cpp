@@ -21,19 +21,21 @@ bool Config::load(const char *filename)
 {
     File file;
 
-    logMessage("Config::load: file: filename=%s", filename);
+    System::logger.write("Config::load: file: filename=%s", filename);
 
     file = Hardware::sdcard.createInputStream(filename);
 
     if (!file) {
-        logMessage("Config::load: cannot open setup file: %s", filename);
+        System::logger.write("Config::load: cannot open setup file: %s",
+                             filename);
         return (false);
     }
 
     file.setTimeout(100);
 
     if (!parse(file)) {
-        logMessage("Config::load: cannot parse setup: filename=%s", filename);
+        System::logger.write("Config::load: cannot parse setup: filename=%s",
+                             filename);
         file.close();
         return (false);
     } else {
@@ -64,7 +66,7 @@ bool Config::parseRouter(File &file)
     filter["router"] = true;
 
     if (file.seek(0) == false) {
-        logMessage("Config::parseRouter: cannot rewind the file");
+        System::logger.write("Config::parseRouter: cannot rewind the file");
         return (false);
     }
 
@@ -72,7 +74,8 @@ bool Config::parseRouter(File &file)
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        logMessage("Config::parseRouter: parsing failed: %s", err.c_str());
+        System::logger.write("Config::parseRouter: parsing failed: %s",
+                             err.c_str());
         return (false);
     }
 
@@ -92,30 +95,32 @@ bool Config::parseRouter(File &file)
         router.midiControlChannel = doc["router"]["midiControlChannel"] | 0;
         router.midiControlDrop = doc["router"]["midiControlDrop"] | true;
 
-        logMessage("Config::parseRouter: usbDevToUsbHost=%d",
-                   router.usbDevToUsbHost);
-        logMessage("Config::parseRouter: usbDevToMidiIo=%d",
-                   router.usbDevToMidiIo);
-        logMessage("Config::parseRouter: usbDevToMidiControl=%d",
-                   router.usbDevToMidiControl);
-        logMessage("Config::parseRouter: usbHostToUsbDev=%d",
-                   router.usbHostToUsbDev);
-        logMessage("Config::parseRouter: usbHostToMidiIo=%d",
-                   router.usbHostToMidiIo);
-        logMessage("Config::parseRouter: midiIoToUsbDev=%d",
-                   router.midiIoToUsbDev);
-        logMessage("Config::parseRouter: midiIoToUsbHost=%d",
-                   router.midiIoToUsbHost);
-        logMessage("Config::parseRouter: midiIo1Thru=%d", router.midiIo1Thru);
-        logMessage("Config::parseRouter: midiIo2Thru=%d", router.midiIo2Thru);
-        logMessage("Config::parseRouter: midiControlPort=%d",
-                   router.midiControlPort);
-        logMessage("Config::parseRouter: midiControlChannel=%d",
-                   router.midiControlChannel);
-        logMessage("Config::parseRouter: midiControlDrop=%d",
-                   router.midiControlDrop);
+        System::logger.write("Config::parseRouter: usbDevToUsbHost=%d",
+                             router.usbDevToUsbHost);
+        System::logger.write("Config::parseRouter: usbDevToMidiIo=%d",
+                             router.usbDevToMidiIo);
+        System::logger.write("Config::parseRouter: usbDevToMidiControl=%d",
+                             router.usbDevToMidiControl);
+        System::logger.write("Config::parseRouter: usbHostToUsbDev=%d",
+                             router.usbHostToUsbDev);
+        System::logger.write("Config::parseRouter: usbHostToMidiIo=%d",
+                             router.usbHostToMidiIo);
+        System::logger.write("Config::parseRouter: midiIoToUsbDev=%d",
+                             router.midiIoToUsbDev);
+        System::logger.write("Config::parseRouter: midiIoToUsbHost=%d",
+                             router.midiIoToUsbHost);
+        System::logger.write("Config::parseRouter: midiIo1Thru=%d",
+                             router.midiIo1Thru);
+        System::logger.write("Config::parseRouter: midiIo2Thru=%d",
+                             router.midiIo2Thru);
+        System::logger.write("Config::parseRouter: midiControlPort=%d",
+                             router.midiControlPort);
+        System::logger.write("Config::parseRouter: midiControlChannel=%d",
+                             router.midiControlChannel);
+        System::logger.write("Config::parseRouter: midiControlDrop=%d",
+                             router.midiControlDrop);
     } else {
-        logMessage("Config::parseRouter: no router definition found");
+        System::logger.write("Config::parseRouter: no router definition found");
     }
 
     return (true);
@@ -133,7 +138,8 @@ bool Config::parsePresetBanks(File &file)
     resetPresetBanks();
 
     if (file.seek(0) == false) {
-        logMessage("Config::parsePresetBanks: cannot rewind the file");
+        System::logger.write(
+            "Config::parsePresetBanks: cannot rewind the file");
         return (false);
     }
 
@@ -141,7 +147,8 @@ bool Config::parsePresetBanks(File &file)
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        logMessage("Config::parsePresetBanks: parsing failed: %s", err.c_str());
+        System::logger.write("Config::parsePresetBanks: parsing failed: %s",
+                             err.c_str());
         return (false);
     }
 
@@ -156,14 +163,16 @@ bool Config::parsePresetBanks(File &file)
             uint32_t colour = Colours565::fromString(colourRGB888);
             presetBanks[id - 1] = PresetBank(id, name, colour);
 
-            logMessage("Config::parsePresetBanks: preset bank: id=%d, name=%s, "
-                       "colour=%s",
-                       id,
-                       name,
-                       colourRGB888);
+            System::logger.write(
+                "Config::parsePresetBanks: preset bank: id=%d, name=%s, "
+                "colour=%s",
+                id,
+                name,
+                colourRGB888);
         }
     } else {
-        logMessage("Config::parsePresetBanks: no presetBanks definition found");
+        System::logger.write(
+            "Config::parsePresetBanks: no presetBanks definition found");
     }
 
     return (true);
@@ -182,7 +191,8 @@ bool Config::parseUsbHostAssigments(File &file)
     usbHostAssigments.clear();
 
     if (file.seek(0) == false) {
-        logMessage("Config::parseUsbHostAssigments: cannot rewind the file");
+        System::logger.write(
+            "Config::parseUsbHostAssigments: cannot rewind the file");
         return (false);
     }
 
@@ -190,8 +200,8 @@ bool Config::parseUsbHostAssigments(File &file)
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        logMessage("Config::parseUsbHostAssigments: parsing failed: %s",
-                   err.c_str());
+        System::logger.write(
+            "Config::parseUsbHostAssigments: parsing failed: %s", err.c_str());
         return (false);
     }
 
@@ -213,14 +223,14 @@ bool Config::parseUsbHostAssigments(File &file)
             }
 
             usbHostAssigments.push_back(UsbHostAssigment(pattern, port));
-            logMessage(
+            System::logger.write(
                 "Config::parseUsbHostAssigments: usb assigment: pattern=%s, "
                 "port=%d",
                 pattern,
                 port);
         }
     } else {
-        logMessage(
+        System::logger.write(
             "Config::parseUsbHostAssigments:: no usbHostAssigments definition found");
     }
 
@@ -238,17 +248,20 @@ bool Config::parseMidiControl(File &file)
     midiControls.clear();
 
     if (file.seek(0) == false) {
-        logMessage("Config::parseMidiControl: cannot rewind the file");
+        System::logger.write(
+            "Config::parseMidiControl: cannot rewind the file");
         return (false);
     }
 
     if (findElement(file, "\"midiControl\"", ARRAY) == false) {
-        logMessage("Config::parseMidiControl: midiControl array not found");
+        System::logger.write(
+            "Config::parseMidiControl: midiControl array not found");
         return (true);
     }
 
     if (isElementEmpty(file)) {
-        logMessage("Config::parseMidiControl: no midiControl defined");
+        System::logger.write(
+            "Config::parseMidiControl: no midiControl defined");
         return (true);
     }
 
@@ -256,8 +269,8 @@ bool Config::parseMidiControl(File &file)
         DeserializationError err = deserializeJson(doc, file);
 
         if (err) {
-            logMessage("Config::parseMidiControl: parsing failed: %s",
-                       err.c_str());
+            System::logger.write("Config::parseMidiControl: parsing failed: %s",
+                                 err.c_str());
             return (false);
         }
 
@@ -297,7 +310,7 @@ bool Config::parseMidiControl(File &file)
                                                    eventParameter2,
                                                    midiMessageType,
                                                    parameterNumber));
-                logMessage(
+                System::logger.write(
                     "Config::parseMidiControl: midi control assigment: "
                     "event=%s (%d), eventParameter1=%d, eventParameter2=%d, "
                     "midiMessage=%s (%d), parameterNumber=%d",
@@ -325,7 +338,7 @@ bool Config::parseMidiControl(File &file)
                                                    eventParameter,
                                                    midiMessageType,
                                                    parameterNumber));
-                logMessage(
+                System::logger.write(
                     "Config::parseMidiControl: midi control assigment: "
                     "event=%s (%d), eventParameter=%d, midiMessage=%s (%d), "
                     "parameterNumber=%d",
@@ -337,7 +350,7 @@ bool Config::parseMidiControl(File &file)
                     parameterNumber);
             }
         } else {
-            logMessage(
+            System::logger.write(
                 "Config::parseMidiControl:: no midiControl definition found");
         }
     } while (file.findUntil(",", "]"));
@@ -355,7 +368,7 @@ bool Config::parseUiFeatures(File &file)
     filter["uiFeatures"] = true;
 
     if (file.seek(0) == false) {
-        logMessage("Config::parseUiFeatures: cannot rewind the file");
+        System::logger.write("Config::parseUiFeatures: cannot rewind the file");
         return (false);
     }
 
@@ -363,33 +376,38 @@ bool Config::parseUiFeatures(File &file)
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        logMessage("Config::parseUiFeatures: parsing failed: %s", err.c_str());
+        System::logger.write("Config::parseUiFeatures: parsing failed: %s",
+                             err.c_str());
         return (false);
     }
 
     if (doc["uiFeatures"]) {
         uiFeatures.touchSwitchControlSets =
             doc["uiFeatures"]["touchSwitchControlSets"].as<bool>();
-        logMessage("Config::parseUiFeatures: touchSwitchControlSets=%d",
-                   uiFeatures.touchSwitchControlSets);
+        System::logger.write(
+            "Config::parseUiFeatures: touchSwitchControlSets=%d",
+            uiFeatures.touchSwitchControlSets);
         uiFeatures.resetActiveControlSet =
             doc["uiFeatures"]["resetActiveControlSet"].as<bool>();
-        logMessage("Config::parseUiFeatures: resetActiveControlSet=%d",
-                   uiFeatures.resetActiveControlSet);
+        System::logger.write(
+            "Config::parseUiFeatures: resetActiveControlSet=%d",
+            uiFeatures.resetActiveControlSet);
         uiFeatures.activeControlSetType = translateControlSetType(
             doc["uiFeatures"]["activeControlSetType"].as<char *>());
-        logMessage("Config::parseUiFeatures: activeControlSetType=%d",
-                   uiFeatures.activeControlSetType);
+        System::logger.write("Config::parseUiFeatures: activeControlSetType=%d",
+                             uiFeatures.activeControlSetType);
         uiFeatures.keepPresetState =
             doc["uiFeatures"]["keepPresetState"].as<bool>();
-        logMessage("Config::parseUiFeatures: keepPresetState=%d",
-                   uiFeatures.keepPresetState);
+        System::logger.write("Config::parseUiFeatures: keepPresetState=%d",
+                             uiFeatures.keepPresetState);
         uiFeatures.loadPresetStateOnStartup =
             doc["uiFeatures"]["loadPresetStateOnStartup"].as<bool>();
-        logMessage("Config::parseUiFeatures: loadPresetStateOnStartup=%d",
-                   uiFeatures.loadPresetStateOnStartup);
+        System::logger.write(
+            "Config::parseUiFeatures: loadPresetStateOnStartup=%d",
+            uiFeatures.loadPresetStateOnStartup);
     } else {
-        logMessage("Config::parseUiFeatures: no UiFeatures definition found");
+        System::logger.write(
+            "Config::parseUiFeatures: no UiFeatures definition found");
     }
 
     return (true);
@@ -430,10 +448,11 @@ uint8_t Config::getUsbHostAssigment(const char *productName)
 
     for (auto &assigment : usbHostAssigments) {
         if (strstr(productNameUpperCase, assigment.pattern)) {
-            logMessage("Config::getUsbHostAssigment: assigning to midi bus: "
-                       "device=%s, midiBus=%d",
-                       productName,
-                       assigment.port);
+            System::logger.write(
+                "Config::getUsbHostAssigment: assigning to midi bus: "
+                "device=%s, midiBus=%d",
+                productName,
+                assigment.port);
             return (assigment.port);
         }
     }

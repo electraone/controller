@@ -4,7 +4,6 @@
 #include "MidiMessage.h"
 #include "Config/Router.h"
 #include "InstanceCallback.h"
-#include "helpers.h"
 
 typedef bool (*router_callback_t)(MidiInput &midiInput,
                                   MidiMessage &midiMessage);
@@ -57,7 +56,7 @@ public:
     {
         // Do not forward/process the CTRL messages. It is done on purpose for now.
         if (midiInput.getPort() == MIDI_CTRL_PORT) {
-            logMessage("External MIDI control command arrived");
+            System::logger.write("External MIDI control command arrived");
             return (true);
         }
 

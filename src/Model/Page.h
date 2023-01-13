@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helpers.h"
+#include "System.h"
 
 class Page
 {
@@ -64,9 +64,9 @@ public:
 
     void print(void) const
     {
-        logMessage("id: %d", getId());
-        logMessage("name: %s", getName());
-        logMessage("hasObjects: %d", getHasObjects());
+        System::logger.write("id: %d", getId());
+        System::logger.write("name: %s", getName());
+        System::logger.write("hasObjects: %d", getHasObjects());
     }
 
 private:

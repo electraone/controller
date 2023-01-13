@@ -1,6 +1,5 @@
 #include "Cc14Detector.h"
 #include <cassert>
-#include "helpers.h"
 
 Cc14Detector::Cc14Detector()
 {

@@ -1,4 +1,5 @@
 #include "UiApi.h"
+#include "System.h"
 #include "MidiOutput.h"
 
 UiApi::UiApi(MainDelegate &newDelegate) : delegate(newDelegate)
@@ -85,7 +86,7 @@ void UiApi::saveSnapshot(const char *projectId,
                          const char *name,
                          uint32_t colour)
 {
-    logMessage("UI API: newColor: %06X", colour);
+    System::logger.write("UI API: newColor: %06X", colour);
     delegate.saveSnapshot(projectId, bankNumber, slot, name, colour);
     MidiOutput::sendSnapshotChanged(MidiInterface::Type::MidiUsbDev,
                                     delegate.getControlPort());

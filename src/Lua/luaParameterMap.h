@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ParameterMap.h"
-#include "helpers.h"
 #include "luaLE.h"
 
 int luaopen_parameterMap(lua_State *L);

@@ -225,16 +225,16 @@ uint8_t ControlValue::translateId(const char *handle) const
 
 void ControlValue::print(void) const
 {
-    logMessage("    id: %s", getId());
-    logMessage("    handle: %d", getHandle());
-    logMessage("    index: %d", getIndex());
-    logMessage("    default: %d", getDefault());
-    logMessage("    min: %d", getMin());
-    logMessage("    max: %d", getMax());
-    logMessage("    overlayId: %d", getOverlayId());
-    logMessage("    function: %s", getFunction());
-    logMessage("    formatter: %s", getFormatter().c_str());
-    logMessage("    overlay: %x", getOverlay());
-    logMessage("    control: %x", getControl());
+    System::logger.write("    id: %s", getId());
+    System::logger.write("    handle: %d", getHandle());
+    System::logger.write("    index: %d", getIndex());
+    System::logger.write("    default: %d", getDefault());
+    System::logger.write("    min: %d", getMin());
+    System::logger.write("    max: %d", getMax());
+    System::logger.write("    overlayId: %d", getOverlayId());
+    System::logger.write("    function: %s", getFunction());
+    System::logger.write("    formatter: %s", getFormatter().c_str());
+    System::logger.write("    overlay: %x", getOverlay());
+    System::logger.write("    control: %x", getControl());
     message.print();
 }

@@ -1,4 +1,5 @@
 #include "UsbHostPorts.h"
+#include "System.h"
 
 UsbHostPorts::UsbHostPorts(UiApi &newUiApi)
     : uiApi(newUiApi), usbHostDevice{ nullptr }
@@ -19,7 +20,7 @@ UsbHostPorts::UsbHostPorts(UiApi &newUiApi)
             }
 
             usbHostDevice[i]->onClick = [this, i](uint8_t port) {
-                logMessage(
+                System::logger.write(
                     "UsbHostPorts: setting USB device %d to port %d", i, port);
                 usbHostDevice[i]->setPort(port);
                 USBDevices[i].midiBus = port;

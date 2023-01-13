@@ -105,9 +105,9 @@ bool MainWindow::switchPage(uint8_t pageId, uint8_t controlSetId)
     currentPageId = pageId;
     currentControlSetId = controlSetId;
 
-    logMessage("switchPage: Page switched: page=%d, controlSetId=%d",
-               currentPageId,
-               currentControlSetId);
+    System::logger.write("switchPage: Page switched: page=%d, controlSetId=%d",
+                         currentPageId,
+                         currentControlSetId);
 
     displayPage();
 
@@ -244,8 +244,9 @@ bool MainWindow::loadPreset(LocalFile &file)
 
     do {
         if (presets.loadPreset(file)) {
-            logMessage("handleCtrlFileReceived: preset loaded: name=%s",
-                       preset.getName());
+            System::logger.write(
+                "handleCtrlFileReceived: preset loaded: name=%s",
+                preset.getName());
         }
     } while (!preset.isValid() && (attempt++ < 4));
 
@@ -256,7 +257,7 @@ bool MainWindow::loadPreset(LocalFile &file)
     setInfoText("");
 
     if (!preset.isValid()) {
-        logMessage("handleCtrlFileReceived: preset upload failed");
+        System::logger.write("handleCtrlFileReceived: preset upload failed");
         return (false);
     }
     return (true);
@@ -536,7 +537,7 @@ void MainWindow::setGroupVerticalSpan(uint16_t groupId, uint8_t newHeight)
         Rectangle bounds = group.getBounds();
 
         int slot = boundsToSlot(bounds);
-        logMessage("slot: %d", slot);
+        System::logger.write("slot: %d", slot);
 
         // Keep height within the boundaries
         int colPosition = (slot - 1) / 6;
@@ -577,7 +578,7 @@ void MainWindow::setGroupVariant(uint16_t groupId, uint8_t newVariant)
 
 void MainWindow::sendSnapshotList(uint8_t port, const char *projectId)
 {
-    logMessage("sendSnapshotList: projectId=%s", projectId);
+    System::logger.write("sendSnapshotList: projectId=%s", projectId);
     snapshots.sendList(port, projectId);
 }
 
@@ -586,40 +587,40 @@ void MainWindow::sendSnapshot(uint8_t port,
                               uint8_t bankNumber,
                               uint8_t slot)
 {
-    logMessage("sendSnapshot: projectId=%s, bankNumber=%d, slot=%d",
-               projectId,
-               bankNumber,
-               slot);
+    System::logger.write("sendSnapshot: projectId=%s, bankNumber=%d, slot=%d",
+                         projectId,
+                         bankNumber,
+                         slot);
     snapshots.sendSnapshot(port, projectId, bankNumber, slot);
 }
 
 void MainWindow::sendPresetList(uint8_t port)
 {
-    logMessage("sendPresetList");
+    System::logger.write("sendPresetList");
     presets.sendList(port);
 }
 
 void MainWindow::enableMidiLearn(void)
 {
-    logMessage("enableMidiLearn");
+    System::logger.write("enableMidiLearn");
     System::context.setMidiLearn(true);
 }
 
 void MainWindow::disableMidiLearn(void)
 {
-    logMessage("disableMidiLearn");
+    System::logger.write("disableMidiLearn");
     System::context.setMidiLearn(false);
 }
 
 void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
 {
-    logMessage("switchPreset: bankNumber=%d, slot=%d, id=%d",
-               bankNumber,
-               slot,
-               bankNumber * Preset::MaxNumPots + slot);
+    System::logger.write("switchPreset: bankNumber=%d, slot=%d, id=%d",
+                         bankNumber,
+                         slot,
+                         bankNumber * Preset::MaxNumPots + slot);
     presets.loadPresetById(bankNumber * Preset::MaxNumPots + slot);
     if (!snapshots.initialise(preset.getProjectId())) {
-        logMessage(
+        System::logger.write(
             "MainWindow::switchPreset: cannot initialize snapshot storage");
     }
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
@@ -648,7 +649,7 @@ void MainWindow::switchPresetPrev(void)
 
 void MainWindow::switchPresetBank(uint8_t bankNumber)
 {
-    logMessage("switchPresetBank: bankNumber=%d", bankNumber);
+    System::logger.write("switchPresetBank: bankNumber=%d", bankNumber);
     presets.setCurrentBankNumber(bankNumber);
 }
 
@@ -656,10 +657,11 @@ void MainWindow::setSnapshotSlot(const char *projectId,
                                  uint8_t bankNumber,
                                  uint8_t slot)
 {
-    logMessage("setSnapshotSlot: projectId=%s, bankNumber=%d, slot=%d",
-               projectId,
-               bankNumber,
-               slot);
+    System::logger.write(
+        "setSnapshotSlot: projectId=%s, bankNumber=%d, slot=%d",
+        projectId,
+        bankNumber,
+        slot);
     snapshots.setDestProjectId(projectId);
     snapshots.setDestBankNumber(bankNumber);
     snapshots.setDestSlot(slot);
@@ -667,7 +669,8 @@ void MainWindow::setSnapshotSlot(const char *projectId,
 
 void MainWindow::setPresetSlot(uint8_t bankNumber, uint8_t slot)
 {
-    logMessage("setPresetSlot: bankNumber=%d, slot=%d", bankNumber, slot);
+    System::logger.write(
+        "setPresetSlot: bankNumber=%d, slot=%d", bankNumber, slot);
     presets.setCurrentBankNumber(bankNumber);
     presets.setCurrentSlot(slot);
 }
@@ -676,10 +679,11 @@ void MainWindow::loadSnapshot(const char *projectId,
                               uint8_t bankNumber,
                               uint8_t slot)
 {
-    logMessage("loading snapshot: projectId=%s, bankNumber=%d, slot=%d",
-               projectId,
-               bankNumber,
-               slot);
+    System::logger.write(
+        "loading snapshot: projectId=%s, bankNumber=%d, slot=%d",
+        projectId,
+        bankNumber,
+        slot);
     snapshots.sendSnapshotMessages(projectId, bankNumber, slot);
     sendAllControls();
 }
@@ -690,7 +694,7 @@ void MainWindow::saveSnapshot(const char *projectId,
                               const char *newName,
                               uint32_t newColour)
 {
-    logMessage(
+    System::logger.write(
         "saving snapshot: projectId=%s, bankNumber=%d, slot=%d, name=%s, colour=%d",
         projectId,
         bankNumber,
@@ -710,7 +714,7 @@ void MainWindow::updateSnapshot(const char *projectId,
                                 const char *name,
                                 uint32_t colour)
 {
-    logMessage(
+    System::logger.write(
         "updateSnapshot: projectId=%s, bankNumber=%d, slot=%d, name=%s, colour=%06x",
         projectId,
         bankNumber,
@@ -727,10 +731,10 @@ void MainWindow::removeSnapshot(const char *projectId,
                                 uint8_t bankNumber,
                                 uint8_t slot)
 {
-    logMessage("removeSnapshot: projectId=%s, bankNumber=%d, slot=%d",
-               projectId,
-               bankNumber,
-               slot);
+    System::logger.write("removeSnapshot: projectId=%s, bankNumber=%d, slot=%d",
+                         projectId,
+                         bankNumber,
+                         slot);
     snapshots.removeSnapshot(projectId, bankNumber, slot);
     if (snapshotsWindow && strcmp(projectId, preset.getProjectId()) == 0) {
         snapshotsWindow->snapshotRemoved(bankNumber, slot);
@@ -743,7 +747,7 @@ void MainWindow::swapSnapshots(const char *projectId,
                                uint8_t destBankNumber,
                                uint8_t destSlot)
 {
-    logMessage(
+    System::logger.write(
         "swapSnapshots: projectId=%s, sourceBankNumber=%d, sourceSlot=%d, destBankNumber=%d, destSlot=%d",
         projectId,
         sourceBankNumber,
@@ -760,7 +764,7 @@ void MainWindow::swapSnapshots(const char *projectId,
 
 bool MainWindow::importSnapshot(LocalFile &file)
 {
-    logMessage("importSnapshot: file: %s", file.getFilepath());
+    System::logger.write("importSnapshot: file: %s", file.getFilepath());
     auto snapshot = snapshots.importSnapshot(file);
     if (snapshotsWindow
         && strcmp(snapshots.getDestProjectId(), preset.getProjectId()) == 0) {
@@ -774,7 +778,7 @@ bool MainWindow::importSnapshot(LocalFile &file)
 
 void MainWindow::setCurrentSnapshotBank(uint8_t bankNumber)
 {
-    logMessage("setCurrentSnapshotBank: bankNumber=%d", bankNumber);
+    System::logger.write("setCurrentSnapshotBank: bankNumber=%d", bankNumber);
     currentSnapshotBank = bankNumber;
     if (snapshotsWindow) {
         snapshotsWindow->snapshotBankSwitched(currentSnapshotBank);
@@ -801,9 +805,10 @@ void MainWindow::assignComponentToControl(uint16_t controlId,
 {
 #ifdef DEBUG
     if (component) {
-        logMessage("assignComponentToControl: control=%d, component=%s",
-                   controlId,
-                   component->getName());
+        System::logger.write(
+            "assignComponentToControl: control=%d, component=%s",
+            controlId,
+            component->getName());
     }
 #endif
     preset.getControl(controlId).setComponent(component);
@@ -818,9 +823,9 @@ void MainWindow::assignComponentToGroup(uint16_t groupId, Component *component)
 {
 #ifdef DEBUG
     if (component) {
-        logMessage("assignComponentToGroup: group=%d, component=%s",
-                   groupId,
-                   component->getName());
+        System::logger.write("assignComponentToGroup: group=%d, component=%s",
+                             groupId,
+                             component->getName());
     }
 #endif
     preset.getGroup(groupId).setComponent(component);
@@ -856,7 +861,7 @@ void MainWindow::resetActivePotTouch(uint8_t potId)
 
 void MainWindow::ping(void)
 {
-    logMessage("delegate ping");
+    System::logger.write("delegate ping");
 }
 
 uint8_t MainWindow::getCurrentPageId(void) const

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "helpers.h"
 #include "Colours.h"
 #include "Component.h"
 
@@ -143,12 +142,12 @@ public:
 
     void print(void) const
     {
-        logMessage("id: %d", getId());
-        logMessage("label: %s", getLabel());
-        logMessage("pageId: %d", getPageId());
-        logMessage("colour: %d", getColour());
-        logMessage("visible: %d", isVisible());
-        logMessage("variant: %d", getVariant());
+        System::logger.write("id: %d", getId());
+        System::logger.write("label: %s", getLabel());
+        System::logger.write("pageId: %d", getPageId());
+        System::logger.write("colour: %d", getColour());
+        System::logger.write("visible: %d", isVisible());
+        System::logger.write("variant: %d", getVariant());
         getBounds().print();
     }
 

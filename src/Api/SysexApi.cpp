@@ -1,4 +1,5 @@
 #include "SysexApi.h"
+#include "System.h"
 #include "ArduinoJson.h"
 #include "MidiOutput.h"
 
@@ -13,7 +14,7 @@ bool SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
     ElectraCommand::Type command = cmd.getType();
     ElectraCommand::Object object = cmd.getObject();
 
-    logMessage(
+    System::logger.write(
         "SysexApi::process: sysex received: command=%d, parameter=%d, byte1=%d",
         command,
         object,
@@ -69,15 +70,15 @@ bool SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
     } else if (cmd.isEvent()) {
         if (cmd.getEvent() == ElectraCommand::Event::SnapshotBankSwitch) {
             uint8_t bankNumber = cmd.getByte1();
-            logMessage(
+            System::logger.write(
                 "SysexApi::process: snapshot bank change event : bankNumber=%d",
                 bankNumber);
             setCurrentSnapshotBank(port, bankNumber);
         }
     } else if (cmd.isSystemCall()) {
-        logMessage("SysexApi::process: application system call");
+        System::logger.write("SysexApi::process: application system call");
     } else {
-        logMessage("SysexApi::process: unknown sysex request");
+        System::logger.write("SysexApi::process: unknown sysex request");
     }
     /* \todo This needs to be reviewed. Commands are taking care of ACK/NACK
      * by themselves. That is not in line with the file processing.
@@ -109,7 +110,7 @@ bool SysexApi::process(uint8_t port,
 
 void SysexApi::sendSnapshotList(uint8_t port, MemoryBlock &sysexPayload)
 {
-    logMessage("SysexApi::sendSnapshotList");
+    System::logger.write("SysexApi::sendSnapshotList");
 
     const size_t capacity = JSON_OBJECT_SIZE(1) + 500;
     StaticJsonDocument<capacity> doc;
@@ -117,8 +118,8 @@ void SysexApi::sendSnapshotList(uint8_t port, MemoryBlock &sysexPayload)
     DeserializationError err = deserializeJson(doc, sysexPayload);
 
     if (err) {
-        logMessage("sendSnapshotList: snapshot list parsing failed: %s",
-                   err.c_str());
+        System::logger.write(
+            "sendSnapshotList: snapshot list parsing failed: %s", err.c_str());
         return;
     }
 
@@ -131,7 +132,7 @@ void SysexApi::sendSnapshotList(uint8_t port, MemoryBlock &sysexPayload)
 
 void SysexApi::sendSnapshot(uint8_t port, MemoryBlock &sysexPayload)
 {
-    logMessage("SysexApi::sendSnapshot");
+    System::logger.write("SysexApi::sendSnapshot");
 
     const size_t capacity = JSON_OBJECT_SIZE(1) + 500;
     StaticJsonDocument<capacity> doc;
@@ -139,7 +140,7 @@ void SysexApi::sendSnapshot(uint8_t port, MemoryBlock &sysexPayload)
     DeserializationError err = deserializeJson(doc, sysexPayload);
 
     if (err) {
-        logMessage("sendSnapshot: snapshot info parsing failed");
+        System::logger.write("sendSnapshot: snapshot info parsing failed");
         return;
     }
 
@@ -152,30 +153,30 @@ void SysexApi::sendSnapshot(uint8_t port, MemoryBlock &sysexPayload)
 
 void SysexApi::sendPresetList(uint8_t port) // \todo port does not belong here
 {
-    logMessage("SysexApi::sendPresetList");
+    System::logger.write("SysexApi::sendPresetList");
     delegate.sendPresetList(port);
 }
 
 void SysexApi::enableMidiLearn(uint8_t port)
 {
-    logMessage("SysexApi::enableMidiLearn");
+    System::logger.write("SysexApi::enableMidiLearn");
     delegate.enableMidiLearn();
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
 }
 
 void SysexApi::disableMidiLearn(uint8_t port)
 {
-    logMessage("SysexApi::disableMidiLearn");
+    System::logger.write("SysexApi::disableMidiLearn");
     delegate.disableMidiLearn();
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
 }
 
 void SysexApi::switchPreset(uint8_t port, uint8_t bankNumber, uint8_t slot)
 {
-    logMessage("SysexApi::switchPreset: port=%d, bank=%d, slot=%d",
-               port,
-               bankNumber,
-               slot);
+    System::logger.write("SysexApi::switchPreset: port=%d, bank=%d, slot=%d",
+                         port,
+                         bankNumber,
+                         slot);
     delegate.switchPreset(bankNumber, slot);
     MidiOutput::sendPresetSwitched(
         MidiInterface::Type::MidiUsbDev, port, bankNumber, slot);
@@ -184,7 +185,8 @@ void SysexApi::switchPreset(uint8_t port, uint8_t bankNumber, uint8_t slot)
 
 void SysexApi::switchPage(uint8_t port, uint8_t pageNumber)
 {
-    logMessage("SysexApi::switchPreset: port=%d, page=%d", port, pageNumber);
+    System::logger.write(
+        "SysexApi::switchPreset: port=%d, page=%d", port, pageNumber);
     if (delegate.switchPage(pageNumber + 1)) {
         MidiOutput::sendPageSwitched(
             MidiInterface::Type::MidiUsbDev, port, pageNumber);
@@ -196,9 +198,9 @@ void SysexApi::switchPage(uint8_t port, uint8_t pageNumber)
 
 void SysexApi::switchControlSet(uint8_t port, uint8_t controlSetId)
 {
-    logMessage("SysexApi::switchControlSet: port=%d, controlSetId=%d",
-               port,
-               controlSetId);
+    System::logger.write("SysexApi::switchControlSet: port=%d, controlSetId=%d",
+                         port,
+                         controlSetId);
     if (delegate.switchControlSet(controlSetId)) {
         MidiOutput::sendControlSetSwitched(
             MidiInterface::Type::MidiUsbDev, port, controlSetId);
@@ -212,7 +214,7 @@ void SysexApi::updateControl(uint8_t port,
                              uint16_t controlId,
                              MemoryBlock &sysexPayload)
 {
-    logMessage("SysexApi::updateControl");
+    System::logger.write("SysexApi::updateControl");
     const size_t capacity = JSON_OBJECT_SIZE(1) + 500;
     StaticJsonDocument<capacity> doc;
 
@@ -223,7 +225,7 @@ void SysexApi::updateControl(uint8_t port,
     DeserializationError err = deserializeJson(doc, sysexPayload);
 
     if (err) {
-        logMessage("updateControl: control info parsing failed");
+        System::logger.write("updateControl: control info parsing failed");
         MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
         return;
     }
@@ -247,7 +249,7 @@ void SysexApi::updateControl(uint8_t port,
 
 void SysexApi::setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload)
 {
-    logMessage("SysexApi::setSnapshotSlot");
+    System::logger.write("SysexApi::setSnapshotSlot");
 
     const size_t capacity = JSON_OBJECT_SIZE(1) + 500;
     StaticJsonDocument<capacity> doc;
@@ -255,7 +257,7 @@ void SysexApi::setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload)
     DeserializationError err = deserializeJson(doc, sysexPayload);
 
     if (err) {
-        logMessage("setSnapshotSlot: snapshot info parsing failed");
+        System::logger.write("setSnapshotSlot: snapshot info parsing failed");
         MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
         return;
     }
@@ -293,14 +295,14 @@ bool SysexApi::importSnapshot(uint8_t port, LocalFile &file)
 
 void SysexApi::setPresetSlot(uint8_t port, uint8_t bankNumber, uint8_t slot)
 {
-    logMessage("SysexApi::setPresetSlot");
+    System::logger.write("SysexApi::setPresetSlot");
     delegate.setPresetSlot(bankNumber, slot);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
 }
 
 void SysexApi::updateSnapshot(uint8_t port, MemoryBlock &sysexPayload)
 {
-    logMessage("SysexApi::updateSnapshot");
+    System::logger.write("SysexApi::updateSnapshot");
 
     const size_t capacity = JSON_OBJECT_SIZE(1) + 500;
     StaticJsonDocument<capacity> doc;
@@ -308,7 +310,7 @@ void SysexApi::updateSnapshot(uint8_t port, MemoryBlock &sysexPayload)
     DeserializationError err = deserializeJson(doc, sysexPayload);
 
     if (err) {
-        logMessage("updateSnapshot: snapshot info parsing failed");
+        System::logger.write("updateSnapshot: snapshot info parsing failed");
         MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
         return;
     }
@@ -325,7 +327,7 @@ void SysexApi::updateSnapshot(uint8_t port, MemoryBlock &sysexPayload)
 
 void SysexApi::removeSnapshot(uint8_t port, MemoryBlock &sysexPayload)
 {
-    logMessage("SysexApi::removeSnapshot");
+    System::logger.write("SysexApi::removeSnapshot");
 
     const size_t capacity = JSON_OBJECT_SIZE(1) + 500;
     StaticJsonDocument<capacity> doc;
@@ -333,7 +335,7 @@ void SysexApi::removeSnapshot(uint8_t port, MemoryBlock &sysexPayload)
     DeserializationError err = deserializeJson(doc, sysexPayload);
 
     if (err) {
-        logMessage("removeSnapshot: snapshot info parsing failed");
+        System::logger.write("removeSnapshot: snapshot info parsing failed");
         MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
         return;
     }
@@ -354,7 +356,7 @@ void SysexApi::swapSnapshots(uint8_t port, MemoryBlock &sysexPayload)
     DeserializationError err = deserializeJson(doc, sysexPayload);
 
     if (err) {
-        logMessage("swapSnapshots: snapshot info parsing failed");
+        System::logger.write("swapSnapshots: snapshot info parsing failed");
         MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
         return;
     }
@@ -378,7 +380,7 @@ void SysexApi::setCurrentSnapshotBank(uint8_t port, uint8_t bankNumber)
 
 void SysexApi::setControlPort(uint8_t port, uint8_t newControlPort)
 {
-    logMessage("setControlPort: new controlPort=%d", newControlPort);
+    System::logger.write("setControlPort: new controlPort=%d", newControlPort);
     delegate.setControlPort(newControlPort);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
 }
@@ -390,5 +392,5 @@ uint8_t SysexApi::getControlPort(void)
 
 void SysexApi::setControlLabel(uint8_t port, const char *newLabel)
 {
-    logMessage("setting a new label: %s", newLabel);
+    System::logger.write("setting a new label: %s", newLabel);
 }
