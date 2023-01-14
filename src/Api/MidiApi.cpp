@@ -23,11 +23,12 @@ void MidiApi::processBankSelect(uint8_t bankNumber)
     // Bank numbers 1 .. 12 are for the snapshot banks
     if ((0 < bankNumber) && (bankNumber <= 12)) {
         System::logger.write(
-            "processBankSelect: switching to the snapshot mode");
+            ERROR, "processBankSelect: switching to the snapshot mode");
         programChangeMode = Snapshots;
         delegate.setCurrentSnapshotBank(bankNumber - 1);
     } else if (bankNumber == 0) {
-        System::logger.write("processBankSelect: switching to the preset mode");
+        System::logger.write(ERROR,
+                             "processBankSelect: switching to the preset mode");
         programChangeMode = Presets;
     }
 }

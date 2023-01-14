@@ -107,8 +107,10 @@ void ControlComponent::emitValueChange(int16_t newDisplayValue,
 
     cv.callFunction(newDisplayValue);
 #ifdef DEBUG
-    System::logger.write(
-        "emitValueChange: display=%d, midi=%d", newDisplayValue, midiValue);
+    System::logger.write(ERROR,
+                         "emitValueChange: display=%d, midi=%d",
+                         newDisplayValue,
+                         midiValue);
 #endif
 }
 

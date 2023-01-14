@@ -13,13 +13,13 @@ bool Snapshots::initialise(const char *newProjectId)
 {
     if (!createSnapshotDir(newProjectId)) {
         System::logger.write(
-            "Snapshots::initialise: cannot create snapshot directories");
+            ERROR, "Snapshots::initialise: cannot create snapshot directories");
         return (false);
     }
 
     if (!createSnapshotDatabase(newProjectId)) {
         System::logger.write(
-            "Snapshots::initialise: cannot create snapshot database");
+            ERROR, "Snapshots::initialise: cannot create snapshot database");
         return (false);
     }
 
@@ -77,7 +77,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
 
     if (!dbSnapshot.open()) {
         System::logger.write(
-            "Snapshots::sendList: cannot open the snapshot storage");
+            ERROR, "Snapshots::sendList: cannot open the snapshot storage");
         return;
     }
 
@@ -85,7 +85,8 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
         tempSnapshotFilename, FILE_WRITE | O_CREAT | O_TRUNC);
 
     if (!snapshotJsonFile) {
-        System::logger.write("Snapshots::sendList: cannot open transfer file");
+        System::logger.write(ERROR,
+                             "Snapshots::sendList: cannot open transfer file");
         dbSnapshot.close();
         return;
     }
@@ -112,7 +113,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
                 snapRec.colour & 0xffffff);
             snapshotJsonFile.write(buf, strlen(buf));
             firstRecord = false;
-            System::logger.write("buff: %s", buf);
+            System::logger.write(ERROR, "buff: %s", buf);
         }
     }
 
@@ -126,6 +127,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
 
     if (!Hardware::sdcard.deleteFile(tempSnapshotFilename)) {
         System::logger.write(
+            ERROR,
             "Snapshots::sendList: cannot remove temporary file: %s",
             tempSnapshotFilename);
     }
@@ -155,6 +157,7 @@ Snapshot Snapshots::importSnapshot(LocalFile file)
     Snapshot snapshot(file.getFilepath());
 
     System::logger.write(
+        ERROR,
         "importSnapshot: file=%s, projectId=%s, bankNumber=%d, slot=%d, name=%s, colour=%x",
         snapshotFilename,
         destProjectId,
@@ -192,7 +195,7 @@ void Snapshots::saveSnapshot(const char *projectId,
                              const char *newName,
                              uint32_t newColour)
 {
-    System::logger.write("newColor: %06X", newColour);
+    System::logger.write(ERROR, "newColor: %06X", newColour);
     char filename[MAX_FILENAME_LENGTH + 1];
     createSnapshotFilename(filename, projectId, bankNumber, slot);
     parameterMap.save(filename);
@@ -241,8 +244,8 @@ void Snapshots::updateSnapshotDb(const char *projectId,
     Database dbSnapshot(dbFile);
 
     if (!dbSnapshot.open()) {
-        System::logger.write("updateSnapshotDb: cannot open database: file=%s",
-                             dbFile);
+        System::logger.write(
+            ERROR, "updateSnapshotDb: cannot open database: file=%s", dbFile);
         return;
     }
 
@@ -275,7 +278,8 @@ void Snapshots::removeSnapshotDb(const char *projectId,
              slot);
     if (Hardware::sdcard.exists(snapshotFilename)) {
         status = Hardware::sdcard.deleteFile(snapshotFilename);
-        System::logger.write("removing file %s: %s",
+        System::logger.write(ERROR,
+                             "removing file %s: %s",
                              snapshotFilename,
                              (status == true) ? "OK" : "fail");
     }
@@ -292,6 +296,7 @@ void Snapshots::removeSnapshotDb(const char *projectId,
 
     dbSnapshot.open();
     System::logger.write(
+        ERROR,
         "ElectraApp::removeSnapshotDb: removing projectId=%s, bankNumber=%d, slot=%d, id=%d",
         projectId,
         bankNumber,
@@ -326,35 +331,40 @@ void Snapshots::swapSnapshotDb(const char *projectId,
 
     if (Hardware::sdcard.exists(tmpFilename)) {
         status = Hardware::sdcard.deleteFile(tmpFilename);
-        System::logger.write("swapSnapshotDb: removing tmp file %s: %s",
+        System::logger.write(ERROR,
+                             "swapSnapshotDb: removing tmp file %s: %s",
                              tmpFilename,
                              (status == true) ? "OK" : "fail");
     }
 
     if (!Hardware::sdcard.renameFile(sourceFilename, tmpFilename)) {
-        System::logger.write("swapSnapshotDb: cannot rename %s to %s",
+        System::logger.write(ERROR,
+                             "swapSnapshotDb: cannot rename %s to %s",
                              sourceFilename,
                              tmpFilename);
     }
     System::logger.write(
-        "swapSnapshotDb: move %s to %s", sourceFilename, tmpFilename);
+        ERROR, "swapSnapshotDb: move %s to %s", sourceFilename, tmpFilename);
 
     if (Hardware::sdcard.exists(destFilename)) {
         if (!Hardware::sdcard.renameFile(destFilename, sourceFilename)) {
             System::logger.write(
-                "cannot rename %s to %s", destFilename, sourceFilename);
+                ERROR, "cannot rename %s to %s", destFilename, sourceFilename);
         }
-        System::logger.write(
-            "swapSnapshotDb: move %s to %s", destFilename, sourceFilename);
+        System::logger.write(ERROR,
+                             "swapSnapshotDb: move %s to %s",
+                             destFilename,
+                             sourceFilename);
     }
 
     if (!Hardware::sdcard.renameFile(tmpFilename, destFilename)) {
-        System::logger.write("swapSnapshotDb: cannot rename %s to %s",
+        System::logger.write(ERROR,
+                             "swapSnapshotDb: cannot rename %s to %s",
                              tmpFilename,
                              destFilename);
     }
     System::logger.write(
-        "swapSnapshotDb: move %s to %s", tmpFilename, destFilename);
+        ERROR, "swapSnapshotDb: move %s to %s", tmpFilename, destFilename);
 
     // update database on success
     SnapshotRecord sourceRec;
@@ -404,6 +414,7 @@ void Snapshots::swapSnapshotDb(const char *projectId,
     }
 
     System::logger.write(
+        ERROR,
         "swapSnapshotDb: swapping snaphosts: projectId=%s, sourceId=%d, sourceBankNumber=%d, sourceSlot=%d, destId=%d, destBankNumber=%d, destSlot=%d",
         projectId,
         sourceId,
@@ -423,6 +434,7 @@ bool Snapshots::createSnapshotDir(const char *projectId)
     if (!Hardware::sdcard.exists(dirname)) {
         if (!Hardware::sdcard.createDirectory(dirname)) {
             System::logger.write(
+                ERROR,
                 "Snapshots::createSnapshotDir: cannot create snaps directory: %s",
                 dirname);
         }
@@ -434,11 +446,14 @@ bool Snapshots::createSnapshotDir(const char *projectId)
     if (!Hardware::sdcard.exists(dirname)) {
         if (!Hardware::sdcard.createDirectory(dirname)) {
             System::logger.write(
+                ERROR,
                 "Snapshots::createSnapshotDir: cannot create preset snaphot storage");
             return (false);
         } else {
             System::logger.write(
-                "Snapshots::createSnapshotDir: directory created: %s", dirname);
+                ERROR,
+                "Snapshots::createSnapshotDir: directory created: %s",
+                dirname);
         }
     }
 
@@ -457,10 +472,12 @@ bool Snapshots::createSnapshotDatabase(const char *projectId)
 
     if (!Hardware::sdcard.exists(snapshotDbFilename)) {
         System::logger.write(
+            ERROR,
             "ElectraApp::createSnapshotDatabase: creating db file %s",
             snapshotDbFilename);
         if (!dbSnapshot.create(432, sizeof(SnapshotRecord))) {
-            System::logger.write("Snapshots::createSnapshotDatabase: "
+            System::logger.write(ERROR,
+                                 "Snapshots::createSnapshotDatabase: "
                                  "failed to initialize snapshot database: %s",
                                  snapshotDbFilename);
             return (false);

@@ -194,18 +194,20 @@ public:
 
     void print(void) const
     {
-        System::logger.write("--");
-        System::logger.write("        deviceId: %d", getDeviceId());
+        System::logger.write(ERROR, "--");
+        System::logger.write(ERROR, "        deviceId: %d", getDeviceId());
+        System::logger.write(ERROR,
+                             "        type: %s (%d)",
+                             translateType(getType()),
+                             getType());
         System::logger.write(
-            "        type: %s (%d)", translateType(getType()), getType());
-        System::logger.write("        parameterNumber: %d",
-                             getParameterNumber());
-        System::logger.write("        min: %d", getMidiMin());
-        System::logger.write("        max: %d", getMidiMax());
-        System::logger.write("        value: %d", getValue());
-        System::logger.write("        signMode: %d", getSignMode());
-        System::logger.write("        lsbFirst: %d", getLsbFirst());
-        System::logger.write("        bitWidth: %d", getBitWidth());
+            ERROR, "        parameterNumber: %d", getParameterNumber());
+        System::logger.write(ERROR, "        min: %d", getMidiMin());
+        System::logger.write(ERROR, "        max: %d", getMidiMax());
+        System::logger.write(ERROR, "        value: %d", getValue());
+        System::logger.write(ERROR, "        signMode: %d", getSignMode());
+        System::logger.write(ERROR, "        lsbFirst: %d", getLsbFirst());
+        System::logger.write(ERROR, "        bitWidth: %d", getBitWidth());
     }
 
     static Type translateType(const char *typeText)

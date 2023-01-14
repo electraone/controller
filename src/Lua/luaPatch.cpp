@@ -22,7 +22,8 @@ void runOnResponse(const Device &device,
         luaLE_pushObject(L, "SysexBlock", &sysexBlock);
 
         if (lua_pcall(L, 3, 0, 0) != 0) {
-            System::logger.write("error running function 'onResponse': %s",
+            System::logger.write(ERROR,
+                                 "error running function 'onResponse': %s",
                                  lua_tostring(L, -1));
         }
     } else {
@@ -38,7 +39,8 @@ void runOnRequest(const Device &device)
         luaLE_pushDevice(device);
 
         if (lua_pcall(L, 1, 0, 0) != 0) {
-            System::logger.write("error running function 'onRequest': %s",
+            System::logger.write(ERROR,
+                                 "error running function 'onRequest': %s",
                                  lua_tostring(L, -1));
         }
     } else {

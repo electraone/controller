@@ -225,16 +225,16 @@ uint8_t ControlValue::translateId(const char *handle) const
 
 void ControlValue::print(void) const
 {
-    System::logger.write("    id: %s", getId());
-    System::logger.write("    handle: %d", getHandle());
-    System::logger.write("    index: %d", getIndex());
-    System::logger.write("    default: %d", getDefault());
-    System::logger.write("    min: %d", getMin());
-    System::logger.write("    max: %d", getMax());
-    System::logger.write("    overlayId: %d", getOverlayId());
-    System::logger.write("    function: %s", getFunction());
-    System::logger.write("    formatter: %s", getFormatter().c_str());
-    System::logger.write("    overlay: %x", getOverlay());
-    System::logger.write("    control: %x", getControl());
+    System::logger.write(ERROR, "    id: %s", getId());
+    System::logger.write(ERROR, "    handle: %d", getHandle());
+    System::logger.write(ERROR, "    index: %d", getIndex());
+    System::logger.write(ERROR, "    default: %d", getDefault());
+    System::logger.write(ERROR, "    min: %d", getMin());
+    System::logger.write(ERROR, "    max: %d", getMax());
+    System::logger.write(ERROR, "    overlayId: %d", getOverlayId());
+    System::logger.write(ERROR, "    function: %s", getFunction());
+    System::logger.write(ERROR, "    formatter: %s", getFormatter().c_str());
+    System::logger.write(ERROR, "    overlay: %x", getOverlay());
+    System::logger.write(ERROR, "    control: %x", getControl());
     message.print();
 }

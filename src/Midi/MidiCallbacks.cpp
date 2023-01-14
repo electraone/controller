@@ -6,93 +6,94 @@
 void assignLuaCallbacks(void)
 {
     if (luaLE_functionExists("midi", "onClock")) {
-        System::logger.write("lua callback assigned: onClock");
+        System::logger.write(ERROR, "lua callback assigned: onClock");
         MidiInputCallback::onMidiClockCallback = &onMidiClock;
     }
 
     if (luaLE_functionExists("midi", "onStart")) {
-        System::logger.write("lua callback assigned: onStart");
+        System::logger.write(ERROR, "lua callback assigned: onStart");
         MidiInputCallback::onMidiStartCallback = &onMidiStart;
     }
 
     if (luaLE_functionExists("midi", "onStop")) {
-        System::logger.write("lua callback assigned: onStop");
+        System::logger.write(ERROR, "lua callback assigned: onStop");
         MidiInputCallback::onMidiStopCallback = &onMidiStop;
     }
 
     if (luaLE_functionExists("midi", "onContinue")) {
-        System::logger.write("lua callback assigned: onContinue");
+        System::logger.write(ERROR, "lua callback assigned: onContinue");
         MidiInputCallback::onMidiContinueCallback = &onMidiContinue;
     }
 
     if (luaLE_functionExists("midi", "onActiveSensing")) {
-        System::logger.write("lua callback assigned: onActiveSensing");
+        System::logger.write(ERROR, "lua callback assigned: onActiveSensing");
         MidiInputCallback::onMidiActiveSensingCallback = &onMidiActiveSensing;
     }
 
     if (luaLE_functionExists("midi", "onSystemReset")) {
-        System::logger.write("lua callback assigned: onSystemReset");
+        System::logger.write(ERROR, "lua callback assigned: onSystemReset");
         MidiInputCallback::onMidiSystemResetCallback = &onMidiSystemReset;
     }
 
     if (luaLE_functionExists("midi", "onTuneRequest")) {
-        System::logger.write("lua callback assigned: onTuneRequest");
+        System::logger.write(ERROR, "lua callback assigned: onTuneRequest");
         MidiInputCallback::onMidiTuneRequestCallback = &onMidiTuneRequest;
     }
 
     if (luaLE_functionExists("midi", "onProgramChange")) {
-        System::logger.write("lua callback assigned: onProgramChange");
+        System::logger.write(ERROR, "lua callback assigned: onProgramChange");
         MidiInputCallback::onMidiProgramChangeCallback = &onMidiProgramChange;
     }
 
     if (luaLE_functionExists("midi", "onAfterTouchChannel")) {
-        System::logger.write("lua callback assigned: onAfterTouchChannel");
+        System::logger.write(ERROR,
+                             "lua callback assigned: onAfterTouchChannel");
         MidiInputCallback::onMidiAfterTouchChannelCallback =
             &onMidiAfterTouchChannel;
     }
 
     if (luaLE_functionExists("midi", "onPitchBend")) {
-        System::logger.write("lua callback assigned: onPitchBend");
+        System::logger.write(ERROR, "lua callback assigned: onPitchBend");
         MidiInputCallback::onMidiPitchBendCallback = &onMidiPitchBend;
     }
 
     if (luaLE_functionExists("midi", "onSongSelect")) {
-        System::logger.write("lua callback assigned: onSongSelect");
+        System::logger.write(ERROR, "lua callback assigned: onSongSelect");
         MidiInputCallback::onMidiSongSelectCallback = &onMidiSongSelect;
     }
 
     if (luaLE_functionExists("midi", "onSongPosition")) {
-        System::logger.write("lua callback assigned: onSongPosition");
+        System::logger.write(ERROR, "lua callback assigned: onSongPosition");
         MidiInputCallback::onMidiSongPositionCallback = &onMidiSongPosition;
     }
 
     if (luaLE_functionExists("midi", "onControlChange")) {
-        System::logger.write("lua callback assigned: onControlChange");
+        System::logger.write(ERROR, "lua callback assigned: onControlChange");
         MidiInputCallback::onMidiControlChangeCallback = &onMidiControlChange;
     }
 
     if (luaLE_functionExists("midi", "onNoteOn")) {
-        System::logger.write("lua callback assigned: onNoteOn");
+        System::logger.write(ERROR, "lua callback assigned: onNoteOn");
         MidiInputCallback::onMidiNoteOnCallback = &onMidiNoteOn;
     }
 
     if (luaLE_functionExists("midi", "onNoteOff")) {
-        System::logger.write("lua callback assigned: onNoteOff");
+        System::logger.write(ERROR, "lua callback assigned: onNoteOff");
         MidiInputCallback::onMidiNoteOffCallback = &onMidiNoteOff;
     }
 
     if (luaLE_functionExists("midi", "onAfterTouchPoly")) {
-        System::logger.write("lua callback assigned: onAfterTouchPoly");
+        System::logger.write(ERROR, "lua callback assigned: onAfterTouchPoly");
         MidiInputCallback::onMidiAfterTouchPolyCallback = &onMidiAfterTouchPoly;
     }
 
     if (luaLE_functionExists("midi", "onSysex")) {
-        System::logger.write("lua callback assigned: onSysex");
+        System::logger.write(ERROR, "lua callback assigned: onSysex");
         MidiInputCallback::onMidiSysexCallback = &onMidiSysex;
     }
 
     if (luaLE_functionExists("midi", "onMessage")) {
-        System::logger.write("lua callback assigned: onMessage");
+        System::logger.write(ERROR, "lua callback assigned: onMessage");
         MidiInputCallback::onMidiMessageCallback = &onMidiMessage;
     }
 }
@@ -238,7 +239,8 @@ void onMidiSysex(MidiInput &midiInput, MidiMessage &midiMessage)
         luaLE_pushObject(L, "SysexBlock", &sysexBlock);
 
         if (lua_pcall(L, 2, 0, 0) != 0) {
-            System::logger.write("error running function 'onSysex': %s",
+            System::logger.write(ERROR,
+                                 "error running function 'onSysex': %s",
                                  lua_tostring(L, -1));
         }
     } else {
@@ -266,6 +268,7 @@ void onMidiMessage(MidiInput &midiInput, MidiMessage &midiMessage)
 
             if (lua_pcall(L, 2, 0, 0) != 0) {
                 System::logger.write(
+                    ERROR,
                     "error running function 'midi.onMessage': %s",
                     lua_tostring(L, -1));
             }
@@ -317,6 +320,7 @@ void onMidiMessage(MidiInput &midiInput, MidiMessage &midiMessage)
 
             if (lua_pcall(L, 2, 0, 0) != 0) {
                 System::logger.write(
+                    ERROR,
                     "error running function 'midi.onMessage': %s",
                     lua_tostring(L, -1));
             }

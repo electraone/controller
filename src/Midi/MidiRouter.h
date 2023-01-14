@@ -56,7 +56,8 @@ public:
     {
         // Do not forward/process the CTRL messages. It is done on purpose for now.
         if (midiInput.getPort() == MIDI_CTRL_PORT) {
-            System::logger.write("External MIDI control command arrived");
+            System::logger.write(ERROR,
+                                 "External MIDI control command arrived");
             return (true);
         }
 

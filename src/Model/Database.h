@@ -25,11 +25,12 @@ public:
         copyString(filename, newFilename, maxDatabaseFilenameLength);
 
 #if DEBUG
-        System::logger.write("Database::constructor: file=%s", filename);
+        System::logger.write(ERROR, "Database::constructor: file=%s", filename);
 #endif
 
         if (!Hardware::sdcard.exists(filename)) {
             System::logger.write(
+                ERROR,
                 "Database::open Database file does not exist: file='%s'",
                 filename);
         }
@@ -38,7 +39,7 @@ public:
     ~Database()
     {
 #if DEBUG
-        System::logger.write("Database::destructor: file=%s", filename);
+        System::logger.write(ERROR, "Database::destructor: file=%s", filename);
 #endif
 
         if (file) {
@@ -53,7 +54,7 @@ public:
 
         if (!Hardware::sdcard.deleteFile(filename)) {
             System::logger.write(
-                "Database::create: cannot remove dangling file");
+                ERROR, "Database::create: cannot remove dangling file");
         }
 
         /*
@@ -64,6 +65,7 @@ public:
 
         if (!file) {
             System::logger.write(
+                ERROR,
                 "Database::create: Cannot open the file for writing: file=%s",
                 filename);
             return (false);
@@ -76,7 +78,9 @@ public:
          */
         if (!writeHeader()) {
             System::logger.write(
-                "Database::create: write header failed: file=%s", filename);
+                ERROR,
+                "Database::create: write header failed: file=%s",
+                filename);
             close();
             return (false);
         }
@@ -96,7 +100,7 @@ public:
     {
         if (isOpen) {
             System::logger.write(
-                "Database::open: Database: it was open already");
+                ERROR, "Database::open: Database: it was open already");
             return (false);
         }
 
@@ -104,24 +108,25 @@ public:
 
         if (!file) {
             System::logger.write(
+                ERROR,
                 "Database::open: Cannot open the file for reading/writing: file='%s'",
                 filename);
             return (false);
         } else if (file.size() == 0) {
-            System::logger.write("Database::open: File is broken: file='%s'",
-                                 filename);
+            System::logger.write(
+                ERROR, "Database::open: File is broken: file='%s'", filename);
             return (false);
         } else {
             isOpen = true;
         }
 
         if (!readHeader()) {
-            System::logger.write("Database::open Cannot read header: file=%s",
-                                 filename);
+            System::logger.write(
+                ERROR, "Database::open Cannot read header: file=%s", filename);
         }
 
 #if DEBUG
-        System::logger.write("Database::open: file=%s", filename);
+        System::logger.write(ERROR, "Database::open: file=%s", filename);
 #endif
 
         return (true);
@@ -161,7 +166,7 @@ public:
     void close(void)
     {
 #if DEBUG
-        System::logger.write("Database::closed: file=%s", filename);
+        System::logger.write(ERROR, "Database::closed: file=%s", filename);
 #endif
         file.close();
         isOpen = true;
@@ -191,8 +196,10 @@ private:
     bool writeRecord(size_t address, byte *record)
     {
         if (!file.seek(address)) {
-            System::logger.write(
-                "write: cannot seek: %d, max size=%d", address, file.size());
+            System::logger.write(ERROR,
+                                 "write: cannot seek: %d, max size=%d",
+                                 address,
+                                 file.size());
             return (false);
         }
 
@@ -209,8 +216,10 @@ private:
         int rc = 0;
 
         if (!file.seek(address)) {
-            System::logger.write(
-                "read: cannot seek: %d, max size=%d", address, file.size());
+            System::logger.write(ERROR,
+                                 "read: cannot seek: %d, max size=%d",
+                                 address,
+                                 file.size());
             return (false);
         }
 
@@ -221,7 +230,8 @@ private:
         }
 
 #ifdef DEBUG
-        System::logger.write("read address=%d, read=%d, (%s)",
+        System::logger.write(ERROR,
+                             "read address=%d, read=%d, (%s)",
                              address,
                              rc,
                              ((SnapshotRecord *)record)->name);
@@ -232,8 +242,10 @@ private:
     bool deleteRecord(size_t address)
     {
         if (!file.seek(address)) {
-            System::logger.write(
-                "delete: cannot seek: %d, max size=%d", address, file.size());
+            System::logger.write(ERROR,
+                                 "delete: cannot seek: %d, max size=%d",
+                                 address,
+                                 file.size());
             return (false);
         }
 

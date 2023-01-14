@@ -14,7 +14,8 @@ void preset_onLoad(void)
 
     if (lua_isfunction(L, -1)) {
         if (lua_pcall(L, 0, 0, 0) != 0) {
-            System::logger.write("error running function '%s': %s",
+            System::logger.write(ERROR,
+                                 "error running function '%s': %s",
                                  function,
                                  lua_tostring(L, -1));
         }
@@ -32,7 +33,8 @@ void preset_onExit(void)
 
     if (lua_isfunction(L, -1)) {
         if (lua_pcall(L, 0, 0, 0) != 0) {
-            System::logger.write("error running function '%s': %s",
+            System::logger.write(ERROR,
+                                 "error running function '%s': %s",
                                  function,
                                  lua_tostring(L, -1));
         }

@@ -298,6 +298,7 @@ void Control::addToParameterMap(ControlValue &value)
 {
 #ifdef DEBUG
     System::logger.write(
+        ERROR,
         "addToParameterMap: controlId: %d, handle: %d, address=%x",
         value.getControl()->getId(),
         value.getHandle(),
@@ -379,16 +380,16 @@ void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 void Control::print(void) const
 {
     if (true) {
-        System::logger.write("address: %x", this);
-        System::logger.write("id: %d", getId());
-        System::logger.write("type: %d", getType());
-        System::logger.write("mode: %d", getMode());
-        System::logger.write("variant: %d", getVariant());
-        System::logger.write("visible: %d", isVisible());
-        System::logger.write("name: %s", getName());
-        System::logger.write("pageId: %d", getPageId());
-        System::logger.write("colour: %d", getColour());
-        System::logger.write("controlSetId: %d", getControlSetId());
+        System::logger.write(ERROR, "address: %x", this);
+        System::logger.write(ERROR, "id: %d", getId());
+        System::logger.write(ERROR, "type: %d", getType());
+        System::logger.write(ERROR, "mode: %d", getMode());
+        System::logger.write(ERROR, "variant: %d", getVariant());
+        System::logger.write(ERROR, "visible: %d", isVisible());
+        System::logger.write(ERROR, "name: %s", getName());
+        System::logger.write(ERROR, "pageId: %d", getPageId());
+        System::logger.write(ERROR, "colour: %d", getColour());
+        System::logger.write(ERROR, "controlSetId: %d", getControlSetId());
         getBounds().print();
         printInputs();
         printValues();
@@ -397,7 +398,8 @@ void Control::print(void) const
 
 void Control::printValues(void) const
 {
-    System::logger.write("    --[Values]------------------------------------");
+    System::logger.write(ERROR,
+                         "    --[Values]------------------------------------");
     for (const auto &value : values) {
         value.print();
     }
@@ -405,7 +407,8 @@ void Control::printValues(void) const
 
 void Control::printInputs(void) const
 {
-    System::logger.write("    --[Inputs]------------------------------------");
+    System::logger.write(ERROR,
+                         "    --[Inputs]------------------------------------");
     for (const auto &input : inputs) {
         input.print();
     }

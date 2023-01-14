@@ -21,7 +21,10 @@ UsbHostPorts::UsbHostPorts(UiApi &newUiApi)
 
             usbHostDevice[i]->onClick = [this, i](uint8_t port) {
                 System::logger.write(
-                    "UsbHostPorts: setting USB device %d to port %d", i, port);
+                    ERROR,
+                    "UsbHostPorts: setting USB device %d to port %d",
+                    i,
+                    port);
                 usbHostDevice[i]->setPort(port);
                 USBDevices[i].midiBus = port;
             };

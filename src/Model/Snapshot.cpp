@@ -3,13 +3,13 @@
 
 Snapshot::Snapshot(const char *filename) : colour(Colours565::white)
 {
-    System::logger.write("Snapshots: file: filename=%s", filename);
+    System::logger.write(ERROR, "Snapshots: file: filename=%s", filename);
 
     File file = Hardware::sdcard.createInputStream(filename);
 
     if (!file) {
-        System::logger.write("Snapshots: cannot open snapshot file: %s",
-                             filename);
+        System::logger.write(
+            ERROR, "Snapshots: cannot open snapshot file: %s", filename);
         return;
     }
 
@@ -46,7 +46,7 @@ bool Snapshot::parse(File &file)
     filter["color"] = true;
 
     if (file.seek(0) == false) {
-        System::logger.write("Snapshots::parse: cannot rewind the file");
+        System::logger.write(ERROR, "Snapshots::parse: cannot rewind the file");
         return (false);
     }
 
@@ -54,8 +54,8 @@ bool Snapshot::parse(File &file)
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        System::logger.write("Snapshots::parse: parsing failed: %s",
-                             err.c_str());
+        System::logger.write(
+            ERROR, "Snapshots::parse: parsing failed: %s", err.c_str());
         return (false);
     }
 
@@ -73,13 +73,13 @@ void sendSnapshotMessages(const char *projectId,
     char filename[MAX_FILENAME_LENGTH + 1];
     composeSnapshotFilename(filename, projectId, bankNumber, slot);
 
-    System::logger.write("file to load: %s", filename);
+    System::logger.write(ERROR, "file to load: %s", filename);
 
     if (Hardware::sdcard.exists(filename)) {
         parameterMap.load(filename);
         electraApp.sendAllControls();
     } else {
-        System::logger.write("an empty slot: %s", filename);
+        System::logger.write(ERROR, "an empty slot: %s", filename);
     }
 }
 */

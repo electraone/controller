@@ -142,12 +142,12 @@ public:
 
     void print(void) const
     {
-        System::logger.write("id: %d", getId());
-        System::logger.write("label: %s", getLabel());
-        System::logger.write("pageId: %d", getPageId());
-        System::logger.write("colour: %d", getColour());
-        System::logger.write("visible: %d", isVisible());
-        System::logger.write("variant: %d", getVariant());
+        System::logger.write(ERROR, "id: %d", getId());
+        System::logger.write(ERROR, "label: %s", getLabel());
+        System::logger.write(ERROR, "pageId: %d", getPageId());
+        System::logger.write(ERROR, "colour: %d", getColour());
+        System::logger.write(ERROR, "visible: %d", isVisible());
+        System::logger.write(ERROR, "variant: %d", getVariant());
         getBounds().print();
     }
 

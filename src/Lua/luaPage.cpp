@@ -150,7 +150,8 @@ void pages_onChange(uint8_t oldPageId, uint8_t newPageId)
         lua_pushnumber(L, oldPageId);
         lua_pushnumber(L, newPageId);
         if (lua_pcall(L, 2, 0, 0) != 0) {
-            System::logger.write("error running function '%s': %s",
+            System::logger.write(ERROR,
+                                 "error running function '%s': %s",
                                  function,
                                  lua_tostring(L, -1));
         }
