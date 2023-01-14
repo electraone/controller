@@ -9,6 +9,7 @@
 #include "luaControl.h"
 #include "luaMessage.h"
 #include "luaPreset.h"
+#include "luaEvents.h"
 
 void loadLuaLibs(void)
 {
@@ -23,6 +24,7 @@ void loadLuaLibs(void)
                                            { "patch", luaopen_patch },
                                            { "preset", luaopen_preset },
                                            { "info", luaopen_info },
+                                           { "events", luaopen_events },
                                            { NULL, NULL } };
 
     luaLE_openEoslibs(L, ctrlv2libs);
@@ -175,4 +177,14 @@ int luaLE_checkValueIndex(lua_State *L, int idx)
     int index = luaL_checkinteger(L, idx);
 
     return (index);
+}
+
+int luaLE_checkEvents(lua_State *L, int idx)
+{
+    int events = luaL_checkinteger(L, idx);
+
+    if ((events < 0) || (events > 127)) {
+        return (luaL_error(L, "invalid events: %d", events));
+    }
+    return (events);
 }

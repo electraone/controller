@@ -122,7 +122,9 @@ public:
                        uint8_t destSlot) override;
     void setCurrentSnapshotBank(uint8_t bankNumber) override;
     void setControlPort(uint8_t newControlPort) override;
-    uint8_t getControlPort(void) override;
+    uint8_t getControlPort(void) const override;
+    void setSubscribedEvents(uint8_t newSubscribers) override;
+    uint8_t getSubscribedEvents(void) const override;
     void sendAllControls(void) override;
     void sendPotTouchEvent(uint8_t potId,
                            uint16_t controlId,
@@ -202,4 +204,5 @@ private:
     // Controller status
     bool inSleepMode;
     uint8_t controlPort;
+    uint8_t subscribedEvents;
 };

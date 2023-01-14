@@ -4,7 +4,17 @@
 #include "Envelope.h"
 #include "luabridge.h"
 #include "luaPage.h"
+#include "luaEvents.h"
 #include "System.h"
+
+namespace SubscribedEvents
+{
+    uint8_t pages = 1;
+    uint8_t controlSet = 2;
+    uint8_t usbHost = 4;
+    uint8_t pots = 8;
+    uint8_t touch = 16;
+}; // namespace SubscribedEvents
 
 MainWindow::MainWindow(Model &newModel, Midi &newMidi, Config &newConfig)
     : model(newModel),
@@ -24,7 +34,8 @@ MainWindow::MainWindow(Model &newModel, Midi &newMidi, Config &newConfig)
       currentControlSetId(0),
       currentSnapshotBank(0),
       inSleepMode(false),
-      controlPort(USB_MIDI_PORT_CTRL)
+      controlPort(USB_MIDI_PORT_CTRL),
+      subscribedEvents(0)
 {
     setName("mainWindow");
     setBounds(0, 25, 1024, 575);
@@ -112,8 +123,11 @@ bool MainWindow::switchPage(uint8_t pageId, uint8_t controlSetId)
     displayPage();
 
     if (prevCurrentPageId != currentPageId) {
-        if (L) {
-            pages_onChange(prevCurrentPageId, currentPageId);
+        if (subscribedEvents & SubscribedEvents::pages) {
+            if (L) {
+                pages_onChange(prevCurrentPageId, currentPageId);
+                events_onPageChange(prevCurrentPageId, currentPageId);
+            }
         }
     }
     return (true);
@@ -790,9 +804,19 @@ void MainWindow::setControlPort(uint8_t newControlPort)
     controlPort = newControlPort;
 }
 
-uint8_t MainWindow::getControlPort(void)
+uint8_t MainWindow::getControlPort(void) const
 {
     return (controlPort);
+}
+
+void MainWindow::setSubscribedEvents(uint8_t newSubscribers)
+{
+    subscribedEvents = newSubscribers;
+}
+
+uint8_t MainWindow::getSubscribedEvents(void) const
+{
+    return (subscribedEvents);
 }
 
 void MainWindow::requestAllPatches(void)
@@ -1016,7 +1040,12 @@ void MainWindow::sendPotTouchEvent(uint8_t potId,
                                    uint16_t controlId,
                                    bool touched)
 {
-    uiApi.sendPotTouchEvent(potId, controlId, touched);
+    if (subscribedEvents & SubscribedEvents::pots) {
+        uiApi.sendPotTouchEvent(potId, controlId, touched);
+        if (L) {
+            events_onPotTouch(potId, controlId, touched);
+        }
+    }
 }
 
 void MainWindow::initialiseEmpty(void)

@@ -102,10 +102,6 @@ void UiApi::removeSnapshot(const char *projectId,
 
 void UiApi::sendPotTouchEvent(uint8_t potId, uint16_t controlId, bool touched)
 {
-    System::logger.write("sendPotTouchEvent: potId=%d, control=%d, state=%d",
-                         potId,
-                         controlId,
-                         touched);
     MidiOutput::sendPotTouchEvent(MidiInterface::Type::MidiUsbDev,
                                   delegate.getControlPort(),
                                   potId,

@@ -27,3 +27,4 @@ int luaLE_checkPageId(lua_State *L, int idx);
 int luaLE_checkControlSetId(lua_State *L, int idx);
 int luaLE_checkGroupId(lua_State *L, int idx);
 int luaLE_checkValueIndex(lua_State *L, int idx);
+int luaLE_checkEvents(lua_State *L, int idx);
