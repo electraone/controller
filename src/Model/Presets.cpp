@@ -48,6 +48,8 @@ void Presets::sendList(uint8_t port)
              appSandbox,
              millis());
 
+    System::sysExBusy = true;
+
     File presetListFile = Hardware::sdcard.createOutputStream(
         filenameList, FILE_WRITE | O_CREAT | O_TRUNC);
 
@@ -55,13 +57,7 @@ void Presets::sendList(uint8_t port)
         System::logger.write(ERROR,
                              "Presets::sendList: cannot open transfer file: %s",
                              filenameList);
-
-        if (!Hardware::sdcard.deleteFile(filenameList)) {
-            System::logger.write(
-                ERROR,
-                "Presets::sendList: cannot remove temporary file: %s",
-                filenameList);
-        }
+        System::sysExBusy = false;
         return;
     }
 
@@ -122,6 +118,7 @@ void Presets::sendList(uint8_t port)
             "Presets::sendList: cannot remove temporary file: %s",
             filenameList);
     }
+    System::sysExBusy = false;
 }
 
 /** Load preset.

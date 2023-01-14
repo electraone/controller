@@ -11,17 +11,21 @@ Snapshots::Snapshots(const char *newAppSandbox)
 
 bool Snapshots::initialise(const char *newProjectId)
 {
+    System::sysExBusy = true;
     if (!createSnapshotDir(newProjectId)) {
         System::logger.write(
             ERROR, "Snapshots::initialise: cannot create snapshot directories");
+        System::sysExBusy = false;
         return (false);
     }
 
     if (!createSnapshotDatabase(newProjectId)) {
         System::logger.write(
             ERROR, "Snapshots::initialise: cannot create snapshot database");
+        System::sysExBusy = false;
         return (false);
     }
+    System::sysExBusy = false;
 
     return (true);
 }
@@ -61,6 +65,8 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
     char dbFile[MAX_FILENAME_LENGTH + 1];
     char tempSnapshotFilename[MAX_FILENAME_LENGTH + 1];
 
+    System::sysExBusy = true;
+
     snprintf(dbFile,
              MAX_FILENAME_LENGTH,
              "%s/snaps/%s/snapshot.db",
@@ -78,6 +84,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
     if (!dbSnapshot.open()) {
         System::logger.write(
             ERROR, "Snapshots::sendList: cannot open the snapshot storage");
+        System::sysExBusy = false;
         return;
     }
 
@@ -88,6 +95,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
         System::logger.write(ERROR,
                              "Snapshots::sendList: cannot open transfer file");
         dbSnapshot.close();
+        System::sysExBusy = false;
         return;
     }
 
@@ -131,6 +139,7 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
             "Snapshots::sendList: cannot remove temporary file: %s",
             tempSnapshotFilename);
     }
+    System::sysExBusy = false;
 }
 
 void Snapshots::sendSnapshot(uint8_t port,
@@ -140,12 +149,14 @@ void Snapshots::sendSnapshot(uint8_t port,
 {
     char snapshotFilename[MAX_FILENAME_LENGTH + 1];
 
+    System::sysExBusy = true;
     createSnapshotFilename(snapshotFilename, projectId, bankNumber, slot);
 
     if (Hardware::sdcard.exists(snapshotFilename)) {
         MidiOutput::sendSysExFile(
             port, snapshotFilename, ElectraCommand::Object::FileSnapshot);
     }
+    System::sysExBusy = false;
 }
 
 Snapshot Snapshots::importSnapshot(LocalFile file)
@@ -166,6 +177,7 @@ Snapshot Snapshots::importSnapshot(LocalFile file)
         snapshot.getName(),
         snapshot.getColour());
 
+    System::sysExBusy = true;
     if (!Hardware::sdcard.exists(snapshotFilename)) {
         if (file.rename(snapshotFilename)) {
             updateSnapshotDb(destProjectId,
@@ -175,6 +187,7 @@ Snapshot Snapshots::importSnapshot(LocalFile file)
                              snapshot.getColour());
         }
     }
+    System::sysExBusy = false;
     return (snapshot);
 }
 
@@ -184,9 +197,11 @@ void Snapshots::sendSnapshotMessages(const char *projectId,
 {
     char filename[MAX_FILENAME_LENGTH + 1];
     createSnapshotFilename(filename, projectId, bankNumber, slot);
+    System::sysExBusy = true;
     if (Hardware::sdcard.exists(filename)) {
         parameterMap.load(filename);
     }
+    System::sysExBusy = false;
 }
 
 void Snapshots::saveSnapshot(const char *projectId,
@@ -195,11 +210,12 @@ void Snapshots::saveSnapshot(const char *projectId,
                              const char *newName,
                              uint32_t newColour)
 {
-    System::logger.write(ERROR, "newColor: %06X", newColour);
     char filename[MAX_FILENAME_LENGTH + 1];
     createSnapshotFilename(filename, projectId, bankNumber, slot);
+    System::sysExBusy = true;
     parameterMap.save(filename);
     updateSnapshotDb(projectId, bankNumber, slot, newName, newColour);
+    System::sysExBusy = false;
 }
 
 void Snapshots::updateSnapshot(const char *projectId,
@@ -208,14 +224,18 @@ void Snapshots::updateSnapshot(const char *projectId,
                                const char *newName,
                                uint32_t newColour)
 {
+    System::sysExBusy = true;
     updateSnapshotDb(projectId, bankNumber, slot, newName, newColour);
+    System::sysExBusy = false;
 }
 
 void Snapshots::removeSnapshot(const char *projectId,
                                uint8_t bankNumber,
                                uint8_t slot)
 {
+    System::sysExBusy = true;
     removeSnapshotDb(projectId, bankNumber, slot);
+    System::sysExBusy = false;
 }
 
 void Snapshots::swapSnapshot(const char *projectId,
@@ -224,8 +244,10 @@ void Snapshots::swapSnapshot(const char *projectId,
                              uint8_t destBankNumber,
                              uint8_t destSlot)
 {
+    System::sysExBusy = true;
     swapSnapshotDb(
         projectId, sourceBankNumber, sourceSlot, destBankNumber, destSlot);
+    System::sysExBusy = false;
 }
 
 void Snapshots::updateSnapshotDb(const char *projectId,
