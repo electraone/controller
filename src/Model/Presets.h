@@ -12,7 +12,7 @@ public:
             const bool &shouldLoadPresetStateOnStartup);
     virtual ~Presets() = default;
 
-    void assignPresetNames(uint8_t bankNumber);
+    void assignPresetNames(void);
     void sendList(uint8_t port);
 
     bool loadPresetById(int presetId);

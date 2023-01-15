@@ -1067,5 +1067,6 @@ void MainWindow::initialiseEmpty(void)
 {
     switchPage(1, 0);
     setInfoText("");
-    presets.assignPresetNames(0);
+    presets.setCurrentBankNumber(0);
+    presets.assignPresetNames();
 }

@@ -20,7 +20,7 @@ Presets::Presets(const char *newAppSandbox,
     memset(presetAlreadyLoaded, false, sizeof(presetAlreadyLoaded));
 }
 
-void Presets::assignPresetNames(uint8_t bankNumber)
+void Presets::assignPresetNames(void)
 {
     for (uint16_t i = 0; i < NumPresetsInBank; i++) {
         char filename[MAX_FILENAME_LENGTH + 1];
@@ -28,7 +28,7 @@ void Presets::assignPresetNames(uint8_t bankNumber)
                  MAX_FILENAME_LENGTH,
                  "%s/p%03d.epr",
                  appSandbox,
-                 (bankNumber * NumPresetsInBank) + i);
+                 (currentBankNumber * NumPresetsInBank) + i);
 
         if (File file = Hardware::sdcard.createInputStream(filename)) {
             Preset::getPresetName(file, presetNames[i], Preset::MaxNameLength);
@@ -136,40 +136,40 @@ bool Presets::loadPreset(LocalFile file)
     // Free current preset
     reset();
 
-    if (preset.load(presetFile) == true) {
-        System::logger.write(
-            INFO, "Default preset loaded: filename=%s", presetFile);
-    } else {
-        // \todo what should be done?
-        System::logger.write(ERROR, "Default preset load failed");
-    }
+    if (Hardware::sdcard.exists(presetFile)) {
+        if (preset.load(presetFile) == true) {
+            System::logger.write(
+                INFO, "Default preset loaded: filename=%s", presetFile);
+        } else {
+            // \todo what should be done?
+            System::logger.write(ERROR, "Default preset load failed");
+        }
 
-    // Display the preset if valid.
-    if (preset.isValid()) {
-        // Initialise the parameterMap
-        for (auto &[id, control] : preset.controls) {
-            for (auto &value : control.values) {
-                control.setDefaultValue(value, false);
+        // Display the preset if valid.
+        if (preset.isValid()) {
+            // Initialise the parameterMap
+            for (auto &[id, control] : preset.controls) {
+                for (auto &value : control.values) {
+                    control.setDefaultValue(value, false);
+                }
             }
         }
-    }
 
+        parameterMap.setProjectId(preset.getProjectId());
+        parameterMap.enable();
+        uint8_t presetId = (currentBankNumber * NumBanks) + currentSlot;
+
+        if (!loadPresetStateOnStartup && !presetAlreadyLoaded[presetId]) {
+            parameterMap.forget();
+        }
+        if (keepPresetState) {
+            parameterMap.recall();
+        }
+
+        // mark reset as loaded in this session
+        presetAlreadyLoaded[presetId] = true;
+    }
     System::tasks.enableRepaintGraphics();
-    parameterMap.setProjectId(preset.getProjectId());
-    parameterMap.enable();
-    uint8_t presetId = (currentBankNumber * NumBanks) + currentSlot;
-
-    if (!loadPresetStateOnStartup && !presetAlreadyLoaded[presetId]) {
-        parameterMap.forget();
-    }
-    if (keepPresetState) {
-        parameterMap.recall();
-    }
-    assignPresetNames(currentBankNumber);
-
-    // mark reset as loaded in this session
-    presetAlreadyLoaded[presetId] = true;
-
     return (true);
 }
 
@@ -303,7 +303,7 @@ void Presets::setCurrentBankNumber(uint8_t newBankNumber)
 {
     currentBankNumber = newBankNumber;
     setDefaultFiles(currentBankNumber, currentSlot);
-    assignPresetNames(currentBankNumber);
+    assignPresetNames();
 }
 
 uint8_t Presets::getCurrentBankNumber(void) const

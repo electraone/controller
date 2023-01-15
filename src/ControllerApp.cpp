@@ -108,6 +108,10 @@ bool Controller::handleCtrlFileReceived(uint8_t port,
         status = applyChangesToConfig(file);
     } else {
         status = sysexApi.process(port, file, fileType);
+
+        if (fileType == ElectraCommand::Object::FilePreset) {
+            model.presets.assignPresetNames();
+        }
     }
 
     return (status);
