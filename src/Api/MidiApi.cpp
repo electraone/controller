@@ -10,12 +10,13 @@ MidiApi::MidiApi(const MidiControls &newMidiControls, MainDelegate &newDelegate)
 
 void MidiApi::process(const MidiMessage &midiMessage)
 {
-    if (midiMessage.isBankSelect()) {
-        processBankSelect(midiMessage.getData2());
-    } else if (midiMessage.isProgramChange()) {
-        processProgramChange(midiMessage.getData1());
+    if (!processMidiControl(midiMessage.getType(), midiMessage.getData1())) {
+        if (midiMessage.isBankSelect()) {
+            processBankSelect(midiMessage.getData2());
+        } else if (midiMessage.isProgramChange()) {
+            processProgramChange(midiMessage.getData1());
+        }
     }
-    processMidiControl(midiMessage.getType(), midiMessage.getData1());
 }
 
 void MidiApi::processBankSelect(uint8_t bankNumber)
@@ -50,7 +51,7 @@ void MidiApi::processProgramChange(uint8_t programNumber)
     }
 }
 
-void MidiApi::processMidiControl(MidiMessage::Type type, uint8_t data1)
+bool MidiApi::processMidiControl(MidiMessage::Type type, uint8_t data1)
 {
     for (const auto &midiControl : midiControls) {
         if (midiControl.midiMessageType == type) {
@@ -62,27 +63,27 @@ void MidiApi::processMidiControl(MidiMessage::Type type, uint8_t data1)
                         presetId = midiControl.eventParameter1
                                    - 1; // zero based index is needed
                         delegate.switchPreset(presetId / 12, presetId % 12);
-                        break;
+                        return (true);
 
                     case AppEventType::switchPage:
                         delegate.switchPage(midiControl.eventParameter1);
-                        break;
+                        return (true);
 
                     case AppEventType::switchPageNext:
                         delegate.switchPageNext();
-                        break;
+                        return (true);
 
                     case AppEventType::switchPagePrev:
                         delegate.switchPagePrev();
-                        break;
+                        return (true);
 
                     case AppEventType::switchPresetNext:
                         delegate.switchPresetNext();
-                        break;
+                        return (true);
 
                     case AppEventType::switchPresetPrev:
                         delegate.switchPresetPrev();
-                        break;
+                        return (true);
 
                     default:
                         break;
@@ -90,4 +91,5 @@ void MidiApi::processMidiControl(MidiMessage::Type type, uint8_t data1)
             }
         }
     }
+    return (false);
 }

@@ -14,7 +14,7 @@ public:
 private:
     void processBankSelect(uint8_t bankNumber);
     void processProgramChange(uint8_t programNumber);
-    void processMidiControl(MidiMessage::Type type, uint8_t data1);
+    bool processMidiControl(MidiMessage::Type type, uint8_t data1);
 
     enum ProgramChangeMode { Presets, Snapshots };
 
