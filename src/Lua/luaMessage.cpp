@@ -31,7 +31,7 @@ int message_delete(lua_State *L)
 int message_getType(lua_State *L)
 {
     lua_settop(L, 1);
-    int messageType = (int)Message::Type::invalid;
+    int messageType = (int)Message::Type::none;
 
     if (Message *message = getMessage(L, 1)) {
         messageType = (int)message->getType();

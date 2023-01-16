@@ -1372,9 +1372,8 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
         }
     }
 
-#ifdef DEBUG
     System::logger.write(
-        ERROR,
+        TRACE,
         "parseMessage: device=%d, msgType=%s (%d), parameterId=%d, min=%d, "
         "max=%d, value=%d, lsbFirst=%d, resetRpn=%d, signMode=%d, bitWidth=%d",
         deviceId,
@@ -1388,7 +1387,6 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
         resetRpn,
         signMode,
         bitWidth);
-#endif
 
     return (Message(deviceId,
                     messageType,

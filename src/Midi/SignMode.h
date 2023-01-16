@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-enum class SignMode { noSign, twosComplement, signBit };
+enum class SignMode { noSign, twosComplement, signBit, signBit2, binOffset };
 
 SignMode translateSignMode(const char *signModeText);
 

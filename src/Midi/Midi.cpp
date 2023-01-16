@@ -46,6 +46,9 @@ void Midi::sendMessage(const Message &message)
                                message.getParameterNumber(),
                                midiValue,
                                message.getLsbFirst());
+    } else if (message.getType() == Message::Type::relcc) {
+        sendControlChange(
+            port, channel, message.getParameterNumber(), midiValue);
     } else if (message.getType() == Message::Type::nrpn) {
         sendNrpn(port,
                  channel,

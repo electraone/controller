@@ -28,7 +28,8 @@ public:
         atchannel = 12,
         pitchbend = 13,
         spp = 14,
-        invalid = 15
+        relcc = 15,
+        none = 16
     };
 
     Message()
@@ -38,7 +39,7 @@ public:
           midiMax(NOT_SET),
           value(NOT_SET)
     {
-        type = (uint8_t)Type::invalid;
+        type = (uint8_t)Type::none;
         lsbFirst = false;
         resetRpn = true;
         signMode = (uint8_t)SignMode::noSign;
@@ -243,12 +244,16 @@ public:
                 return (Type::pitchbend);
             } else if (strcmp(typeText, "spp") == 0) {
                 return (Type::spp);
+            } else if (strcmp(typeText, "relcc") == 0) {
+                return (Type::relcc);
+            } else if (strcmp(typeText, "none") == 0) {
+                return (Type::none);
             }
         } else {
             // default - for rules that do not have type specified
             return (Type::sysex);
         }
-        return (Type::invalid);
+        return (Type::none);
     }
 
     static const char *translateType(Type messageType)
@@ -283,6 +288,10 @@ public:
             return ("pitchbend");
         } else if (messageType == Type::spp) {
             return ("spp");
+        } else if (messageType == Type::relcc) {
+            return ("relcc");
+        } else if (messageType == Type::none) {
+            return ("none");
         }
 
         return ("invalid");
@@ -298,10 +307,10 @@ private:
 
     struct {
         uint8_t deviceId : 5;
-        uint8_t type : 4;
+        uint8_t type : 5;
         bool lsbFirst : 1;
         bool resetRpn : 1;
-        uint8_t signMode : 2;
+        uint8_t signMode : 3;
         uint8_t bitWidth : 4;
     };
 };

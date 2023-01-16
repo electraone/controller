@@ -137,7 +137,6 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
                                     uint16_t midiValue,
                                     Origin origin)
 {
-    //#ifdef DEBUG
     System::logger.write(
         TRACE,
         "ParameterMap::setValue: deviceId=%d, type=%d, parameterNumber=%d, midiValue=%d, origin=%d",
@@ -146,7 +145,6 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
         parameterNumber,
         midiValue,
         origin);
-    //#endif
 
     // These messages are not device specific
     if (type == Message::Type::start || type == Message::Type::stop
@@ -158,7 +156,7 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
     LookupEntry *entry = findAndCache(hash);
 
     if (entry) {
-        if (entry->midiValue == midiValue) {
+        if ((type != Message::Type::relcc) && (entry->midiValue == midiValue)) {
             return (nullptr);
         }
 
@@ -419,7 +417,7 @@ bool ParameterMap::parseParameters(File &file)
 
         if (err && (err.code() != DeserializationError::InvalidInput)) {
             System::logger.write(
-                ERROR,
+                TRACE,
                 "ParameterMap::parseParameters: deserializeJson() failed: %s",
                 err.c_str());
             return (false);
@@ -548,7 +546,8 @@ void ParameterMap::repaintParameterMap(void)
                         if (c) {
                             System::logger.write(
                                 TRACE,
-                                "repaintParameterMap: repainting component: component: %s, controlId=%d, valueId=%s",
+                                "repaintParameterMap: repainting component: "
+                                "component: %s, controlId=%d, valueId=%s",
                                 c->getName(),
                                 messageDestination->getControl()->getId(),
                                 messageDestination->getId());

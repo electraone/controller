@@ -175,6 +175,8 @@ Control::Type Control::translateType(const char *typeText)
             return (Control::Type::Adr);
         } else if (strcmp(typeText, "dx7envelope") == 0) {
             return (Control::Type::Dx7envelope);
+        } else if (strcmp(typeText, "relative") == 0) {
+            return (Control::Type::Relative);
         }
     }
     return (Control::Type::None);

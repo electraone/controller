@@ -21,7 +21,8 @@ public:
         Adsr = 5,
         Adr = 6,
         Dx7envelope = 7,
-        Knob = 8
+        Knob = 8,
+        Relative = 9
     };
 
     enum class Mode {

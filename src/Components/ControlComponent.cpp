@@ -13,6 +13,7 @@
 #include "ADRDetailControl.h"
 #include "Dx7EnvDetailControl.h"
 #include "KnobControl.h"
+#include "RelativeControl.h"
 #include "MainWindow.h"
 
 ControlComponent::ControlComponent(const Control &controlToAssign,
@@ -89,29 +90,39 @@ void ControlComponent::updateValueFromParameterMap(void)
 void ControlComponent::emitValueChange(int16_t newDisplayValue,
                                        const ControlValue &cv)
 {
-    newDisplayValue = constrain(newDisplayValue, cv.getMin(), cv.getMax());
+    uint16_t midiValue = 0;
 
-    uint16_t midiValue = translateValueToMidiValue(cv.message.getSignMode(),
-                                                   cv.message.getBitWidth(),
-                                                   newDisplayValue,
-                                                   cv.getMin(),
-                                                   cv.getMax(),
-                                                   cv.message.getMidiMin(),
-                                                   cv.message.getMidiMax());
-
+    if (cv.message.getType() == Message::Type::relcc) {
+        SignMode signMode = cv.message.getSignMode();
+        if (signMode == SignMode::signBit2) {
+            midiValue = (newDisplayValue > 0) ? 1 : 65;
+        } else if (signMode == SignMode::binOffset) {
+            midiValue = (newDisplayValue > 0) ? 65 : 63;
+        } else if (signMode == SignMode::twosComplement) {
+            midiValue = (newDisplayValue > 0) ? 1 : 127;
+        } else {
+            midiValue = (newDisplayValue > 0) ? 65 : 1;
+        }
+    } else {
+        newDisplayValue = constrain(newDisplayValue, cv.getMin(), cv.getMax());
+        midiValue = translateValueToMidiValue(cv.message.getSignMode(),
+                                              cv.message.getBitWidth(),
+                                              newDisplayValue,
+                                              cv.getMin(),
+                                              cv.getMax(),
+                                              cv.message.getMidiMin(),
+                                              cv.message.getMidiMax());
+    }
     parameterMap.setValue(cv.message.getDeviceId(),
                           cv.message.getType(),
                           cv.message.getParameterNumber(),
                           midiValue,
                           Origin::internal);
-
     cv.callFunction(newDisplayValue);
-#ifdef DEBUG
-    System::logger.write(ERROR,
+    System::logger.write(TRACE,
                          "emitValueChange: display=%d, midi=%d",
                          newDisplayValue,
                          midiValue);
-#endif
 }
 
 void ControlComponent::setUseAltBackground(bool shouldUseAltBackground)
@@ -160,6 +171,8 @@ ControlComponent *
         c = new Dx7EnvControl(control, newDelegate);
     } else if (control.getType() == Control::Type::Knob) {
         c = new KnobControl(control, newDelegate);
+    } else if (control.getType() == Control::Type::Relative) {
+        c = new RelativeControl(control, newDelegate);
     }
 
     if (c) {

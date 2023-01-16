@@ -10,6 +10,10 @@ SignMode translateSignMode(const char *signModeText)
             return (SignMode::twosComplement);
         } else if (strcmp(signModeText, "signBit") == 0) {
             return (SignMode::signBit);
+        } else if (strcmp(signModeText, "signBit2") == 0) {
+            return (SignMode::signBit2);
+        } else if (strcmp(signModeText, "binOffset") == 0) {
+            return (SignMode::binOffset);
         }
     }
 
