@@ -177,6 +177,41 @@ int value_getControl(lua_State *L)
     return (luaL_error(L, "failed: not a valid value"));
 }
 
+int value_overrideValue(lua_State *L)
+{
+    lua_settop(L, 2);
+    ControlValue *value = getControlValue(L, 1);
+    const char *textValue = luaL_checkstring(L, 2);
+
+    if (value) {
+        Control *control = value->getControl();
+        if (control) {
+            luaDelegate->setControlValueLabel(
+                control->getId(), value->getHandle(), textValue);
+        }
+    } else {
+        return (luaL_error(L, "failed: not a valid value"));
+    }
+    return (0);
+}
+
+int value_cancelOverride(lua_State *L)
+{
+    lua_settop(L, 1);
+    ControlValue *value = getControlValue(L, 1);
+
+    if (value) {
+        Control *control = value->getControl();
+        if (control) {
+            luaDelegate->setControlValueLabel(
+                control->getId(), value->getHandle(), "");
+        }
+    } else {
+        return (luaL_error(L, "failed: not a valid value"));
+    }
+    return (0);
+}
+
 void value_register(lua_State *L)
 {
     lua_register(L, "ControlValue", value_create);

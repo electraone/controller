@@ -65,6 +65,12 @@ public:
                        uint8_t newPotId) override;
     void setControlBounds(uint16_t controlId, const Rectangle &bounds) override;
     void setControlSlot(uint16_t controlId, uint8_t newSlot) override;
+    void setControlValueLabel(uint16_t controlId,
+                              const char *valueId,
+                              const char *text) override;
+    void setControlValueLabel(uint16_t controlId,
+                              uint8_t handleId,
+                              const char *text) override;
 
     void setPageName(uint8_t pageId, const char *newName) override;
     void setInfoText(const char *newText) override;

@@ -15,7 +15,7 @@ bool SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
     ElectraCommand::Object object = cmd.getObject();
 
     System::logger.write(
-        ERROR,
+        INFO,
         "SysexApi::process: sysex received: command=%d, parameter=%d, byte1=%d",
         command,
         object,
@@ -54,7 +54,9 @@ bool SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
         } else if (object == ElectraCommand::Object::ControlPort) {
             setControlPort(port, cmd.getByte1());
         } else if (object == ElectraCommand::Object::Value) {
-            setControlLabel(port, "value");
+            uint16_t controlId = cmd.getByte1() | cmd.getByte2() << 7;
+            uint8_t handleId = cmd.getByte3();
+            updateControlValueLabel(port, controlId, handleId, sysexPayload);
         }
     } else if (cmd.isUpdate()) {
         if (object == ElectraCommand::Object::SnapshotInfo) {
@@ -253,7 +255,30 @@ void SysexApi::updateControl(uint8_t port,
         bool shouldBeVisible = doc["visible"].as<bool>();
         delegate.setControlVisible(controlId, shouldBeVisible);
     }
+
+    if (!doc["value"].isNull()) {
+        const char *valueId = doc["value"]["id"] | "value";
+        const char *text = doc["value"]["text"] | "";
+        delegate.setControlValueLabel(controlId, valueId, text);
+    }
+
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+}
+
+void SysexApi::updateControlValueLabel(uint8_t port,
+                                       uint16_t controlId,
+                                       uint8_t handleId,
+                                       MemoryBlock &sysexPayload)
+{
+    // skip first three bytes (after command and object)
+    sysexPayload.read();
+    sysexPayload.read();
+    sysexPayload.read();
+
+    uint8_t buffer[20];
+    auto length = sysexPayload.readBytes(buffer, sizeof(buffer) - 1);
+    buffer[length] = '\0';
+    delegate.setControlValueLabel(controlId, handleId, (char *)buffer);
 }
 
 void SysexApi::setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload)
@@ -402,9 +427,4 @@ void SysexApi::setControlPort(uint8_t port, uint8_t newControlPort)
 uint8_t SysexApi::getControlPort(void)
 {
     return (delegate.getControlPort());
-}
-
-void SysexApi::setControlLabel(uint8_t port, const char *newLabel)
-{
-    System::logger.write(ERROR, "setting a new label: %s", newLabel);
 }

@@ -132,7 +132,9 @@ public:
         g.setColour(Colours565::white);
 
         char stringValue[20];
-        if (!control.getValue(0).getFormatter().empty()) {
+        if (control.getValue(0).isLabelSet()) {
+            copyString(stringValue, control.getValue(0).getLabel(), 19);
+        } else if (!control.getValue(0).getFormatter().empty()) {
             control.getValue(0).callFormatter(
                 getState(), stringValue, sizeof(stringValue));
         } else {

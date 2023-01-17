@@ -9,6 +9,10 @@
 #include "Colours.h"
 #include "Component.h"
 
+extern const char *valueIdsAdsr[];
+extern const char *valueIdsAdr[];
+extern const char *valueIdsDx7Env[];
+
 class Control
 {
 public:
@@ -90,6 +94,11 @@ public:
     void print(void) const;
     void printValues(void) const;
     void printInputs(void) const;
+
+    static uint8_t translateValueToId(Control::Type controlType,
+                                      const char *handle);
+    static uint8_t constraintValueId(Control::Type controlType,
+                                     uint8_t handleId);
 
 private:
     static const int MaxNameLength = 15;

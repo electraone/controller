@@ -1,13 +1,6 @@
 #include "ControlValue.h"
 #include "Control.h"
 
-static const char *valueIdsAdsr[] = { "attack", "decay", "sustain", "release" };
-
-static const char *valueIdsAdr[] = { "attack", "decay", "release" };
-
-static const char *valueIdsDx7Env[] = { "l1", "r1", "l2", "r2",
-                                        "l3", "r3", "l4", "r4" };
-
 // \todo this is a brute way of reducing memory usage by the ControlValue
 extern std::vector<std::string> luaFunctions;
 
@@ -21,6 +14,7 @@ ControlValue::ControlValue()
       control(nullptr),
       overlay(nullptr)
 {
+    label[0] = '\0';
 }
 
 ControlValue::ControlValue(Control *newControl,
@@ -47,6 +41,7 @@ ControlValue::ControlValue(Control *newControl,
 {
     // translate the valueId to the numeric handle
     handle = translateId(newValueId);
+    label[0] = '\0';
 }
 
 void ControlValue::setControl(Control *newControl)
@@ -134,6 +129,26 @@ const std::string ControlValue::getFormatter(void) const
     return (luaFunctions[formatter]);
 }
 
+void ControlValue::setLabel(const char *newLabel)
+{
+    copyString(label, newLabel, MaxLabelLength);
+}
+
+void ControlValue::resetLabel(void)
+{
+    label[0] = '\0';
+}
+
+const char *ControlValue::getLabel(void) const
+{
+    return (label);
+}
+
+bool ControlValue::isLabelSet(void) const
+{
+    return (label[0] != '\0');
+}
+
 void ControlValue::callFormatter(int16_t value,
                                  char *buffer,
                                  size_t length) const
@@ -187,40 +202,7 @@ const char *ControlValue::translateId(uint8_t id) const
 
 uint8_t ControlValue::translateId(const char *handle) const
 {
-    switch (control->getType()) {
-        case Control::Type::Fader:
-        case Control::Type::List:
-        case Control::Type::Pad:
-            return (0);
-            break;
-
-        case Control::Type::Adsr:
-            for (uint8_t i = 0; i < 4; i++) {
-                if (strcmp(handle, valueIdsAdsr[i]) == 0) {
-                    return (i);
-                }
-            }
-            break;
-        case Control::Type::Adr:
-            for (uint8_t i = 0; i < 3; i++) {
-                if (strcmp(handle, valueIdsAdr[i]) == 0) {
-                    return (i);
-                }
-            }
-            break;
-
-        case Control::Type::Dx7envelope:
-            for (uint8_t i = 0; i < 8; i++) {
-                if (strcmp(handle, valueIdsDx7Env[i]) == 0) {
-                    return (i);
-                }
-            }
-            break;
-
-        default:
-            break;
-    }
-    return (0);
+    return (Control::translateValueToId(control->getType(), handle));
 }
 
 void ControlValue::print(void) const

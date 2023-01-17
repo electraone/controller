@@ -333,6 +333,34 @@ void MainWindow::setControlName(uint16_t controlId, const char *newName)
     }
 }
 
+void MainWindow::setControlValueLabel(uint16_t controlId,
+                                      const char *valueId,
+                                      const char *text)
+{
+    Control &control = preset.getControl(controlId);
+    if (control.isValid()) {
+        auto handleId = Control::translateValueToId(control.getType(), valueId);
+        control.getValue(handleId).setLabel(text);
+        if (Component *component = control.getComponent()) {
+            component->repaint();
+        }
+    }
+}
+
+void MainWindow::setControlValueLabel(uint16_t controlId,
+                                      uint8_t handleId,
+                                      const char *text)
+{
+    Control &control = preset.getControl(controlId);
+    if (control.isValid()) {
+        handleId = Control::constraintValueId(control.getType(), handleId);
+        control.getValue(handleId).setLabel(text);
+        if (Component *component = control.getComponent()) {
+            component->repaint();
+        }
+    }
+}
+
 void MainWindow::setControlColour(uint16_t controlId, uint32_t newColour)
 {
     Control &control = preset.getControl(controlId);
@@ -878,8 +906,10 @@ void MainWindow::removeComponentFromGroup(uint16_t groupId)
 void MainWindow::setDefaultValue(uint16_t controlId, uint8_t handle)
 {
     Control &control = preset.getControl(controlId);
-    ControlValue &value = control.getValue(handle);
-    control.setDefaultValue(value, true);
+    if (control.isValid()) {
+        ControlValue &value = control.getValue(handle);
+        control.setDefaultValue(value, true);
+    }
 }
 
 void MainWindow::setActiveControlSetType(

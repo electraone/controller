@@ -5,7 +5,7 @@
 int events_subscribe(lua_State *L);
 int events_setPort(lua_State *L);
 
-void events_onPageChange(uint8_t oldPageId, uint8_t newPageId);
+void events_onPageChange(uint8_t newPageId, uint8_t oldPageId);
 void events_onPotTouch(uint8_t potId, uint16_t controlId, bool touched);
 
 int luaopen_events(lua_State *L);

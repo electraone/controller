@@ -53,7 +53,9 @@ public:
         g.fillAll(backgroundColour);
 
         char stringValue[20];
-        if (!control.getValue(0).getFormatter().empty()) {
+        if (control.getValue(0).isLabelSet()) {
+            copyString(stringValue, control.getValue(0).getLabel(), 19);
+        } else if (!control.getValue(0).getFormatter().empty()) {
             control.getValue(0).callFormatter(
                 delta, stringValue, sizeof(stringValue));
         } else {

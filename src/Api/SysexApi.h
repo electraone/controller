@@ -30,6 +30,10 @@ private:
     void updateControl(uint8_t port,
                        uint16_t controlId,
                        MemoryBlock &sysexPayload);
+    void updateControlValueLabel(uint8_t port,
+                                 uint16_t controlId,
+                                 uint8_t valueId,
+                                 MemoryBlock &sysexPayload);
     void setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload);
     void setPresetSlot(uint8_t port, uint8_t bankNumber, uint8_t slot);
     void updateSnapshot(uint8_t port, MemoryBlock &sysexPayload);
@@ -38,8 +42,6 @@ private:
     void setCurrentSnapshotBank(uint8_t port, uint8_t bankNumber);
     void setControlPort(uint8_t port, uint8_t newControlPort);
     uint8_t getControlPort(void);
-
-    void setControlLabel(uint8_t port, const char *newLabel);
 
     MainDelegate &delegate;
 };

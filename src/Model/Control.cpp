@@ -1,12 +1,13 @@
 #include "Control.h"
 #include "ParameterMap.h"
 
-static const char *valueIdsAdsr[] = { "attack", "decay", "sustain", "release" };
+const char *valueIdsAdsr[] = { "attack", "decay", "sustain", "release" };
 
-static const char *valueIdsAdr[] = { "attack", "decay", "release" };
+const char *valueIdsAdr[] = { "attack", "decay", "release" };
 
-static const char *valueIdsDx7Env[] = { "l1", "r1", "l2", "r2",
-                                        "l3", "r3", "l4", "r4" };
+const char *valueIdsDx7Env[] = {
+    "l1", "r1", "l2", "r2", "l3", "r3", "l4", "r4"
+};
 
 Control::Control() : id(0), pageId(0), controlSetId(0), component(nullptr)
 {
@@ -414,4 +415,66 @@ void Control::printInputs(void) const
     for (const auto &input : inputs) {
         input.print();
     }
+}
+
+uint8_t Control::translateValueToId(Control::Type controlType,
+                                    const char *handle)
+{
+    switch (controlType) {
+        case Control::Type::Fader:
+        case Control::Type::List:
+        case Control::Type::Pad:
+            return (0);
+            break;
+
+        case Control::Type::Adsr:
+            for (uint8_t i = 0; i < 4; i++) {
+                if (strcmp(handle, valueIdsAdsr[i]) == 0) {
+                    return (i);
+                }
+            }
+            break;
+        case Control::Type::Adr:
+            for (uint8_t i = 0; i < 3; i++) {
+                if (strcmp(handle, valueIdsAdr[i]) == 0) {
+                    return (i);
+                }
+            }
+            break;
+
+        case Control::Type::Dx7envelope:
+            for (uint8_t i = 0; i < 8; i++) {
+                if (strcmp(handle, valueIdsDx7Env[i]) == 0) {
+                    return (i);
+                }
+            }
+            break;
+
+        default:
+            break;
+    }
+    return (0);
+}
+
+uint8_t Control::constraintValueId(Control::Type controlType, uint8_t handleId)
+{
+    switch (controlType) {
+        case Control::Type::Fader:
+        case Control::Type::List:
+        case Control::Type::Pad:
+            return (0);
+
+        case Control::Type::Adsr:
+            return ((0 <= handleId) && (handleId < 4)) ? handleId : 0;
+
+        case Control::Type::Adr:
+            return ((0 <= handleId) && (handleId < 3)) ? handleId : 0;
+
+        case Control::Type::Dx7envelope:
+            return ((0 <= handleId) && (handleId < 8)) ? handleId : 0;
+
+        default:
+            break;
+    }
+    return (0);
 }

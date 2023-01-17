@@ -47,6 +47,10 @@ public:
     uint16_t getNumSteps(void) const;
     const char *getFunction(void) const;
     const std::string getFormatter(void) const;
+    void setLabel(const char *newLabel);
+    void resetLabel(void);
+    const char *getLabel(void) const;
+    bool isLabelSet(void) const;
     void callFormatter(int16_t value, char *buffer, size_t length) const;
     void callFunction(int16_t value) const;
     const char *translateId(uint8_t id) const;
@@ -54,9 +58,11 @@ public:
     void print(void) const;
 
     /*
-	 * attributes
-	 */
+     * attributes
+     */
 private:
+    static const int MaxLabelLength = 15;
+
     struct {
         uint8_t handle : 4;
         uint8_t index : 4;
@@ -70,6 +76,7 @@ private:
     uint8_t function;
     Control *control;
     Overlay *overlay;
+    char label[MaxLabelLength + 1];
 
 public:
     Message message;

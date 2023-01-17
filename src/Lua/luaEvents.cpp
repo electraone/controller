@@ -25,14 +25,14 @@ int events_setPort(lua_State *L)
     return (0);
 }
 
-void events_onPageChange(uint8_t oldPageId, uint8_t newPageId)
+void events_onPageChange(uint8_t newPageId, uint8_t oldPageId)
 {
     const char *function = "onPageChange";
     luaLE_getModuleFunction("events", function);
 
     if (lua_isfunction(L, -1)) {
-        lua_pushnumber(L, oldPageId);
         lua_pushnumber(L, newPageId);
+        lua_pushnumber(L, oldPageId);
         if (lua_pcall(L, 2, 0, 0) != 0) {
             System::logger.write(ERROR,
                                  "error running function '%s': %s",

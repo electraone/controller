@@ -141,14 +141,14 @@ void page_register(lua_State *L)
     lua_pop(L, 1);
 }
 
-void pages_onChange(uint8_t oldPageId, uint8_t newPageId)
+void pages_onChange(uint8_t newPageId, uint8_t oldPageId)
 {
     const char *function = "onChange";
     luaLE_getModuleFunction("pages", function);
 
     if (lua_isfunction(L, -1)) {
-        lua_pushnumber(L, oldPageId);
         lua_pushnumber(L, newPageId);
+        lua_pushnumber(L, oldPageId);
         if (lua_pcall(L, 2, 0, 0) != 0) {
             System::logger.write(ERROR,
                                  "error running function '%s': %s",
