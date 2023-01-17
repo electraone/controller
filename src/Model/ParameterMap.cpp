@@ -61,10 +61,6 @@ LookupEntry *ParameterMap::findAndCache(uint32_t hash)
 {
     uint16_t i = 0;
 
-    if (getType(hash) == Message::Type : None) {
-        return (nullptr);
-    }
-
     if (entries[lastRead].hash == hash) {
         return (&entries[lastRead]);
     }
@@ -172,9 +168,9 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
                 onChange(entry, origin);
             }
         }
-#ifdef DEBUG
+        //#ifdef DEBUG
         parameterMap.print();
-#endif
+        //#endif
         return (entry);
     }
 
@@ -306,29 +302,31 @@ void ParameterMap::serializeMap(File &file)
 
     file.print(",\"parameters\":[");
     for (auto entry : parameterMap.entries) {
-        if (!firstRecord) {
-            file.print(",");
-        } else {
-            firstRecord = false;
+        if (getType(entry.hash) != Message::Type::none) {
+            if (!firstRecord) {
+                file.print(",");
+            } else {
+                firstRecord = false;
+            }
+
+            file.print("{\"deviceId\":");
+            file.print(getDeviceId(entry.hash));
+            file.print(",\"messageType\":");
+            file.print(getType(entry.hash));
+            file.print(",\"parameterNumber\":");
+            file.print(getParameterNumber(entry.hash));
+            file.print(",\"midiValue\":");
+            file.print(entry.midiValue);
+            file.print("}");
+
+            System::logger.write(
+                TRACE,
+                "ParameterMap::serializeMap: entry: deviceI=%d, type=%d, parameterNumber=%d, midiValue=%d",
+                getDeviceId(entry.hash),
+                getType(entry.hash),
+                getParameterNumber(entry.hash),
+                entry.midiValue);
         }
-
-        file.print("{\"deviceId\":");
-        file.print(getDeviceId(entry.hash));
-        file.print(",\"messageType\":");
-        file.print(getType(entry.hash));
-        file.print(",\"parameterNumber\":");
-        file.print(getParameterNumber(entry.hash));
-        file.print(",\"midiValue\":");
-        file.print(entry.midiValue);
-        file.print("}");
-
-        System::logger.write(
-            TRACE,
-            "ParameterMap::serializeMap: entry: deviceI=%d, type=%d, parameterNumber=%d, midiValue=%d",
-            getDeviceId(entry.hash),
-            getType(entry.hash),
-            getParameterNumber(entry.hash),
-            entry.midiValue);
     }
     file.print("]");
 }
