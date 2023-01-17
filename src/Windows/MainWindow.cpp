@@ -6,15 +6,7 @@
 #include "luaPage.h"
 #include "luaEvents.h"
 #include "System.h"
-
-namespace SubscribedEvents
-{
-    uint8_t pages = 1;
-    uint8_t controlSet = 2;
-    uint8_t usbHost = 4;
-    uint8_t pots = 8;
-    uint8_t touch = 16;
-}; // namespace SubscribedEvents
+#include "SubscribedEvents.h"
 
 MainWindow::MainWindow(Model &newModel, Midi &newMidi, Config &newConfig)
     : model(newModel),
@@ -126,8 +118,8 @@ bool MainWindow::switchPage(uint8_t pageId, uint8_t controlSetId)
     if (prevCurrentPageId != currentPageId) {
         if (subscribedEvents & SubscribedEvents::pages) {
             if (L) {
-                pages_onChange(prevCurrentPageId, currentPageId);
-                events_onPageChange(prevCurrentPageId, currentPageId);
+                pages_onChange(currentPageId, prevCurrentPageId);
+                events_onPageChange(currentPageId, prevCurrentPageId);
             }
         }
     }

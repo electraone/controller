@@ -61,6 +61,10 @@ LookupEntry *ParameterMap::findAndCache(uint32_t hash)
 {
     uint16_t i = 0;
 
+    if (getType(hash) == Message::Type : None) {
+        return (nullptr);
+    }
+
     if (entries[lastRead].hash == hash) {
         return (&entries[lastRead]);
     }

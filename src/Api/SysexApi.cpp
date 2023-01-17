@@ -2,6 +2,7 @@
 #include "System.h"
 #include "ArduinoJson.h"
 #include "MidiOutput.h"
+#include "SubscribedEvents.h"
 
 SysexApi::SysexApi(MainDelegate &newDelegate) : delegate(newDelegate)
 {
@@ -51,6 +52,8 @@ bool SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
             setSnapshotSlot(port, sysexPayload);
         } else if (object == ElectraCommand::Object::PresetSlot) {
             setPresetSlot(port, cmd.getByte1(), cmd.getByte2());
+        } else if (object == ElectraCommand::Object::EventSubscription) {
+            subscribeEvents(port, cmd.getByte1());
         } else if (object == ElectraCommand::Object::ControlPort) {
             setControlPort(port, cmd.getByte1());
         } else if (object == ElectraCommand::Object::Value) {
@@ -197,8 +200,10 @@ void SysexApi::switchPage(uint8_t port, uint8_t pageNumber)
     System::logger.write(
         ERROR, "SysexApi::switchPreset: port=%d, page=%d", port, pageNumber);
     if (delegate.switchPage(pageNumber + 1)) {
-        MidiOutput::sendPageSwitched(
-            MidiInterface::Type::MidiUsbDev, port, pageNumber);
+        if (delegate.getSubscribedEvents() & SubscribedEvents::pages) {
+            MidiOutput::sendPageSwitched(
+                MidiInterface::Type::MidiUsbDev, port, pageNumber);
+        }
         MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
     } else {
         MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
@@ -279,6 +284,7 @@ void SysexApi::updateControlValueLabel(uint8_t port,
     auto length = sysexPayload.readBytes(buffer, sizeof(buffer) - 1);
     buffer[length] = '\0';
     delegate.setControlValueLabel(controlId, handleId, (char *)buffer);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
 }
 
 void SysexApi::setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload)
@@ -412,19 +418,42 @@ void SysexApi::swapSnapshots(uint8_t port, MemoryBlock &sysexPayload)
 
 void SysexApi::setCurrentSnapshotBank(uint8_t port, uint8_t bankNumber)
 {
-    delegate.setCurrentSnapshotBank(bankNumber);
-    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    if ((0 <= bankNumber) && (bankNumber <= 11)) {
+        System::logger.write(
+            ERROR, "setCurrentSnapshotBank: new bankNumber=%d", bankNumber);
+        delegate.setCurrentSnapshotBank(bankNumber);
+        MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    } else {
+        System::logger.write(
+            ERROR, "setCurrentSnapshotBank: invalid bankNumber=%d", bankNumber);
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
+    }
 }
 
 void SysexApi::setControlPort(uint8_t port, uint8_t newControlPort)
 {
-    System::logger.write(
-        ERROR, "setControlPort: new controlPort=%d", newControlPort);
-    delegate.setControlPort(newControlPort);
-    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    if ((0 <= newControlPort) && (newControlPort <= 2)) {
+        System::logger.write(
+            ERROR, "setControlPort: new controlPort=%d", newControlPort);
+        delegate.setControlPort(newControlPort);
+        MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    } else {
+        System::logger.write(
+            ERROR,
+            "setControlPort: invalid port specified controlPort=%d",
+            newControlPort);
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
+    }
 }
 
 uint8_t SysexApi::getControlPort(void)
 {
     return (delegate.getControlPort());
+}
+
+void SysexApi::subscribeEvents(uint8_t port, uint8_t newEvents)
+{
+    System::logger.write(ERROR, "subscribeEvents: new events=%02x", newEvents);
+    delegate.setSubscribedEvents(newEvents);
+    MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
 }
