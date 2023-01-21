@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Preset.h"
+#include "PresetSlot.h"
 #include "Hardware.h"
 #include "LocalFile.h"
 
@@ -15,8 +16,9 @@ public:
     void assignPresetNames(void);
     void sendList(uint8_t port);
 
-    bool loadPresetById(int presetId);
+    bool loadPresetById(uint8_t presetId);
     bool loadPreset(LocalFile file);
+    void removePreset(uint8_t presetId);
     void reset(void);
     void runPresetLuaScript(void);
 
@@ -31,19 +33,20 @@ public:
 
     Preset preset;
 
-private:
     static constexpr uint8_t NumPresetsInBank = 12;
     static constexpr uint8_t NumBanks = 6;
+    static constexpr uint16_t NumSlots = NumBanks * NumPresetsInBank;
 
+private:
     void setDefaultFiles(uint8_t newBankNumber, uint8_t newSlot);
 
     const char *appSandbox;
 
     uint8_t currentBankNumber;
     uint8_t currentSlot;
+    PresetSlot presetSlot[NumSlots];
+
     bool readyForPresetSwitch;
-    char presetNames[NumPresetsInBank][Preset::MaxNameLength + 1];
-    bool presetAlreadyLoaded[NumPresetsInBank * NumBanks];
     const bool &keepPresetState;
     const bool &loadPresetStateOnStartup;
 };

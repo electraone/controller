@@ -17,24 +17,28 @@ Presets::Presets(const char *newAppSandbox,
       keepPresetState(shouldKeepPresetState),
       loadPresetStateOnStartup(shouldLoadPresetStateOnStartup)
 {
-    memset(presetAlreadyLoaded, false, sizeof(presetAlreadyLoaded));
 }
 
 void Presets::assignPresetNames(void)
 {
-    for (uint16_t i = 0; i < NumPresetsInBank; i++) {
+    for (uint16_t i = 0; i < NumSlots; i++) {
         char filename[MAX_FILENAME_LENGTH + 1];
-        snprintf(filename,
-                 MAX_FILENAME_LENGTH,
-                 "%s/p%03d.epr",
-                 appSandbox,
-                 (currentBankNumber * NumPresetsInBank) + i);
+        snprintf(filename, MAX_FILENAME_LENGTH, "%s/p%03d.epr", appSandbox, i);
 
         if (File file = Hardware::sdcard.createInputStream(filename)) {
-            Preset::getPresetName(file, presetNames[i], Preset::MaxNameLength);
+            char presetName[Preset::MaxNameLength + 1];
+            Preset::getPresetName(file, presetName, Preset::MaxNameLength);
+            presetSlot[i].setPresetName(presetName);
+
+            char projectId[Preset::MaxProjectIdLength + 1];
+            Preset::getPresetProjectId(
+                file, projectId, Preset::MaxProjectIdLength);
+            presetSlot[i].setProjectId(projectId);
+            System::logger.write(ERROR,
+                                 "setting a preset name: %s, id=%d",
+                                 presetSlot[i].getPresetName(),
+                                 i);
             file.close();
-        } else {
-            *presetNames[i] = '\0';
         }
     }
 }
@@ -67,40 +71,15 @@ void Presets::sendList(uint8_t port)
     presetListFile.print("{\"version\":1,\"presets\":[");
 
     for (uint8_t i = 0; i < 72; i++) {
-        char filename[MAX_FILENAME_LENGTH + 1];
-        char presetName[Preset::MaxNameLength + 1];
-        char projectId[Preset::MaxProjectIdLength + 1];
-
-        snprintf(filename, MAX_FILENAME_LENGTH, "%s/p%03d.epr", appSandbox, i);
-
-        *presetName = '\0';
-        *projectId = '\0';
-
-        if (Hardware::sdcard.exists(filename)) {
-            File file = Hardware::sdcard.createInputStream(filename);
-
-            if (file) {
-                Preset::getPresetName(file, presetName, Preset::MaxNameLength);
-                Preset::getPresetProjectId(
-                    file, projectId, Preset::MaxProjectIdLength);
-                file.close();
-            } else {
-                System::logger.write(
-                    ERROR,
-                    "Presets::sendList: cannot read preset file: %s",
-                    filename);
-            }
-        }
-
-        if (strlen(presetName) > 0) {
+        if (strlen(presetSlot[i].getPresetName()) > 0) {
             sprintf(
                 buf,
                 "%s{\"slot\":%d,\"bankNumber\":%d,\"name\":\"%s\",\"projectId\":\"%s\"}",
                 (firstRecord) ? "" : ",",
                 i % 12,
                 i / 12,
-                presetName,
-                projectId);
+                presetSlot[i].getPresetName(),
+                presetSlot[i].getProjectId());
             presetListFile.write(buf, strlen(buf));
             firstRecord = false;
         }
@@ -159,7 +138,8 @@ bool Presets::loadPreset(LocalFile file)
         parameterMap.enable();
         uint8_t presetId = (currentBankNumber * NumBanks) + currentSlot;
 
-        if (!loadPresetStateOnStartup && !presetAlreadyLoaded[presetId]) {
+        if (!loadPresetStateOnStartup
+            && !presetSlot[presetId].hasBeenAlreadyLoaded()) {
             parameterMap.forget();
         }
         if (keepPresetState) {
@@ -167,10 +147,18 @@ bool Presets::loadPreset(LocalFile file)
         }
 
         // mark reset as loaded in this session
-        presetAlreadyLoaded[presetId] = true;
+        presetSlot[presetId].setAlreadyLoaded(true);
     }
     System::tasks.enableRepaintGraphics();
     return (true);
+}
+
+/** Mark preset slot
+ *  Mark given preset slot as unused.
+ */
+void Presets::removePreset(uint8_t slotId)
+{
+    presetSlot[slotId].clear();
 }
 
 /** Reset preset.
@@ -208,7 +196,7 @@ void Presets::reset(void)
 /** Load preset identified with a preset Id
  *
  */
-bool Presets::loadPresetById(int presetId)
+bool Presets::loadPresetById(uint8_t presetId)
 {
     if (!readyForPresetSwitch) {
         System::logger.write(
@@ -303,7 +291,6 @@ void Presets::setCurrentBankNumber(uint8_t newBankNumber)
 {
     currentBankNumber = newBankNumber;
     setDefaultFiles(currentBankNumber, currentSlot);
-    assignPresetNames();
 }
 
 uint8_t Presets::getCurrentBankNumber(void) const
@@ -318,5 +305,5 @@ void Presets::setDefaultFiles(uint8_t newBankNumber, uint8_t newSlot)
 
 const char *Presets::getPresetName(uint8_t slotId) const
 {
-    return presetNames[slotId];
+    return presetSlot[slotId].getPresetName();
 }

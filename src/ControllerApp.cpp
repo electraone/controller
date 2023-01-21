@@ -52,6 +52,9 @@ void Controller::initialise(void)
         }
     };
 
+    // Initialise list of presets stored in the controller
+    model.presets.assignPresetNames();
+
     // load the default preset
     if (System::context.getLoadDefaultFiles()) {
         delegate.switchPreset(presetId / 12, presetId % 12);
@@ -66,7 +69,7 @@ void Controller::initialise(void)
     System::logger.write(ERROR, "App initialisation completed");
 
     // Set logger status according to the saved configuration
-    System::logger.setStatus(System::runtimeInfo.getLoggerStatus());
+    //System::logger.setStatus(System::runtimeInfo.getLoggerStatus());
 }
 
 /** Incoming MIDI message handler.
@@ -127,6 +130,10 @@ bool Controller::handleCtrlFileRemoved(uint8_t bankNumber,
 {
     uint8_t currentPreset = model.presets.getCurrentSlot();
     uint8_t currentPresetBank = model.presets.getCurrentBankNumber();
+    uint8_t slotId =
+        currentPresetBank * Presets::NumPresetsInBank + currentPreset;
+
+    model.presets.removePreset(slotId);
 
     if (fileType == ElectraCommand::Object::FilePreset) {
         // If it is a current preset, reload it

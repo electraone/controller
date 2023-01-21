@@ -1734,7 +1734,7 @@ bool Preset::getPresetNameFast(File &file,
         return (false);
     }
 
-    if (findElement(file, "\"name\"", ELEMENT, 100) == false) {
+    if (findElement(file, "\"name\"", ELEMENT, 200) == false) {
         return (false);
     }
 
@@ -1767,7 +1767,7 @@ void Preset::getPresetName(File &file,
         return;
     }
 
-    StaticJsonDocument<128> doc;
+    StaticJsonDocument<256> doc;
     StaticJsonDocument<64> filter;
     *presetName = '\0';
 

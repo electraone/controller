@@ -39,7 +39,10 @@ PresetSelection::PresetSelection(const Presets &newPresets,
 
     for (uint8_t i = 0; i < 12; i++) {
         if (button[i]) {
-            button[i]->setLabel(presets.getPresetName(i));
+            uint8_t slotId =
+                (presets.getCurrentBankNumber() * Presets::NumPresetsInBank)
+                + i;
+            button[i]->setLabel(presets.getPresetName(slotId));
             button[i]->onClick = [this, i]() {
                 uiApi.switchPreset(presets.getCurrentBankNumber(), i);
                 return (true);
@@ -68,7 +71,9 @@ void PresetSelection::setActiveBank(uint8_t newActiveBank)
     activeBank = newActiveBank;
     uiApi.switchPresetBank(activeBank);
     for (uint8_t i = 0; i < 12; i++) {
-        button[i]->setLabel(presets.getPresetName(i));
+        uint8_t slotId =
+            (presets.getCurrentBankNumber() * Presets::NumPresetsInBank) + i;
+        button[i]->setLabel(presets.getPresetName(slotId));
     }
 
     bankButton[activeBank]->setSelected(true);
