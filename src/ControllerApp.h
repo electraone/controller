@@ -33,7 +33,7 @@ public:
 
     const char *getApplicationVersion(void) const override
     {
-        return ("3.0.11");
+        return ("3.1");
     }
 
     const char *getApplicationSandbox(void) const override
