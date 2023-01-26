@@ -319,7 +319,7 @@ void Midi::process(const MidiInput &midiInput, const MidiMessage &midiMessage)
                 deviceId, midiMessage.getData1(), midiMessage.getData2());
         } else {
             System::logger.write(
-                ERROR, "Midi::processMidi: other midi message. ignoring it.");
+                INFO, "Midi::processMidi: other midi message. ignoring it.");
         }
     }
 }

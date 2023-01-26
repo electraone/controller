@@ -119,9 +119,6 @@ bool Presets::loadPreset(LocalFile file)
         if (preset.load(presetFile) == true) {
             System::logger.write(
                 INFO, "Default preset loaded: filename=%s", presetFile);
-        } else {
-            // \todo what should be done?
-            System::logger.write(ERROR, "Default preset load failed");
         }
 
         // Display the preset if valid.
@@ -132,22 +129,27 @@ bool Presets::loadPreset(LocalFile file)
                     control.setDefaultValue(value, false);
                 }
             }
-        }
 
-        parameterMap.setProjectId(preset.getProjectId());
-        parameterMap.enable();
-        uint8_t presetId = (currentBankNumber * NumBanks) + currentSlot;
+            parameterMap.setProjectId(preset.getProjectId());
+            parameterMap.enable();
+            uint8_t presetId = (currentBankNumber * NumBanks) + currentSlot;
 
-        if (!loadPresetStateOnStartup
-            && !presetSlot[presetId].hasBeenAlreadyLoaded()) {
-            parameterMap.forget();
-        }
-        if (keepPresetState) {
-            parameterMap.recall();
-        }
+            if (!loadPresetStateOnStartup
+                && !presetSlot[presetId].hasBeenAlreadyLoaded()) {
+                parameterMap.forget();
+            }
+            if (keepPresetState) {
+                parameterMap.recall();
+            }
 
-        // mark reset as loaded in this session
-        presetSlot[presetId].setAlreadyLoaded(true);
+            // mark reset as loaded in this session
+            presetSlot[presetId].setAlreadyLoaded(true);
+        } else {
+            System::logger.write(ERROR,
+                                 "Presets::loadPreset: Invalid preset: file=%s",
+                                 presetFile);
+            preset.reset();
+        }
     }
     System::tasks.enableRepaintGraphics();
     return (true);
