@@ -306,7 +306,7 @@ private:
     int16_t midiMax;
 
     struct {
-        uint8_t deviceId : 5;
+        uint8_t deviceId : 6;
         uint8_t type : 5;
         bool lsbFirst : 1;
         bool resetRpn : 1;
