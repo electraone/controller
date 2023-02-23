@@ -12,13 +12,16 @@ PageView::PageView(const Preset &preset,
       uiFeatures(newUiFeatures),
       pageId(newPageId),
       controlSetId(activeControlSetId),
-      bottomBar(nullptr)
+      bottomBar(nullptr),
+      usedPots{ false, false, false, false, false, false,
+                false, false, false, false, false, false }
 {
     setName("PageView");
     addGroups(model.groups);
     addControls(model.controls);
     addBottomBar(model.getName(), model.getPage(pageId).getName());
     setBounds(0, 0, 1024, 575);
+    assignAllPots();
 }
 
 PageView::~PageView(void)
@@ -44,6 +47,8 @@ PageView::~PageView(void)
 void PageView::setControlSet(uint8_t newControlSetId)
 {
     controlSetId = newControlSetId;
+
+    resetUsedPots();
 
     for (const auto &[id, control] : model.controls) {
         if (control.getPageId() == pageId) {
@@ -79,18 +84,37 @@ void PageView::onTouchDown(const TouchEvent &touchEvent)
     }
 }
 
+void PageView::onPotTouchDown(const PotEvent &potEvent)
+{
+    if (!usedPots[potEvent.getPotId()]) {
+        delegate.sendPotTouchEvent(potEvent.getPotId(), 0, true);
+    }
+}
+
+void PageView::onPotTouchUp(const PotEvent &potEvent)
+{
+    if (!usedPots[potEvent.getPotId()]) {
+        delegate.sendPotTouchEvent(potEvent.getPotId(), 0, false);
+    }
+}
+
 void PageView::reassignComponent(const Control &control)
 {
     Component *c = control.getComponent();
 
     if (c) {
+        auto originalPotId = c->getPotId();
+        auto newPotId = control.inputs[0].getPotId();
+
         c->releasePot();
+
         if (control.getControlSetId() != controlSetId) {
             c->setDimmed(true);
         } else {
             c->setDimmed(false);
-            c->assignPot(control.inputs[0].getPotId(),
-                         control.values[0].getNumSteps());
+            c->assignPot(newPotId, control.values[0].getNumSteps());
+            usedPots[originalPotId] = false;
+            usedPots[newPotId] = true;
         }
         repaint();
     }
@@ -229,7 +253,15 @@ void PageView::configureControl(ControlComponent *cc, const Control &control)
         cc->releasePot();
         cc->assignPot(control.inputs[0].getPotId(),
                       control.values[0].getNumSteps());
+        usedPots[control.inputs[0].getPotId()] = true;
     } else {
         cc->releasePot();
+    }
+}
+
+void PageView::resetUsedPots(void)
+{
+    for (uint8_t i = 0; i < NR_OF_HW_POTS; i++) {
+        usedPots[i] = false;
     }
 }

@@ -21,6 +21,8 @@ public:
 
     void setControlSet(uint8_t newControlSetId);
     void onTouchDown(const TouchEvent &touchEvent) override;
+    void onPotTouchDown(const PotEvent &potEvent) override;
+    void onPotTouchUp(const PotEvent &potEvent) override;
     void reassignComponent(const Control &control);
     void changePageName(const char *newName);
     void setInfoText(const char *newText);
@@ -35,6 +37,7 @@ private:
     void addBottomBar(const char *presetName, const char *pageName);
     void configureGroup(GroupControl *g, const Group &group);
     void configureControl(ControlComponent *cc, const Control &control);
+    void resetUsedPots(void);
 
     const Preset &model;
     MainDelegate &delegate;
@@ -43,4 +46,5 @@ private:
     uint8_t pageId;
     uint8_t controlSetId;
     BottomBar *bottomBar;
+    bool usedPots[NR_OF_HW_POTS];
 };
