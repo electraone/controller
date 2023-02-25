@@ -47,7 +47,8 @@ private:
                              const Device &deviceId,
                              std::vector<uint8_t> data,
                              uint8_t *dataOut);
-    void runVariable(uint16_t &i,
+    void runVariable(uint16_t parameterNumber,
+                     uint16_t &i,
                      uint16_t &j,
                      std::vector<uint8_t> data,
                      uint8_t *dataOut,
@@ -63,7 +64,8 @@ private:
                      std::vector<uint8_t> data,
                      uint8_t *dataOut,
                      const Device &device);
-    void runLuaFunction(uint16_t &i,
+    void runLuaFunction(uint16_t parameterNumber,
+                        uint16_t &i,
                         uint16_t &j,
                         std::vector<uint8_t> data,
                         uint8_t *dataOut,

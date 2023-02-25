@@ -1610,15 +1610,13 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
             const char *type = jByte["type"];
             if (type) {
                 if (strcmp(type, "value") == 0) {
-                    transformValue(
-                        data, jByte["rules"], parameterNumber, messageType);
+                    transformValue(data, jByte["rules"]);
                 } else if (strcmp(type, "parameter") == 0) {
                     transformParameter(data, jByte["rules"]);
                 } else if (strcmp(type, "checksum") == 0) {
                     transformChecksum(data, jByte);
                 } else if (strcmp(type, "function") == 0) {
-                    transformFunction(
-                        data, jByte, parameterNumber, messageType);
+                    transformFunction(data, jByte);
                 }
             }
         } else {
@@ -1691,17 +1689,14 @@ void Preset::transformParameter(std::vector<uint8_t> &data, JsonArray jRules)
 /** Transforms value variable to the SysEx template bytes
  *
  */
-void Preset::transformValue(std::vector<uint8_t> &data,
-                            JsonArray jRules,
-                            int16_t parameterNumber,
-                            Message::Type messageType)
+void Preset::transformValue(std::vector<uint8_t> &data, JsonArray jRules)
 {
     data.push_back(VARIABLE_DATA);
 
     if (!jRules || (jRules.size() == 0)) {
-        data.push_back((uint8_t)messageType);
-        data.push_back(parameterNumber & 0x7F);
-        data.push_back(parameterNumber >> 7);
+        data.push_back((uint8_t)Message::Type::sysex);
+        data.push_back(0);
+        data.push_back(0);
         data.push_back(0);
         data.push_back(0);
         data.push_back(7);
@@ -1772,17 +1767,11 @@ void Preset::transformChecksum(std::vector<uint8_t> &data, JsonVariant jByte)
 /** Transforms checksum variable to the SysEx template bytes
  *
  */
-void Preset::transformFunction(std::vector<uint8_t> &data,
-                               JsonVariant jByte,
-                               int16_t parameterNumber,
-                               Message::Type messageType)
+void Preset::transformFunction(std::vector<uint8_t> &data, JsonVariant jByte)
 {
     const char *functionName = jByte["name"].as<char *>();
 
     data.push_back(LUAFUNCTION);
-    data.push_back((uint8_t)messageType);
-    data.push_back(parameterNumber & 0x7F);
-    data.push_back(parameterNumber >> 7);
     data.push_back(registerFunction(functionName));
 }
 

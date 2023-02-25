@@ -132,13 +132,13 @@ uint8_t Midi::transformMessage(uint16_t parameterNumber,
 
     for (uint16_t i = 0; i < data.size(); i++) {
         if (data[i] == VARIABLE_DATA) {
-            runVariable(i, j, data, dataOut, device);
+            runVariable(parameterNumber, i, j, data, dataOut, device);
         } else if (data[i] == VARIABLE_PARAMETER) {
             runParameter(parameterNumber, i, j, data, dataOut, device);
         } else if (data[i] == CHECKSUM) {
             runChecksum(i, j, data, dataOut, device);
         } else if (data[i] == LUAFUNCTION) {
-            runLuaFunction(i, j, data, dataOut, device);
+            runLuaFunction(parameterNumber, i, j, data, dataOut, device);
         } else {
             runConstant(i, j, data, dataOut, device);
         }
@@ -146,7 +146,8 @@ uint8_t Midi::transformMessage(uint16_t parameterNumber,
     return (j);
 }
 
-void Midi::runVariable(uint16_t &i,
+void Midi::runVariable(uint16_t parameterNumber,
+                       uint16_t &i,
                        uint16_t &j,
                        std::vector<uint8_t> data,
                        uint8_t *dataOut,
@@ -180,6 +181,10 @@ void Midi::runVariable(uint16_t &i,
         size = data[i];
         i++;
         mask = createMask(pPos, size);
+
+        if (parameterId == 0) {
+            parameterId = parameterNumber;
+        }
 
         parameterValue = ((parameterMap.getValue(
                                device.getId(), (Message::Type)type, parameterId)
@@ -261,25 +266,16 @@ void Midi::runChecksum(uint16_t &i,
         checksum);
 }
 
-void Midi::runLuaFunction(uint16_t &i,
+void Midi::runLuaFunction(uint16_t parameterNumber,
+                          uint16_t &i,
                           uint16_t &j,
                           std::vector<uint8_t> data,
                           uint8_t *dataOut,
                           const Device &device)
 {
-    uint8_t type = 0;
-    uint8_t parameterIdLSB;
-    uint8_t parameterIdMSB;
-    uint16_t parameterId = 0;
     uint16_t parameterValue = 0;
     uint8_t byteToSend = 0;
 
-    i++;
-    type = data[i];
-    i++;
-    parameterIdLSB = data[i];
-    i++;
-    parameterIdMSB = data[i];
     i++;
     uint8_t functionId = data[i];
 
@@ -288,9 +284,8 @@ void Midi::runLuaFunction(uint16_t &i,
                          functionId,
                          luaFunctions[functionId].c_str());
 
-    parameterId = parameterIdLSB + (parameterIdMSB * 128);
-    parameterValue =
-        parameterMap.getValue(device.getId(), (Message::Type)type, parameterId);
+    parameterValue = parameterMap.getValue(
+        device.getId(), Message::Type::sysex, parameterNumber);
 
     if (L && (luaFunctions.size() > 0)) {
         byteToSend = runTemplateFunction(
