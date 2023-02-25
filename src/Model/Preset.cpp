@@ -338,7 +338,7 @@ bool Preset::parseRoot(File &file)
 
     if (err) {
         System::logger.write(
-            ERROR, "Preset::parseRoot: parsing failed: %s", err.c_str());
+            ERROR, "Preset::parseRooxt: parsing failed: %s", err.c_str());
         return (false);
     }
 
@@ -471,6 +471,7 @@ bool Preset::parseDevices(File &file)
 
             size_t endOfDevicePosition = file.position();
             parsePatches(file, startPosition, endPosition, &device);
+            parseMessages(file, startPosition, endPosition, &device);
 
             if (file.seek(endOfDevicePosition) == false) {
                 System::logger.write(
@@ -793,8 +794,8 @@ void Preset::parsePatch(File &file,
     StaticJsonDocument<4096> doc;
     StaticJsonDocument<JSON_OBJECT_SIZE(20)> filter;
 
-    filter["post"] = true;
     filter["request"] = true;
+    filter["messages"] = true;
 
     auto err =
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
@@ -873,28 +874,66 @@ void Preset::parseResponses(File &file,
     }
 }
 
+/** Parse Device messages array
+ *
+ */
+void Preset::parseMessages(File &file,
+                           size_t startPosition,
+                           size_t endPosition,
+                           Device *device)
+{
+    if (file.seek(startPosition) == false) {
+        System::logger.write(
+            ERROR, "Preset::parseMessages: cannot rewind the start position");
+        return;
+    }
+
+    if (findElement(file, "\"messages\"", ARRAY, endPosition)) {
+        do {
+            StaticJsonDocument<1024> doc;
+            StaticJsonDocument<128> filter;
+
+            filter["id"] = true;
+            filter["data"] = true;
+
+            auto err = deserializeJson(
+                doc, file, DeserializationOption::Filter(filter));
+
+            if (err) {
+                System::logger.write(
+                    ERROR,
+                    "Preset::parseMessages: deserializeJson() failed: %s",
+                    err.c_str());
+                return;
+            }
+
+            uint8_t id = doc["id"] | 0;
+            std::vector<uint8_t> data =
+                parseData(doc["data"], 0, Message::Type::sysex);
+
+            if (data[0] != 0xF0) {
+                data.insert(data.begin(), 0xF0);
+                data.push_back(0xF7);
+            }
+            device->messages[id] = data;
+
+        } while (file.findUntil(",", "]"));
+    }
+}
+
 /** Parse response header JSON array
  *  input numbers are considered to be Dec notation, strings are Hex
  */
 std::vector<uint8_t> Preset::parseResponseHeader(JsonArray jResponseHeader)
 {
-    std::vector<uint8_t> headerBytes;
+    std::vector<uint8_t> data =
+        parseData(jResponseHeader, 0, Message::Type::sysex);
 
-    for (auto jByte : jResponseHeader) {
-        if (jByte.is<char *>()) {
-            uint8_t byte = strtol(jByte, 0, 16);
-            headerBytes.push_back(byte);
-        } else {
-            uint8_t byte = jByte.as<uint8_t>();
-            headerBytes.push_back(byte);
-        }
+    if (data[0] != 0xF0) {
+        data.insert(data.begin(), 0xF0);
     }
 
-#ifdef DEBUG
-    logData(headerBytes, "parseResponseHeader: parsed data:");
-#endif /* DEBUG */
-
-    return (headerBytes);
+    return (data);
 }
 
 uint8_t Preset::registerFunction(const char *functionName)
@@ -921,7 +960,15 @@ uint8_t Preset::registerFunction(const char *functionName)
  */
 std::vector<uint8_t> Preset::parseRequest(JsonArray jRequest, uint8_t deviceId)
 {
-    return (parseData(jRequest, deviceId, Message::Type::sysex));
+    std::vector<uint8_t> data =
+        parseData(jRequest, deviceId, Message::Type::sysex);
+
+    if (data[0] != 0xF0) {
+        data.insert(data.begin(), 0xF0);
+        data.push_back(0xF7);
+    }
+
+    return (data);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1303,6 +1350,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
 Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
 {
     uint8_t deviceId = jMessage["deviceId"] | 0;
+    uint8_t messageId = jMessage["id"] | 0;
     const char *type = jMessage["type"];
     int16_t parameterNumber = jMessage["parameterNumber"];
     int16_t min = jMessage["min"] | 0;
@@ -1315,10 +1363,19 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
     const char *signModeInput = jMessage["signMode"];
     uint8_t bitWidth;
 
+    if (messageId != 0) {
+        System::logger.write(ERROR, "message reference present");
+    }
+
     Message::Type messageType = Message::translateType(type);
 
     std::vector<uint8_t> data =
         parseData(jMessage["data"], parameterNumber, messageType);
+
+    if (data[0] != 0xF0) {
+        data.insert(data.begin(), 0xF0);
+        data.push_back(0xF7);
+    }
 
     SignMode signMode = translateSignMode(signModeInput);
 
@@ -1374,9 +1431,11 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
 
     System::logger.write(
         TRACE,
-        "parseMessage: device=%d, msgType=%s (%d), parameterId=%d, min=%d, "
-        "max=%d, value=%d, lsbFirst=%d, resetRpn=%d, signMode=%d, bitWidth=%d",
+        "parseMessage: device=%d, id=%d, msgType=%s (%d), parameterId=%d, "
+        "min=%d, max=%d, value=%d, lsbFirst=%d, resetRpn=%d, signMode=%d, "
+        "bitWidth=%d",
         deviceId,
+        messageId,
         type,
         messageType,
         parameterNumber,
@@ -1551,84 +1610,15 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
             const char *type = jByte["type"];
             if (type) {
                 if (strcmp(type, "value") == 0) {
-                    data.push_back(VARIABLE_DATA);
-
-                    JsonArray jRules = jByte["rules"];
-                    if (!jRules || (jRules.size() == 0)) {
-                        data.push_back((uint8_t)messageType);
-                        data.push_back(parameterNumber & 0x7F);
-                        data.push_back(parameterNumber >> 7);
-                        data.push_back(0);
-                        data.push_back(0);
-                        data.push_back(7);
-                    } else {
-                        for (JsonObject jRule : jRules) {
-                            const char *type = jRule["type"].as<char *>();
-
-                            uint16_t parameterNumber = 0;
-                            if (!jRule["parameterNumber"].isNull()) {
-                                parameterNumber =
-                                    jRule["parameterNumber"].as<uint16_t>();
-                            } else {
-                                parameterNumber = jRule["id"].as<uint16_t>();
-                            }
-
-                            uint8_t pPos = 0;
-                            if (!jRule["parameterBitPosition"].isNull()) {
-                                pPos =
-                                    jRule["parameterBitPosition"].as<uint8_t>();
-                            } else {
-                                pPos = jRule["pPos"].as<uint8_t>();
-                            }
-
-                            uint8_t bPos = 0;
-                            if (!jRule["byteBitPosition"].isNull()) {
-                                bPos = jRule["byteBitPosition"].as<uint8_t>();
-                            } else {
-                                bPos = jRule["bPos"].as<uint8_t>();
-                            }
-
-                            uint8_t size = 0;
-                            if (!jRule["bitWidth"].isNull()) {
-                                size = jRule["bitWidth"].as<uint8_t>();
-                            } else if (!jRule["size"].isNull()) {
-                                size = jRule["size"].as<uint8_t>();
-                            } else {
-                                size = 7;
-                            }
-
-                            Message::Type messageType =
-                                Message::translateType(type);
-
-                            data.push_back((uint8_t)messageType);
-                            data.push_back(parameterNumber & 0x7F);
-                            data.push_back(parameterNumber >> 7);
-                            data.push_back(pPos);
-                            data.push_back(bPos);
-                            data.push_back(size);
-                        }
-                    }
-
-                    data.push_back(VARIABLE_DATA_END);
+                    transformValue(
+                        data, jByte["rules"], parameterNumber, messageType);
+                } else if (strcmp(type, "parameter") == 0) {
+                    transformParameter(data, jByte["rules"]);
                 } else if (strcmp(type, "checksum") == 0) {
-                    data.push_back(CHECKSUM);
-                    uint8_t start = jByte["start"].as<uint8_t>();
-                    uint8_t length = jByte["length"].as<uint8_t>();
-                    const char *algorithm = jByte["algorithm"].as<char *>();
-                    ChecksumAlgorithm checksumAlgorithm =
-                        translateAlgorithm(algorithm);
-
-                    data.push_back((uint8_t)checksumAlgorithm);
-                    data.push_back(start);
-                    data.push_back(length);
+                    transformChecksum(data, jByte);
                 } else if (strcmp(type, "function") == 0) {
-                    const char *functionName = jByte["name"].as<char *>();
-
-                    data.push_back(LUAFUNCTION);
-                    data.push_back((uint8_t)messageType);
-                    data.push_back(parameterNumber & 0x7F);
-                    data.push_back(parameterNumber >> 7);
-                    data.push_back(registerFunction(functionName));
+                    transformFunction(
+                        data, jByte, parameterNumber, messageType);
                 }
             }
         } else {
@@ -1637,30 +1627,163 @@ std::vector<uint8_t> Preset::parseData(JsonArray jData,
              */
             uint8_t byte;
 
-            /*
-             * Support both Hex and Dec notation
-             */
+            // Support both Hex and Dec notation
             if (jByte.is<char *>()) {
                 byte = strtol(jByte, 0, 16);
             } else {
                 byte = jByte.as<uint8_t>();
             }
 
-            /*
-             * Add byte, unless it is a SysEx start or stop byte
-             */
+            // Add byte, unless it is a SysEx start or stop byte
             if ((byte != 0xF0) && (byte != 0xF7)) {
                 data.push_back(byte);
             }
         }
     }
 
-    if (data[0] != 0xF0) {
-        data.insert(data.begin(), 0xF0);
-        data.push_back(0xF7);
+    return (data);
+}
+
+/** Transforms parameter variable to the SysEx template bytes
+ *
+ */
+void Preset::transformParameter(std::vector<uint8_t> &data, JsonArray jRules)
+{
+    data.push_back(VARIABLE_PARAMETER);
+
+    if (!jRules || (jRules.size() == 0)) {
+        data.push_back(0);
+        data.push_back(0);
+        data.push_back(7);
+    } else {
+        for (JsonObject jRule : jRules) {
+            uint8_t pPos = 0;
+            if (!jRule["parameterBitPosition"].isNull()) {
+                pPos = jRule["parameterBitPosition"].as<uint8_t>();
+            } else {
+                pPos = jRule["pPos"].as<uint8_t>();
+            }
+
+            uint8_t bPos = 0;
+            if (!jRule["byteBitPosition"].isNull()) {
+                bPos = jRule["byteBitPosition"].as<uint8_t>();
+            } else {
+                bPos = jRule["bPos"].as<uint8_t>();
+            }
+
+            uint8_t size = 0;
+            if (!jRule["bitWidth"].isNull()) {
+                size = jRule["bitWidth"].as<uint8_t>();
+            } else if (!jRule["size"].isNull()) {
+                size = jRule["size"].as<uint8_t>();
+            } else {
+                size = 7;
+            }
+
+            data.push_back(pPos);
+            data.push_back(bPos);
+            data.push_back(size);
+        }
+    }
+    data.push_back(VARIABLE_END);
+}
+
+/** Transforms value variable to the SysEx template bytes
+ *
+ */
+void Preset::transformValue(std::vector<uint8_t> &data,
+                            JsonArray jRules,
+                            int16_t parameterNumber,
+                            Message::Type messageType)
+{
+    data.push_back(VARIABLE_DATA);
+
+    if (!jRules || (jRules.size() == 0)) {
+        data.push_back((uint8_t)messageType);
+        data.push_back(parameterNumber & 0x7F);
+        data.push_back(parameterNumber >> 7);
+        data.push_back(0);
+        data.push_back(0);
+        data.push_back(7);
+    } else {
+        for (JsonObject jRule : jRules) {
+            const char *type = jRule["type"].as<char *>();
+
+            uint16_t parameterNumber = 0;
+            if (!jRule["parameterNumber"].isNull()) {
+                parameterNumber = jRule["parameterNumber"].as<uint16_t>();
+            } else {
+                parameterNumber = jRule["id"].as<uint16_t>();
+            }
+
+            uint8_t pPos = 0;
+            if (!jRule["parameterBitPosition"].isNull()) {
+                pPos = jRule["parameterBitPosition"].as<uint8_t>();
+            } else {
+                pPos = jRule["pPos"].as<uint8_t>();
+            }
+
+            uint8_t bPos = 0;
+            if (!jRule["byteBitPosition"].isNull()) {
+                bPos = jRule["byteBitPosition"].as<uint8_t>();
+            } else {
+                bPos = jRule["bPos"].as<uint8_t>();
+            }
+
+            uint8_t size = 0;
+            if (!jRule["bitWidth"].isNull()) {
+                size = jRule["bitWidth"].as<uint8_t>();
+            } else if (!jRule["size"].isNull()) {
+                size = jRule["size"].as<uint8_t>();
+            } else {
+                size = 7;
+            }
+
+            Message::Type messageType = Message::translateType(type);
+
+            data.push_back((uint8_t)messageType);
+            data.push_back(parameterNumber & 0x7F);
+            data.push_back(parameterNumber >> 7);
+            data.push_back(pPos);
+            data.push_back(bPos);
+            data.push_back(size);
+        }
     }
 
-    return (data);
+    data.push_back(VARIABLE_END);
+}
+
+/** Transforms checksum variable to the SysEx template bytes
+ *
+ */
+void Preset::transformChecksum(std::vector<uint8_t> &data, JsonVariant jByte)
+{
+    data.push_back(CHECKSUM);
+    uint8_t start = jByte["start"].as<uint8_t>();
+    uint8_t length = jByte["length"].as<uint8_t>();
+    const char *algorithm = jByte["algorithm"].as<char *>();
+    ChecksumAlgorithm checksumAlgorithm = translateAlgorithm(algorithm);
+
+    data.push_back((uint8_t)checksumAlgorithm);
+    data.push_back(start);
+    data.push_back(length);
+}
+
+/** Transforms checksum variable to the SysEx template bytes
+ *
+ */
+void Preset::transformFunction(std::vector<uint8_t> &data,
+                               JsonVariant jByte,
+                               int16_t parameterNumber,
+                               Message::Type messageType)
+{
+    const char *functionName = jByte["name"].as<char *>();
+
+    data.push_back(LUAFUNCTION);
+    data.push_back((uint8_t)messageType);
+    data.push_back(parameterNumber & 0x7F);
+    data.push_back(parameterNumber >> 7);
+    data.push_back(registerFunction(functionName));
 }
 
 /*--------------------------------------------------------------------------*/

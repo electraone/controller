@@ -8,6 +8,11 @@
 #include "System.h"
 
 #define MIDI_VALUE_DO_NOT_SEND 16537
+#define VARIABLE_DATA 128
+#define VARIABLE_PARAMETER 129
+#define VARIABLE_END 130
+#define CHECKSUM 131
+#define LUAFUNCTION 132
 
 class Message
 {
@@ -314,3 +319,5 @@ private:
         uint8_t bitWidth : 4;
     };
 };
+
+typedef std::map<uint8_t, std::vector<uint8_t>> Messages;

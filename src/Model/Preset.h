@@ -89,6 +89,10 @@ private:
                         size_t startPosition,
                         size_t endPosition,
                         Device *device);
+    void parseMessages(File &file,
+                       size_t startPosition,
+                       size_t endPosition,
+                       Device *device);
     std::vector<uint8_t> parseResponseHeader(JsonArray jResponseHeader);
     std::vector<uint8_t> parseRequest(JsonArray jRequest, uint8_t deviceId);
 
@@ -128,7 +132,16 @@ private:
     std::vector<uint8_t> parseData(JsonArray jData,
                                    int16_t parameterNumber,
                                    Message::Type messageType);
-
+    void transformParameter(std::vector<uint8_t> &data, JsonArray jRules);
+    void transformValue(std::vector<uint8_t> &data,
+                        JsonArray jRules,
+                        int16_t parameterNumber,
+                        Message::Type messageType);
+    void transformChecksum(std::vector<uint8_t> &data, JsonVariant jByte);
+    void transformFunction(std::vector<uint8_t> &data,
+                           JsonVariant jByte,
+                           int16_t parameterNumber,
+                           Message::Type messageType);
     // Bounds
     Rectangle parseBounds(File &file, size_t startPosition, size_t endPosition);
     Rectangle parseBounds(JsonArray jBounds);

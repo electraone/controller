@@ -78,7 +78,7 @@ public:
         System::logger.write(ERROR, "rate: %d", getRate());
         System::logger.write(ERROR, "requests: %d", requests.size());
         System::logger.write(ERROR, "responses: %d", responses.size());
-        System::logger.write(ERROR, "postMessages: %d", postMessages.size());
+        System::logger.write(ERROR, "messages: %d", messages.size());
     }
 
 private:
@@ -92,7 +92,7 @@ private:
 public:
     std::vector<std::vector<uint8_t>> requests;
     std::vector<Response> responses;
-    std::vector<Message> postMessages;
+    Messages messages;
 };
 
 typedef std::map<uint8_t, Device> Devices;

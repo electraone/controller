@@ -70,6 +70,11 @@ void Controller::initialise(void)
 
     // Set logger status according to the saved configuration
     //System::logger.setStatus(System::runtimeInfo.getLoggerStatus());
+    System::logger.setStatus(true);
+
+    for (auto &byte : model.currentPreset.devices[1].messages[1]) {
+        System::logger.write(ERROR, "byte: %02x", byte);
+    }
 }
 
 /** Incoming MIDI message handler.
@@ -165,7 +170,7 @@ void Controller::runUserTask(void)
         Device device = model.currentPreset.getDevice(request.deviceId);
 
         if (device.isValid()) {
-            midi.sendTemplatedSysex(device, request.data);
+            midi.sendTemplatedSysex(device, 0, request.data);
         }
     } else {
         System::tasks.disableUserTask();

@@ -79,7 +79,7 @@ void Midi::sendMessage(const Message &message)
     } else if (message.getType() == Message::Type::tune) {
         sendTuneRequest(port);
     } else if (message.getType() == Message::Type::sysex) {
-        sendTemplatedSysex(device, message.data);
+        sendTemplatedSysex(device, message.getParameterNumber(), message.data);
     } else if (message.getType() == Message::Type::atchannel) {
         sendAfterTouchChannel(port, channel, midiValue);
     } else if (message.getType() == Message::Type::atpoly) {
@@ -95,7 +95,9 @@ void Midi::sendMessage(const Message &message)
 /** Send a SysEx message with the placeholder substituted
  *
  */
-void Midi::sendTemplatedSysex(const Device &device, std::vector<uint8_t> data)
+void Midi::sendTemplatedSysex(const Device &device,
+                              uint16_t parameterNumber,
+                              std::vector<uint8_t> data)
 {
     const int maxSysexSize = 512;
 
@@ -104,7 +106,8 @@ void Midi::sendTemplatedSysex(const Device &device, std::vector<uint8_t> data)
     if (data.size() < maxSysexSize) {
         uint8_t sysexData[maxSysexSize];
         uint16_t sysexDataLength = 0;
-        sysexDataLength = transformMessage(device, data, sysexData);
+        sysexDataLength =
+            transformMessage(parameterNumber, device, data, sysexData);
         sysexBlock.writeBytes(sysexData, sysexDataLength);
         sysexBlock.close();
 
@@ -120,7 +123,8 @@ void Midi::sendTemplatedSysex(const Device &device, std::vector<uint8_t> data)
 /** Replace substitution variables with values
  *
  */
-uint8_t Midi::transformMessage(const Device &device,
+uint8_t Midi::transformMessage(uint16_t parameterNumber,
+                               const Device &device,
                                std::vector<uint8_t> data,
                                uint8_t *dataOut)
 {
@@ -129,6 +133,8 @@ uint8_t Midi::transformMessage(const Device &device,
     for (uint16_t i = 0; i < data.size(); i++) {
         if (data[i] == VARIABLE_DATA) {
             runVariable(i, j, data, dataOut, device);
+        } else if (data[i] == VARIABLE_PARAMETER) {
+            runParameter(parameterNumber, i, j, data, dataOut, device);
         } else if (data[i] == CHECKSUM) {
             runChecksum(i, j, data, dataOut, device);
         } else if (data[i] == LUAFUNCTION) {
@@ -159,7 +165,7 @@ void Midi::runVariable(uint16_t &i,
 
     i++;
 
-    while ((data[i] != VARIABLE_DATA_END) && (i < 100)) {
+    while ((data[i] != VARIABLE_END) && (i < 100)) {
         type = data[i];
         i++;
         parameterIdLSB = data[i];
@@ -183,6 +189,38 @@ void Midi::runVariable(uint16_t &i,
         byteToSend |= parameterValue;
     }
 
+    dataOut[j] = byteToSend & 0x7F; // mask to 7bit and assign to output array
+    j++;
+}
+
+void Midi::runParameter(uint16_t parameterNumber,
+                        uint16_t &i,
+                        uint16_t &j,
+                        std::vector<uint8_t> data,
+                        uint8_t *dataOut,
+                        const Device &device)
+{
+    uint8_t pPos = 0;
+    uint8_t bPos = 0;
+    uint8_t size = 0;
+    uint8_t byteToSend = 0;
+    uint16_t parameterValue = 0;
+    uint16_t mask = 0;
+
+    i++;
+
+    while ((data[i] != VARIABLE_END) && (i < 100)) {
+        pPos = data[i];
+        i++;
+        bPos = data[i];
+        i++;
+        size = data[i];
+        i++;
+        mask = createMask(pPos, size);
+
+        parameterValue = ((parameterNumber & mask) >> pPos) << bPos;
+        byteToSend |= parameterValue;
+    }
     dataOut[j] = byteToSend & 0x7F; // mask to 7bit and assign to output array
     j++;
 }
@@ -482,7 +520,9 @@ void Midi::processSysex(const MidiMessage &midiMessage)
             // \todo this can easily overflow the buffer
             uint8_t header[64];
             uint8_t headerLength = 0;
-            headerLength = transformMessage(device, response.headers, header);
+            // \todo the parameterNumber 0 does not belong here
+            headerLength =
+                transformMessage(0, device, response.headers, header);
 
             if (doesHeaderMatch(sysexBlock, header, headerLength) == true) {
                 System::logger.write(
