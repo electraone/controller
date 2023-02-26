@@ -70,16 +70,6 @@ void Controller::initialise(void)
 
     // Set logger status according to the saved configuration
     //System::logger.setStatus(System::runtimeInfo.getLoggerStatus());
-    System::logger.setStatus(true);
-    /*
-    for (auto &[id, message] : model.currentPreset.devices[1].sysexMessages) {
-        System::logger.write(ERROR, "msg id=%d", id);
-
-        for (auto &byte : message) {
-            System::logger.write(ERROR, "%02x", byte);
-        }
-    }
-*/
 }
 
 /** Incoming MIDI message handler.
