@@ -541,8 +541,6 @@ bool Midi::processSysexData(const DataBytes &sysexMessage,
     bool match = true;
 
     for (uint8_t i = 0; i < sysexLength; i++) {
-        //System::logger.write(ERROR, "s: %02x vs d: %02x", sysexBlock.peek(i), sysexMessage[j]);
-
         uint8_t receivedByte = sysexBlock.peek(i);
 
         if (sysexMessage[j] == VARIABLE_PARAMETER) {
@@ -580,8 +578,11 @@ bool Midi::processSysexData(const DataBytes &sysexMessage,
         j++;
     }
     if (match == true) {
-        parameterMap.setValue(
-            1, Message::Type::sysex, parameterNumber, value, Origin::midi);
+        parameterMap.setValue(device.getId(),
+                              Message::Type::sysex,
+                              parameterNumber,
+                              value,
+                              Origin::midi);
         System::logger.write(
             ERROR,
             "Midi::processSysexData: updating parameter value: "
