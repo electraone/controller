@@ -320,4 +320,4 @@ private:
     };
 };
 
-typedef std::map<uint8_t, std::vector<uint8_t>> Messages;
+typedef std::map<uint8_t, std::vector<uint8_t>> SysexMessages;

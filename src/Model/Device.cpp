@@ -1,7 +1,8 @@
 #include "Device.h"
 #include "Data.h"
 
-Device::Device() : MidiOutput(MidiInterface::Type::MidiAll, 0, 0, 0), id(0)
+Device::Device()
+    : MidiOutput(MidiInterface::Type::MidiAll, 0, 0, 0), id(0), lastMessageId(1)
 {
     *name = '\0';
 }
@@ -12,7 +13,8 @@ Device::Device(uint8_t newId,
                uint8_t newChannel,
                uint16_t newRate)
     : MidiOutput(MidiInterface::Type::MidiAll, newPort, newChannel, newRate),
-      id(newId)
+      id(newId),
+      lastMessageId(1)
 {
     setName(newName);
 }
@@ -64,11 +66,12 @@ std::vector<uint8_t> *Device::registerData(JsonVariant jData)
     if (jData.is<JsonArray>()) {
         Data data(jData.as<JsonArray>());
         data.makeSysexData();
-        messages[1] = data.get();
-        registeredData = &messages[1];
+        sysexMessages[lastMessageId] = data.get();
+        registeredData = &sysexMessages[lastMessageId];
+        lastMessageId++;
     } else {
-        System::logger.write(ERROR, "DATA REFERENCE");
-        registeredData = &(messages[1]);
+        uint16_t sysexDataId = jData.as<uint16_t>();
+        registeredData = &(sysexMessages[sysexDataId]);
     }
     return (registeredData);
 }
@@ -82,5 +85,5 @@ void Device::print(void) const
     System::logger.write(ERROR, "rate: %d", getRate());
     System::logger.write(ERROR, "requests: %d", requests.size());
     System::logger.write(ERROR, "responses: %d", responses.size());
-    System::logger.write(ERROR, "messages: %d", messages.size());
+    System::logger.write(ERROR, "sysex messages: %d", sysexMessages.size());
 }

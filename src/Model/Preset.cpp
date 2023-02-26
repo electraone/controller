@@ -909,7 +909,7 @@ void Preset::parseMessages(File &file,
 
             data.makeSysexData();
 
-            device->messages[id] = data.get();
+            device->sysexMessages[id] = data.get();
 
         } while (file.findUntil(",", "]"));
     }
@@ -1329,14 +1329,9 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
     const char *signModeInput = jMessage["signMode"];
     uint8_t bitWidth;
 
-    if (messageId != 0) {
-        System::logger.write(ERROR, "message reference present");
-    }
-
     Message::Type messageType = Message::translateType(type);
 
-    std::vector<uint8_t> *data =
-        devices[deviceId].registerData(jMessage["data"].as<JsonArray>());
+    DataBytes *data = devices[deviceId].registerData(jMessage["data"]);
 
     SignMode signMode = translateSignMode(signModeInput);
 

@@ -36,11 +36,12 @@ private:
         uint8_t id : 6;
     };
     char name[MaxNameLength + 1];
+    uint16_t lastMessageId;
 
 public:
     std::vector<std::vector<uint8_t>> requests;
     std::vector<Response> responses;
-    Messages messages;
+    SysexMessages sysexMessages;
 };
 
 typedef std::map<uint8_t, Device> Devices;
