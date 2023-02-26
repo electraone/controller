@@ -123,15 +123,13 @@ private:
     ControlValue parseValue(Control *control, JsonObject jValue);
 
     // Messages
+    std::vector<uint8_t> *registerData(JsonVariant jData);
     Message parseMessage(JsonObject jMessage, Control::Type controlType);
     std::vector<Rule>
         parseRules(File &file, size_t startPosition, size_t endPosition);
     Rule parseRule(File &file, size_t startPosition);
     Rule parseRule(JsonObject jRule);
-    uint8_t registerFunction(const char *functionName);
-    std::vector<uint8_t> parseData(JsonArray jData,
-                                   int16_t parameterNumber,
-                                   Message::Type messageType);
+    std::vector<uint8_t> parseData(JsonArray jData);
     void transformParameter(std::vector<uint8_t> &data, JsonArray jRules);
     void transformValue(std::vector<uint8_t> &data, JsonArray jRules);
     void transformChecksum(std::vector<uint8_t> &data, JsonVariant jByte);
@@ -141,7 +139,6 @@ private:
     Rectangle parseBounds(JsonArray jBounds);
 
     // Static functions
-    static ChecksumAlgorithm translateAlgorithm(const char *algorithm);
     static uint8_t translateValueId(Control::Type type, const char *valueId);
     static uint8_t getNumValues(Control::Type type);
     static uint8_t getDefaultbitWidth(Message::Type messageType);

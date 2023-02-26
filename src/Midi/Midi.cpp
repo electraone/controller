@@ -79,7 +79,7 @@ void Midi::sendMessage(const Message &message)
     } else if (message.getType() == Message::Type::tune) {
         sendTuneRequest(port);
     } else if (message.getType() == Message::Type::sysex) {
-        sendTemplatedSysex(device, message.getParameterNumber(), message.data);
+        sendTemplatedSysex(device, message.getParameterNumber(), *message.data);
     } else if (message.getType() == Message::Type::atchannel) {
         sendAfterTouchChannel(port, channel, midiValue);
     } else if (message.getType() == Message::Type::atpoly) {

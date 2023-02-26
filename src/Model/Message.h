@@ -57,7 +57,7 @@ public:
             int16_t newMidiMin,
             int16_t newMidiMax,
             int16_t newValue,
-            std::vector<uint8_t> newData,
+            std::vector<uint8_t> *newData,
             bool newLsbFirst,
             bool newResetRpn,
             SignMode newSignMode,
@@ -302,7 +302,7 @@ public:
         return ("invalid");
     }
 
-    std::vector<uint8_t> data;
+    std::vector<uint8_t> *data;
 
 private:
     uint16_t parameterNumber;

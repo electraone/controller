@@ -7,79 +7,27 @@
 #include "Message.h"
 #include "core_pins.h"
 #include "MidiOutput.h"
+#include "Data.h"
 
 class Device : public MidiOutput
 {
 public:
-    Device() : MidiOutput(MidiInterface::Type::MidiAll, 0, 0, 0), id(0)
-    {
-        *name = '\0';
-    }
-
+    Device();
     Device(uint8_t newId,
            const char *newName,
            uint8_t newPort,
            uint8_t newChannel,
-           uint16_t newRate)
-        : MidiOutput(MidiInterface::Type::MidiAll,
-                     newPort,
-                     newChannel,
-                     newRate),
-          id(newId)
-    {
-        setName(newName);
-    }
+           uint16_t newRate);
 
     virtual ~Device() = default;
 
-    bool isValid(void) const
-    {
-        return (id != 0);
-    }
-
-    uint8_t getId(void) const
-    {
-        return (id);
-    }
-
-    void setName(const char *newName)
-    {
-        if (newName) {
-            copyString(name, newName, MaxNameLength);
-        } else {
-            *name = '\0';
-        }
-    }
-
-    const char *getName(void) const
-    {
-        return (name);
-    }
-
-    uint8_t getResponseIndex(uint8_t id) const
-    {
-        uint8_t index = 0;
-
-        for (auto &response : responses) {
-            if (response.getId() == id) {
-                return (index);
-            }
-            index++;
-        }
-        return (0);
-    }
-
-    void print(void) const
-    {
-        System::logger.write(ERROR, "id: %d", getId());
-        System::logger.write(ERROR, "name: %s", getName());
-        System::logger.write(ERROR, "port: %d", getPort());
-        System::logger.write(ERROR, "channel: %d", getChannel());
-        System::logger.write(ERROR, "rate: %d", getRate());
-        System::logger.write(ERROR, "requests: %d", requests.size());
-        System::logger.write(ERROR, "responses: %d", responses.size());
-        System::logger.write(ERROR, "messages: %d", messages.size());
-    }
+    bool isValid(void) const;
+    uint8_t getId(void) const;
+    void setName(const char *newName);
+    const char *getName(void) const;
+    uint8_t getResponseIndex(uint8_t id) const;
+    DataBytes *registerData(JsonVariant jData);
+    void print(void) const;
 
 private:
     static constexpr uint8_t MaxNameLength = 20;
