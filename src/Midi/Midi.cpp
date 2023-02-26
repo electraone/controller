@@ -511,32 +511,114 @@ void Midi::processSysex(const MidiMessage &midiMessage)
     }
 
     for (const auto &[id, device] : model.devices) {
+        for (const auto &[messageId, sysexMessage] : device.sysexMessages) {
+            if (processSysexData(sysexMessage, device, sysexBlock)) {
+                break;
+            }
+        }
+
         for (const auto &response : device.responses) {
-            // \todo this can easily overflow the buffer
-            uint8_t header[64];
-            uint8_t headerLength = 0;
-            // \todo the parameterNumber 0 does not belong here
-            headerLength =
-                transformMessage(0, device, response.headers, header);
-
-            if (doesHeaderMatch(sysexBlock, header, headerLength) == true) {
-                System::logger.write(
-                    ERROR,
-                    "Midi::processSysex: matched response: responseId=%d",
-                    response.getId());
-
-                // Run Lua onResponse function
-                if (L) {
-                    runOnResponse(device, response.getId(), sysexBlock);
-                }
-
-                resetRulesValues(device, response.rules);
-                applyRulesValues(
-                    device, response.rules, sysexBlock, headerLength);
+            if (processResponse(response, device, sysexBlock)) {
                 break;
             }
         }
     }
+}
+
+bool Midi::processSysexData(const DataBytes &sysexMessage,
+                            const Device &device,
+                            SysexBlock &sysexBlock)
+{
+    auto sysexLength = sysexBlock.getLength();
+    uint8_t j = 0;
+    uint16_t parameterNumber = 0;
+    uint16_t value = 0;
+
+    uint8_t pPos = 0;
+    uint8_t bPos = 0;
+    uint8_t size = 0;
+    uint16_t mask = 0;
+    bool match = true;
+
+    for (uint8_t i = 0; i < sysexLength; i++) {
+        //System::logger.write(ERROR, "s: %02x vs d: %02x", sysexBlock.peek(i), sysexMessage[j]);
+
+        uint8_t receivedByte = sysexBlock.peek(i);
+
+        if (sysexMessage[j] == VARIABLE_PARAMETER) {
+            pPos = sysexMessage[j + 1];
+            bPos = sysexMessage[j + 2];
+            size = sysexMessage[j + 3];
+            mask = createMask(bPos, size);
+            System::logger.write(TRACE,
+                                 "pPos=%d, bPos=%d, size=%d, mask=%02x",
+                                 pPos,
+                                 bPos,
+                                 size,
+                                 mask);
+            parameterNumber |= (((receivedByte & mask) >> bPos) << pPos);
+            j += 4;
+        } else if (sysexMessage[j] == VARIABLE_DATA) {
+            pPos = sysexMessage[j + 4];
+            bPos = sysexMessage[j + 5];
+            size = sysexMessage[j + 6];
+            mask = createMask(bPos, size);
+            System::logger.write(TRACE,
+                                 "pPos=%d, bPos=%d, size=%d, mask=%02x",
+                                 pPos,
+                                 bPos,
+                                 size,
+                                 mask);
+            value |= (((receivedByte & mask) >> bPos) << pPos);
+            j += 7;
+        } else if (receivedByte == 0xF7) {
+            break;
+        } else if (receivedByte != sysexMessage[j]) {
+            match = false;
+            return (false);
+        }
+        j++;
+    }
+    if (match == true) {
+        parameterMap.setValue(
+            1, Message::Type::sysex, parameterNumber, value, Origin::midi);
+        System::logger.write(
+            ERROR,
+            "Midi::processSysexData: updating parameter value: "
+            "parameterNumber=%d, value=%d",
+            parameterNumber,
+            value);
+        return (true);
+    }
+    return (false);
+}
+
+bool Midi::processResponse(const Response &response,
+                           const Device &device,
+                           SysexBlock &sysexBlock)
+{
+    // \todo this can easily overflow the buffer
+    uint8_t header[64];
+    uint8_t headerLength = 0;
+    // \todo the parameterNumber 0 does not belong here
+    headerLength = transformMessage(0, device, response.headers, header);
+
+    if (doesHeaderMatch(sysexBlock, header, headerLength) == true) {
+        System::logger.write(
+            ERROR,
+            "Midi::processSysex: matched response: responseId=%d",
+            response.getId());
+
+        // Run Lua onResponse function
+        if (L) {
+            runOnResponse(device, response.getId(), sysexBlock);
+        }
+
+        resetRulesValues(device, response.rules);
+        applyRulesValues(device, response.rules, sysexBlock, headerLength);
+        return (true);
+    }
+    return (false);
 }
 
 bool Midi::doesHeaderMatch(const SysexBlock &sysexBlock,

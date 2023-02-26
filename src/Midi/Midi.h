@@ -95,6 +95,13 @@ private:
     void processSongPosition(uint8_t valueFine, uint8_t valueCoarse);
     void processSysex(const MidiMessage &midiMessage);
 
+    bool processSysexData(const DataBytes &sysexMessage,
+                          const Device &device,
+                          SysexBlock &sysexBlock);
+    bool processResponse(const Response &response,
+                         const Device &device,
+                         SysexBlock &sysexBlock);
+
     bool doesHeaderMatch(const SysexBlock &sysexBlock,
                          uint8_t header[],
                          uint8_t headerLength);
