@@ -546,9 +546,9 @@ bool Midi::doesHeaderMatch(const SysexBlock &sysexBlock,
     bool match = true;
     auto sysexLength = sysexBlock.getLength();
 
-    if ((sysexLength - 2) >= headerLength) {
-        for (uint8_t i = 1; i < headerLength + 1; i++) {
-            if (header[i - 1] != sysexBlock.peek(i)) {
+    if (sysexLength > headerLength) {
+        for (uint8_t i = 0; i < headerLength; i++) {
+            if (header[i] != sysexBlock.peek(i)) {
                 match = false;
                 break;
             }
@@ -556,7 +556,6 @@ bool Midi::doesHeaderMatch(const SysexBlock &sysexBlock,
     } else {
         match = false;
     }
-
     return (match);
 }
 
@@ -577,7 +576,7 @@ void Midi::applyRulesValues(const Device &device,
                             uint16_t headerLength)
 {
     for (const auto &rule : rules) {
-        uint16_t bytePosition = rule.getByte() + headerLength + 1;
+        uint16_t bytePosition = rule.getByte() + headerLength;
         int sysexByte = sysexBlock.peek(bytePosition);
 
         // If the sysexBlock byte exists

@@ -1,7 +1,6 @@
 #include "Checksum.h"
 #include <cstring>
 
-
 uint8_t calculateChecksum(uint8_t *payload, uint8_t length)
 {
     uint32_t sum = 0;
