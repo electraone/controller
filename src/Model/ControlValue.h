@@ -61,7 +61,7 @@ public:
      * attributes
      */
 private:
-    static const int MaxLabelLength = 15;
+    static const int MaxLabelLength = 9;
 
     struct {
         uint8_t handle : 4;
