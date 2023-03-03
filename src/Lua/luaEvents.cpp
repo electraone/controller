@@ -53,7 +53,7 @@ void events_onPotTouch(uint8_t potId, uint16_t controlId, bool touched)
     if (lua_isfunction(L, -1)) {
         lua_pushnumber(L, potId);
         lua_pushnumber(L, controlId);
-        lua_pushnumber(L, touched);
+        lua_pushboolean(L, touched);
         if (lua_pcall(L, 3, 0, 0) != 0) {
             System::logger.write(ERROR,
                                  "error running function '%s': %s",
