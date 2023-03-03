@@ -194,16 +194,20 @@ void Data::transformFunction(JsonVariant jByte)
 
 void Data::makeSysexData(void)
 {
-    if (dataBytes[0] != 0xF0) {
-        dataBytes.insert(dataBytes.begin(), 0xF0);
-        dataBytes.push_back(0xF7);
+    if (dataBytes.size() > 0) {
+        if (dataBytes[0] != 0xF0) {
+            dataBytes.insert(dataBytes.begin(), 0xF0);
+            dataBytes.push_back(0xF7);
+        }
     }
 }
 
 void Data::addLeadingSysexByte(void)
 {
-    if (dataBytes[0] != 0xF0) {
-        dataBytes.insert(dataBytes.begin(), 0xF0);
+    if (dataBytes.size() > 0) {
+        if (dataBytes[0] != 0xF0) {
+            dataBytes.insert(dataBytes.begin(), 0xF0);
+        }
     }
 }
 
