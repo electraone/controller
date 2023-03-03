@@ -510,13 +510,17 @@ void Midi::processSysex(const MidiMessage &midiMessage)
         return;
     }
 
+    for (uint8_t i = 0; i < sysexBlock.getLength(); i++) {
+        System::logger.write(ERROR, "%d: %02X", i, sysexBlock.peek(i));
+    }
+
     for (const auto &[id, device] : model.devices) {
         for (const auto &[messageId, sysexMessage] : device.sysexMessages) {
-        	if (id < 100) { // only for user defined messages
-				if (processSysexData(sysexMessage, device, sysexBlock)) {
-					break;
-				}
-        	}
+            if (id < 100) { // only for user defined messages
+                if (processSysexData(sysexMessage, device, sysexBlock)) {
+                    break;
+                }
+            }
         }
 
         for (const auto &response : device.responses) {
