@@ -2,7 +2,9 @@
 #include "Data.h"
 
 Device::Device()
-    : MidiOutput(MidiInterface::Type::MidiAll, 0, 0, 0), id(0), lastMessageId(100)
+    : MidiOutput(MidiInterface::Type::MidiAll, 0, 0, 0),
+      id(0),
+      lastMessageId(100)
 {
     *name = '\0';
 }
