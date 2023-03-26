@@ -16,7 +16,7 @@ int helpers_slotToBounds(lua_State *L)
     luaL_argcheck(
         L, 1 <= slot && slot <= 36, 2, "failed: slot must be between 1 and 36");
 
-    Rectangle bounds = slotToBounds(slot);
+    Rectangle bounds = controlSlotToBounds(slot);
 
     lua_newtable(L);
     luaLE_pushArrayInteger(L, 1, bounds.getX());
@@ -42,7 +42,7 @@ int helpers_boundsToSlot(lua_State *L)
     int width = luaL_checkinteger(L, -2);
     int height = luaL_checkinteger(L, -1);
 
-    uint8_t slot = boundsToSlot(Rectangle(x, y, width, height));
+    uint8_t slot = controlBoundsToSlot(Rectangle(x, y, width, height));
 
     lua_pushinteger(L, slot);
     return (1);

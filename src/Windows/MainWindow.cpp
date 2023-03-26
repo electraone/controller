@@ -361,7 +361,7 @@ void MainWindow::setControlSlot(uint16_t controlId, uint8_t newSlot)
     if (control.isValid()) {
         uint8_t newPotId = (newSlot - 1) % Preset::MaxNumPots;
         uint8_t newControlSetId = (newSlot - 1) / Preset::MaxNumPots;
-        Rectangle bounds = slotToBounds(newSlot);
+        Rectangle bounds = controlSlotToBounds(newSlot);
         // adjust position from parent group slot
         bounds.setX(bounds.getX() + 6);
         bounds.setY(bounds.getY() + 22);
@@ -514,7 +514,7 @@ void MainWindow::setGroupSlot(uint16_t groupId,
 {
     Group &group = preset.getGroup(groupId);
     if (group.isValid()) {
-        Rectangle bounds = slotToBounds(newSlot);
+        Rectangle bounds = controlSlotToBounds(newSlot);
 
         // Keep width within the boundaries
         int rowPosition = (newSlot - 1) % 6;
@@ -553,7 +553,7 @@ void MainWindow::setGroupHorizontalSpan(uint16_t groupId, uint8_t newWidth)
     if (group.isValid()) {
         Rectangle bounds = group.getBounds();
 
-        int slot = boundsToSlot(bounds);
+        int slot = controlBoundsToSlot(bounds);
         int rowPosition = (slot - 1) % 6;
 
         if ((rowPosition + newWidth) > 7) {
@@ -576,7 +576,7 @@ void MainWindow::setGroupVerticalSpan(uint16_t groupId, uint8_t newHeight)
     if (group.isValid()) {
         Rectangle bounds = group.getBounds();
 
-        int slot = boundsToSlot(bounds);
+        int slot = controlBoundsToSlot(bounds);
         System::logger.write(ERROR, "slot: %d", slot);
 
         // Keep height within the boundaries
