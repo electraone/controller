@@ -32,7 +32,6 @@ public:
     virtual void openSnapshots(void) = 0;
     virtual void closeSnapshots(void) = 0;
     virtual void repaintPage(void) = 0;
-    virtual void repaintControl(uint16_t controlId) = 0;
     virtual void displayPage(void) = 0;
 
     // Controls
@@ -52,6 +51,17 @@ public:
     virtual void setControlValueLabel(uint16_t controlId,
                                       uint8_t handleId,
                                       const char *text) = 0;
+
+    // Values
+    virtual void setControlValueOverlay(uint16_t controlId,
+                                        uint8_t handleId,
+                                        uint8_t newOverlayId) = 0;
+    virtual void setControlValueMin(uint16_t controlId,
+                                    uint8_t handleId,
+                                    uint8_t newMin) = 0;
+    virtual void setControlValueMax(uint16_t controlId,
+                                    uint8_t handleId,
+                                    uint8_t newMax) = 0;
 
     // BottomBar
     virtual void setPageName(uint8_t pageId, const char *newName) = 0;

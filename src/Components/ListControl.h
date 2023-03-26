@@ -19,6 +19,14 @@ public:
 
     virtual ~ListControl() = default;
 
+    virtual void syncComponentProperties(void) override
+    {
+        const auto &controlValue = control.getValue(0);
+
+        assignListData(controlValue.getOverlay());
+        ControlComponent::syncComponentProperties();
+    }
+
     virtual void onTouchUp(const TouchEvent &touchEvent) override
     {
         if (auto list = getList()) {

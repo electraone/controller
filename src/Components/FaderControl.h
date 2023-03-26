@@ -23,6 +23,18 @@ public:
 
     virtual ~FaderControl() = default;
 
+    virtual void syncComponentProperties(void) override
+    {
+        const auto &controlValue = control.getValue(0);
+        System::logger.write(
+            ERROR, "overlay to use: %d", controlValue.getOverlayId());
+        setMinimum(controlValue.getMin());
+        setMaximum(controlValue.getMax());
+        list.assignListData(controlValue.getOverlay());
+        setNumValues(controlValue.getNumSteps());
+        ControlComponent::syncComponentProperties();
+    }
+
     virtual void onTouchDown(const TouchEvent &touchEvent) override
     {
         previousScreenX = touchEvent.getScreenX();

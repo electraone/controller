@@ -109,6 +109,11 @@ uint8_t ControlValue::getOverlayId(void) const
     return (overlayId);
 }
 
+void ControlValue::setOverlay(Overlay *newOverlay)
+{
+    overlay = newOverlay;
+}
+
 Overlay *ControlValue::getOverlay(void) const
 {
     return (overlay);

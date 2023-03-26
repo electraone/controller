@@ -19,6 +19,14 @@ public:
 
     virtual ~ListButtonControl() = default;
 
+    virtual void syncComponentProperties(void) override
+    {
+        const auto &controlValue = control.getValue(0);
+
+        assignListData(controlValue.getOverlay());
+        ControlComponent::syncComponentProperties();
+    }
+
     virtual void onTouchDown(const TouchEvent &touchEvent) override
     {
         setActive(true);

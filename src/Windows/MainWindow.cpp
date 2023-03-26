@@ -231,15 +231,13 @@ void MainWindow::repaintPage(void)
     repaint();
 }
 
-void MainWindow::repaintControl(uint16_t controlId)
+void MainWindow::refreshControl(const Control &control)
 {
-    if (pageView) {
-        Component *c = pageView->findChildById(controlId);
+    Component *c = control.getComponent();
 
-        if (ControlComponent *cc = dynamic_cast<ControlComponent *>(c)) {
-            cc->syncComponentProperties();
-            cc->repaint();
-        }
+    if (ControlComponent *cc = dynamic_cast<ControlComponent *>(c)) {
+        cc->syncComponentProperties();
+        cc->repaint();
     }
 }
 
@@ -317,39 +315,7 @@ void MainWindow::setControlName(uint16_t controlId, const char *newName)
     Control &control = preset.getControl(controlId);
     if (control.isValid()) {
         control.setName(newName);
-
-        if (Component *component = control.getComponent()) {
-            component->setName(newName);
-            component->repaint();
-        }
-    }
-}
-
-void MainWindow::setControlValueLabel(uint16_t controlId,
-                                      const char *valueId,
-                                      const char *text)
-{
-    Control &control = preset.getControl(controlId);
-    if (control.isValid()) {
-        auto handleId = Control::translateValueToId(control.getType(), valueId);
-        control.getValue(handleId).setLabel(text);
-        if (Component *component = control.getComponent()) {
-            component->repaint();
-        }
-    }
-}
-
-void MainWindow::setControlValueLabel(uint16_t controlId,
-                                      uint8_t handleId,
-                                      const char *text)
-{
-    Control &control = preset.getControl(controlId);
-    if (control.isValid()) {
-        handleId = Control::constraintValueId(control.getType(), handleId);
-        control.getValue(handleId).setLabel(text);
-        if (Component *component = control.getComponent()) {
-            component->repaint();
-        }
+        refreshControl(control);
     }
 }
 
@@ -358,9 +324,7 @@ void MainWindow::setControlColour(uint16_t controlId, uint32_t newColour)
     Control &control = preset.getControl(controlId);
     if (control.isValid()) {
         control.setColour(newColour);
-        if (Component *component = control.getComponent()) {
-            component->repaint();
-        }
+        refreshControl(control);
     }
 }
 
@@ -416,6 +380,70 @@ void MainWindow::setControlSlot(uint16_t controlId, uint8_t newSlot)
                 pageView->reassignComponent(control);
             }
         }
+    }
+}
+
+void MainWindow::setControlValueLabel(uint16_t controlId,
+                                      const char *valueId,
+                                      const char *text)
+{
+    Control &control = preset.getControl(controlId);
+    if (control.isValid()) {
+        auto handleId = Control::translateValueToId(control.getType(), valueId);
+        control.getValue(handleId).setLabel(text);
+        refreshControl(control);
+    }
+}
+
+void MainWindow::setControlValueLabel(uint16_t controlId,
+                                      uint8_t handleId,
+                                      const char *text)
+{
+    Control &control = preset.getControl(controlId);
+    if (control.isValid()) {
+        handleId = Control::constraintValueId(control.getType(), handleId);
+        control.getValue(handleId).setLabel(text);
+        refreshControl(control);
+    }
+}
+
+void MainWindow::setControlValueOverlay(uint16_t controlId,
+                                        uint8_t handleId,
+                                        uint8_t newOverlayId)
+{
+    Control &control = preset.getControl(controlId);
+    if (control.isValid()) {
+        handleId = Control::constraintValueId(control.getType(), handleId);
+        auto &controlValue = control.getValue(handleId);
+        controlValue.setOverlayId(newOverlayId);
+        controlValue.setOverlay(preset.getOverlay(newOverlayId));
+        refreshControl(control);
+    }
+}
+
+void MainWindow::setControlValueMin(uint16_t controlId,
+                                    uint8_t handleId,
+                                    uint8_t newMin)
+{
+    Control &control = preset.getControl(controlId);
+    if (control.isValid()) {
+        handleId = Control::constraintValueId(control.getType(), handleId);
+        auto &controlValue = control.getValue(handleId);
+        controlValue.setMin(newMin);
+        refreshControl(control);
+    }
+}
+
+void MainWindow::setControlValueMax(uint16_t controlId,
+                                    uint8_t handleId,
+                                    uint8_t newMax)
+{
+    Control &control = preset.getControl(controlId);
+    if (control.isValid()) {
+        handleId = Control::constraintValueId(control.getType(), handleId);
+        auto &controlValue = control.getValue(handleId);
+        controlValue.setMax(newMax);
+        refreshControl(control);
     }
 }
 

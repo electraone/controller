@@ -77,7 +77,13 @@ int value_setMin(lua_State *L)
     int valueMin = luaL_checkinteger(L, 2);
 
     if (value) {
-        value->setMin(valueMin);
+        Control *control = value->getControl();
+        if (control) {
+            luaDelegate->setControlValueMin(
+                control->getId(), value->getHandle(), valueMin);
+        }
+    } else {
+        return (luaL_error(L, "failed: not a valid value"));
     }
     return (0);
 }
@@ -103,7 +109,13 @@ int value_setMax(lua_State *L)
     int valueMax = luaL_checkinteger(L, 2);
 
     if (value) {
-        value->setMax(valueMax);
+        Control *control = value->getControl();
+        if (control) {
+            luaDelegate->setControlValueMax(
+                control->getId(), value->getHandle(), valueMax);
+        }
+    } else {
+        return (luaL_error(L, "failed: not a valid value"));
     }
     return (0);
 }
@@ -129,7 +141,13 @@ int value_setOverlayId(lua_State *L)
     int overlayId = luaL_checkinteger(L, 2);
 
     if (value) {
-        value->setOverlayId(overlayId);
+        Control *control = value->getControl();
+        if (control) {
+            luaDelegate->setControlValueOverlay(
+                control->getId(), value->getHandle(), overlayId);
+        }
+    } else {
+        return (luaL_error(L, "failed: not a valid value"));
     }
     return (0);
 }

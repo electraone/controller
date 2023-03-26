@@ -28,7 +28,7 @@ public:
     void switchOff(void) override;
     void reboot(void) override;
 
-    // Actions
+    // User actions
     bool switchPage(uint8_t pageId) override;
     bool switchPage(uint8_t pageId, uint8_t controlSetId) override;
     bool switchPageNext(void) override;
@@ -46,31 +46,119 @@ public:
     void openSnapshots(void) override;
     void closeSnapshots(void) override;
     void repaintPage(void) override;
-    void repaintControl(uint16_t controlId) override;
     void displayPage(void) override;
 
-    //
+    // Data loading
     bool loadPreset(LocalFile &file) override;
     bool loadLua(LocalFile &file) override;
     bool loadConfig(LocalFile &file) override;
     bool importSnapshot(LocalFile &file) override;
 
-    // Lua
+    // API
+    /**
+     * set visibility of the control
+     *
+     * @param controlId an identifier of the control
+     * @param shouldBeVisible visible from set to true
+     */
     void setControlVisible(uint16_t controlId, bool shouldBeVisible) override;
+
+    /**
+     * set control name
+     *
+     * @param controlId an identifier of the control
+     * @param newName a new name to be assigned to the control
+     */
     void setControlName(uint16_t controlId, const char *newName) override;
+
+    /**
+     * set colour of the control
+     *
+     * @param controlId an identifier of the control
+     * @param newColour colour in RGB format
+     */
     void setControlColour(uint16_t controlId, uint32_t newColour) override;
 
+    /**
+     * assign a pot to the control's default value
+     *
+     * @param controlId an identifier of the control
+     * @param newControlSetId an identifier of the control set
+     * @param newPotId an identifier of the pot
+     */
     void setControlPot(uint16_t controlId,
                        uint8_t newControlSetId,
                        uint8_t newPotId) override;
+
+    /**
+     * set boundary box (position and size) of the control
+     *
+     * @param controlId an identifier of the control
+     * @param bounds boundary box to be used
+     */
     void setControlBounds(uint16_t controlId, const Rectangle &bounds) override;
+
+    /**
+     * position the control in given page slot
+     *
+     * @param controlId an identifier of the control
+     * @param newSlot an identifier of the slot on the page
+     */
     void setControlSlot(uint16_t controlId, uint8_t newSlot) override;
+
+    /**
+     * replace control value with fixed text string
+     *
+     * @param controlId an identifier of the control
+     * @param valueId text identifier of the value to be overridden
+     * @param text text to be displayed
+     */
     void setControlValueLabel(uint16_t controlId,
                               const char *valueId,
                               const char *text) override;
+
+    /**
+     * replace control value with fixed text string
+     *
+     * @param controlId an identifier of the control
+     * @param handleId a numeric identifier of the value to be overridden
+     * @param text text to be displayed
+     */
     void setControlValueLabel(uint16_t controlId,
                               uint8_t handleId,
                               const char *text) override;
+
+    /**
+     * assign the overlay (list data) to a control value
+     *
+     * @param controlId an identifier of the control
+     * @param handleId a numeric identifier of the value
+     * @param newOverlayId an identifier of the overlay list
+     */
+    void setControlValueOverlay(uint16_t controlId,
+                                uint8_t handleId,
+                                uint8_t newOverlayId) override;
+
+    /**
+     * set the display minimum of a control value
+     *
+     * @param controlId an identifier of the control
+     * @param handleId a numeric identifier of the value
+     * @param newMin a new minimum display value
+     */
+    void setControlValueMin(uint16_t controlId,
+                            uint8_t handleId,
+                            uint8_t newMin) override;
+    /**
+     * set the display maximum of a control value
+     *
+     * @param controlId an identifier of the control
+     * @param handleId a numeric identifier of the value
+     * @param newMax a new minimum display value
+     */
+    void setControlValueMax(uint16_t controlId,
+                            uint8_t handleId,
+                            uint8_t newMax) override;
 
     void setPageName(uint8_t pageId, const char *newName) override;
     void setInfoText(const char *newText) override;
@@ -88,7 +176,6 @@ public:
     void setGroupVerticalSpan(uint16_t groupId, uint8_t newHeight) override;
     void setGroupVariant(uint16_t groupId, uint8_t newVariant) override;
 
-    // API
     void sendSnapshotList(uint8_t port, const char *projectId) override;
     void sendSnapshot(uint8_t port,
                       const char *projectId,
@@ -176,6 +263,7 @@ private:
     void switchToNextHandleOfActivePotTouch(void);
     void switchToPreviousHandleOfActivePotTouch(void);
     Rectangle getDetailBounds(const Control &control);
+    void refreshControl(const Control &control);
 
     // MainWindow data
     Model &model;
