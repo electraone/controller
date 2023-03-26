@@ -447,31 +447,6 @@ void MainWindow::setControlValueMax(uint16_t controlId,
     }
 }
 
-void MainWindow::setPageName(uint8_t pageId, const char *newName)
-{
-    Page &page = preset.getPage(pageId);
-    if (page.isValid()) {
-        page.setName(newName);
-
-        if ((currentPageId == page.getId()) && pageView) {
-            pageView->changePageName(newName);
-        }
-    }
-}
-
-void MainWindow::setInfoText(const char *newText)
-{
-    model.info.setText(newText);
-    if (pageView) {
-        pageView->setInfoText(newText);
-    }
-}
-
-void MainWindow::setRamPercentage(uint8_t newPercentage)
-{
-    pageView->setRamPercentage(newPercentage);
-}
-
 void MainWindow::setGroupLabel(uint16_t groupId, const char *newLabel)
 {
     Group &group = preset.getGroup(groupId);
@@ -639,6 +614,31 @@ void MainWindow::setGroupVariant(uint16_t groupId, uint8_t newVariant)
             }
         }
     }
+}
+
+void MainWindow::setPageName(uint8_t pageId, const char *newName)
+{
+    Page &page = preset.getPage(pageId);
+    if (page.isValid()) {
+        page.setName(newName);
+
+        if ((currentPageId == page.getId()) && pageView) {
+            pageView->changePageName(newName);
+        }
+    }
+}
+
+void MainWindow::setInfoText(const char *newText)
+{
+    model.info.setText(newText);
+    if (pageView) {
+        pageView->setInfoText(newText);
+    }
+}
+
+void MainWindow::setRamPercentage(uint8_t newPercentage)
+{
+    pageView->setRamPercentage(newPercentage);
 }
 
 void MainWindow::sendSnapshotList(uint8_t port, const char *projectId)

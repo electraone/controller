@@ -58,7 +58,7 @@ public:
     /**
      * set visibility of the control
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param shouldBeVisible visible from set to true
      */
     void setControlVisible(uint16_t controlId, bool shouldBeVisible) override;
@@ -66,7 +66,7 @@ public:
     /**
      * set control name
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param newName a new name to be assigned to the control
      */
     void setControlName(uint16_t controlId, const char *newName) override;
@@ -74,7 +74,7 @@ public:
     /**
      * set colour of the control
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param newColour colour in RGB format
      */
     void setControlColour(uint16_t controlId, uint32_t newColour) override;
@@ -82,7 +82,7 @@ public:
     /**
      * assign a pot to the control's default value
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param newControlSetId an identifier of the control set
      * @param newPotId an identifier of the pot
      */
@@ -93,7 +93,7 @@ public:
     /**
      * set boundary box (position and size) of the control
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param bounds boundary box to be used
      */
     void setControlBounds(uint16_t controlId, const Rectangle &bounds) override;
@@ -101,7 +101,7 @@ public:
     /**
      * position the control in given page slot
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param newSlot an identifier of the slot on the page
      */
     void setControlSlot(uint16_t controlId, uint8_t newSlot) override;
@@ -109,7 +109,7 @@ public:
     /**
      * replace control value with fixed text string
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param valueId text identifier of the value to be overridden
      * @param text text to be displayed
      */
@@ -120,7 +120,7 @@ public:
     /**
      * replace control value with fixed text string
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param handleId a numeric identifier of the value to be overridden
      * @param text text to be displayed
      */
@@ -131,7 +131,7 @@ public:
     /**
      * assign the overlay (list data) to a control value
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param handleId a numeric identifier of the value
      * @param newOverlayId an identifier of the overlay list
      */
@@ -142,17 +142,18 @@ public:
     /**
      * set the display minimum of a control value
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param handleId a numeric identifier of the value
      * @param newMin a new minimum display value
      */
     void setControlValueMin(uint16_t controlId,
                             uint8_t handleId,
                             uint8_t newMin) override;
+
     /**
      * set the display maximum of a control value
      *
-     * @param controlId an identifier of the control
+     * @param controlId an identifier of the control (#ref in the editor)
      * @param handleId a numeric identifier of the value
      * @param newMax a new minimum display value
      */
@@ -160,21 +161,76 @@ public:
                             uint8_t handleId,
                             uint8_t newMax) override;
 
-    void setPageName(uint8_t pageId, const char *newName) override;
-    void setInfoText(const char *newText) override;
-    void setRamPercentage(uint8_t newPercentage) override;
-
+    /**
+     * set a group label
+     *
+     * @param groupId an identifier of the group (#ref in the editor)
+     * @param newLabel a new label to be used
+     */
     void setGroupLabel(uint16_t groupId, const char *newLabel) override;
+
+    /**
+     * set colour of the group
+     *
+     * @param groupId an identifier of the group (#ref in the editor)
+     * @param newColour colour in RGB format
+     */
     void setGroupColour(uint16_t groupId, uint32_t newColour) override;
+
+    /**
+     * set visibility of the group
+     *
+     * @param groupId an identifier of the group (#ref in the editor)
+     * @param shouldBeVisible visible from set to true
+     */
     void setGroupVisible(uint16_t groupId, bool shouldBeVisible) override;
+
+    /**
+      * set boundary box (position and size) of the group
+      *
+      * @param groupId an identifier of the group (#ref in the editor)
+      * @param bounds boundary box to be used
+      */
     void setGroupBounds(uint16_t groupId, const Rectangle &bounds) override;
+
+    /**
+     * position the group in given page slot
+     *
+     * @param groupId an identifier of the group (#ref in the editor)
+     * @param newSlot an identifier of the slot on the page
+     */
     void setGroupSlot(uint16_t groupId,
                       uint8_t newSlot,
                       uint8_t newWidth,
                       uint8_t newHeight) override;
+
+    /**
+     * set the horizontal width (in slot units)
+     *
+     * @param groupId an identifier of the group (#ref in the editor)
+     * @param newWidth a new width to be used
+     */
     void setGroupHorizontalSpan(uint16_t groupId, uint8_t newWidth) override;
+
+    /**
+     * set the vertical height (in slot units)
+     *
+     * @param groupId an identifier of the group (#ref in the editor)
+     * @param newHeight a new height to be used
+     */
     void setGroupVerticalSpan(uint16_t groupId, uint8_t newHeight) override;
+
+    /**
+     * set a group variant
+     *
+     * @param groupId an identifier of the group (#ref in the editor)
+     * @param newVariant 0 for thin, 1 for highlighted
+     */
     void setGroupVariant(uint16_t groupId, uint8_t newVariant) override;
+
+    void setPageName(uint8_t pageId, const char *newName) override;
+    void setInfoText(const char *newText) override;
+    void setRamPercentage(uint8_t newPercentage) override;
 
     void sendSnapshotList(uint8_t port, const char *projectId) override;
     void sendSnapshot(uint8_t port,
