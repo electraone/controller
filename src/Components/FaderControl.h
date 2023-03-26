@@ -26,8 +26,6 @@ public:
     virtual void syncComponentProperties(void) override
     {
         const auto &controlValue = control.getValue(0);
-        System::logger.write(
-            ERROR, "overlay to use: %d", controlValue.getOverlayId());
         setMinimum(controlValue.getMin());
         setMaximum(controlValue.getMax());
         list.assignListData(controlValue.getOverlay());
