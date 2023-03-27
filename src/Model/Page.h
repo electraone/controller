@@ -64,9 +64,9 @@ public:
 
     void print(void) const
     {
-        System::logger.write(ERROR, "id: %d", getId());
-        System::logger.write(ERROR, "name: %s", getName());
-        System::logger.write(ERROR, "hasObjects: %d", getHasObjects());
+        System::logger.write(LOG_ERROR, "id: %d", getId());
+        System::logger.write(LOG_ERROR, "name: %s", getName());
+        System::logger.write(LOG_ERROR, "hasObjects: %d", getHasObjects());
     }
 
 private:

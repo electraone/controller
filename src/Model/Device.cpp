@@ -80,12 +80,12 @@ std::vector<uint8_t> *Device::registerData(JsonVariant jData)
 
 void Device::print(void) const
 {
-    System::logger.write(ERROR, "id: %d", getId());
-    System::logger.write(ERROR, "name: %s", getName());
-    System::logger.write(ERROR, "port: %d", getPort());
-    System::logger.write(ERROR, "channel: %d", getChannel());
-    System::logger.write(ERROR, "rate: %d", getRate());
-    System::logger.write(ERROR, "requests: %d", requests.size());
-    System::logger.write(ERROR, "responses: %d", responses.size());
-    System::logger.write(ERROR, "sysex messages: %d", sysexMessages.size());
+    System::logger.write(LOG_ERROR, "id: %d", getId());
+    System::logger.write(LOG_ERROR, "name: %s", getName());
+    System::logger.write(LOG_ERROR, "port: %d", getPort());
+    System::logger.write(LOG_ERROR, "channel: %d", getChannel());
+    System::logger.write(LOG_ERROR, "rate: %d", getRate());
+    System::logger.write(LOG_ERROR, "requests: %d", requests.size());
+    System::logger.write(LOG_ERROR, "responses: %d", responses.size());
+    System::logger.write(LOG_ERROR, "sysex messages: %d", sysexMessages.size());
 }

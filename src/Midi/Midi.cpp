@@ -114,7 +114,7 @@ void Midi::sendTemplatedSysex(const Device &device,
         sendSysEx(device.getPort(), sysexBlock);
     } else {
         System::logger.write(
-            ERROR,
+            LOG_ERROR,
             "sendTemplatedSysex: message exceeds allowed maximum length: %d",
             maxSysexSize);
     }
@@ -258,7 +258,7 @@ void Midi::runChecksum(uint16_t &i,
     j++;
 
     System::logger.write(
-        ERROR,
+        LOG_ERROR,
         "Checksum calculation: algorithm=%d, start=%d, length=%d, checksum=%d",
         algorithm,
         start,
@@ -279,7 +279,7 @@ void Midi::runLuaFunction(uint16_t parameterNumber,
     i++;
     uint8_t functionId = data[i];
 
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "function: %d (%s)",
                          functionId,
                          luaFunctions[functionId].c_str());
@@ -352,26 +352,27 @@ void Midi::process(const MidiInput &midiInput, const MidiMessage &midiMessage)
                 deviceId, midiMessage.getData1(), midiMessage.getData2());
         } else {
             System::logger.write(
-                INFO, "Midi::processMidi: other midi message. ignoring it.");
+                LOG_INFO,
+                "Midi::processMidi: other midi message. ignoring it.");
         }
     }
 }
 
 void Midi::processStart(void)
 {
-    System::logger.write(ERROR, "Midi::processMidi: Start midi message");
+    System::logger.write(LOG_ERROR, "Midi::processMidi: Start midi message");
     parameterMap.setValue(0xff, Message::Type::start, 0, 0, Origin::midi);
 }
 
 void Midi::processStop(void)
 {
-    System::logger.write(ERROR, "Midi::processMidi: Stop midi message");
+    System::logger.write(LOG_ERROR, "Midi::processMidi: Stop midi message");
     parameterMap.setValue(0xff, Message::Type::stop, 0, 0, Origin::midi);
 }
 
 void Midi::processTuneRequest(void)
 {
-    System::logger.write(ERROR, "Midi::processMidi: Tune midi message");
+    System::logger.write(LOG_ERROR, "Midi::processMidi: Tune midi message");
     parameterMap.setValue(0xff, Message::Type::tune, 0, 0, Origin::midi);
 }
 
@@ -380,7 +381,7 @@ void Midi::processCc(uint8_t deviceId,
                      uint8_t midiValue)
 {
     System::logger.write(
-        ERROR,
+        LOG_ERROR,
         "ElectraMidi: processMidi: Control change midi message: parameter=%d, value=%d",
         midiParameterId,
         midiValue);
@@ -390,7 +391,7 @@ void Midi::processCc(uint8_t deviceId,
 
     if (rpnDetector.parseControllerMessage(
             deviceId, midiParameterId, midiValue, midiRpnMessage)) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Midi::processMidi: RPN detected: parameter=%d, "
                              "value=%d, isNrpn=%d, is14bit=%d",
                              midiRpnMessage.parameterNumber,
@@ -414,7 +415,7 @@ void Midi::processCc(uint8_t deviceId,
     if (cc14Detector.parseControllerMessage(
             deviceId, midiParameterId, midiValue, midiCc14Message)) {
         System::logger.write(
-            ERROR,
+            LOG_ERROR,
             "Midi::processMidi: CC14 detected: parameter=%d, value=%d",
             midiCc14Message.parameterNumber,
             midiCc14Message.value);
@@ -438,7 +439,7 @@ void Midi::processNote(uint8_t deviceId,
     uint8_t translatedVelocity =
         (midiType == MidiMessage::Type::NoteOn) ? velocity : 0;
     System::logger.write(
-        ERROR,
+        LOG_ERROR,
         "Midi::processMidi: note message: note=%d, velocity=%d",
         noteNumber,
         translatedVelocity);
@@ -451,8 +452,9 @@ void Midi::processNote(uint8_t deviceId,
 
 void Midi::processProgramChange(uint8_t deviceId, uint8_t programNumber)
 {
-    System::logger.write(
-        ERROR, "Midi::processMidi: program message: program=%d", programNumber);
+    System::logger.write(LOG_ERROR,
+                         "Midi::processMidi: program message: program=%d",
+                         programNumber);
     parameterMap.setValue(
         deviceId, Message::Type::program, 0, programNumber, Origin::midi);
 }
@@ -460,7 +462,7 @@ void Midi::processProgramChange(uint8_t deviceId, uint8_t programNumber)
 void Midi::processAfterTouchChannel(uint8_t deviceId, uint8_t pressure)
 {
     System::logger.write(
-        ERROR,
+        LOG_ERROR,
         "Midi::processMidi: aftertouch channel message: pressure=%d",
         pressure);
     parameterMap.setValue(
@@ -472,7 +474,7 @@ void Midi::processAfterTouchPoly(uint8_t deviceId,
                                  uint8_t pressure)
 {
     System::logger.write(
-        ERROR,
+        LOG_ERROR,
         "Midi::processMidi: aftertouch poly message: noteNumber=%d, pressure=%d",
         noteNumber,
         pressure);
@@ -485,8 +487,9 @@ void Midi::processPitchBend(uint8_t deviceId,
                             uint8_t valueCoarse)
 {
     uint16_t midiValue = (valueCoarse << 7) | valueFine;
-    System::logger.write(
-        ERROR, "Midi::processMidi: pitchbend message: midiValue=%d", midiValue);
+    System::logger.write(LOG_ERROR,
+                         "Midi::processMidi: pitchbend message: midiValue=%d",
+                         midiValue);
     parameterMap.setValue(
         deviceId, Message::Type::pitchbend, 0, midiValue, Origin::midi);
 }
@@ -495,7 +498,7 @@ void Midi::processSongPosition(uint8_t valueFine, uint8_t valueCoarse)
 {
     uint16_t midiValue = (valueCoarse << 7) | valueFine;
     System::logger.write(
-        ERROR,
+        LOG_ERROR,
         "Midi::processMidi: song position message: midiValue=%d",
         midiValue);
     parameterMap.setValue(0xff, Message::Type::spp, 0, midiValue, Origin::midi);
@@ -511,7 +514,7 @@ void Midi::processSysex(const MidiMessage &midiMessage)
     }
 
     for (uint8_t i = 0; i < sysexBlock.getLength(); i++) {
-        System::logger.write(ERROR, "%d: %02X", i, sysexBlock.peek(i));
+        System::logger.write(LOG_ERROR, "%d: %02X", i, sysexBlock.peek(i));
     }
 
     for (const auto &[id, device] : model.devices) {
@@ -554,7 +557,7 @@ bool Midi::processSysexData(const DataBytes &sysexMessage,
             bPos = sysexMessage[j + 2];
             size = sysexMessage[j + 3];
             mask = createMask(bPos, size);
-            System::logger.write(TRACE,
+            System::logger.write(LOG_TRACE,
                                  "pPos=%d, bPos=%d, size=%d, mask=%02x",
                                  pPos,
                                  bPos,
@@ -567,7 +570,7 @@ bool Midi::processSysexData(const DataBytes &sysexMessage,
             bPos = sysexMessage[j + 5];
             size = sysexMessage[j + 6];
             mask = createMask(bPos, size);
-            System::logger.write(TRACE,
+            System::logger.write(LOG_TRACE,
                                  "pPos=%d, bPos=%d, size=%d, mask=%02x",
                                  pPos,
                                  bPos,
@@ -590,7 +593,7 @@ bool Midi::processSysexData(const DataBytes &sysexMessage,
                               value,
                               Origin::midi);
         System::logger.write(
-            ERROR,
+            LOG_ERROR,
             "Midi::processSysexData: updating parameter value: "
             "parameterNumber=%d, value=%d",
             parameterNumber,
@@ -612,7 +615,7 @@ bool Midi::processResponse(const Response &response,
 
     if (doesHeaderMatch(sysexBlock, header, headerLength) == true) {
         System::logger.write(
-            ERROR,
+            LOG_ERROR,
             "Midi::processSysex: matched response: responseId=%d",
             response.getId());
 
@@ -683,7 +686,7 @@ void Midi::applyRulesValues(const Device &device,
 
             if (entry) {
                 System::logger.write(
-                    ERROR,
+                    LOG_ERROR,
                     "Midi::applyRulesValues: applying extraction rule: byte=%d, "
                     "byteValue=%d, extractedValue=%d to parameterNumber=%d, type=%s "
                     "resulting in parameterValue=%d",

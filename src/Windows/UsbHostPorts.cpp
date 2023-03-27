@@ -21,7 +21,7 @@ UsbHostPorts::UsbHostPorts(UiApi &newUiApi)
 
             usbHostDevice[i]->onClick = [this, i](uint8_t port) {
                 System::logger.write(
-                    ERROR,
+                    LOG_ERROR,
                     "UsbHostPorts: setting USB device %d to port %d",
                     i,
                     port);

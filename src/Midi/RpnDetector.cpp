@@ -103,7 +103,7 @@ bool RpnDetector::DeviceState::sendIfReady(int deviceId, MidiRpnMessage &result)
 
             if (valueLSB < 0x80) {
 #ifdef DEBUG
-                System::logger.write(ERROR,
+                System::logger.write(LOG_ERROR,
                                      "value 14bit (valueMsb=%d, valueLsb=%d)",
                                      valueMSB,
                                      valueLSB);
@@ -112,7 +112,7 @@ bool RpnDetector::DeviceState::sendIfReady(int deviceId, MidiRpnMessage &result)
                 result.is14BitValue = true;
             } else {
 #ifdef DEBUG
-                System::logger.write(ERROR,
+                System::logger.write(LOG_ERROR,
                                      "value 7bit (valueMsb=%d, valueLsb=%d)",
                                      valueMSB,
                                      valueLSB);

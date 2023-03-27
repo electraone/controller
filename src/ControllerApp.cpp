@@ -19,13 +19,14 @@ void Controller::initialise(void)
 
     // Special boot - do not read the default preset
     if (Hardware::buttons[BUTTON_LEFT_TOP]->process() == true) {
-        System::logger.write(ERROR, "Special boot mode: do not read preset");
+        System::logger.write(LOG_ERROR,
+                             "Special boot mode: do not read preset");
         System::context.setLoadDefaultFiles(false);
     } else if (Hardware::buttons[BUTTON_LEFT_MIDDLE]->process() == true) {
         Hardware::sdcard.format();
         System::runtimeInfo.setLastActivePreset(0);
     } else if (Hardware::buttons[BUTTON_LEFT_BOTTOM]->process() == true) {
-        System::logger.write(ERROR, "Special boot: do not use knob touch");
+        System::logger.write(LOG_ERROR, "Special boot: do not use knob touch");
         System::context.setTouchEnabled(false);
         //systemTasks.doNotUsePotTouch();
     }
@@ -66,7 +67,7 @@ void Controller::initialise(void)
     monitorFreeMemory();
 
     // Finalise the initialisation
-    System::logger.write(ERROR, "App initialisation completed");
+    System::logger.write(LOG_ERROR, "App initialisation completed");
 
     // Set logger status according to the saved configuration
     //System::logger.setStatus(System::runtimeInfo.getLoggerStatus());
@@ -185,7 +186,7 @@ bool Controller::applyChangesToConfig(LocalFile file)
         Hardware::sdcard.deleteFile(System::context.getCurrentConfigFile());
         if (!file.rename(System::context.getCurrentConfigFile())) {
             System::logger.write(
-                ERROR,
+                LOG_ERROR,
                 "applyChangesToConfig: failed to update config: %s",
                 System::context.getCurrentConfigFile());
         }

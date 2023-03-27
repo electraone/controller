@@ -119,7 +119,7 @@ void ControlComponent::emitValueChange(int16_t newDisplayValue,
                           midiValue,
                           Origin::internal);
     cv.callFunction(newDisplayValue);
-    System::logger.write(TRACE,
+    System::logger.write(LOG_TRACE,
                          "emitValueChange: display=%d, midi=%d",
                          newDisplayValue,
                          midiValue);

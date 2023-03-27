@@ -34,7 +34,7 @@ void events_onPageChange(uint8_t newPageId, uint8_t oldPageId)
         lua_pushnumber(L, newPageId);
         lua_pushnumber(L, oldPageId);
         if (lua_pcall(L, 2, 0, 0) != 0) {
-            System::logger.write(ERROR,
+            System::logger.write(LOG_ERROR,
                                  "error running function '%s': %s",
                                  function,
                                  lua_tostring(L, -1));
@@ -55,7 +55,7 @@ void events_onPotTouch(uint8_t potId, uint16_t controlId, bool touched)
         lua_pushnumber(L, controlId);
         lua_pushboolean(L, touched);
         if (lua_pcall(L, 3, 0, 0) != 0) {
-            System::logger.write(ERROR,
+            System::logger.write(LOG_ERROR,
                                  "error running function '%s': %s",
                                  function,
                                  lua_tostring(L, -1));

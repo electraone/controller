@@ -171,7 +171,7 @@ void parameterMap_onChange(LookupEntry *entry, Origin origin)
         lua_pushnumber(L, entry->midiValue);
 
         if (lua_pcall(L, 3, 0, 0) != 0) {
-            System::logger.write(ERROR,
+            System::logger.write(LOG_ERROR,
                                  "error running function 'onChange': %s",
                                  lua_tostring(L, -1));
         }

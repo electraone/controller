@@ -48,13 +48,13 @@ public:
     void onButtonDown(uint8_t buttonId) override
     {
         if (buttonId == 3) {
-            System::logger.write(ERROR, "callback from detailWindow");
+            System::logger.write(LOG_ERROR, "callback from detailWindow");
             System::windowManager.listWindows();
         } else if (buttonId == 4) {
-            System::logger.write(ERROR, "callback from detailWindow");
+            System::logger.write(LOG_ERROR, "callback from detailWindow");
             buttonBroadcaster.listListeners();
         } else if (buttonId == 5) {
-            System::logger.write(ERROR, "closing detail");
+            System::logger.write(LOG_ERROR, "closing detail");
             delegate.closeDetail();
         }
     }

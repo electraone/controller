@@ -34,7 +34,7 @@ void Presets::assignPresetNames(void)
             Preset::getPresetProjectId(
                 file, projectId, Preset::MaxProjectIdLength);
             presetSlot[i].setProjectId(projectId);
-            System::logger.write(ERROR,
+            System::logger.write(LOG_ERROR,
                                  "setting a preset name: %s, id=%d",
                                  presetSlot[i].getPresetName(),
                                  i);
@@ -58,7 +58,7 @@ void Presets::sendList(uint8_t port)
         filenameList, FILE_WRITE | O_CREAT | O_TRUNC);
 
     if (!presetListFile) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Presets::sendList: cannot open transfer file: %s",
                              filenameList);
         System::sysExBusy = false;
@@ -93,7 +93,7 @@ void Presets::sendList(uint8_t port)
 
     if (!Hardware::sdcard.deleteFile(filenameList)) {
         System::logger.write(
-            ERROR,
+            LOG_ERROR,
             "Presets::sendList: cannot remove temporary file: %s",
             filenameList);
     }
@@ -118,7 +118,7 @@ bool Presets::loadPreset(LocalFile file)
     if (Hardware::sdcard.exists(presetFile)) {
         if (preset.load(presetFile) == true) {
             System::logger.write(
-                INFO, "Default preset loaded: filename=%s", presetFile);
+                LOG_INFO, "Default preset loaded: filename=%s", presetFile);
         }
 
         // Display the preset if valid.
@@ -145,7 +145,7 @@ bool Presets::loadPreset(LocalFile file)
             // mark reset as loaded in this session
             presetSlot[presetId].setAlreadyLoaded(true);
         } else {
-            System::logger.write(ERROR,
+            System::logger.write(LOG_ERROR,
                                  "Presets::loadPreset: Invalid preset: file=%s",
                                  presetFile);
             preset.reset();
@@ -191,7 +191,8 @@ void Presets::reset(void)
     // Reset parameterMap
     parameterMap.reset();
 
-    System::logger.write(TRACE, "Controller::reset: preset memory deallocated");
+    System::logger.write(LOG_TRACE,
+                         "Controller::reset: preset memory deallocated");
     monitorFreeMemory();
 }
 
@@ -202,7 +203,7 @@ bool Presets::loadPresetById(uint8_t presetId)
 {
     if (!readyForPresetSwitch) {
         System::logger.write(
-            ERROR,
+            LOG_ERROR,
             "Controller::loadPresetById: still busy with swicthing previous preset");
         return (false);
     } else {
@@ -221,14 +222,16 @@ bool Presets::loadPresetById(uint8_t presetId)
 
     // Try to load the preset
     if (loadPreset(file)) {
-        System::logger.write(
-            INFO, "loadPresetById: preset loaded: name='%s'", preset.getName());
+        System::logger.write(LOG_INFO,
+                             "loadPresetById: preset loaded: name='%s'",
+                             preset.getName());
 
         // Re-set Lua state and execute
         runPresetLuaScript();
     } else {
-        System::logger.write(
-            ERROR, "loadPresetById: preset loading failed: id=%d", presetId);
+        System::logger.write(LOG_ERROR,
+                             "loadPresetById: preset loading failed: id=%d",
+                             presetId);
     }
 
     readyForPresetSwitch = true;

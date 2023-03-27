@@ -17,7 +17,7 @@ void runFormatter(const char *formatter,
         lua_pushnumber(L, value);
 
         if (lua_pcall(L, 2, LUA_MULTRET, 0) != 0) {
-            System::logger.write(ERROR,
+            System::logger.write(LOG_ERROR,
                                  "error running function 'runFormatter': %s",
                                  lua_tostring(L, -1));
         }
@@ -30,7 +30,7 @@ void runFormatter(const char *formatter,
             lua_pop(L, 1);
         } else {
             System::logger.write(
-                ERROR, "function 'runFormatter' does not return value");
+                LOG_ERROR, "function 'runFormatter' does not return value");
         }
     } else {
         // Remove entry inserted with the lua_getglobal
@@ -49,7 +49,7 @@ void runFunction(const char *function, const void *object, int16_t value)
         lua_pushnumber(L, value);
 
         if (lua_pcall(L, 2, 0, 0) != 0) {
-            System::logger.write(ERROR,
+            System::logger.write(LOG_ERROR,
                                  "error running function 'runFunction': %s",
                                  lua_tostring(L, -1));
         }
@@ -75,7 +75,7 @@ uint8_t
 
         if (lua_pcall(L, 2, LUA_MULTRET, 0) != 0) {
             System::logger.write(
-                ERROR,
+                LOG_ERROR,
                 "error running function 'runTemplateFunction': %s",
                 lua_tostring(L, -1));
         }
@@ -88,7 +88,8 @@ uint8_t
             lua_pop(L, 1);
         } else {
             System::logger.write(
-                ERROR, "function 'runTemplateFunction' does not return value");
+                LOG_ERROR,
+                "function 'runTemplateFunction' does not return value");
         }
     } else {
         // Remove entry inserted with the lua_getglobal

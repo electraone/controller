@@ -383,16 +383,16 @@ void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 void Control::print(void) const
 {
     if (true) {
-        System::logger.write(ERROR, "address: %x", this);
-        System::logger.write(ERROR, "id: %d", getId());
-        System::logger.write(ERROR, "type: %d", getType());
-        System::logger.write(ERROR, "mode: %d", getMode());
-        System::logger.write(ERROR, "variant: %d", getVariant());
-        System::logger.write(ERROR, "visible: %d", isVisible());
-        System::logger.write(ERROR, "name: %s", getName());
-        System::logger.write(ERROR, "pageId: %d", getPageId());
-        System::logger.write(ERROR, "colour: %d", getColour());
-        System::logger.write(ERROR, "controlSetId: %d", getControlSetId());
+        System::logger.write(LOG_ERROR, "address: %x", this);
+        System::logger.write(LOG_ERROR, "id: %d", getId());
+        System::logger.write(LOG_ERROR, "type: %d", getType());
+        System::logger.write(LOG_ERROR, "mode: %d", getMode());
+        System::logger.write(LOG_ERROR, "variant: %d", getVariant());
+        System::logger.write(LOG_ERROR, "visible: %d", isVisible());
+        System::logger.write(LOG_ERROR, "name: %s", getName());
+        System::logger.write(LOG_ERROR, "pageId: %d", getPageId());
+        System::logger.write(LOG_ERROR, "colour: %d", getColour());
+        System::logger.write(LOG_ERROR, "controlSetId: %d", getControlSetId());
         getBounds().print();
         printInputs();
         printValues();
@@ -401,7 +401,7 @@ void Control::print(void) const
 
 void Control::printValues(void) const
 {
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "    --[Values]------------------------------------");
     for (const auto &value : values) {
         value.print();
@@ -410,7 +410,7 @@ void Control::printValues(void) const
 
 void Control::printInputs(void) const
 {
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "    --[Inputs]------------------------------------");
     for (const auto &input : inputs) {
         input.print();

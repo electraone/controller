@@ -22,21 +22,22 @@ bool Preset::load(const char *filename)
     File file;
     valid = false; // invalidate the preset
 
-    System::logger.write(INFO, "Preset::load: file: filename=%s", filename);
+    System::logger.write(LOG_INFO, "Preset::load: file: filename=%s", filename);
 
     file = Hardware::sdcard.createInputStream(filename);
 
     if (!file) {
         System::logger.write(
-            ERROR, "Preset::load: cannot open preset file: %s", filename);
+            LOG_ERROR, "Preset::load: cannot open preset file: %s", filename);
         return (false);
     }
 
     file.setTimeout(5);
 
     if (!parse(file)) {
-        System::logger.write(
-            ERROR, "Preset::load: cannot parse preset: filename=%s", filename);
+        System::logger.write(LOG_ERROR,
+                             "Preset::load: cannot parse preset: filename=%s",
+                             filename);
         file.close();
         return (false);
     }
@@ -130,7 +131,7 @@ Page &Preset::getPage(uint8_t pageId)
         return pages.at(pageId);
     } catch (std::out_of_range const &) {
         System::logger.write(
-            ERROR, "getPage: page does not exist: pageId=%d", pageId);
+            LOG_ERROR, "getPage: page does not exist: pageId=%d", pageId);
     }
 
     return (Preset::pageNotFound);
@@ -145,7 +146,7 @@ const Page &Preset::getPage(uint8_t pageId) const
         return pages.at(pageId);
     } catch (std::out_of_range const &) {
         System::logger.write(
-            ERROR, "getPage: page does not exist: pageId=%d", pageId);
+            LOG_ERROR, "getPage: page does not exist: pageId=%d", pageId);
     }
 
     return (Preset::pageNotFound);
@@ -159,8 +160,9 @@ const Device &Preset::getDevice(uint8_t deviceId) const
     try {
         return devices.at(deviceId);
     } catch (std::out_of_range const &) {
-        System::logger.write(
-            ERROR, "getDevice: device does not exist: deviceId=%d", deviceId);
+        System::logger.write(LOG_ERROR,
+                             "getDevice: device does not exist: deviceId=%d",
+                             deviceId);
     }
 
     return (Preset::deviceNotFound);
@@ -205,7 +207,7 @@ Group &Preset::getGroup(uint16_t groupId)
         return groups.at(groupId);
     } catch (std::out_of_range const &) {
         System::logger.write(
-            ERROR, "getGroup: group does not exist: groupId=%d", groupId);
+            LOG_ERROR, "getGroup: group does not exist: groupId=%d", groupId);
     }
 
     return (Preset::groupNotFound);
@@ -220,7 +222,7 @@ const Group &Preset::getGroup(uint16_t groupId) const
         return groups.at(groupId);
     } catch (std::out_of_range const &) {
         System::logger.write(
-            ERROR, "getGroup: group does not exist: groupId=%d", groupId);
+            LOG_ERROR, "getGroup: group does not exist: groupId=%d", groupId);
     }
 
     return (Preset::groupNotFound);
@@ -234,7 +236,7 @@ Control &Preset::getControl(uint16_t controlId)
     try {
         return controls.at(controlId);
     } catch (std::out_of_range const &) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "getControl: control does not exist: controlId=%d",
                              controlId);
     }
@@ -250,7 +252,7 @@ const Control &Preset::getControl(uint16_t controlId) const
     try {
         return controls.at(controlId);
     } catch (std::out_of_range const &) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "getControl: control does not exist: controlId=%d",
                              controlId);
     }
@@ -266,45 +268,45 @@ const Control &Preset::getControl(uint16_t controlId) const
 bool Preset::parse(File &file)
 {
     if (!parseRoot(file)) {
-        System::logger.write(ERROR, "Preset::parse: parseName failed");
+        System::logger.write(LOG_ERROR, "Preset::parse: parseName failed");
         reset();
         return (false);
     }
     if (version != 2) {
         System::logger.write(
-            ERROR,
+            LOG_ERROR,
             "Preset::parse: incorrect preset version number: version=%d",
             version);
         reset();
         return (false);
     }
     if (!parsePages(file)) {
-        System::logger.write(ERROR, "Preset::parse: parsePages failed");
+        System::logger.write(LOG_ERROR, "Preset::parse: parsePages failed");
         reset();
         return (false);
     }
     if (!parseDevices(file)) {
-        System::logger.write(ERROR, "Preset::parse: parseDevices failed");
+        System::logger.write(LOG_ERROR, "Preset::parse: parseDevices failed");
         reset();
         return (false);
     }
     if (!parseOverlays(file)) {
-        System::logger.write(ERROR, "Preset::parse: parseOverlays failed");
+        System::logger.write(LOG_ERROR, "Preset::parse: parseOverlays failed");
         reset();
         return (false);
     }
     if (!parseGroups(file)) {
-        System::logger.write(ERROR, "Preset::parse: parseGroups failed");
+        System::logger.write(LOG_ERROR, "Preset::parse: parseGroups failed");
         reset();
         return (false);
     }
     if (!parseControls(file)) {
-        System::logger.write(ERROR, "Preset::parse: parseControls failed");
+        System::logger.write(LOG_ERROR, "Preset::parse: parseControls failed");
         reset();
     }
     //#ifdef DEBUG
     System::logger.write(
-        INFO,
+        LOG_INFO,
         "Preset::parse: successfully parsed preset: name=%s, version=%d",
         name,
         version);
@@ -318,7 +320,7 @@ bool Preset::parse(File &file)
 bool Preset::parseRoot(File &file)
 {
     if (file.seek(0) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseRoot: cannot rewind the file");
         return (false);
     }
@@ -335,7 +337,7 @@ bool Preset::parseRoot(File &file)
 
     if (err) {
         System::logger.write(
-            ERROR, "Preset::parseRooxt: parsing failed: %s", err.c_str());
+            LOG_ERROR, "Preset::parseRooxt: parsing failed: %s", err.c_str());
         return (false);
     }
 
@@ -349,7 +351,7 @@ bool Preset::parseRoot(File &file)
     this->version = version;
 
 #ifdef DEBUG
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "Preset::parseRoot: name=%s, version=%d, projectId=%s",
                          name,
                          version,
@@ -365,19 +367,19 @@ bool Preset::parseRoot(File &file)
 bool Preset::parsePages(File &file)
 {
     if (file.seek(0) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parsePages: cannot rewind the file");
         return (false);
     }
 
     if (findElement(file, "\"pages\"", ARRAY) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parsePages: pages array not found");
         return (true);
     }
 
     if (isElementEmpty(file)) {
-        System::logger.write(ERROR, "Preset::parsePages: no pages defined");
+        System::logger.write(LOG_ERROR, "Preset::parsePages: no pages defined");
         return (true);
     }
 
@@ -388,7 +390,7 @@ bool Preset::parsePages(File &file)
 
         if (err) {
             System::logger.write(
-                ERROR,
+                LOG_ERROR,
                 "Preset::parsePages: deserializeJson() failed: %s",
                 err.c_str());
             return (false);
@@ -418,19 +420,20 @@ bool Preset::parsePages(File &file)
 bool Preset::parseDevices(File &file)
 {
     if (file.seek(0) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseDevices: cannot rewind the file");
         return (false);
     }
 
     if (findElement(file, "\"devices\"", ARRAY) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseDevices: devices array not found");
         return (false);
     }
 
     if (isElementEmpty(file)) {
-        System::logger.write(ERROR, "Preset::parseDevices: no devices defined");
+        System::logger.write(LOG_ERROR,
+                             "Preset::parseDevices: no devices defined");
         return (true);
     }
 
@@ -454,7 +457,7 @@ bool Preset::parseDevices(File &file)
         if (err) {
             if (err.code() != DeserializationError::TooDeep) {
                 System::logger.write(
-                    ERROR,
+                    LOG_ERROR,
                     "Preset::parseDevices: deserializeJson() failed: %s",
                     err.c_str());
                 return (false);
@@ -472,7 +475,7 @@ bool Preset::parseDevices(File &file)
 
             if (file.seek(endOfDevicePosition) == false) {
                 System::logger.write(
-                    ERROR,
+                    LOG_ERROR,
                     "Preset::parseDevices: cannot rewind the end position");
                 return (false);
             }
@@ -482,7 +485,7 @@ bool Preset::parseDevices(File &file)
 
             if (numDevices >= MaxNumDevices) {
                 System::logger.write(
-                    ERROR,
+                    LOG_ERROR,
                     "Preset::parseDevices: max number of devices reached");
                 break;
             }
@@ -500,20 +503,20 @@ bool Preset::parseDevices(File &file)
 bool Preset::parseOverlays(File &file)
 {
     if (file.seek(0) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseOverlays: cannot rewind the file");
         return (false);
     }
 
     if (findElement(file, "\"overlays\"", ARRAY) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseOverlays: overlays array not found");
         return (true);
     }
 
     if (isElementEmpty(file)) {
 #ifdef DEBUG
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseOverlays: no overlays defined");
 #endif
         return (true);
@@ -529,7 +532,7 @@ bool Preset::parseOverlays(File &file)
         if (err && (err.code() != DeserializationError::TooDeep)
             && (err.code() != DeserializationError::InvalidInput)) {
             System::logger.write(
-                ERROR,
+                LOG_ERROR,
                 "Preset::parseOverlays: deserializeJson() failed: %s",
                 err.c_str());
             return (false);
@@ -543,14 +546,14 @@ bool Preset::parseOverlays(File &file)
 
             if (file.seek(startPosition) == false) {
                 System::logger.write(
-                    ERROR,
+                    LOG_ERROR,
                     "Preset::parseOverlays: cannot rewind the start position");
                 return (false);
             }
 
             if (!this->parseOverlayItems(file, overlays[id])) {
                 System::logger.write(
-                    ERROR,
+                    LOG_ERROR,
                     "Preset::parseOverlays: parsing of overlay items has failed");
                 return (false);
             }
@@ -568,20 +571,21 @@ bool Preset::parseOverlays(File &file)
 bool Preset::parseGroups(File &file)
 {
     if (file.seek(0) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseGroups: cannot rewind the file");
         return (false);
     }
 
     if (findElement(file, "\"groups\"", ARRAY) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseGroups: groups array not found");
         return (true);
     }
 
     if (isElementEmpty(file)) {
 #ifdef DEBUG
-        System::logger.write(ERROR, "Preset::parseGroups: no groups defined");
+        System::logger.write(LOG_ERROR,
+                             "Preset::parseGroups: no groups defined");
 #endif
         return (true);
     }
@@ -593,7 +597,7 @@ bool Preset::parseGroups(File &file)
 
         if (err && (err.code() != DeserializationError::InvalidInput)) {
             System::logger.write(
-                ERROR,
+                LOG_ERROR,
                 "Preset::parseGroups: deserializeJson() failed: %s",
                 err.c_str());
             return (false);
@@ -618,19 +622,19 @@ bool Preset::parseGroups(File &file)
 bool Preset::parseControls(File &file)
 {
     if (file.seek(0) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseControls: cannot rewind the file");
         return (false);
     }
 
     if (findElement(file, "\"controls\"", ARRAY) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseControls: controls array not found");
         return (true);
     }
 
     if (isElementEmpty(file)) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseControls: no controls defined");
         return (true);
     }
@@ -657,7 +661,7 @@ bool Preset::parseControls(File &file)
 
         if (err) {
             System::logger.write(
-                ERROR,
+                LOG_ERROR,
                 "Preset::parseControls: deserializeJson() failed: %s",
                 err.c_str());
             return (false);
@@ -682,13 +686,14 @@ bool Preset::parseControls(File &file)
                                                      control.getType());
             pages[controls[controlId].getPageId()].setHasObjects(true);
         } else {
-            System::logger.write(ERROR, "parseControls: broken control");
+            System::logger.write(LOG_ERROR, "parseControls: broken control");
             break;
         }
 
         if (file.seek(controlEndPosition) == false) {
             System::logger.write(
-                ERROR, "Preset::parseControls: cannot rewind the end position");
+                LOG_ERROR,
+                "Preset::parseControls: cannot rewind the end position");
             return (false);
         }
 
@@ -710,7 +715,7 @@ Page Preset::parsePage(JsonObject jPage)
 
 #ifdef DEBUG
     System::logger.write(
-        ERROR,
+        LOG_ERROR,
         "parsePage: page created: id=%d, name=%s, defaultControlSetId=%d",
         id,
         name,
@@ -735,7 +740,7 @@ Device Preset::parseDevice(JsonObject jDevice)
 
 #ifdef DEBUG
     System::logger.write(
-        ERROR,
+        LOG_ERROR,
         "parseDevice: device created: id=%d, port=%d, channel=%d, name=%s, rate=%d",
         id,
         port,
@@ -756,7 +761,7 @@ void Preset::parsePatches(File &file,
                           Device *device)
 {
     if (file.seek(startPosition) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parsePatches: cannot rewind the file");
         return;
     }
@@ -778,7 +783,7 @@ void Preset::parsePatch(File &file,
                         Device *device)
 {
     if (file.seek(startPosition) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parsePatch: cannot rewind the file");
         return;
     }
@@ -798,7 +803,7 @@ void Preset::parsePatch(File &file,
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parsePatch: deserializeJson() failed: %s",
                              err.c_str());
         return;
@@ -827,7 +832,8 @@ void Preset::parseResponses(File &file,
 {
     if (file.seek(startPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseResponses: cannot rewind the start position");
+            LOG_ERROR,
+            "Preset::parseResponses: cannot rewind the start position");
         return;
     }
 
@@ -846,7 +852,7 @@ void Preset::parseResponses(File &file,
 
             if (err) {
                 System::logger.write(
-                    ERROR,
+                    LOG_ERROR,
                     "Preset::parseResponses: deserializeJson() failed: %s",
                     err.c_str());
                 return;
@@ -858,7 +864,7 @@ void Preset::parseResponses(File &file,
             response.headers = parseResponseHeader(doc["header"]);
 
 #ifdef DEBUG
-            System::logger.write(ERROR,
+            System::logger.write(LOG_ERROR,
                                  "parseResponses: id=%d, length=%d",
                                  response.getId(),
                                  response.headers.size());
@@ -881,7 +887,8 @@ void Preset::parseMessages(File &file,
 {
     if (file.seek(startPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseMessages: cannot rewind the start position");
+            LOG_ERROR,
+            "Preset::parseMessages: cannot rewind the start position");
         return;
     }
 
@@ -898,7 +905,7 @@ void Preset::parseMessages(File &file,
 
             if (err) {
                 System::logger.write(
-                    ERROR,
+                    LOG_ERROR,
                     "Preset::parseMessages: deserializeJson() failed: %s",
                     err.c_str());
                 return;
@@ -946,7 +953,7 @@ bool Preset::parseOverlayItems(File &file, Overlay &overlay)
 {
     if (findElement(file, "\"items\"", ARRAY) == false) {
         System::logger.write(
-            ERROR, "Preset::parseOverlayItems: items array not found");
+            LOG_ERROR, "Preset::parseOverlayItems: items array not found");
         return (false);
     }
 
@@ -957,7 +964,7 @@ bool Preset::parseOverlayItems(File &file, Overlay &overlay)
 
         if (err && (err.code() != DeserializationError::InvalidInput)) {
             System::logger.write(
-                ERROR,
+                LOG_ERROR,
                 "Preset::parseOverlayItems: deserializeJson() failed: %s",
                 err.c_str());
             return (false);
@@ -972,7 +979,7 @@ bool Preset::parseOverlayItems(File &file, Overlay &overlay)
 
 #ifdef DEBUG
             System::logger.write(
-                ERROR,
+                LOG_ERROR,
                 "Preset::parseOverlayItems: value=%d, label=%s, bitmap=%s",
                 value,
                 label,
@@ -1057,7 +1064,7 @@ std::vector<Input> Preset::parseInputs(File &file,
 
     if (file.seek(startPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseInputs: cannot rewind the start position");
+            LOG_ERROR, "Preset::parseInputs: cannot rewind the start position");
         return (inputs);
     }
     if (findElement(file, "\"inputs\"", ARRAY, endPosition)) {
@@ -1080,7 +1087,7 @@ Input Preset::parseInput(File &file,
 {
     if (file.seek(startPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseInput: cannot rewind the start position");
+            LOG_ERROR, "Preset::parseInput: cannot rewind the start position");
         return (Input());
     }
 
@@ -1088,7 +1095,7 @@ Input Preset::parseInput(File &file,
     auto err = deserializeJson(doc, file);
 
     if (err) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseInput: deserializeJson() failed: %s",
                              err.c_str());
         return (Input());
@@ -1100,7 +1107,7 @@ Input Preset::parseInput(File &file,
 
     if (file.seek(inputEndPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseInput: cannot rewind the end position");
+            LOG_ERROR, "Preset::parseInput: cannot rewind the end position");
         return (input);
     }
 
@@ -1133,7 +1140,7 @@ std::vector<ControlValue> Preset::parseValues(File &file,
 
     if (file.seek(startPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseValues: cannot rewind the start position");
+            LOG_ERROR, "Preset::parseValues: cannot rewind the start position");
         return (values);
     }
     if (findElement(file, "\"values\"", ARRAY, endPosition)) {
@@ -1155,7 +1162,7 @@ ControlValue
 {
     if (file.seek(startPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseValue: cannot rewind the start position");
+            LOG_ERROR, "Preset::parseValue: cannot rewind the start position");
         return (ControlValue());
     }
 
@@ -1163,7 +1170,7 @@ ControlValue
     auto err = deserializeJson(doc, file);
 
     if (err) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseValue: deserializeJson() failed: %s",
                              err.c_str());
         return (ControlValue());
@@ -1174,7 +1181,7 @@ ControlValue
 
     if (file.seek(valueEndPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseValue: cannot rewind to the end position");
+            LOG_ERROR, "Preset::parseValue: cannot rewind to the end position");
     }
     return (value);
 }
@@ -1283,7 +1290,7 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
 
 #ifdef DEBUG
     System::logger.write(
-        ERROR,
+        LOG_ERROR,
         "parseValue: id=%s, index=%d, defaultValue=%d, min=%d, max=%d, overlayId=%d, formatter=%s, function=%s, overlay=%x",
         valueId,
         valueIndex,
@@ -1386,7 +1393,7 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
     }
 
     System::logger.write(
-        TRACE,
+        LOG_TRACE,
         "parseMessage: device=%d, id=%d, msgType=%s (%d), parameterId=%d, "
         "min=%d, max=%d, value=%d, lsbFirst=%d, resetRpn=%d, signMode=%d, "
         "bitWidth=%d",
@@ -1426,7 +1433,7 @@ std::vector<Rule>
 
     if (file.seek(startPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseRules: cannot rewind to the end position");
+            LOG_ERROR, "Preset::parseRules: cannot rewind to the end position");
         return (rules);
     }
     if (findElement(file, "\"rules\"", ARRAY, endPosition)) {
@@ -1449,7 +1456,7 @@ Rule Preset::parseRule(File &file, size_t startPosition)
 {
     if (file.seek(startPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseRule: cannot rewind to the end position");
+            LOG_ERROR, "Preset::parseRule: cannot rewind to the end position");
         return (Rule());
     }
 
@@ -1459,7 +1466,7 @@ Rule Preset::parseRule(File &file, size_t startPosition)
     auto err = deserializeJson(doc, file);
 
     if (err) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::parseRule: deserializeJson() failed: %s",
                              err.c_str());
         file.seek(startPosition + 2);
@@ -1471,7 +1478,7 @@ Rule Preset::parseRule(File &file, size_t startPosition)
 
     if (file.seek(ruleEndPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseRule: cannot rewind to the end position");
+            LOG_ERROR, "Preset::parseRule: cannot rewind to the end position");
     }
 
     return (rule);
@@ -1523,7 +1530,7 @@ Rule Preset::parseRule(JsonObject jRule)
 
     if ((bPos + size) > 7) {
         System::logger.write(
-            ERROR,
+            LOG_ERROR,
             "parseRule: position of bits in the byte exceeds 7 bits: byteBitPosition=%d, bitWidth=%d",
             bPos,
             size);
@@ -1531,7 +1538,7 @@ Rule Preset::parseRule(JsonObject jRule)
 
     if ((pPos + size) > 14) {
         System::logger.write(
-            ERROR,
+            LOG_ERROR,
             "parseRule: position of bits in the parameter exceeds 14 bits: parameterBitPosition=%d, bitWidth=%d",
             pPos,
             size);
@@ -1539,7 +1546,7 @@ Rule Preset::parseRule(JsonObject jRule)
 
 #ifdef DEBUG
     System::logger.write(
-        ERROR,
+        LOG_ERROR,
         "parseRule: rule: type=%d, parameterNumber=%d, byte=%d, parameterBitPosition=%d, byteBitPosition=%d, bitWidth=%d",
         messageType,
         parameterNumber,
@@ -1575,7 +1582,7 @@ Rectangle
 
     if (file.seek(startPosition) == false) {
         System::logger.write(
-            ERROR, "Preset::parseBounds: cannot rewind the start position");
+            LOG_ERROR, "Preset::parseBounds: cannot rewind the start position");
         return (bounds);
     }
 
@@ -1588,14 +1595,14 @@ Rectangle
 
         if (err) {
             System::logger.write(
-                ERROR,
+                LOG_ERROR,
                 "Preset::parseBounds: deserializeJson() of bounds failed: %s",
                 err.c_str());
             return (bounds);
         }
 
 #ifdef DEBUG
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "parseBounds: bounds=[%d %d %d %d]",
                              bounds.x,
                              bounds.y,
@@ -1619,7 +1626,7 @@ bool Preset::getPresetNameFast(File &file,
 
     if (file.seek(0) == false) {
         System::logger.write(
-            ERROR, "Preset::getPresetNameFast: cannot rewind the file");
+            LOG_ERROR, "Preset::getPresetNameFast: cannot rewind the file");
         return (false);
     }
 
@@ -1630,7 +1637,7 @@ bool Preset::getPresetNameFast(File &file,
     auto err = deserializeJson(doc, file);
 
     if (err) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::getPresetNameFast: parsing failed: %s",
                              err.c_str());
         return (false);
@@ -1639,7 +1646,7 @@ bool Preset::getPresetNameFast(File &file,
     copyString(presetName, doc.as<char *>(), maxPresetNameLength);
 
 #ifdef DEBUG
-    System::logger.write(ERROR, "Preset::getPresetNameFast: name=%s", name);
+    System::logger.write(LOG_ERROR, "Preset::getPresetNameFast: name=%s", name);
 #endif /* DEBUG */
 
     return (true);
@@ -1663,7 +1670,7 @@ void Preset::getPresetName(File &file,
     filter["name"] = true;
 
     if (file.seek(0) == false) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::getPresetName: cannot rewind the file");
         return;
     }
@@ -1672,8 +1679,9 @@ void Preset::getPresetName(File &file,
         deserializeJson(doc, file, DeserializationOption::Filter(filter));
 
     if (err) {
-        System::logger.write(
-            ERROR, "Preset::getPresetName: parsing failed: %s", err.c_str());
+        System::logger.write(LOG_ERROR,
+                             "Preset::getPresetName: parsing failed: %s",
+                             err.c_str());
         return;
     }
 
@@ -1681,7 +1689,7 @@ void Preset::getPresetName(File &file,
     copyString(presetName, name, maxPresetNameLength);
 
 #ifdef DEBUG
-    System::logger.write(ERROR, "Preset::getPresetName: name=%s", name);
+    System::logger.write(LOG_ERROR, "Preset::getPresetName: name=%s", name);
 #endif /* DEBUG */
 }
 
@@ -1792,7 +1800,7 @@ bool Preset::getPresetProjectId(File &file,
     DeserializationError err = deserializeJson(doc, file);
 
     if (err) {
-        System::logger.write(ERROR,
+        System::logger.write(LOG_ERROR,
                              "Preset::getPresetProjectId: parsing failed: %s",
                              err.c_str());
     }
@@ -1805,49 +1813,49 @@ bool Preset::getPresetProjectId(File &file,
 
 void Preset::print(void) const
 {
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "--[Preset]-------------------------------------");
-    System::logger.write(ERROR, "name: %s", getName());
-    System::logger.write(ERROR, "projectId: %s", getProjectId());
-    System::logger.write(ERROR, "version: %d", getVersion());
-    System::logger.write(ERROR, "isvalid: %d", isValid());
+    System::logger.write(LOG_ERROR, "name: %s", getName());
+    System::logger.write(LOG_ERROR, "projectId: %s", getProjectId());
+    System::logger.write(LOG_ERROR, "version: %d", getVersion());
+    System::logger.write(LOG_ERROR, "isvalid: %d", isValid());
 
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "--[Pages]--------------------------------------");
     for (const auto &[id, page] : pages) {
         page.print();
     }
 
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "--[Devices]------------------------------------");
     for (const auto &[id, device] : devices) {
         device.print();
     }
 
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "--[Overlays]-----------------------------------");
     for (const auto &[id, overlay] : overlays) {
         overlay.print();
     }
 
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "--[Groups]-------------------------------------");
     for (const auto &[id, group] : groups) {
         group.print();
     }
 
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "--[Controls]-----------------------------------");
     for (const auto &[id, control] : controls) {
         control.print();
     }
 
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "--[Lua Functions]------------------------------");
     for (const auto &function : luaFunctions) {
-        System::logger.write(ERROR, "function: %s", function.c_str());
+        System::logger.write(LOG_ERROR, "function: %s", function.c_str());
     }
 
-    System::logger.write(ERROR,
+    System::logger.write(LOG_ERROR,
                          "--[end]----------------------------------------");
 }
