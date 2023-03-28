@@ -35,9 +35,6 @@ public:
                               cv.message.getParameterNumber(),
                               midiValue,
                               Origin::internal);
-        if (midiValue != MIDI_VALUE_DO_NOT_SEND) {
-            cv.callFunction(stateToPass);
-        }
     }
 
     virtual void onTouchUp(const TouchEvent &touchEvent) override
@@ -50,9 +47,6 @@ public:
                                   cv.message.getParameterNumber(),
                                   cv.message.getOffValue(),
                                   Origin::internal);
-            if (cv.message.getOffValue() != MIDI_VALUE_DO_NOT_SEND) {
-                cv.callFunction(false);
-            }
         }
     }
 
@@ -73,18 +67,12 @@ public:
                                   cv.message.getParameterNumber(),
                                   cv.message.getOnValue(),
                                   Origin::internal);
-            if (cv.message.getOnValue() != MIDI_VALUE_DO_NOT_SEND) {
-                cv.callFunction(true);
-            }
         } else if (step > 0 && state != false) {
             parameterMap.setValue(cv.message.getDeviceId(),
                                   cv.message.getType(),
                                   cv.message.getParameterNumber(),
                                   cv.message.getOffValue(),
                                   Origin::internal);
-            if (cv.message.getOffValue() != MIDI_VALUE_DO_NOT_SEND) {
-                cv.callFunction(false);
-            }
         }
     }
 
@@ -98,9 +86,6 @@ public:
                                   cv.message.getParameterNumber(),
                                   cv.message.getOffValue(),
                                   Origin::internal);
-            if (cv.message.getOffValue() != MIDI_VALUE_DO_NOT_SEND) {
-                cv.callFunction(false);
-            }
         }
         ControlComponent::onPotTouchUp(potEvent);
     }
@@ -109,7 +94,7 @@ public:
                                    int16_t midiValue,
                                    uint8_t handle = 0) override
     {
-        if (value.message.getOnValue() == midiValue) {
+        if (value.translateMidiValue(midiValue)) {
             setState(true);
         } else {
             setState(false);

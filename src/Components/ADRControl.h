@@ -69,15 +69,7 @@ public:
                                    int16_t midiValue,
                                    uint8_t handle = 0) override
     {
-        int16_t newDisplayValue =
-            translateMidiValueToValue(value.message.getSignMode(),
-                                      value.message.getBitWidth(),
-                                      midiValue,
-                                      value.message.getMidiMin(),
-                                      value.message.getMidiMax(),
-                                      value.getMin(),
-                                      value.getMax());
-
+        int16_t newDisplayValue = value.translateMidiValue(midiValue);
         if (0 <= handle && handle <= 2) {
             setValue(handle, newDisplayValue);
         }

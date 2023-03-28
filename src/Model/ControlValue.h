@@ -46,6 +46,8 @@ public:
     void setOverlay(Overlay *newOverlay);
     Overlay *getOverlay(void) const;
     uint16_t getNumSteps(void) const;
+    bool isFunctionAssigned(void) const;
+    bool isFormatterAssigned(void) const;
     const char *getFunction(void) const;
     const std::string getFormatter(void) const;
     void setLabel(const char *newLabel);
@@ -57,6 +59,8 @@ public:
     const char *translateId(uint8_t id) const;
     uint8_t translateId(const char *handle) const;
     void print(void) const;
+
+    int16_t translateMidiValue(uint16_t midiValue) const;
 
     /*
      * attributes

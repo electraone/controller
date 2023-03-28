@@ -67,12 +67,10 @@ public:
                                    int16_t midiValue,
                                    uint8_t handle = 0) override
     {
-        if (auto list = getList()) {
-            int16_t index = list->getIndexByValue(midiValue);
+        int16_t index = value.translateMidiValue(midiValue);
 
-            if (index >= 0) {
-                setIndex(index);
-            }
+        if (index >= 0) {
+            setIndex(index);
         }
     }
 
@@ -104,8 +102,6 @@ public:
                 control.values[0].message.getParameterNumber(),
                 midiValue,
                 Origin::internal);
-
-            cv.callFunction(newIndex);
         }
     }
 

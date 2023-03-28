@@ -542,6 +542,12 @@ void ParameterMap::repaintParameterMap(void)
 
             if (mapEntry.midiValue != MIDI_VALUE_DO_NOT_SEND) {
                 for (auto &messageDestination : mapEntry.messageDestination) {
+                    if (messageDestination->isFunctionAssigned()) {
+                        messageDestination->callFunction(
+                            messageDestination->translateMidiValue(
+                                mapEntry.midiValue));
+                    }
+
                     for (const auto &window : windows) {
                         Component *rc = window->getOwnedContent();
                         Component *c = rc->findChildById(

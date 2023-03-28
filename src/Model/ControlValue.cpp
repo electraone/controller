@@ -124,6 +124,16 @@ uint16_t ControlValue::getNumSteps(void) const
     return (max - min);
 }
 
+bool ControlValue::isFunctionAssigned(void) const
+{
+    return (!luaFunctions[function].empty());
+}
+
+bool ControlValue::isFormatterAssigned(void) const
+{
+    return (!luaFunctions[formatter].empty());
+}
+
 const char *ControlValue::ControlValue::getFunction(void) const
 {
     return (luaFunctions[function].c_str());
@@ -208,6 +218,22 @@ const char *ControlValue::translateId(uint8_t id) const
 uint8_t ControlValue::translateId(const char *handle) const
 {
     return (Control::translateValueToId(control->getType(), handle));
+}
+
+int16_t ControlValue::translateMidiValue(uint16_t midiValue) const
+{
+    if (control->getType() == Control::Type::List) {
+        return (overlay->getIndexByValue(midiValue));
+    } else if (control->getType() == Control::Type::Pad) {
+        return (midiValue == message.getOnValue());
+    }
+    return (translateMidiValueToValue(message.getSignMode(),
+                                      message.getBitWidth(),
+                                      midiValue,
+                                      message.getMidiMin(),
+                                      message.getMidiMax(),
+                                      getMin(),
+                                      getMax()));
 }
 
 void ControlValue::print(void) const
