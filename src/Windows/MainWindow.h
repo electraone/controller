@@ -148,7 +148,7 @@ public:
      */
     void setControlValueMin(uint16_t controlId,
                             uint8_t handleId,
-                            uint8_t newMin) override;
+                            uint16_t newMin) override;
 
     /**
      * set the display maximum of a control value
@@ -159,7 +159,7 @@ public:
      */
     void setControlValueMax(uint16_t controlId,
                             uint8_t handleId,
-                            uint8_t newMax) override;
+                            uint16_t newMax) override;
 
     /**
      * set a group label
