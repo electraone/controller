@@ -335,7 +335,6 @@ void Control::removeFromParameterMap(ControlValue &value)
 
 void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 {
-    // \todo replace this with polymorphism
     if (value.message.getType() == Message::Type::start) {
         parameterMap.getOrCreate(0xff, value.message.getType(), 0)
             ->messageDestination.push_back(&value);
@@ -371,6 +370,7 @@ void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
             }
             value.callFunction(value.getDefault());
         }
+
         parameterMap.setValue(value.message.getDeviceId(),
                               value.message.getType(),
                               value.message.getParameterNumber(),

@@ -61,7 +61,7 @@ public:
                               Origin origin);
     void resetDeviceValues(uint8_t deviceId);
     void reset(void);
-    void print(void);
+    void print(uint8_t logLevel = LOG_TRACE);
 
     void keep(void);
     void save(const char *filename);

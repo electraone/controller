@@ -139,7 +139,8 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
 {
     System::logger.write(
         LOG_TRACE,
-        "ParameterMap::setValue: deviceId=%d, type=%d, parameterNumber=%d, midiValue=%d, origin=%d",
+        "ParameterMap::setValue: deviceId=%d, type=%d, parameterNumber=%d, "
+        "midiValue=%d, origin=%d",
         deviceId,
         type,
         parameterNumber,
@@ -211,8 +212,10 @@ void ParameterMap::resetDeviceValues(uint8_t deviceId)
 {
     for (auto &entry : entries) {
         if ((entry.hash >> 24) == deviceId) {
-            entry.midiValue = 0;
-            entry.dirty = true;
+            if (getType(entry.hash) != Message::Type::none) {
+                entry.midiValue = 0;
+                entry.dirty = true;
+            }
         }
     }
 }
@@ -236,27 +239,32 @@ void ParameterMap::reset(void)
 /** Prints content of the ParameterMap
  *
  */
-void ParameterMap::print(void)
+void ParameterMap::print(uint8_t logLevel)
 {
-    System::logger.write(LOG_TRACE, "--<Parameter Map:start>--");
+    System::logger.write(logLevel, "--<Parameter Map:start>--");
     for (auto &entry : entries) {
-        System::logger.write(
-            LOG_TRACE,
-            "ParameterMap entry: deviceId: %d, type=%d, parameterNumber=%d,"
-            " midiValue=%d, numDestinations=%d",
-            getDeviceId(entry.hash),
-            getType(entry.hash),
-            getParameterNumber(entry.hash),
-            entry.midiValue,
-            entry.messageDestination.size());
-        for (auto &md : entry.messageDestination) {
-            System::logger.write(LOG_TRACE,
-                                 "control: %s, value handle: %s",
-                                 md->getControl()->getName(),
-                                 md->getId());
+        if (getType(entry.hash) != Message::Type::none) {
+            System::logger.write(
+                logLevel,
+                "ParameterMap entry: deviceId=%d, type=%d, parameterNumber=%d,"
+                " midiValue=%d, numDestinations=%d",
+                getDeviceId(entry.hash),
+                getType(entry.hash),
+                getParameterNumber(entry.hash),
+                entry.midiValue,
+                entry.messageDestination.size());
+            for (auto &md : entry.messageDestination) {
+                System::logger.write(logLevel,
+                                     "    - linked control: name=%s, "
+                                     "value handle=%s, "
+                                     "display value=%d",
+                                     md->getControl()->getName(),
+                                     md->getId(),
+                                     md->translateMidiValue(entry.midiValue));
+            }
         }
     }
-    System::logger.write(LOG_TRACE, "--<Parameter Map:end>--");
+    System::logger.write(logLevel, "--<Parameter Map:end>--");
 }
 
 /*
@@ -321,7 +329,8 @@ void ParameterMap::serializeMap(File &file)
 
             System::logger.write(
                 LOG_TRACE,
-                "ParameterMap::serializeMap: entry: deviceI=%d, type=%d, parameterNumber=%d, midiValue=%d",
+                "ParameterMap::serializeMap: entry: deviceI=%d, type=%d, "
+                "parameterNumber=%d, midiValue=%d",
                 getDeviceId(entry.hash),
                 getType(entry.hash),
                 getParameterNumber(entry.hash),
