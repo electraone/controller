@@ -423,7 +423,7 @@ void MainWindow::setControlValueOverlay(uint16_t controlId,
 
 void MainWindow::setControlValueMin(uint16_t controlId,
                                     uint8_t handleId,
-                                    uint16_t newMin)
+                                    int16_t newMin)
 {
     Control &control = preset.getControl(controlId);
     if (control.isValid()) {
@@ -436,7 +436,7 @@ void MainWindow::setControlValueMin(uint16_t controlId,
 
 void MainWindow::setControlValueMax(uint16_t controlId,
                                     uint8_t handleId,
-                                    uint16_t newMax)
+                                    int16_t newMax)
 {
     Control &control = preset.getControl(controlId);
     if (control.isValid()) {

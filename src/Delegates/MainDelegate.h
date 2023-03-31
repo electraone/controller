@@ -58,10 +58,10 @@ public:
                                         uint8_t newOverlayId) = 0;
     virtual void setControlValueMin(uint16_t controlId,
                                     uint8_t handleId,
-                                    uint16_t newMin) = 0;
+                                    int16_t newMin) = 0;
     virtual void setControlValueMax(uint16_t controlId,
                                     uint8_t handleId,
-                                    uint16_t newMax) = 0;
+                                    int16_t newMax) = 0;
 
     // BottomBar
     virtual void setPageName(uint8_t pageId, const char *newName) = 0;

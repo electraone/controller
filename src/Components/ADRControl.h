@@ -10,17 +10,18 @@ public:
     ADRControl(const Control &control, MainDelegate &newDelegate)
         : ControlComponent(control, newDelegate)
     {
-        setMin(ADR::attack, control.values[0].getMin());
-        setMax(ADR::attack, control.values[0].getMax());
-        setMin(ADR::decay, control.values[1].getMin());
-        setMax(ADR::decay, control.values[1].getMax());
-        setMin(ADR::release, control.values[2].getMin());
-        setMax(ADR::release, control.values[2].getMax());
+        setValueRanges();
         setActiveSegment(control.inputs[0].getValueId());
         updateValueFromParameterMap();
     }
 
     virtual ~ADRControl() = default;
+
+    void syncComponentProperties(void)
+    {
+        setValueRanges();
+        ControlComponent::syncComponentProperties();
+    }
 
     virtual void onTouchDown(const TouchEvent &touchEvent) override
     {
@@ -101,5 +102,15 @@ public:
     }
 
 private:
+    void setValueRanges(void)
+    {
+        setMin(ADR::attack, control.values[0].getMin());
+        setMax(ADR::attack, control.values[0].getMax());
+        setMin(ADR::decay, control.values[1].getMin());
+        setMax(ADR::decay, control.values[1].getMax());
+        setMin(ADR::release, control.values[2].getMin());
+        setMax(ADR::release, control.values[2].getMax());
+    }
+
     uint16_t previousScreenX;
 };

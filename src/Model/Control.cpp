@@ -156,7 +156,7 @@ const ControlValue &Control::getValue(uint8_t index) const
 
 const ControlValue &Control::getValueByValueId(const char *valueId) const
 {
-    return (values[0]);
+    return (values[translateValueId(valueId)]);
 }
 
 Control::Type Control::translateType(const char *typeText)

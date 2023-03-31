@@ -10,19 +10,18 @@ public:
     ADSRControl(const Control &control, MainDelegate &newDelegate)
         : ControlComponent(control, newDelegate)
     {
-        setMin(ADSR::attack, control.values[0].getMin());
-        setMax(ADSR::attack, control.values[0].getMax());
-        setMin(ADSR::decay, control.values[1].getMin());
-        setMax(ADSR::decay, control.values[1].getMax());
-        setMin(ADSR::sustain, control.values[2].getMin());
-        setMax(ADSR::sustain, control.values[2].getMax());
-        setMin(ADSR::release, control.values[3].getMin());
-        setMax(ADSR::release, control.values[3].getMax());
+        setValueRanges();
         setActiveSegment(control.inputs[0].getValueId());
         updateValueFromParameterMap();
     }
 
     virtual ~ADSRControl() = default;
+
+    void syncComponentProperties(void)
+    {
+        setValueRanges();
+        ControlComponent::syncComponentProperties();
+    }
 
     virtual void onTouchDown(const TouchEvent &touchEvent) override
     {
@@ -102,5 +101,17 @@ public:
     }
 
 private:
+    void setValueRanges(void)
+    {
+        setMin(ADSR::attack, control.values[0].getMin());
+        setMax(ADSR::attack, control.values[0].getMax());
+        setMin(ADSR::decay, control.values[1].getMin());
+        setMax(ADSR::decay, control.values[1].getMax());
+        setMin(ADSR::sustain, control.values[2].getMin());
+        setMax(ADSR::sustain, control.values[2].getMax());
+        setMin(ADSR::release, control.values[3].getMin());
+        setMax(ADSR::release, control.values[3].getMax());
+    }
+
     uint16_t previousScreenX;
 };

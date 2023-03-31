@@ -10,28 +10,18 @@ public:
     Dx7EnvControl(const Control &control, MainDelegate &newDelegate)
         : ControlComponent(control, newDelegate)
     {
-        values[Env5Seg::level1].setMin(control.values[0].getMin());
-        values[Env5Seg::level1].setMax(control.values[0].getMax());
-        values[Env5Seg::rate1].setMin(control.values[1].getMin());
-        values[Env5Seg::rate1].setMax(control.values[1].getMax());
-        values[Env5Seg::level2].setMin(control.values[2].getMin());
-        values[Env5Seg::level2].setMax(control.values[2].getMax());
-        values[Env5Seg::rate2].setMin(control.values[3].getMin());
-        values[Env5Seg::rate2].setMax(control.values[3].getMax());
-        values[Env5Seg::level3].setMin(control.values[4].getMin());
-        values[Env5Seg::level3].setMax(control.values[4].getMax());
-        values[Env5Seg::rate3].setMin(control.values[5].getMin());
-        values[Env5Seg::rate3].setMax(control.values[5].getMax());
-        values[Env5Seg::level4].setMin(control.values[6].getMin());
-        values[Env5Seg::level4].setMax(control.values[6].getMax());
-        values[Env5Seg::rate4].setMin(control.values[7].getMin());
-        values[Env5Seg::rate4].setMax(control.values[7].getMax());
-
+        setValueRanges();
         setActiveSegment(control.inputs[0].getValueId());
         updateValueFromParameterMap();
     }
 
     virtual ~Dx7EnvControl() = default;
+
+    void syncComponentProperties(void)
+    {
+        setValueRanges();
+        ControlComponent::syncComponentProperties();
+    }
 
     virtual void onTouchDown(const TouchEvent &touchEvent) override
     {
@@ -115,5 +105,25 @@ public:
     }
 
 private:
+    void setValueRanges(void)
+    {
+        values[Env5Seg::level1].setMin(control.values[0].getMin());
+        values[Env5Seg::level1].setMax(control.values[0].getMax());
+        values[Env5Seg::rate1].setMin(control.values[1].getMin());
+        values[Env5Seg::rate1].setMax(control.values[1].getMax());
+        values[Env5Seg::level2].setMin(control.values[2].getMin());
+        values[Env5Seg::level2].setMax(control.values[2].getMax());
+        values[Env5Seg::rate2].setMin(control.values[3].getMin());
+        values[Env5Seg::rate2].setMax(control.values[3].getMax());
+        values[Env5Seg::level3].setMin(control.values[4].getMin());
+        values[Env5Seg::level3].setMax(control.values[4].getMax());
+        values[Env5Seg::rate3].setMin(control.values[5].getMin());
+        values[Env5Seg::rate3].setMax(control.values[5].getMax());
+        values[Env5Seg::level4].setMin(control.values[6].getMin());
+        values[Env5Seg::level4].setMax(control.values[6].getMax());
+        values[Env5Seg::rate4].setMin(control.values[7].getMin());
+        values[Env5Seg::rate4].setMax(control.values[7].getMax());
+    }
+
     uint16_t previousScreenX;
 };
