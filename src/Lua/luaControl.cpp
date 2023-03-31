@@ -238,9 +238,13 @@ int control_getValueIds(lua_State *L)
 
 int control_getValue(lua_State *L)
 {
-    lua_settop(L, 2);
+    int numParameters = lua_gettop(L);
+    if (numParameters > 2) {
+        lua_settop(L, 2);
+    }
     Control *control = getControl(L, 1);
-    const char *valueId = luaL_checkstring(L, 2);
+    const char *valueId =
+        (numParameters == 2) ? luaL_checkstring(L, 2) : "value";
 
     if (control) {
         const ControlValue &value = control->getValueByValueId(valueId);
