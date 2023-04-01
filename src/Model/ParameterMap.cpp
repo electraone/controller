@@ -241,7 +241,8 @@ void ParameterMap::reset(void)
  */
 void ParameterMap::print(uint8_t logLevel)
 {
-    System::logger.write(logLevel, "--<Parameter Map:start>--");
+    System::logger.write(logLevel,
+                         "--[Parameter Map]---------------------------------");
     for (auto &entry : entries) {
         if (getType(entry.hash) != Message::Type::none) {
             System::logger.write(
@@ -264,7 +265,7 @@ void ParameterMap::print(uint8_t logLevel)
             }
         }
     }
-    System::logger.write(logLevel, "--<Parameter Map:end>--");
+    System::logger.write(logLevel, "--");
 }
 
 /*

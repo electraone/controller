@@ -236,19 +236,23 @@ int16_t ControlValue::translateMidiValue(uint16_t midiValue) const
                                       getMax()));
 }
 
-void ControlValue::print(void) const
+void ControlValue::print(uint8_t logLevel) const
 {
-    System::logger.write(LOG_ERROR, "    id: %s", getId());
-    System::logger.write(LOG_ERROR, "    handle: %d", getHandle());
-    System::logger.write(LOG_ERROR, "    index: %d", getIndex());
-    System::logger.write(LOG_ERROR, "    default: %d", getDefault());
-    System::logger.write(LOG_ERROR, "    min: %d", getMin());
-    System::logger.write(LOG_ERROR, "    max: %d", getMax());
-    System::logger.write(LOG_ERROR, "    overlayId: %d", getOverlayId());
-    System::logger.write(LOG_ERROR, "    function: %s", getFunction());
     System::logger.write(
-        LOG_ERROR, "    formatter: %s", getFormatter().c_str());
-    System::logger.write(LOG_ERROR, "    overlay: %x", getOverlay());
-    System::logger.write(LOG_ERROR, "    control: %x", getControl());
-    message.print();
+        logLevel, "        --[Value]------------------------------------");
+    System::logger.write(logLevel, "        address: 0x%08x", this);
+    System::logger.write(logLevel, "        id: %s", getId());
+    System::logger.write(logLevel, "        handle: %d", getHandle());
+    System::logger.write(logLevel, "        index: %d", getIndex());
+    System::logger.write(logLevel, "        default: %d", getDefault());
+    System::logger.write(logLevel, "        min: %d", getMin());
+    System::logger.write(logLevel, "        max: %d", getMax());
+    System::logger.write(logLevel, "        overlayId: %d", getOverlayId());
+    System::logger.write(logLevel, "        function: %s", getFunction());
+    System::logger.write(
+        logLevel, "        formatter: %s", getFormatter().c_str());
+    System::logger.write(logLevel, "        overlay: %x", getOverlay());
+    System::logger.write(
+        logLevel, "        control address: 0x%08x", getControl());
+    message.print(logLevel);
 }

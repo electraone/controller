@@ -58,7 +58,7 @@ public:
     void callFunction(int16_t value) const;
     const char *translateId(uint8_t id) const;
     uint8_t translateId(const char *handle) const;
-    void print(void) const;
+    void print(uint8_t logLevel = LOG_TRACE) const;
 
     int16_t translateMidiValue(uint16_t midiValue) const;
 

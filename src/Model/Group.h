@@ -148,7 +148,7 @@ public:
         System::logger.write(LOG_ERROR, "colour: %d", getColour());
         System::logger.write(LOG_ERROR, "visible: %d", isVisible());
         System::logger.write(LOG_ERROR, "variant: %d", getVariant());
-        getBounds().print();
+        getBounds().print(LOG_ERROR);
     }
 
     static Variant translateVariant(const char *variantText)

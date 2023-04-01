@@ -382,9 +382,9 @@ void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 
 void Control::print(uint8_t logLevel) const
 {
-    System::logger.write(LOG_ERROR,
+    System::logger.write(logLevel,
                          "--[Control]---------------------------------------");
-    System::logger.write(logLevel, "address: %x", this);
+    System::logger.write(logLevel, "address: 0x%08x", this);
     System::logger.write(logLevel, "id: %d", getId());
     System::logger.write(logLevel, "type: %d", getType());
     System::logger.write(logLevel, "mode: %d", getMode());
@@ -394,27 +394,30 @@ void Control::print(uint8_t logLevel) const
     System::logger.write(logLevel, "pageId: %d", getPageId());
     System::logger.write(logLevel, "colour: %06x", getColour());
     System::logger.write(logLevel, "controlSetId: %d", getControlSetId());
-    getBounds().print();
-    printInputs();
-    printValues();
+    getBounds().print(logLevel);
+    printInputs(logLevel);
+    printValues(logLevel);
+    System::logger.write(logLevel, "--");
 }
 
-void Control::printValues(void) const
+void Control::printValues(uint8_t logLevel) const
 {
-    System::logger.write(LOG_ERROR,
+    System::logger.write(logLevel,
                          "    --[Values]------------------------------------");
     for (const auto &value : values) {
-        value.print();
+        value.print(logLevel);
     }
+    System::logger.write(logLevel, "    --");
 }
 
-void Control::printInputs(void) const
+void Control::printInputs(uint8_t logLevel) const
 {
-    System::logger.write(LOG_ERROR,
+    System::logger.write(logLevel,
                          "    --[Inputs]------------------------------------");
     for (const auto &input : inputs) {
-        input.print();
+        input.print(logLevel);
     }
+    System::logger.write(logLevel, "    --");
 }
 
 uint8_t Control::translateValueToId(Control::Type controlType,

@@ -31,10 +31,13 @@ public:
         return (valueId);
     }
 
-    void print(void) const
+    void print(uint8_t logLevel = LOG_TRACE) const
     {
-        System::logger.write(LOG_ERROR, "    potId: %d", getPotId());
-        System::logger.write(LOG_ERROR, "    valueId: %d", getValueId());
+        System::logger.write(
+            logLevel, "        --[Input]------------------------------------");
+        System::logger.write(logLevel, "        address: 0x%08x", this);
+        System::logger.write(logLevel, "        potId: %d", getPotId());
+        System::logger.write(logLevel, "        valueId: %d", getValueId());
     }
 
 private:

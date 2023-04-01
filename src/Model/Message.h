@@ -200,20 +200,27 @@ public:
 
     void print(uint8_t logLevel = LOG_TRACE) const
     {
-        System::logger.write(logLevel, "--");
-        System::logger.write(logLevel, "        deviceId: %d", getDeviceId());
+        System::logger.write(
+            logLevel,
+            "            --[Message]--------------------------------");
+        System::logger.write(logLevel, "            address: 0x%08x", this);
+        System::logger.write(
+            logLevel, "            deviceId: %d", getDeviceId());
         System::logger.write(logLevel,
-                             "        type: %s (%d)",
+                             "            type: %s (%d)",
                              translateType(getType()),
                              getType());
         System::logger.write(
-            logLevel, "        parameterNumber: %d", getParameterNumber());
-        System::logger.write(logLevel, "        min: %d", getMidiMin());
-        System::logger.write(logLevel, "        max: %d", getMidiMax());
-        System::logger.write(logLevel, "        value: %d", getValue());
-        System::logger.write(logLevel, "        signMode: %d", getSignMode());
-        System::logger.write(logLevel, "        lsbFirst: %d", getLsbFirst());
-        System::logger.write(logLevel, "        bitWidth: %d", getBitWidth());
+            logLevel, "            parameterNumber: %d", getParameterNumber());
+        System::logger.write(logLevel, "            min: %d", getMidiMin());
+        System::logger.write(logLevel, "            max: %d", getMidiMax());
+        System::logger.write(logLevel, "            value: %d", getValue());
+        System::logger.write(
+            logLevel, "            signMode: %d", getSignMode());
+        System::logger.write(
+            logLevel, "            lsbFirst: %d", getLsbFirst());
+        System::logger.write(
+            logLevel, "            bitWidth: %d", getBitWidth());
     }
 
     static Type translateType(const char *typeText)

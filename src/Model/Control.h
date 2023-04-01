@@ -90,10 +90,7 @@ public:
     void addToParameterMap(ControlValue &value);
     void removeFromParameterMap(ControlValue &value);
     void setDefaultValue(ControlValue &value, bool sendMidiMessages);
-
-    void print(uint8_t logLevel = LOG_ERROR) const;
-    void printValues(void) const;
-    void printInputs(void) const;
+    void print(uint8_t logLevel = LOG_TRACE) const;
 
     static uint8_t translateValueToId(Control::Type controlType,
                                       const char *handle);
@@ -113,6 +110,9 @@ private:
         uint8_t visible : 1;
         uint32_t colour : 24;
     };
+
+    void printValues(uint8_t logLevel = LOG_TRACE) const;
+    void printInputs(uint8_t logLevel = LOG_TRACE) const;
 
     Rectangle bounds;
     char name[MaxNameLength + 1];
