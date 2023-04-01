@@ -380,23 +380,23 @@ void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
     }
 }
 
-void Control::print(void) const
+void Control::print(uint8_t logLevel) const
 {
-    if (true) {
-        System::logger.write(LOG_ERROR, "address: %x", this);
-        System::logger.write(LOG_ERROR, "id: %d", getId());
-        System::logger.write(LOG_ERROR, "type: %d", getType());
-        System::logger.write(LOG_ERROR, "mode: %d", getMode());
-        System::logger.write(LOG_ERROR, "variant: %d", getVariant());
-        System::logger.write(LOG_ERROR, "visible: %d", isVisible());
-        System::logger.write(LOG_ERROR, "name: %s", getName());
-        System::logger.write(LOG_ERROR, "pageId: %d", getPageId());
-        System::logger.write(LOG_ERROR, "colour: %d", getColour());
-        System::logger.write(LOG_ERROR, "controlSetId: %d", getControlSetId());
-        getBounds().print();
-        printInputs();
-        printValues();
-    }
+    System::logger.write(LOG_ERROR,
+                         "--[Control]---------------------------------------");
+    System::logger.write(logLevel, "address: %x", this);
+    System::logger.write(logLevel, "id: %d", getId());
+    System::logger.write(logLevel, "type: %d", getType());
+    System::logger.write(logLevel, "mode: %d", getMode());
+    System::logger.write(logLevel, "variant: %d", getVariant());
+    System::logger.write(logLevel, "visible: %d", isVisible());
+    System::logger.write(logLevel, "name: %s", getName());
+    System::logger.write(logLevel, "pageId: %d", getPageId());
+    System::logger.write(logLevel, "colour: %06x", getColour());
+    System::logger.write(logLevel, "controlSetId: %d", getControlSetId());
+    getBounds().print();
+    printInputs();
+    printValues();
 }
 
 void Control::printValues(void) const

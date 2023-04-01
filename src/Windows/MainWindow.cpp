@@ -334,8 +334,12 @@ void MainWindow::setControlPot(uint16_t controlId,
 {
     Control &control = preset.getControl(controlId);
     if (control.isValid()) {
-        control.setControlSetId(newControlSetId);
-        control.inputs[0].setPotId(newPotId - 1); // \todo Fix this
+        System::logger.write(LOG_ERROR,
+                             "set pot: controlSet=%d, pot=%d",
+                             newControlSetId,
+                             newPotId);
+        control.setControlSetId(newControlSetId - 1);
+        control.inputs[0].setPotId(newPotId - 1);
 
         if (pageView) {
             pageView->reassignComponent(control);

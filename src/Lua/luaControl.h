@@ -18,6 +18,7 @@ int control_setSlot(lua_State *L);
 int control_getValueIds(lua_State *L);
 int control_getValue(lua_State *L);
 int control_getValues(lua_State *L);
+int control_print(lua_State *L);
 
 void control_register(lua_State *L);
 
@@ -27,19 +28,12 @@ static const luaL_Reg controls_functions[] = { { "get", control_create },
                                                { NULL, NULL } };
 
 static const luaL_Reg control_functions[] = {
-    { "getId", control_getId },
-    { "setVisible", control_setVisible },
-    { "isVisible", control_isVisible },
-    { "setName", control_setName },
-    { "getName", control_getName },
-    { "setColor", control_setColour },
-    { "getColor", control_getColour },
-    { "setPot", control_setPot },
-    { "setBounds", control_setBounds },
-    { "getBounds", control_getBounds },
-    { "setSlot", control_setSlot },
-    { "getValueIds", control_getValueIds },
-    { "getValue", control_getValue },
-    { "getValues", control_getValues },
-    { NULL, NULL }
+    { "getId", control_getId },         { "setVisible", control_setVisible },
+    { "isVisible", control_isVisible }, { "setName", control_setName },
+    { "getName", control_getName },     { "setColor", control_setColour },
+    { "getColor", control_getColour },  { "setPot", control_setPot },
+    { "setBounds", control_setBounds }, { "getBounds", control_getBounds },
+    { "setSlot", control_setSlot },     { "getValueIds", control_getValueIds },
+    { "getValue", control_getValue },   { "getValues", control_getValues },
+    { "print", control_print },         { NULL, NULL }
 };

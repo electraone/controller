@@ -91,7 +91,7 @@ public:
     void removeFromParameterMap(ControlValue &value);
     void setDefaultValue(ControlValue &value, bool sendMidiMessages);
 
-    void print(void) const;
+    void print(uint8_t logLevel = LOG_ERROR) const;
     void printValues(void) const;
     void printInputs(void) const;
 

@@ -271,6 +271,17 @@ int control_getValues(lua_State *L)
     return (luaL_error(L, "failed: not a valid control"));
 }
 
+int control_print(lua_State *L)
+{
+    lua_settop(L, 1);
+
+    if (Control *control = getControl(L, 1)) {
+        control->print(LOG_ERROR);
+    }
+
+    return (0);
+}
+
 void control_register(lua_State *L)
 {
     lua_register(L, "Control", control_create);

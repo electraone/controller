@@ -126,6 +126,17 @@ int message_getOffValue(lua_State *L)
     return (1);
 }
 
+int message_print(lua_State *L)
+{
+    lua_settop(L, 1);
+
+    if (Message *message = getMessage(L, 1)) {
+        message->print(LOG_ERROR);
+    }
+
+    return (0);
+}
+
 void message_register(lua_State *L)
 {
     lua_register(L, "Message", message_create);

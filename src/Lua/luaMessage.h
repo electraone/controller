@@ -11,6 +11,7 @@ int message_getValue(lua_State *L);
 int message_setValue(lua_State *L);
 int message_getOnValue(lua_State *L);
 int message_getOffValue(lua_State *L);
+int message_print(lua_State *L);
 
 void message_register(lua_State *L);
 
@@ -22,5 +23,6 @@ static const luaL_Reg message_functions[] = {
     { "setValue", message_setValue },
     { "getOnValue", message_getOnValue },
     { "getOffValue", message_getOffValue },
+    { "print", message_print },
     { NULL, NULL }
 };
