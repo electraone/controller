@@ -66,7 +66,7 @@ public:
     {
         System::logger.write(
             logLevel,
-			"--[Page]------------------------------------------------");
+            "--[Page]------------------------------------------------");
         System::logger.write(logLevel, "id: %d", getId());
         System::logger.write(logLevel, "name: %s", getName());
         System::logger.write(logLevel, "hasObjects: %d", getHasObjects());

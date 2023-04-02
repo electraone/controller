@@ -17,6 +17,7 @@ int group_setSlot(lua_State *L);
 int group_setHorizontalSpan(lua_State *L);
 int group_setVerticalSpan(lua_State *L);
 int group_setVariant(lua_State *L);
+int group_print(lua_State *L);
 
 void group_register(lua_State *L);
 
@@ -39,5 +40,6 @@ static const luaL_Reg group_functions[] = {
     { "setHorizontalSpan", group_setHorizontalSpan },
     { "setVerticalSpan", group_setVerticalSpan },
     { "setVariant", group_setVariant },
+    { "print", group_print },
     { NULL, NULL }
 };

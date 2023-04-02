@@ -82,6 +82,7 @@ public:
 
     void setColour(uint32_t newColour)
     {
+        System::logger.write(LOG_ERROR, "setColour: 0x%06x", newColour);
         colour = newColour;
     }
 
@@ -140,15 +141,19 @@ public:
         return (component);
     }
 
-    void print(void) const
+    void print(uint8_t logLevel = LOG_TRACE) const
     {
-        System::logger.write(LOG_ERROR, "id: %d", getId());
-        System::logger.write(LOG_ERROR, "label: %s", getLabel());
-        System::logger.write(LOG_ERROR, "pageId: %d", getPageId());
-        System::logger.write(LOG_ERROR, "colour: %d", getColour());
-        System::logger.write(LOG_ERROR, "visible: %d", isVisible());
-        System::logger.write(LOG_ERROR, "variant: %d", getVariant());
-        getBounds().print(LOG_ERROR);
+        System::logger.write(
+            logLevel,
+            "--[Group]-----------------------------------------------");
+        System::logger.write(logLevel, "address: 0x%08x", this);
+        System::logger.write(logLevel, "id: %d", getId());
+        System::logger.write(logLevel, "label: %s", getLabel());
+        System::logger.write(logLevel, "pageId: %d", getPageId());
+        System::logger.write(logLevel, "colour: 0x%06x", getColour());
+        System::logger.write(logLevel, "visible: %d", isVisible());
+        System::logger.write(logLevel, "variant: %d", getVariant());
+        getBounds().print(logLevel);
     }
 
     static Variant translateVariant(const char *variantText)

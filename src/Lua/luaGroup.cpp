@@ -275,6 +275,17 @@ int group_setVariant(lua_State *L)
     return (0);
 }
 
+int group_print(lua_State *L)
+{
+    lua_settop(L, 1);
+
+    if (Group *group = getGroup(L, 1)) {
+        group->print(LOG_ERROR);
+    }
+
+    return (0);
+}
+
 void group_register(lua_State *L)
 {
     lua_register(L, "Group", group_create);

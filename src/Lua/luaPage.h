@@ -30,5 +30,5 @@ static const luaL_Reg pages_functions[] = {
 static const luaL_Reg page_functions[] = { { "getId", page_getId },
                                            { "getName", page_getName },
                                            { "setName", page_setName },
-										   { "print", page_print },
+                                           { "print", page_print },
                                            { NULL, NULL } };
