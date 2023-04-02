@@ -12,6 +12,7 @@ int page_delete(lua_State *L);
 int page_getId(lua_State *L);
 int page_setName(lua_State *L);
 int page_getName(lua_State *L);
+int page_print(lua_State *L);
 
 void page_register(lua_State *L);
 
@@ -29,4 +30,5 @@ static const luaL_Reg pages_functions[] = {
 static const luaL_Reg page_functions[] = { { "getId", page_getId },
                                            { "getName", page_getName },
                                            { "setName", page_setName },
+										   { "print", page_print },
                                            { NULL, NULL } };

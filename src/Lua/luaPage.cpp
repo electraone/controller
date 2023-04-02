@@ -125,6 +125,17 @@ int page_getName(lua_State *L)
     return (luaL_error(L, "failed: not a valid page"));
 }
 
+int page_print(lua_State *L)
+{
+    lua_settop(L, 1);
+
+    if (Page *page = getPage(L, 1)) {
+        page->print(LOG_ERROR);
+    }
+
+    return (0);
+}
+
 void page_register(lua_State *L)
 {
     lua_register(L, "Page", pages_get);

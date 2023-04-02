@@ -62,11 +62,14 @@ public:
         hasObjects = shouldHaveObjects;
     }
 
-    void print(void) const
+    void print(uint8_t logLevel = LOG_TRACE) const
     {
-        System::logger.write(LOG_ERROR, "id: %d", getId());
-        System::logger.write(LOG_ERROR, "name: %s", getName());
-        System::logger.write(LOG_ERROR, "hasObjects: %d", getHasObjects());
+        System::logger.write(
+            logLevel,
+			"--[Page]------------------------------------------------");
+        System::logger.write(logLevel, "id: %d", getId());
+        System::logger.write(logLevel, "name: %s", getName());
+        System::logger.write(logLevel, "hasObjects: %d", getHasObjects());
     }
 
 private:
