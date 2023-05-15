@@ -129,12 +129,12 @@ public:
     {
         l1.removeFromParameterMap(l1Values[0]);
         r1.removeFromParameterMap(r1Values[0]);
-        l2.removeFromParameterMap(l1Values[0]);
-        r2.removeFromParameterMap(r1Values[0]);
-        l3.removeFromParameterMap(l1Values[0]);
-        r3.removeFromParameterMap(r1Values[0]);
-        l4.removeFromParameterMap(l1Values[0]);
-        r4.removeFromParameterMap(r1Values[0]);
+        l2.removeFromParameterMap(l2Values[0]);
+        r2.removeFromParameterMap(r2Values[0]);
+        l3.removeFromParameterMap(l3Values[0]);
+        r3.removeFromParameterMap(r3Values[0]);
+        l4.removeFromParameterMap(l4Values[0]);
+        r4.removeFromParameterMap(r4Values[0]);
         l1Knob->releasePot();
         l2Knob->releasePot();
         l3Knob->releasePot();
