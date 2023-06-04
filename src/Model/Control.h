@@ -76,6 +76,7 @@ public:
     ControlValue &getValue(uint8_t index);
     const ControlValue &getValue(uint8_t index) const;
     const ControlValue &getValueByValueId(const char *valueId) const;
+    bool hasDetail(void) const;
 
     static Type translateType(const char *typeText);
     static Mode translateControlMode(const char *modeText);

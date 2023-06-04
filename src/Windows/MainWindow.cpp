@@ -161,8 +161,10 @@ bool MainWindow::switchControlSet(uint8_t controlSetId)
 void MainWindow::openDetail(uint16_t controlId)
 {
     const Control &control = preset.getControl(controlId);
-    detailWindow = DetailWindow::createDetailWindow(control, *this);
-    detailWindow->setBounds(getDetailBounds(control));
+    if (control.hasDetail()) {
+        detailWindow = DetailWindow::createDetailWindow(control, *this);
+        detailWindow->setBounds(getDetailBounds(control));
+    }
 }
 
 void MainWindow::lockDetail(void)
@@ -1021,7 +1023,10 @@ void MainWindow::displayPage(void)
 void MainWindow::showDetailOfActivePotTouch(void)
 {
     if (Component *c = getActivePotComponent()) {
-        openDetail(c->getId());
+        if (ControlComponent *cc = dynamic_cast<ControlComponent *>(c)) {
+            cc->setActive(false);
+            openDetail(c->getId());
+        }
     }
 }
 

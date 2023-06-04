@@ -159,6 +159,18 @@ const ControlValue &Control::getValueByValueId(const char *valueId) const
     return (values[translateValueId(valueId)]);
 }
 
+bool Control::hasDetail(void) const
+{
+    if (getType() == Control::Type::Pad) {
+        return (false);
+    } else if (getType() == Control::Type::Relative) {
+        return (false);
+    } else if (getType() == Control::Type::None) {
+        return (false);
+    }
+    return (true);
+}
+
 Control::Type Control::translateType(const char *typeText)
 {
     if (typeText) {
