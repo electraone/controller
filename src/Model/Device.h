@@ -27,7 +27,7 @@ public:
     const char *getName(void) const;
     uint8_t getResponseIndex(uint8_t id) const;
     DataBytes *registerData(JsonVariant jData);
-    void print(void) const;
+    void print(uint8_t logLevel = LOG_TRACE) const;
 
 private:
     static constexpr uint8_t MaxNameLength = 20;

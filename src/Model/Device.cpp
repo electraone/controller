@@ -78,7 +78,7 @@ std::vector<uint8_t> *Device::registerData(JsonVariant jData)
     return (registeredData);
 }
 
-void Device::print(void) const
+void Device::print(uint8_t logLevel) const
 {
     System::logger.write(LOG_ERROR, "id: %d", getId());
     System::logger.write(LOG_ERROR, "name: %s", getName());

@@ -196,6 +196,17 @@ int device_getChannel(lua_State *L)
     return (1);
 }
 
+int device_print(lua_State *L)
+{
+    lua_settop(L, 1);
+
+    if (Device *device = getDevice(L, 1)) {
+        device->print(LOG_ERROR);
+    }
+
+    return (0);
+}
+
 void device_register(lua_State *L)
 {
     lua_register(L, "Device", device_create);

@@ -14,6 +14,7 @@ int device_setPort(lua_State *L);
 int device_getPort(lua_State *L);
 int device_setChannel(lua_State *L);
 int device_getChannel(lua_State *L);
+int device_print(lua_State *L);
 
 void device_register(lua_State *L);
 
