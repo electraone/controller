@@ -132,7 +132,7 @@ bool Presets::loadPreset(LocalFile file)
 
             parameterMap.setProjectId(preset.getProjectId());
             parameterMap.enable();
-            uint8_t presetId = (currentBankNumber * NumBanks) + currentSlot;
+            uint8_t presetId = (currentBankNumber * NumPresetsInBank) + currentSlot;
 
             if (!loadPresetStateOnStartup
                 && !presetSlot[presetId].hasBeenAlreadyLoaded()) {
