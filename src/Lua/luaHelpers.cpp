@@ -54,8 +54,10 @@ int helpers_delay(lua_State *L)
 
     int msecs = luaL_checkinteger(L, -1);
 
-    luaL_argcheck(
-        L, 1 <= msecs && msecs <= 5000, 2, "failed: time interval must be 1 and 5000");
+    luaL_argcheck(L,
+                  1 <= msecs && msecs <= 5000,
+                  2,
+                  "failed: time interval must be 1 and 5000");
 
     delay(msecs);
     return (0);
