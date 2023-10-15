@@ -419,7 +419,6 @@ void MainWindow::setControlValueOverlay(uint16_t controlId,
     if (control.isValid()) {
         handleId = Control::constraintValueId(control.getType(), handleId);
         auto &controlValue = control.getValue(handleId);
-        controlValue.setOverlayId(newOverlayId);
         controlValue.setOverlay(preset.getOverlay(newOverlayId));
         refreshControl(control);
     }
