@@ -62,6 +62,12 @@ public:
     virtual void setControlValueMax(uint16_t controlId,
                                     uint8_t handleId,
                                     int16_t newMax) = 0;
+    virtual void setControlValueRange(uint16_t controlId,
+                                      uint8_t handleId,
+                                      int16_t newMin,
+                                      int16_t newMax,
+                                      int16_t newDefault,
+                                      bool updateMesage) = 0;
 
     // BottomBar
     virtual void setPageName(uint8_t pageId, const char *newName) = 0;

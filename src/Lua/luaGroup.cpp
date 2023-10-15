@@ -1,3 +1,24 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
 #include "luaGroup.h"
 #include "Preset.h"
 #include "MainDelegate.h"
@@ -5,7 +26,7 @@
 extern Preset *luaPreset;
 extern MainDelegate *luaDelegate;
 
-static Group *getGroup(lua_State *L, uint8_t stackPosition)
+static Group *getGroup(lua_State *L, [[maybe_unused]] uint8_t stackPosition)
 {
     return (*reinterpret_cast<Group **>(luaL_checkudata(L, 1, "Group")));
 }
@@ -280,7 +301,7 @@ int group_print(lua_State *L)
     lua_settop(L, 1);
 
     if (Group *group = getGroup(L, 1)) {
-        group->print(LOG_ERROR);
+        group->print(LOG_LUA);
     }
 
     return (0);

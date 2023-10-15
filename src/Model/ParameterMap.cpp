@@ -1,142 +1,125 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
 #include "ParameterMap.h"
 #include "ParameterMapWindow.h"
 #include "ControlComponent.h"
 #include "JsonTools.h"
 
+// Global pointer to current ParameterMap instance. \todo get rid of that.
 ParameterMap parameterMap;
 
-/** Message hash function.
- *  creates a hash value for given message attributes. This is used for lookups
- *  in ParameterMap unordered_map.
- */
-uint32_t calculateHash(uint8_t deviceId,
-                       Message::Type type,
-                       uint16_t parameterNumber)
+ParameterMap::ParameterMap()
+    : lastRead(nullptr), lastReadHash(0), enabled(false)
 {
-    return (parameterNumber + (((uint8_t)type) << 16) + (deviceId << 24));
+    memset(projectId, 0x00, sizeof(projectId));
 }
 
-uint8_t getDeviceId(uint32_t hash)
-{
-    return (hash >> 24);
-}
-
-uint8_t getType(uint32_t hash)
-{
-    return ((hash >> 16) & 0xFF);
-}
-
-uint16_t getParameterNumber(uint32_t hash)
-{
-    return (hash & 0xFFFF);
-}
-
-/** ParameterMap
- *
- */
-ParameterMap::ParameterMap() : lastRead(0), lastWritten(0)
-{
-}
-
-/*
- * Set the associated project Id
- */
 void ParameterMap::setProjectId(const char *newProjectId)
 {
     copyString(projectId, newProjectId, 20);
 }
 
-/*
- * Set the associated application sandbox
- */
 void ParameterMap::setAppSandbox(const char *newAppSandbox)
 {
     copyString(appSandbox, newAppSandbox, 20);
 }
 
-/** locate and cache entry in the ParameterMap
- *
- */
-LookupEntry *ParameterMap::findAndCache(uint32_t hash)
+LookupEntry *ParameterMap::getAndCache(uint32_t hash)
 {
-    uint16_t i = 0;
-
-    if (entries[lastRead].hash == hash) {
-        return (&entries[lastRead]);
+    if (lastRead && (lastReadHash == hash)) {
+        return (lastRead);
     }
-
-    for (auto &entry : entries) {
-        if (entry.hash == hash) {
-            lastRead = i;
-            return (&entry);
-        }
-        i++;
+    auto it = entries.find(hash);
+    if (it != entries.end()) {
+        lastRead = &(it->second);
+        lastReadHash = hash;
+        return &(it->second);
     }
-
     return (nullptr);
 }
 
-/** Always returns a pointer to an entry
- *  If it does not exist, it will created and returned
- */
 LookupEntry *ParameterMap::getOrCreate(uint8_t deviceId,
                                        Message::Type type,
-                                       uint16_t parameterNumber)
+                                       uint16_t parameterNumber,
+                                       ControlValue *controlValue)
 {
     uint32_t hash = calculateHash(deviceId, type, parameterNumber);
-    LookupEntry *entry = findAndCache(hash);
 
-    // return found entry
-    if (entry) {
-        return (entry);
+    auto insertResult = entries.emplace(hash, LookupEntry());
+
+    if (controlValue) {
+        insertResult.first->second.addDestination(controlValue);
     }
 
-    // or return a newly created entry
-    // TODO: MessageDestination pointers might not be initialized
-    entries.push_back(LookupEntry(hash, 0));
-    return (&entries.back());
+    lastRead = &(insertResult.first->second);
+    lastReadHash = hash;
+
+    return &(insertResult.first->second);
 }
 
-/** Return entry of the ParameterMap
- *
- */
 LookupEntry *ParameterMap::get(uint8_t deviceId,
                                Message::Type type,
                                uint16_t parameterNumber)
 {
-    uint32_t hash = calculateHash(deviceId, type, parameterNumber);
-
-    return (findAndCache(hash));
+    return (getAndCache(calculateHash(deviceId, type, parameterNumber)));
 }
 
-/** Returns a value of an existing entry
- *  if not found, 0 is returned.
- *
- */
 uint16_t ParameterMap::getValue(uint8_t deviceId,
                                 Message::Type type,
                                 uint16_t parameterNumber)
 {
-    uint32_t hash = calculateHash(deviceId, type, parameterNumber);
-    LookupEntry *entry = findAndCache(hash);
+    LookupEntry *entry =
+        getAndCache(calculateHash(deviceId, type, parameterNumber));
 
     if (entry) {
-        return (entry->midiValue);
+        return (entry->getMidiValue());
     }
-
-    return (0);
+    return (MIDI_VALUE_DO_NOT_SEND);
 }
 
-/** Sets the value of an existing entry
- *  If not found, it does nothing.
- *  It sets the dirty flag on
- */
+LookupEntry *ParameterMap::setValue(LookupEntry *entry,
+                                    uint16_t midiValue,
+                                    Origin origin)
+{
+    if (entry) {
+        if (entry->setMidiValue(midiValue)) {
+            if (entry->hasValidMidiValue()) {
+                if (onChange) {
+                    onChange(entry, origin);
+                }
+            }
+        }
+        postEntry(entry);
+    }
+    return (entry);
+}
+
 LookupEntry *ParameterMap::setValue(uint8_t deviceId,
                                     Message::Type type,
                                     uint16_t parameterNumber,
                                     uint16_t midiValue,
                                     Origin origin)
 {
+#ifdef DEBUG
     System::logger.write(
         LOG_TRACE,
         "ParameterMap::setValue: deviceId=%d, type=%d, parameterNumber=%d, "
@@ -146,6 +129,7 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
         parameterNumber,
         midiValue,
         origin);
+#endif
 
     // These messages are not device specific
     if (type == Message::Type::start || type == Message::Type::stop
@@ -153,126 +137,177 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
         deviceId = 0xff;
     }
 
-    uint32_t hash = calculateHash(deviceId, type, parameterNumber);
-    LookupEntry *entry = findAndCache(hash);
+    LookupEntry *entry =
+        getAndCache(calculateHash(deviceId, type, parameterNumber));
 
     if (entry) {
-        if ((type != Message::Type::relcc) && (entry->midiValue == midiValue)) {
-            return (nullptr);
-        }
-
-        entry->dirty = true;
-        entry->midiValue = midiValue;
-
-        if (midiValue != MIDI_VALUE_DO_NOT_SEND) {
-            if (onChange) {
-                onChange(entry, origin);
-            }
-        }
-        //#ifdef DEBUG
-        parameterMap.print();
-        //#endif
-        return (entry);
+        setValue(entry, midiValue, origin);
     }
-
-    return (nullptr);
+    return (entry);
 }
 
-/** Applies (ORs) the value of an existing entry
- *  If not found, it does nothing.
- *  It sets the dirty flag on
- */
+LookupEntry *ParameterMap::modulateValue(uint8_t deviceId,
+                                         Message::Type type,
+                                         uint16_t parameterNumber,
+                                         float modulationValue,
+                                         int8_t depth)
+{
+    LookupEntry *entry =
+        getAndCache(calculateHash(deviceId, type, parameterNumber));
+
+    /** @todo this still needs a bit of extra thinking */
+    if (entry) {
+        uint16_t midiValue = entry->getMidiValue() + (depth * modulationValue);
+        Message message = entry->getMessage();
+
+        midiValue =
+            constrain(midiValue, message.getMidiMin(), message.getMidiMax());
+
+        LookupEntry tmpEntry = *entry;
+        tmpEntry.setMidiValue(midiValue);
+        if (onChange) {
+            onChange(&tmpEntry, Origin::mods);
+        }
+    }
+    return (entry);
+}
+
+LookupEntry *ParameterMap::setRelative(uint8_t deviceId,
+                                       Message::Type type,
+                                       uint16_t parameterNumber,
+                                       uint16_t midiValue,
+                                       Origin origin)
+{
+#ifdef DEBUG
+    System::logger.write(
+        LOG_TRACE,
+        "ParameterMap::setRelative: deviceId=%d, type=%d, parameterNumber=%d, "
+        "midiValue=%d, origin=%d",
+        deviceId,
+        type,
+        parameterNumber,
+        midiValue,
+        origin);
+#endif
+
+    LookupEntry *entry =
+        getAndCache(calculateHash(deviceId, type, parameterNumber));
+
+    if (entry) {
+        entry->setMidiValue(midiValue);
+
+        if (onChange) {
+            onChange(entry, origin);
+        }
+    }
+    return (entry);
+}
+
 LookupEntry *ParameterMap::applyToValue(uint8_t deviceId,
                                         Message::Type type,
                                         uint16_t parameterNumber,
                                         uint16_t midiValueFragment,
                                         Origin origin)
 {
-    uint32_t hash = calculateHash(deviceId, type, parameterNumber);
-    LookupEntry *entry = findAndCache(hash);
+    LookupEntry *entry =
+        getAndCache(calculateHash(deviceId, type, parameterNumber));
 
-    if (entry) {
-        entry->dirty = true;
-        entry->midiValue |= midiValueFragment;
+    if (entry && (midiValueFragment != 0)) {
+        uint16_t originalMidiValue = entry->getMidiValue();
+        entry->applyToMidiValue(midiValueFragment);
 
-        if (onChange) {
-            onChange(entry, origin);
+        if (entry->getMidiValue() != originalMidiValue) {
+            if (onChange) {
+                onChange(entry, origin);
+            }
+            postEntry(entry);
         }
-
-        return (entry);
     }
-
-    return (nullptr);
+    return (entry);
 }
 
-/** Resets all device values to 0
- *  The dirty flag is set for all entries
- */
+bool ParameterMap::addDestination(Message *message)
+{
+    bool added = false;
+    LookupEntry *entry = getOrCreate(message->getDeviceId(),
+                                     message->getType(),
+                                     message->getParameterNumber());
+    if (entry) {
+        added = entry->addDestination(message->getControlValue());
+    }
+    return (added);
+}
+
+bool ParameterMap::removeDestination(Message *message)
+{
+    bool removed = false;
+    LookupEntry *entry = get(message->getDeviceId(),
+                             message->getType(),
+                             message->getParameterNumber());
+    if (entry) {
+        removed = entry->removeDestination(message->getControlValue());
+    }
+    return (removed);
+}
+
 void ParameterMap::resetDeviceValues(uint8_t deviceId)
 {
-    for (auto &entry : entries) {
-        if ((entry.hash >> 24) == deviceId) {
-            if (getType(entry.hash) != Message::Type::none) {
-                entry.midiValue = 0;
-                entry.dirty = true;
+    for (auto &[hash, lookupEntry] : entries) {
+        if ((hash >> 24) == deviceId) {
+            if (getType(hash) != Message::Type::none) {
+                lookupEntry.resetMidiValue();
             }
         }
     }
+    postRepaint();
 }
 
-/** Resets and re-allocates the parameterMap
- *
- */
-void ParameterMap::reset(void)
+void ParameterMap::clear(void)
 {
     setProjectId("undefined");
 
-    for (auto &entry : entries) {
-        entry.messageDestination = std::vector<ControlValue *>();
+    for (auto &[hash, lookupEntry] : entries) {
+        lookupEntry.removeAllDestinations();
     }
-    parameterMap.entries = std::vector<LookupEntry>();
+    entries.clear();
 
-    lastRead = 0;
-    lastWritten = 0;
+    lastRead = nullptr;
 }
 
-/** Prints content of the ParameterMap
- *
- */
 void ParameterMap::print(uint8_t logLevel)
 {
     System::logger.write(logLevel,
                          "--[Parameter Map]---------------------------------");
-    for (auto &entry : entries) {
-        if (getType(entry.hash) != Message::Type::none) {
+    for (auto &[hash, entry] : entries) {
+        if (getType(hash) != Message::Type::none) {
             System::logger.write(
                 logLevel,
                 "ParameterMap entry: deviceId=%d, type=%d, parameterNumber=%d,"
-                " midiValue=%d, numDestinations=%d",
-                getDeviceId(entry.hash),
-                getType(entry.hash),
-                getParameterNumber(entry.hash),
-                entry.midiValue,
-                entry.messageDestination.size());
-            for (auto &md : entry.messageDestination) {
-                System::logger.write(logLevel,
-                                     "    - linked control: name=%s, "
-                                     "value handle=%s, "
-                                     "display value=%d",
-                                     md->getControl()->getName(),
-                                     md->getId(),
-                                     md->translateMidiValue(entry.midiValue));
+                " midiValue=%d, hasDestinations=%d",
+                getDeviceId(hash),
+                getType(hash),
+                getParameterNumber(hash),
+                entry.getMidiValue(),
+                entry.hasDestinations());
+            for (auto md : entry.getDestinations()) {
+                System::logger.write(
+                    logLevel,
+                    "    - linked control: name=%s, "
+                    "value handle=%s, "
+                    "display value=%d",
+                    md->getControl()->getName(),
+                    md->getId(),
+                    md->translateMidiValue(entry.getMidiValue()));
             }
         }
     }
     System::logger.write(logLevel, "--");
 }
 
-/*
- * Saving and loading the parameterMap functions
- */
 void ParameterMap::keep(void)
 {
+    createMapsDir();
+
     char mapStateFilename[MAX_FILENAME_LENGTH + 1];
     prepareMapStateFilename(mapStateFilename, MAX_FILENAME_LENGTH);
     System::logger.write(
@@ -281,11 +316,6 @@ void ParameterMap::keep(void)
 }
 
 void ParameterMap::save(const char *filename)
-{
-    serialize(filename);
-}
-
-void ParameterMap::serialize(const char *filename)
 {
     File file = Hardware::sdcard.createOutputStream(
         filename, FILE_WRITE | O_CREAT | O_TRUNC);
@@ -310,8 +340,15 @@ void ParameterMap::serializeMap(File &file)
     bool firstRecord = true;
 
     file.print(",\"parameters\":[");
-    for (auto entry : parameterMap.entries) {
-        if (getType(entry.hash) != Message::Type::none) {
+
+    for (const auto &[hash, entry] : entries) {
+        const auto deviceId = getDeviceId(hash);
+        const auto messageType = getType(hash);
+        const auto parameterNumber = getParameterNumber(hash);
+        const auto midiValue = entry.getMidiValue();
+
+        if (messageType != Message::Type::none
+            && midiValue != MIDI_VALUE_DO_NOT_SEND) {
             if (!firstRecord) {
                 file.print(",");
             } else {
@@ -319,23 +356,23 @@ void ParameterMap::serializeMap(File &file)
             }
 
             file.print("{\"deviceId\":");
-            file.print(getDeviceId(entry.hash));
+            file.print(deviceId);
             file.print(",\"messageType\":");
-            file.print(getType(entry.hash));
+            file.print(messageType);
             file.print(",\"parameterNumber\":");
-            file.print(getParameterNumber(entry.hash));
+            file.print(parameterNumber);
             file.print(",\"midiValue\":");
-            file.print(entry.midiValue);
+            file.print(midiValue);
             file.print("}");
 
             System::logger.write(
                 LOG_TRACE,
                 "ParameterMap::serializeMap: entry: deviceI=%d, type=%d, "
                 "parameterNumber=%d, midiValue=%d",
-                getDeviceId(entry.hash),
-                getType(entry.hash),
-                getParameterNumber(entry.hash),
-                entry.midiValue);
+                deviceId,
+                messageType,
+                parameterNumber,
+                midiValue);
         }
     }
     file.print("]");
@@ -467,14 +504,13 @@ bool ParameterMap::parseParameters(File &file)
     return (true);
 }
 
-bool ParameterMap::addWindow(ParameterMapWindow *windowToAdd)
+void ParameterMap::addWindow(ParameterMapWindow *windowToAdd)
 {
     System::logger.write(LOG_TRACE,
                          "ParameterMap::addWindow: window=%s, address=%x",
                          windowToAdd->getName(),
                          windowToAdd);
     windows.push_back(windowToAdd);
-    return (true);
 }
 
 void ParameterMap::removeWindow(ParameterMapWindow *windowToRemove)
@@ -484,20 +520,15 @@ void ParameterMap::removeWindow(ParameterMapWindow *windowToRemove)
                          windowToRemove->getName(),
                          windowToRemove);
 
-    for (auto i = windows.begin(); i != windows.end(); i++) {
-        if (*i == windowToRemove) {
-            windows.erase(i);
-            System::logger.write(LOG_TRACE,
-                                 "ParameterMap::removeWindow: window removed");
-            // note: iterator is invalid!
-            return;
-        }
+    auto it = std::remove(windows.begin(), windows.end(), windowToRemove);
+
+    if (it != windows.end()) {
+        System::logger.write(LOG_TRACE,
+                             "ParameterMap::removeWindow: window removed");
+        windows.erase(it, windows.end());
     }
 }
 
-/**
- * List all registered windows
- */
 void ParameterMap::listWindows(void)
 {
     uint8_t index = 0;
@@ -533,29 +564,25 @@ void ParameterMap::disable(void)
     System::tasks.enableRepaintGraphics();
 }
 
-/*
- * Scheduller task to repaint dirty parameters
- */
 void ParameterMap::repaintParameterMap(void)
 {
-    for (auto &mapEntry : entries) {
-        if (mapEntry.dirty) {
+    for (auto &[hash, mapEntry] : entries) {
+        if (mapEntry.isDirty()) {
             System::logger.write(
                 LOG_TRACE,
                 "repaintParameterMap: dirty entry found: device=%d, type=%d, "
                 "parameterNumber=%d, midiValue=%d",
-                getDeviceId(mapEntry.hash),
-                getType(mapEntry.hash),
-                getParameterNumber(mapEntry.hash),
-                mapEntry.midiValue,
-                mapEntry.dirty);
+                getDeviceId(hash),
+                getType(hash),
+                getParameterNumber(hash),
+                mapEntry.getMidiValue());
 
-            if (mapEntry.midiValue != MIDI_VALUE_DO_NOT_SEND) {
-                for (auto &messageDestination : mapEntry.messageDestination) {
+            if (mapEntry.hasValidMidiValue()) {
+                for (auto &messageDestination : mapEntry.getDestinations()) {
                     if (messageDestination->isFunctionAssigned()) {
                         messageDestination->callFunction(
                             messageDestination->translateMidiValue(
-                                mapEntry.midiValue));
+                                mapEntry.getMidiValue()));
                     }
 
                     for (const auto &window : windows) {
@@ -577,19 +604,124 @@ void ParameterMap::repaintParameterMap(void)
                             if (cc) {
                                 cc->onMidiValueChange(
                                     *messageDestination,
-                                    mapEntry.midiValue,
+                                    mapEntry.getMidiValue(),
                                     messageDestination->getHandle());
                             }
                         }
                     }
                 }
             }
-            mapEntry.dirty = false;
+            mapEntry.markAsProcessed();
         }
     }
 }
 
+void ParameterMap::repaintLookupEntry(LookupEntry *mapEntry)
+{
+    for (auto &messageDestination : mapEntry->getDestinations()) {
+        if (mapEntry->hasValidMidiValue()) {
+            // Process User Lua callbacks assigned to the ControlValue
+            if (messageDestination->isFunctionAssigned()) {
+                messageDestination->callFunction(
+                    messageDestination->translateMidiValue(
+                        mapEntry->getMidiValue()));
+            }
+            if (messageDestination->isFormatterAssigned()) {
+                messageDestination->callFormatter(
+                    messageDestination->translateMidiValue(
+                        mapEntry->getMidiValue()));
+            }
+        }
+
+        // Repaint affected Controls that are part of active windows
+        for (const auto &window : windows) {
+            Component *rc = window->getOwnedContent();
+            Component *c =
+                rc->findChildById(messageDestination->getControl()->getId());
+
+            if (c) {
+                System::logger.write(
+                    LOG_TRACE,
+                    "repaintParameterMap: repainting component: "
+                    "component: %s, controlId=%d, valueId=%s",
+                    c->getName(),
+                    messageDestination->getControl()->getId(),
+                    messageDestination->getId());
+
+                // @todo get rid of dynamic_cast. Replace it with polymorphism.
+                ControlComponent *cc = dynamic_cast<ControlComponent *>(c);
+
+                if (cc) {
+                    cc->onMidiValueChange(*messageDestination,
+                                          mapEntry->getMidiValue(),
+                                          messageDestination->getHandle());
+                }
+            }
+        }
+    }
+
+    mapEntry->markAsProcessed();
+}
+
 void ParameterMap::prepareMapStateFilename(char *buffer, size_t maxLength)
 {
-    snprintf(buffer, maxLength, "%s/%s.map", appSandbox, projectId);
+    snprintf(buffer, maxLength, "%s/maps/%s.map", appSandbox, projectId);
+}
+
+void ParameterMap::postEntry(LookupEntry *entry)
+{
+    if (enabled) {
+        postMessage(entry, RepaintLookupEntry);
+    }
+}
+
+void ParameterMap::postRepaint(void)
+{
+    if (enabled) {
+        postMessage(nullptr, RepaintParameterMap);
+    }
+}
+
+void ParameterMap::postMessage(LookupEntry *entry,
+                               [[maybe_unused]] RepaintAction repaintAction)
+{
+}
+
+bool ParameterMap::createMapsDir(void)
+{
+    char dirname[MAX_DIRNAME_LENGTH + 1];
+    snprintf(dirname, MAX_DIRNAME_LENGTH, "%s/maps", appSandbox);
+
+    if (Hardware::sdcard.directoryExists(dirname) == false) {
+        if (Hardware::sdcard.createDirectory(dirname) == false) {
+            System::logger.write(
+                LOG_ERROR,
+                "Snapshots::createSnapshotDir: cannot create snaps directory: %s",
+                dirname);
+            return (false);
+        }
+    }
+    return (true);
+}
+
+inline uint32_t ParameterMap::calculateHash(uint8_t deviceId,
+                                            Message::Type type,
+                                            uint16_t parameterNumber)
+{
+    return (parameterNumber + (((uint8_t)type) << 16) + (deviceId << 24));
+}
+
+inline uint8_t ParameterMap::getDeviceId(uint32_t hash)
+{
+    return (hash >> 24);
+}
+
+inline uint8_t ParameterMap::getType(uint32_t hash)
+{
+    return ((hash >> 16) & 0xFF);
+}
+
+inline uint16_t ParameterMap::getParameterNumber(uint32_t hash)
+{
+    return (hash & 0xFFFF);
 }

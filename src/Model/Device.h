@@ -1,3 +1,30 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file Device.h
+ *
+ * @brief Implements MIDI device within the Preset model.
+ */
+
 #pragma once
 
 #include <cstdint>
@@ -5,9 +32,10 @@
 #include <map>
 #include "Response.h"
 #include "Message.h"
-#include "core_pins.h"
 #include "MidiOutput.h"
 #include "Data.h"
+
+class Preset;
 
 class Device : public MidiOutput
 {
@@ -26,7 +54,7 @@ public:
     void setName(const char *newName);
     const char *getName(void) const;
     uint8_t getResponseIndex(uint8_t id) const;
-    DataBytes *registerData(JsonVariant jData);
+    DataBytes *registerData(JsonVariant jData, Preset *preset);
     void print(uint8_t logLevel = LOG_TRACE) const;
 
 private:

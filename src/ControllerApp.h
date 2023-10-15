@@ -33,7 +33,7 @@ public:
 
     const char *getApplicationVersion(void) const override
     {
-        return ("3.2.3");
+        return ("3.5-rc1");
     }
 
     const char *getApplicationSandbox(void) const override
@@ -86,6 +86,3 @@ private:
 
 // This macro instructs main() routine to launch the app.
 START_ELECTRA_APPLICATION(Controller)
-
-// \todo Get rid of this global variable
-MainDelegate *luaDelegate = nullptr;

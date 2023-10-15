@@ -1,3 +1,30 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file Device.cpp
+ *
+ * @brief Implements MIDI device within the Preset model.
+ */
+
 #include "Device.h"
 #include "Data.h"
 
@@ -61,12 +88,12 @@ uint8_t Device::getResponseIndex(uint8_t id) const
 /** Create new data or assign existing
  *
  */
-std::vector<uint8_t> *Device::registerData(JsonVariant jData)
+std::vector<uint8_t> *Device::registerData(JsonVariant jData, Preset *preset)
 {
     std::vector<uint8_t> *registeredData;
 
     if (jData.is<JsonArray>()) {
-        Data data(jData.as<JsonArray>());
+        Data data(jData.as<JsonArray>(), preset);
         data.makeSysexData();
         sysexMessages[lastMessageId] = data.get();
         registeredData = &sysexMessages[lastMessageId];
@@ -80,12 +107,12 @@ std::vector<uint8_t> *Device::registerData(JsonVariant jData)
 
 void Device::print(uint8_t logLevel) const
 {
-    System::logger.write(LOG_ERROR, "id: %d", getId());
-    System::logger.write(LOG_ERROR, "name: %s", getName());
-    System::logger.write(LOG_ERROR, "port: %d", getPort());
-    System::logger.write(LOG_ERROR, "channel: %d", getChannel());
-    System::logger.write(LOG_ERROR, "rate: %d", getRate());
-    System::logger.write(LOG_ERROR, "requests: %d", requests.size());
-    System::logger.write(LOG_ERROR, "responses: %d", responses.size());
-    System::logger.write(LOG_ERROR, "sysex messages: %d", sysexMessages.size());
+    System::logger.write(logLevel, "id: %d", getId());
+    System::logger.write(logLevel, "name: %s", getName());
+    System::logger.write(logLevel, "port: %d", getPort());
+    System::logger.write(logLevel, "channel: %d", getChannel());
+    System::logger.write(logLevel, "rate: %d", getRate());
+    System::logger.write(logLevel, "requests: %d", requests.size());
+    System::logger.write(logLevel, "responses: %d", responses.size());
+    System::logger.write(logLevel, "sysex messages: %d", sysexMessages.size());
 }

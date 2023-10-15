@@ -1,20 +1,48 @@
-#pragma once
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
 
-#include <cstdint>
-#include <cstring>
-#include <string>
+/**
+ * @file ControlValue.h
+ *
+ * @brief Implements a representation of a Display value in the Control
+ */
+
+#pragma once
 
 #include "Message.h"
 #include "Overlay.h"
 #include "Message.h"
 #include "Macros.h"
-#include "luahooks.h"
+#include "luaHooks.h"
+#include <cstdint>
+#include <cstring>
+#include <string>
 
 class Control;
 
 class ControlValue
 {
 public:
+    static constexpr int MaxLabelLength = 20;
+
     ControlValue();
     ControlValue(Control *newControl,
                  const char *newValueId,
@@ -54,7 +82,9 @@ public:
     void resetLabel(void);
     const char *getLabel(void) const;
     bool isLabelSet(void) const;
-    void callFormatter(int16_t value, char *buffer, size_t length) const;
+    void setValue(int16_t newValue);
+    int16_t getValue(void) const;
+    void callFormatter(int16_t value);
     void callFunction(int16_t value) const;
     const char *translateId(uint8_t id) const;
     uint8_t translateId(const char *handle) const;
@@ -62,16 +92,40 @@ public:
 
     int16_t translateMidiValue(uint16_t midiValue) const;
 
-    /*
-     * attributes
+    /**
+     * @brief Sets the flag that Control is using relative MIDI messages
+     * 
+     * @param shouldBeRelative use true when relative messages should be used
      */
-private:
-    static const int MaxLabelLength = 9;
+    bool isRelative(void) const;
 
+    /**
+     * @brief Sets the flag that Control is using acceleration
+     * 
+     * @param shouldBeAccelerated use true when acceleration should be used
+     */
+    bool isAccelerated(void) const;
+
+    /**
+     * @brief Calculates the relative delta value
+     * 
+     * The acceleration settings affects the delta value.
+     * 
+     * @param value the value to calculate the delta from
+     * @return int16_t the delta value
+     */
+    int16_t calculateRelativeDelta(int16_t value) const;
+
+    static int16_t sign(int16_t value);
+    static int16_t invertedSign(int16_t value);
+
+private:
     struct {
         uint8_t handle : 4;
         uint8_t index : 4;
         uint8_t overlayId : 8;
+        bool relative : 1;
+        bool accelerated : 1;
     };
 
     int16_t defaultValue;
@@ -82,6 +136,7 @@ private:
     Control *control;
     Overlay *overlay;
     char label[MaxLabelLength + 1];
+    int16_t value;
 
 public:
     Message message;

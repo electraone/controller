@@ -162,6 +162,23 @@ public:
                             int16_t newMax) override;
 
     /**
+     * @brief Reconfigures active range of a control value
+     * 
+     * @param controlId an identifier of the control (#ref in the editor)
+     * @param handleId a numeric identifier of the value
+     * @param newMin a new minimum display value
+     * @param newMax a new minimum display value
+     * @param newDefault a new default value
+     * @param updateMesage if true, the message MIDI gets updated too
+     */
+    void setControlValueRange(uint16_t controlId,
+                              uint8_t handleId,
+                              int16_t newMin,
+                              int16_t newMax,
+                              int16_t newDefault,
+                              bool updateMesage) override;
+
+    /**
      * set a group label
      *
      * @param groupId an identifier of the group (#ref in the editor)

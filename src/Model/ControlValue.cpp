@@ -1,8 +1,27 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
 #include "ControlValue.h"
 #include "Control.h"
-
-// \todo this is a brute way of reducing memory usage by the ControlValue
-extern std::vector<std::string> luaFunctions;
+#include "luaExtension.h"
 
 ControlValue::ControlValue()
     : handle(0),
@@ -11,8 +30,13 @@ ControlValue::ControlValue()
       defaultValue(0),
       min(0),
       max(NOT_SET),
+      formatter(0),
+      function(0),
       control(nullptr),
-      overlay(nullptr)
+      overlay(nullptr),
+      relative(false),
+      accelerated(false),
+      value(defaultValue)
 {
     label[0] = '\0';
 }
@@ -37,11 +61,14 @@ ControlValue::ControlValue(Control *newControl,
       message(newMessage),
       formatter(newFormatter),
       function(newFunction),
-      overlay(newOverlay)
+      overlay(newOverlay),
+      value(defaultValue)
 {
     // translate the valueId to the numeric handle
     handle = translateId(newValueId);
     label[0] = '\0';
+    relative = message.isRelative();
+    accelerated = message.isAccelerated();
 }
 
 void ControlValue::setControl(Control *newControl)
@@ -111,6 +138,10 @@ uint8_t ControlValue::getOverlayId(void) const
 
 void ControlValue::setOverlay(Overlay *newOverlay)
 {
+    if (newOverlay) {
+        overlayId = newOverlay->getId();
+        max = newOverlay->getMaxIndex();
+    }
     overlay = newOverlay;
 }
 
@@ -126,22 +157,36 @@ uint16_t ControlValue::getNumSteps(void) const
 
 bool ControlValue::isFunctionAssigned(void) const
 {
-    return (!luaFunctions[function].empty());
+    if (luaPreset) {
+        return (!luaPreset->luaFunctions[function].empty());
+    }
+    return (false);
 }
 
 bool ControlValue::isFormatterAssigned(void) const
 {
-    return (!luaFunctions[formatter].empty());
+    if (luaPreset) {
+        return (!luaPreset->luaFunctions[formatter].empty());
+    }
+    return (false);
 }
 
 const char *ControlValue::ControlValue::getFunction(void) const
 {
-    return (luaFunctions[function].c_str());
+    if (luaPreset) {
+        return (luaPreset->luaFunctions[function].c_str());
+    }
+    return ("");
 }
 
 const std::string ControlValue::getFormatter(void) const
 {
-    return (luaFunctions[formatter]);
+    if (luaPreset) {
+        if (formatter < luaPreset->luaFunctions.size()) {
+            return (luaPreset->luaFunctions[formatter]);
+        }
+    }
+    return std::string();
 }
 
 void ControlValue::setLabel(const char *newLabel)
@@ -164,21 +209,35 @@ bool ControlValue::isLabelSet(void) const
     return (label[0] != '\0');
 }
 
-void ControlValue::callFormatter(int16_t value,
-                                 char *buffer,
-                                 size_t length) const
+void ControlValue::setValue(int16_t newValue)
 {
-    if (L != nullptr && !luaFunctions[formatter].empty()) {
-        runFormatter(
-            luaFunctions[formatter].c_str(), this, value, buffer, length);
+    value = newValue;
+}
+
+int16_t ControlValue::getValue(void) const
+{
+    return (value);
+}
+
+void ControlValue::callFormatter(int16_t value)
+{
+    if ((L != nullptr) && luaPreset
+        && (formatter < luaPreset->luaFunctions.size())
+        && !luaPreset->luaFunctions[formatter].empty()) {
+        runFormatter(luaPreset->luaFunctions[formatter].c_str(),
+                     this,
+                     value,
+                     label,
+                     MaxLabelLength);
     }
 }
 
 void ControlValue::callFunction(int16_t value) const
 {
-    if (L != nullptr && (value != MIDI_VALUE_DO_NOT_SEND)
-        && !luaFunctions[function].empty()) {
-        runFunction(luaFunctions[function].c_str(), this, value);
+    if ((L != nullptr) && luaPreset && (value != MIDI_VALUE_DO_NOT_SEND)
+        && (function < luaPreset->luaFunctions.size())
+        && !luaPreset->luaFunctions[function].empty()) {
+        runFunction(luaPreset->luaFunctions[function].c_str(), this, value);
     }
 }
 
@@ -223,7 +282,11 @@ uint8_t ControlValue::translateId(const char *handle) const
 int16_t ControlValue::translateMidiValue(uint16_t midiValue) const
 {
     if (control->getType() == Control::Type::List) {
-        return (overlay->getIndexByValue(midiValue));
+        if (overlay) {
+            return (overlay->getIndexByValue(midiValue));
+        } else {
+            return (0);
+        }
     } else if (control->getType() == Control::Type::Pad) {
         return (midiValue == message.getOnValue());
     }
@@ -255,4 +318,29 @@ void ControlValue::print(uint8_t logLevel) const
     System::logger.write(
         logLevel, "        control address: 0x%08x", getControl());
     message.print(logLevel);
+}
+
+bool ControlValue::isRelative(void) const
+{
+    return (relative);
+}
+
+bool ControlValue::isAccelerated(void) const
+{
+    return (accelerated);
+}
+
+int16_t ControlValue::calculateRelativeDelta(int16_t value) const
+{
+    return (accelerated ? value : sign(value));
+}
+
+int16_t ControlValue::sign(int16_t value)
+{
+    return ((value > 0) - (value < 0));
+}
+
+int16_t ControlValue::invertedSign(int16_t value)
+{
+    return ((value < 0) - (value > 0));
 }

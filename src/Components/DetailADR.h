@@ -1,3 +1,30 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file DetailADR.h
+ *
+ * @brief Implements a wrapper component for ADR detail Control.
+ */
+
 #pragma once
 
 #include "Detail.h"
@@ -7,84 +34,11 @@
 class DetailADR : public Detail
 {
 public:
-    DetailADR(const Control &control, MainDelegate &newDelegate)
-        : Detail(control, newDelegate),
-          attackKnob(nullptr),
-          decayKnob(nullptr),
-          releaseKnob(nullptr)
-    {
-        // \todo to be deduplicated
-        attackValues.push_back(control.getValue(0));
-        attack.setId(500);
-        attack.setType(Control::Type::Knob);
-        attack.setName("ATTACK");
-        attack.setColour(control.getColour565());
-        attack.setValues(attackValues);
-        attackValues[0].setControl(&attack);
-        attack.addToParameterMap(attackValues[0]);
-        attackKnob = ControlComponent::createControlComponent(attack, delegate);
-        attackKnob->updateValueFromParameterMap();
-        attackKnob->assignPot(1, attack.values[0].getNumSteps());
-        addAndMakeVisible(attackKnob);
+    DetailADR(const Control &control, MainDelegate &newDelegate);
+    virtual ~DetailADR();
 
-        decayValues.push_back(control.getValue(1));
-        decay.setId(501);
-        decay.setType(Control::Type::Knob);
-        decay.setName("DECAY");
-        decay.setColour(control.getColour565());
-        decay.setValues(decayValues);
-        decayValues[0].setControl(&decay);
-        decay.addToParameterMap(decayValues[0]);
-        decayKnob = ControlComponent::createControlComponent(decay, delegate);
-        decayKnob->updateValueFromParameterMap();
-        decayKnob->assignPot(2, decay.values[0].getNumSteps());
-        addAndMakeVisible(decayKnob);
-
-        releaseValues.push_back(control.getValue(2));
-        release.setId(502);
-        release.setType(Control::Type::Knob);
-        release.setName("RELEASE");
-        release.setColour(control.getColour565());
-        release.setValues(releaseValues);
-        releaseValues[0].setControl(&release);
-        release.addToParameterMap(releaseValues[0]);
-        releaseKnob =
-            ControlComponent::createControlComponent(release, delegate);
-        releaseKnob->updateValueFromParameterMap();
-        releaseKnob->assignPot(3, release.values[0].getNumSteps());
-        addAndMakeVisible(releaseKnob);
-
-        Detail::setLocked();
-    }
-
-    virtual ~DetailADR()
-    {
-        attack.removeFromParameterMap(attackValues[0]);
-        decay.removeFromParameterMap(decayValues[0]);
-        release.removeFromParameterMap(releaseValues[0]);
-        attackKnob->releasePot();
-        decayKnob->releasePot();
-        releaseKnob->releasePot();
-    }
-
-    void paint(Graphics &g)
-    {
-        g.setColour(Colours565::black);
-        g.fillRect(0, 0, getWidth() - 120, getHeight());
-        g.setColour(Colours565::darkgrey);
-        g.drawRect(0, 0, getWidth() - 120, getHeight());
-        g.dim(getWidth() - 120, 0, 120, getHeight(), Colours565::black);
-    }
-
-    void resized(void)
-    {
-        component->setBounds(50, 50, 608, 150);
-        lock->setBounds(getWidth() - 100, 25, 75, 75);
-        dimmedSection->setBounds(getWidth() - 120, 100, 120, getHeight() - 100);
-        attackKnob->setBounds(063, getHeight() - 130, 75, 100);
-        decayKnob->setBounds(228, getHeight() - 130, 75, 100);
-        releaseKnob->setBounds(394, getHeight() - 130, 75, 100);
-    }
+    void paint(Graphics &g) override;
+    void resized() override;
 
 private:
     ControlComponent *attackKnob;

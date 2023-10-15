@@ -1,3 +1,30 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file ListButtonControl.h
+ *
+ * @brief Implements an alternative List-style Control.
+ */
+
 #pragma once
 
 #include "Control.h"
@@ -9,105 +36,22 @@ class ListButtonControl : public ControlComponent, public List
 public:
     static constexpr uint16_t thresholdSwipeDistance = 40;
 
-    ListButtonControl(const Control &control, MainDelegate &newDelegate)
-        : ControlComponent(control, newDelegate),
-          List(control.values[0].getOverlay())
-    {
-        updateValueFromParameterMap();
-        enableEncoderMode(true);
-    }
-
+    ListButtonControl(const Control &control, MainDelegate &newDelegate);
     virtual ~ListButtonControl() = default;
 
-    virtual void syncComponentProperties(void) override
-    {
-        const auto &controlValue = control.getValue(0);
-
-        assignListData(controlValue.getOverlay());
-        ControlComponent::syncComponentProperties();
-    }
-
-    virtual void onTouchDown(const TouchEvent &touchEvent) override
-    {
-        setActive(true);
-    }
-
-    virtual void onTouchUp(const TouchEvent &touchEvent) override
-    {
-        setActive(false);
-        if (auto list = getList()) {
-            uint16_t newIndex = index + 1;
-            if (newIndex > list->getMaxIndex()) {
-                newIndex = 0;
-            }
-            emitValueChange(newIndex, control.getValue(0));
-        }
-    }
-
-    virtual void onPotTouchDown(const PotEvent &potEvent) override
-    {
-        ControlComponent::onPotTouchDown(potEvent);
-    }
-
-    virtual void onPotChange(const PotEvent &potEvent) override
-    {
-        if (auto list = getList()) {
-            if (int16_t delta = potEvent.getAcceleratedChange()) {
-                int16_t newIndex = index + delta;
-
-                if (newIndex > list->getMaxIndex()) {
-                    newIndex = 0;
-                } else if (newIndex < 0) {
-                    newIndex = list->getMaxIndex();
-                }
-                emitValueChange(newIndex, control.getValue(0));
-            }
-        }
-    }
-
-    virtual void onPotTouchUp(const PotEvent &potEvent) override
-    {
-        ControlComponent::onPotTouchUp(potEvent);
-    }
-
+    virtual void syncComponentProperties(void) override;
+    virtual void onTouchDown(const TouchEvent &touchEvent) override;
+    virtual void onTouchUp(const TouchEvent &touchEvent) override;
+    virtual void onPotTouchDown(const PotEvent &potEvent) override;
+    virtual void onPotChange(const PotEvent &potEvent) override;
+    virtual void onPotTouchUp(const PotEvent &potEvent) override;
     virtual void onMidiValueChange(const ControlValue &value,
                                    int16_t midiValue,
-                                   uint8_t handle = 0) override
-    {
-        int16_t index = value.translateMidiValue(midiValue);
+                                   uint8_t handle = 0) override;
 
-        if (index >= 0) {
-            setIndex(index);
-        }
-    }
+    void paint(Graphics &g) override;
 
-    void paint(Graphics &g) override
-    {
-        auto bounds = getBounds();
-        bounds.setX(0);
-        bounds.setY(3);
-        bounds.setWidth(getWidth());
-        bounds.setHeight(getHeight() - 6);
-        g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
-                                        : LookAndFeel::backgroundColour);
-        paintButtonList(
-            g, bounds, control.getColour565(), getList(), index, getActive());
-        ControlComponent::paint(g);
-    }
-
-    void emitValueChange(int16_t newIndex, const ControlValue &cv)
-    {
-        if (auto list = getList()) {
-            int16_t midiValue = list->getValueByIndex(newIndex);
-
-            parameterMap.setValue(
-                control.values[0].message.getDeviceId(),
-                control.values[0].message.getType(),
-                control.values[0].message.getParameterNumber(),
-                midiValue,
-                Origin::internal);
-        }
-    }
+    void emitValueChange(int16_t newIndex, const ControlValue &cv) override;
 
 private:
     void paintButtonList(Graphics &g,
@@ -115,44 +59,7 @@ private:
                          uint32_t colour,
                          const ListData *items,
                          uint16_t activeIndex,
-                         bool active)
-    {
-        if (active) {
-            g.setColour(Colours565::darker(colour, 0.2f));
-            g.fillRoundRect(0, 0, bounds.getWidth(), bounds.getHeight(), 5);
-        }
-
-        g.setColour(colour);
-        g.drawRoundRect(0, 0, bounds.getWidth(), bounds.getHeight(), 5);
-
-        if (items->getByIndex(activeIndex).isBitmapEmpty()) {
-            char stringValue[20];
-            if (!control.getValue(0).getFormatter().empty()) {
-                control.getValue(0).callFormatter(
-                    activeIndex, stringValue, sizeof(stringValue));
-            } else {
-                snprintf(stringValue,
-                         sizeof(stringValue),
-                         "%s",
-                         items->getByIndex(activeIndex).getLabel());
-            }
-            // Print the label
-            g.printText(0,
-                        bounds.getHeight() * 0.3f,
-                        stringValue,
-                        TextStyle::mediumTransparent,
-                        bounds.getWidth(),
-                        TextAlign::center);
-        } else {
-            // display bitmap image
-            uint16_t paddingBitmap =
-                ((bounds.getWidth() - BITMAP_WIDTH)) / 2 - 1;
-            items->getByIndex(activeIndex)
-                .paintBitmap(paddingBitmap,
-                             bounds.getHeight() * 0.3f,
-                             Colours565::white);
-        }
-    }
+                         bool active);
 
     static Overlay empty;
 };

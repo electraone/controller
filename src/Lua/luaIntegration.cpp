@@ -1,43 +1,25 @@
-#include "luabridge.h"
-#include "lualibs.h"
-#include "luaParameterMap.h"
-#include "luaValue.h"
-#include "luaHelpers.h"
-#include "luaGroup.h"
-#include "luaPage.h"
-#include "luaDevice.h"
-#include "luaControl.h"
-#include "luaMessage.h"
-#include "luaPreset.h"
-#include "luaEvents.h"
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
 
-void loadLuaLibs(void)
-{
-    static const luaL_Reg ctrlv2libs[] = { { "parameterMap",
-                                             luaopen_parameterMap },
-                                           { "pages", luaopen_pages },
-                                           { "groups", luaopen_groups },
-                                           { "devices", luaopen_devices },
-                                           { "controls", luaopen_controls },
-                                           { "helpers", luaopen_helpers },
-                                           { "window", luaopen_window },
-                                           { "patch", luaopen_patch },
-                                           { "preset", luaopen_preset },
-                                           { "info", luaopen_info },
-                                           { "events", luaopen_events },
-                                           { NULL, NULL } };
-
-    luaLE_openEoslibs(L, ctrlv2libs);
-    value_register(L);
-    page_register(L);
-    group_register(L);
-    device_register(L);
-    control_register(L);
-    message_register(L);
-
-    // Clear the stack
-    lua_settop(L, 0);
-}
+#include "luaIntegration.h"
 
 void luaLE_pushDevice(const Device &device)
 {
@@ -45,11 +27,6 @@ void luaLE_pushDevice(const Device &device)
     luaLE_pushTableInteger(L, "id", device.getId());
     luaLE_pushTableInteger(L, "port", device.getPort());
     luaLE_pushTableInteger(L, "channel", device.getChannel());
-}
-
-bool luaLE_checkBoolean(lua_State *L, int idx)
-{
-    return (lua_toboolean(L, idx));
 }
 
 int luaLE_checkDeviceId(lua_State *L, int idx)
@@ -187,4 +164,14 @@ int luaLE_checkEvents(lua_State *L, int idx)
         return (luaL_error(L, "invalid events: %d", events));
     }
     return (events);
+}
+
+int luaLE_checkListId(lua_State *L, int idx)
+{
+    int listId = luaL_checkinteger(L, idx);
+
+    if ((listId < 1) || (listId > 255)) {
+        return (luaL_error(L, "invalid listId: %d", listId));
+    }
+    return (listId);
 }

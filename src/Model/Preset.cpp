@@ -260,6 +260,21 @@ const Control &Preset::getControl(uint16_t controlId) const
     return (Preset::controlNotFound);
 }
 
+Device &Preset::addDevice(uint8_t deviceId,
+                          const char *name,
+                          uint8_t port,
+                          uint8_t channel)
+{
+    devices[deviceId] = Device(deviceId, name, port, channel, 0);
+    return (devices[deviceId]);
+}
+
+Overlay &Preset::addOverlay(uint8_t id)
+{
+    overlays[id] = Overlay(id);
+    return (overlays[id]);
+}
+
 /*--------------------------------------------------------------------------*/
 
 /** Parse individual preset objects
@@ -912,7 +927,7 @@ void Preset::parseMessages(File &file,
             }
 
             uint8_t id = doc["id"] | 0;
-            Data data(doc["data"].as<JsonArray>());
+            Data data(doc["data"].as<JsonArray>(), this);
 
             data.makeSysexData();
 
@@ -927,7 +942,7 @@ void Preset::parseMessages(File &file,
  */
 std::vector<uint8_t> Preset::parseResponseHeader(JsonArray jResponseHeader)
 {
-    Data data(jResponseHeader);
+    Data data(jResponseHeader, this);
     data.addLeadingSysexByte();
 
     return (data.get());
@@ -938,7 +953,7 @@ std::vector<uint8_t> Preset::parseResponseHeader(JsonArray jResponseHeader)
  */
 std::vector<uint8_t> Preset::parseRequest(JsonArray jRequest, uint8_t deviceId)
 {
-    Data data(jRequest);
+    Data data(jRequest, this);
     data.makeSysexData();
 
     return (data.get());
@@ -1205,12 +1220,12 @@ ControlValue Preset::parseValue(Control *control, JsonObject jValue)
 
     if (!jValue["formatter"].isNull()) {
         formatter = jValue["formatter"].as<char *>();
-        formatterIndex = Data::registerFunction(formatter);
+        formatterIndex = registerFunction(formatter);
     }
 
     if (!jValue["function"].isNull()) {
         function = jValue["function"].as<char *>();
-        functionIndex = Data::registerFunction(function);
+        functionIndex = registerFunction(function);
     }
 
     Control::Type controlType = control->getType();
@@ -1328,19 +1343,23 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
     int16_t parameterNumber = jMessage["parameterNumber"];
     int16_t min = jMessage["min"] | 0;
     int16_t max = jMessage["max"] | 0;
-    int16_t value = jMessage["value"];
+    int16_t value = MIDI_VALUE_DO_NOT_SEND; // jMessage["value"];
     int16_t offValue = jMessage["offValue"] | MIDI_VALUE_DO_NOT_SEND;
     int16_t onValue = jMessage["onValue"] | MIDI_VALUE_DO_NOT_SEND;
     bool lsbFirst = jMessage["lsbFirst"];
     bool resetRpn = jMessage["resetRpn"];
     const char *signModeInput = jMessage["signMode"];
+    const char *relativeModeInput = jMessage["relativeMode"];
+    bool relative = jMessage["relative"] | false;
+    bool accelerated = jMessage["accelerated"] | false;
     uint8_t bitWidth;
 
     Message::Type messageType = Message::translateType(type);
 
-    DataBytes *data = devices[deviceId].registerData(jMessage["data"]);
+    DataBytes *data = devices[deviceId].registerData(jMessage["data"], this);
 
     SignMode signMode = translateSignMode(signModeInput);
+    RelativeMode relativeMode = translateRelativeMode(relativeModeInput);
 
     if (!jMessage["bitWidth"].isNull()) {
         bitWidth = jMessage["bitWidth"].as<uint8_t>();
@@ -1396,7 +1415,7 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
         LOG_TRACE,
         "parseMessage: device=%d, id=%d, msgType=%s (%d), parameterId=%d, "
         "min=%d, max=%d, value=%d, lsbFirst=%d, resetRpn=%d, signMode=%d, "
-        "bitWidth=%d",
+        "bitWidth=%d, relative=%d, relativeMode=%d, accelerated=%d",
         deviceId,
         messageId,
         type,
@@ -1408,7 +1427,10 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
         lsbFirst,
         resetRpn,
         signMode,
-        bitWidth);
+        bitWidth,
+        relative,
+        relativeMode,
+        accelerated);
 
     return (Message(deviceId,
                     messageType,
@@ -1420,7 +1442,10 @@ Message Preset::parseMessage(JsonObject jMessage, Control::Type controlType)
                     lsbFirst,
                     resetRpn,
                     signMode,
-                    bitWidth));
+                    bitWidth,
+                    relative,
+                    relativeMode,
+                    accelerated));
 }
 
 /** Parse Rules array within a file
@@ -1809,6 +1834,25 @@ bool Preset::getPresetProjectId(File &file,
     copyString(presetProjectId, projectId, maxProjectIdLength);
 
     return (true);
+}
+
+uint8_t Preset::registerFunction(const char *functionName)
+{
+    int8_t index = -1;
+
+    for (uint8_t i = 0; i < luaFunctions.size(); i++) {
+        if (luaFunctions[i] == functionName) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        luaFunctions.push_back(functionName);
+        index = luaFunctions.size() - 1;
+    }
+
+    return (index);
 }
 
 void Preset::print(void) const

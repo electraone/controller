@@ -1,6 +1,6 @@
 #include "MidiCallbacks.h"
 #include "luaMidi.h"
-#include "luaLE.h"
+#include "luaIntegration.h"
 #include "System.h"
 
 void assignLuaCallbacks(void)
@@ -130,37 +130,37 @@ void resetMidiCallbacks(void)
  */
 void onMidiClock(MidiInput midiInput)
 {
-    midi_onSingleByte("midi", "onClock", midiInput);
+    midi_onSingleByte(L, "midi", "onClock", midiInput);
 }
 
 void onMidiStart(MidiInput midiInput)
 {
-    midi_onSingleByte("midi", "onStart", midiInput);
+    midi_onSingleByte(L, "midi", "onStart", midiInput);
 }
 
 void onMidiStop(MidiInput midiInput)
 {
-    midi_onSingleByte("midi", "onStop", midiInput);
+    midi_onSingleByte(L, "midi", "onStop", midiInput);
 }
 
 void onMidiContinue(MidiInput midiInput)
 {
-    midi_onSingleByte("midi", "onContinue", midiInput);
+    midi_onSingleByte(L, "midi", "onContinue", midiInput);
 }
 
 void onMidiActiveSensing(MidiInput midiInput)
 {
-    midi_onSingleByte("midi", "onActiveSensing", midiInput);
+    midi_onSingleByte(L, "midi", "onActiveSensing", midiInput);
 }
 
 void onMidiSystemReset(MidiInput midiInput)
 {
-    midi_onSingleByte("midi", "onSystemReset", midiInput);
+    midi_onSingleByte(L, "midi", "onSystemReset", midiInput);
 }
 
 void onMidiTuneRequest(MidiInput midiInput)
 {
-    midi_onSingleByte("midi", "onTuneRequest", midiInput);
+    midi_onSingleByte(L, "midi", "onTuneRequest", midiInput);
 }
 
 void onMidiProgramChange(MidiInput midiInput,
@@ -168,7 +168,7 @@ void onMidiProgramChange(MidiInput midiInput,
                          uint8_t programNumber)
 {
     midi_onTwoBytesWithChannel(
-        "midi", "onProgramChange", midiInput, channel, programNumber);
+        L, "midi", "onProgramChange", midiInput, channel, programNumber);
 }
 
 void onMidiAfterTouchChannel(MidiInput midiInput,
@@ -176,23 +176,23 @@ void onMidiAfterTouchChannel(MidiInput midiInput,
                              uint8_t pressure)
 {
     midi_onTwoBytesWithChannel(
-        "midi", "onAfterTouchChannel", midiInput, channel, pressure);
+        L, "midi", "onAfterTouchChannel", midiInput, channel, pressure);
 }
 
 void onMidiSongSelect(MidiInput midiInput, uint8_t songNumber)
 {
-    midi_onTwoBytes("midi", "onSongSelect", midiInput, songNumber);
+    midi_onTwoBytes(L, "midi", "onSongSelect", midiInput, songNumber);
 }
 
 void onMidiPitchBend(MidiInput midiInput, uint8_t channel, int value)
 {
     midi_onTwoBytesWithChannel(
-        "midi", "onPitchBend", midiInput, channel, value);
+        L, "midi", "onPitchBend", midiInput, channel, value);
 }
 
 void onMidiSongPosition(MidiInput midiInput, int position)
 {
-    midi_onTwoBytes("midi", "onSongPosition", midiInput, position);
+    midi_onTwoBytes(L, "midi", "onSongPosition", midiInput, position);
 }
 
 void onMidiControlChange(MidiInput midiInput,
@@ -200,8 +200,13 @@ void onMidiControlChange(MidiInput midiInput,
                          uint8_t controllerNumber,
                          uint8_t value)
 {
-    midi_onThreeBytesWithChannel(
-        "midi", "onControlChange", midiInput, channel, controllerNumber, value);
+    midi_onThreeBytesWithChannel(L,
+                                 "midi",
+                                 "onControlChange",
+                                 midiInput,
+                                 channel,
+                                 controllerNumber,
+                                 value);
 }
 
 void onMidiNoteOn(MidiInput midiInput,
@@ -210,7 +215,7 @@ void onMidiNoteOn(MidiInput midiInput,
                   uint8_t velocity)
 {
     midi_onThreeBytesWithChannel(
-        "midi", "onNoteOn", midiInput, channel, noteNumber, velocity);
+        L, "midi", "onNoteOn", midiInput, channel, noteNumber, velocity);
 }
 
 void onMidiNoteOff(MidiInput midiInput,
@@ -219,7 +224,7 @@ void onMidiNoteOff(MidiInput midiInput,
                    uint8_t velocity)
 {
     midi_onThreeBytesWithChannel(
-        "midi", "onNoteOff", midiInput, channel, noteNumber, velocity);
+        L, "midi", "onNoteOff", midiInput, channel, noteNumber, velocity);
 }
 
 void onMidiAfterTouchPoly(MidiInput midiInput,
@@ -227,8 +232,13 @@ void onMidiAfterTouchPoly(MidiInput midiInput,
                           uint8_t noteNumber,
                           uint8_t pressure)
 {
-    midi_onThreeBytesWithChannel(
-        "midi", "onAfterTouchPoly", midiInput, channel, noteNumber, pressure);
+    midi_onThreeBytesWithChannel(L,
+                                 "midi",
+                                 "onAfterTouchPoly",
+                                 midiInput,
+                                 channel,
+                                 noteNumber,
+                                 pressure);
 }
 
 void onMidiSysex(MidiInput &midiInput, MidiMessage &midiMessage)
@@ -248,8 +258,6 @@ void onMidiSysex(MidiInput &midiInput, MidiMessage &midiMessage)
                                  "error running function 'onSysex': %s",
                                  lua_tostring(L, -1));
         }
-    } else {
-        luaLE_handleNonexistentFunction(L, "onSysex");
     }
 }
 

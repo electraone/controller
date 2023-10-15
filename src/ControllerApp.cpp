@@ -1,5 +1,5 @@
 #include "ControllerApp.h"
-#include "lualibs.h"
+#include "luaExtension.h"
 
 void Controller::initialise(void)
 {
@@ -39,17 +39,23 @@ void Controller::initialise(void)
 
     // Register ParameterMap onChange callback
     parameterMap.onChange = [this](LookupEntry *entry, Origin origin) {
-        if (origin != Origin::midi && origin != Origin::file) {
-            // \todo taking the first message destination might not be ok
-            // in some situations
-            Message message = entry->messageDestination[0]->message;
-            message.setValue(entry->midiValue);
-            midi.sendMessage(message);
-        }
+        if (entry) {
+            if (origin != Origin::midi && origin != Origin::file) {
+                // @todo taking the first message destination might not be ok
+                // in some situations
+                // @todo would it make sense to update the value in the model
+                // and use a reference to send it out?
+                Message message = entry->getMessage();
+                message.setValue(entry->getMidiValue());
+                midi.sendMessage(message);
+            }
 
-        // Execute only if Lua is loaded
-        if (L && entry) {
-            parameterMap_onChange(entry, origin);
+            // Execute only if Lua is loaded
+            if (origin != Origin::mods) {
+                if (L && entry) {
+                    parameterMap_onChange(entry, origin);
+                }
+            }
         }
     };
 

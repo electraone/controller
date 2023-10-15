@@ -1,15 +1,40 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file Data.cpp
+ *
+ * @brief Implements a container for SysEx data.
+ */
+
 #include "Data.h"
 #include "Message.h"
 #include "Checksum.h"
 #include <cstring>
-
-// \todo this is a brute way of reducing memory usage by the ControlValue
-std::vector<std::string> luaFunctions;
+#include "Preset.h"
 
 /** Parse JSON sysex data object
  *
  */
-Data::Data(JsonArray jData)
+Data::Data(JsonArray jData, Preset *preset)
 {
     for (JsonVariant jByte : jData) {
         if (jByte.is<JsonObject>()) {
@@ -22,7 +47,7 @@ Data::Data(JsonArray jData)
                 } else if (strcmp(type, "checksum") == 0) {
                     transformChecksum(jByte);
                 } else if (strcmp(type, "function") == 0) {
-                    transformFunction(jByte);
+                    transformFunction(jByte, preset);
                 }
             }
         } else {
@@ -184,12 +209,12 @@ void Data::transformChecksum(JsonVariant jByte)
 /** Transforms checksum variable to the SysEx template bytes
  *
  */
-void Data::transformFunction(JsonVariant jByte)
+void Data::transformFunction(JsonVariant jByte, Preset *preset)
 {
     const char *functionName = jByte["name"].as<char *>();
 
     dataBytes.push_back(LUAFUNCTION);
-    dataBytes.push_back(registerFunction(functionName));
+    dataBytes.push_back(preset->registerFunction(functionName));
 }
 
 void Data::makeSysexData(void)
@@ -209,26 +234,4 @@ void Data::addLeadingSysexByte(void)
             dataBytes.insert(dataBytes.begin(), 0xF0);
         }
     }
-}
-
-/** Registers a Lua function to global repository of Lua functions
- *
- */
-uint8_t Data::registerFunction(const char *functionName)
-{
-    int8_t index = -1;
-
-    for (uint8_t i = 0; i < luaFunctions.size(); i++) {
-        if (luaFunctions[i] == functionName) {
-            index = i;
-            break;
-        }
-    }
-
-    if (index == -1) {
-        luaFunctions.push_back(functionName);
-        index = luaFunctions.size() - 1;
-    }
-
-    return (index);
 }

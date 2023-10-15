@@ -1,3 +1,30 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file FaderDetailControl.h
+ *
+ * @brief Implements an detail version of the Fader Control.
+ */
+
 #pragma once
 
 #include "FaderControl.h"
@@ -5,90 +32,15 @@
 class FaderDetailControl : public FaderControl
 {
 public:
-    FaderDetailControl(const Control &control, MainDelegate &newDelegate)
-        : FaderControl(control, newDelegate)
-    {
-        assignPot(control.inputs[0].getPotId(),
-                  control.values[0].getNumSteps());
-        setColour(control.getColour565());
-    }
-
+    FaderDetailControl(const Control &control, MainDelegate &newDelegate);
     virtual ~FaderDetailControl() = default;
 
-    void onTouchMove(const TouchEvent &touchEvent) override
-    {
-        int16_t max = value.getMax();
-        int16_t min = value.getMin();
-        float step = getWidth() / (float)(max - min);
-        int16_t newDisplayValue =
-            constrain(ceil(touchEvent.getX() / step + min), min, max);
+    void onTouchMove(const TouchEvent &touchEvent) override;
+    void paint(Graphics &g) override;
+    void onTouchUp(const TouchEvent &touchEvent) override;
+    void onTouchLongHold(const TouchEvent &touchEvent) override;
+    void onPotTouchUp(const PotEvent &potEvent) override;
 
-        emitValueChange(newDisplayValue, control.getValue(0));
-    }
-
-    void paint(Graphics &g)
-    {
-        const Rectangle &bounds = getBounds();
-        int16_t val = value.get();
-        int16_t min = value.getMin();
-        int16_t max = value.getMax();
-        Control::Mode mode = control.getMode();
-
-        g.fillAll(Colours565::black);
-
-        uint32_t colourTrack = Colours565::darker(colour, 0.3f);
-        uint32_t backgroundColour = getUseAltBackground()
-                                        ? LookAndFeel::altBackgroundColour
-                                        : LookAndFeel::backgroundColour;
-
-        uint16_t barHeight = bounds.getHeight();
-        ;
-        uint16_t padding = 0;
-        uint16_t barX = 0;
-
-        // For zero based faders, fing the start position of the bar
-        if (mode == Control::Mode::Bipolar) {
-            barX =
-                map(std::max((int16_t)0, min), min, max, 0, bounds.getWidth());
-        }
-
-        uint16_t barWidth = map(val, min, max, 0, bounds.getWidth()) - barX;
-
-        // Clear the component area
-        g.fillAll(backgroundColour);
-
-        // Paint the track background
-        g.setColour(colourTrack);
-        g.fillRect(0, padding, bounds.getWidth(), barHeight);
-
-        // Paint the active bar
-        g.setColour(colour);
-        g.fillRect(barX, padding, barWidth, barHeight);
-
-        if (barWidth > 1) {
-            g.setColour(Colours565::black);
-            uint16_t separatorX = 0;
-            separatorX = ((val > 0) ? barX + barWidth : barX + barWidth - 1);
-            g.drawLine(
-                separatorX, padding, separatorX, padding + barHeight - 1);
-        }
-    }
-
-    void onTouchUp(const TouchEvent &touchEvent) override
-    {
-        if (!delegate.isDetailLocked()) {
-            delegate.closeDetail();
-        }
-    }
-
-    void onTouchLongHold(const TouchEvent &touchEvent)
-    {
-    }
-
-    void onPotTouchUp(const PotEvent &potEvent) override
-    {
-        if (!delegate.isDetailLocked()) {
-            delegate.closeDetail();
-        }
-    }
+private:
+    uint16_t previousScreenX;
 };

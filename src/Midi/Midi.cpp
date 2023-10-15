@@ -282,14 +282,15 @@ void Midi::runLuaFunction(uint16_t parameterNumber,
     System::logger.write(LOG_ERROR,
                          "function: %d (%s)",
                          functionId,
-                         luaFunctions[functionId].c_str());
+                         model.luaFunctions[functionId].c_str());
 
     parameterValue = parameterMap.getValue(
         device.getId(), Message::Type::sysex, parameterNumber);
 
-    if (L && (luaFunctions.size() > 0)) {
-        byteToSend = runTemplateFunction(
-            luaFunctions[functionId].c_str(), (void *)&device, parameterValue);
+    if (L && (model.luaFunctions.size() > 0)) {
+        byteToSend = runTemplateFunction(model.luaFunctions[functionId].c_str(),
+                                         (void *)&device,
+                                         parameterValue);
     }
 
     dataOut[j] = byteToSend & 0x7F;
@@ -691,7 +692,7 @@ void Midi::applyRulesValues(const Device &device,
                     parameterValue,
                     rule.getParameterNumber(),
                     Message::translateType(rule.getType()),
-                    entry->midiValue);
+                    entry->getMidiValue());
             }
         }
     }

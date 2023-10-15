@@ -1,3 +1,24 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
 #include "luaPage.h"
 #include "Preset.h"
 #include "MainDelegate.h"
@@ -130,7 +151,7 @@ int page_print(lua_State *L)
     lua_settop(L, 1);
 
     if (Page *page = getPage(L, 1)) {
-        page->print(LOG_ERROR);
+        page->print(LOG_LUA);
     }
 
     return (0);
@@ -161,13 +182,11 @@ void pages_onChange(uint8_t newPageId, uint8_t oldPageId)
         lua_pushnumber(L, newPageId);
         lua_pushnumber(L, oldPageId);
         if (lua_pcall(L, 2, 0, 0) != 0) {
-            System::logger.write(LOG_ERROR,
+            System::logger.write(LOG_LUA,
                                  "error running function '%s': %s",
                                  function,
                                  lua_tostring(L, -1));
         }
-    } else {
-        luaLE_handleNonexistentFunction(L, function);
     }
     luaLE_postFunctionCleanUp(L);
 }

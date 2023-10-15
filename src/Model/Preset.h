@@ -14,9 +14,6 @@
 #include "Rule.h"
 #include "Checksum.h"
 
-// \todo this is a brute way of reducing memory usage by the ControlValue
-extern std::vector<std::string> luaFunctions;
-
 class Preset
 {
 public:
@@ -45,8 +42,15 @@ public:
     static bool getPresetProjectId(File &file,
                                    char *presetProjectId,
                                    size_t maxProjectIdLength);
-
+    uint8_t registerFunction(const char *functionName);
     void print(void) const;
+
+    Device &addDevice(uint8_t deviceId,
+                      const char *name,
+                      uint8_t port,
+                      uint8_t channel);
+
+    Overlay &addOverlay(uint8_t id);
 
 public:
     static constexpr uint8_t MaxNameLength = 20;
@@ -56,6 +60,8 @@ public:
     static constexpr uint8_t MaxNumDevices = 32;
     static constexpr uint8_t MaxNumControlSets = 3;
     static constexpr uint8_t MaxNumPots = 12;
+
+    std::vector<std::string> luaFunctions;
 
 private:
     // Main parser

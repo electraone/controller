@@ -1,7 +1,37 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file Group.h
+ *
+ * @brief Implements an on-screen visual for grouping Controls.
+ * 
+ * @todo Component is present here, but it is not used. It should be removed.
+ */
+
 #pragma once
 
 #include "Colours.h"
 #include "Component.h"
+#include "System.h"
 
 class Group
 {
@@ -153,7 +183,7 @@ public:
         System::logger.write(logLevel, "colour: 0x%06x", getColour());
         System::logger.write(logLevel, "visible: %d", isVisible());
         System::logger.write(logLevel, "variant: %d", getVariant());
-        getBounds().print(logLevel);
+        //        getBounds().print(logLevel);
     }
 
     static Variant translateVariant(const char *variantText)

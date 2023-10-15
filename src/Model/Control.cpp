@@ -324,44 +324,32 @@ void Control::addToParameterMap(ControlValue &value)
                                  value.message.getType(),
                                  value.message.getParameterNumber());
     if (lookupEntry) {
-        lookupEntry->messageDestination.push_back(&value);
+        lookupEntry->addDestination(&value);
     }
 }
 
 void Control::removeFromParameterMap(ControlValue &value)
 {
-    LookupEntry *lookupEntry =
-        parameterMap.getOrCreate(value.message.getDeviceId(),
-                                 value.message.getType(),
-                                 value.message.getParameterNumber());
-    if (lookupEntry) {
-        for (uint16_t i = 0; i < lookupEntry->messageDestination.size(); i++) {
-            if (lookupEntry->messageDestination[i] == &value) {
-                lookupEntry->messageDestination.erase(
-                    lookupEntry->messageDestination.begin() + i);
-                break;
-            }
-        }
-    }
+    parameterMap.removeDestination(&value.message);
 }
 
 void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 {
     if (value.message.getType() == Message::Type::start) {
         parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-            ->messageDestination.push_back(&value);
+            ->addDestination(&value);
     } else if (value.message.getType() == Message::Type::stop) {
         parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-            ->messageDestination.push_back(&value);
+            ->addDestination(&value);
     } else if (value.message.getType() == Message::Type::tune) {
         parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-            ->messageDestination.push_back(&value);
+            ->addDestination(&value);
     } else {
         LookupEntry *lookupEntry =
             parameterMap.getOrCreate(value.message.getDeviceId(),
                                      value.message.getType(),
                                      value.message.getParameterNumber());
-        lookupEntry->messageDestination.push_back(&value);
+        lookupEntry->addDestination(&value);
 
         int16_t midiValue = 0;
 

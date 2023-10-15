@@ -1,11 +1,7 @@
 #include "Presets.h"
 #include "MidiOutput.h"
 #include "MidiCallbacks.h"
-#include "lualibs.h"
-#include "luabridge.h"
-#include "luaPreset.h"
-
-Preset *luaPreset = nullptr;
+#include "luaExtension.h"
 
 Presets::Presets(const char *newAppSandbox,
                  const bool &shouldKeepPresetState,
@@ -190,7 +186,7 @@ void Presets::reset(void)
     preset.reset();
 
     // Reset parameterMap
-    parameterMap.reset();
+    parameterMap.clear();
 
     System::logger.write(LOG_TRACE,
                          "Controller::reset: preset memory deallocated");
@@ -250,7 +246,7 @@ void Presets::runPresetLuaScript(void)
     luaPreset = &preset;
 
     if (isLuaValid(System::context.getCurrentLuaFile())) {
-        initLua();
+        L = initLua();
         loadLuaLibs();
 
         executeElectraLua(System::context.getCurrentLuaFile());

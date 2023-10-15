@@ -1,8 +1,28 @@
-#include "luaValue.h"
-#include "Preset.h"
-#include "MainDelegate.h"
+/*
+ * Electra One MIDI Controller Firmware
+ * See COPYRIGHT file at the top of the source tree.
+ *
+ * This product includes software developed by the
+ * Electra One Project (http://electra.one/).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.
+ */
 
-extern MainDelegate *luaDelegate;
+#include "luaValue.h"
+#include "Presets.h"
+#include "MainDelegate.h"
+#include "luaExtension.h"
 
 static ControlValue *getControlValue(lua_State *L, uint8_t stackPosition)
 {
@@ -133,6 +153,32 @@ int value_getMax(lua_State *L)
     return (1);
 }
 
+int value_setRange(lua_State *L)
+{
+    lua_settop(L, 5);
+
+    ControlValue *value = getControlValue(L, 1);
+    int valueMin = luaL_checkinteger(L, 2);
+    int valueMax = luaL_checkinteger(L, 3);
+    int valueDefault = luaL_checkinteger(L, 4);
+    bool updateMessage = luaLE_checkBoolean(L, 5);
+
+    if (value) {
+        Control *control = value->getControl();
+        if (control) {
+            luaDelegate->setControlValueRange(control->getId(),
+                                              value->getHandle(),
+                                              valueMin,
+                                              valueMax,
+                                              valueDefault,
+                                              updateMessage);
+        }
+    } else {
+        return (luaL_error(L, "failed: not a valid value"));
+    }
+    return (0);
+}
+
 int value_setOverlayId(lua_State *L)
 {
     lua_settop(L, 2);
@@ -227,6 +273,17 @@ int value_cancelOverride(lua_State *L)
     } else {
         return (luaL_error(L, "failed: not a valid value"));
     }
+    return (0);
+}
+
+int value_print(lua_State *L)
+{
+    lua_settop(L, 1);
+
+    if (ControlValue *value = getControlValue(L, 1)) {
+        value->print(LOG_LUA);
+    }
+
     return (0);
 }
 

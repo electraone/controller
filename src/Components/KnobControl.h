@@ -1,3 +1,32 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file KnobControl.h
+ *
+ * @brief Implements a dial/knob-style type of Control.
+ *
+ * The dial control is currently used only on envelope details.
+ */
+
 #pragma once
 
 #include "Control.h"
@@ -7,82 +36,16 @@
 class KnobControl : public ControlComponent, public Knob
 {
 public:
-    explicit KnobControl(const Control &control, MainDelegate &newDelegate)
-        : ControlComponent(control, newDelegate)
-    {
-        setMinimum(control.values[0].getMin());
-        setMaximum(control.values[0].getMax());
-    }
-
+    explicit KnobControl(const Control &control, MainDelegate &newDelegate);
     virtual ~KnobControl() = default;
 
-    virtual void onTouchMove(const TouchEvent &touchEvent) override
-    {
-        int16_t max = value.getMax();
-        int16_t min = value.getMin();
-
-        float step = getWidth() / (float)(max - min);
-        int16_t newDisplayValue =
-            constrain(ceil(touchEvent.getX() / step + min), min, max);
-
-        emitValueChange(newDisplayValue, control.getValue(0));
-    }
-
-    virtual void onPotTouchDown(const PotEvent &potEvent) override
-    {
-        ControlComponent::onPotTouchDown(potEvent);
-    }
-
-    virtual void onPotChange(const PotEvent &potEvent) override
-    {
-        if (int16_t delta = potEvent.getAcceleratedChange()) {
-            int16_t newDisplayValue = getValue() + delta;
-            emitValueChange(newDisplayValue, control.getValue(0));
-        }
-    }
-
-    virtual void onPotTouchUp(const PotEvent &potEvent) override
-    {
-        ControlComponent::onPotTouchUp(potEvent);
-    }
-
+    virtual void onTouchMove(const TouchEvent &touchEvent) override;
+    virtual void onPotTouchDown(const PotEvent &potEvent) override;
+    virtual void onPotChange(const PotEvent &potEvent) override;
+    virtual void onPotTouchUp(const PotEvent &potEvent) override;
     virtual void onMidiValueChange(const ControlValue &value,
                                    int16_t midiValue,
-                                   uint8_t handle = 0) override
-    {
-        int16_t newDisplayValue = value.translateMidiValue(midiValue);
-        setValue(newDisplayValue);
-    }
+                                   uint8_t handle = 0) override;
 
-    void paint(Graphics &g) override
-    {
-        Rectangle knobBounds = getBounds();
-        colour = control.getColour565();
-        Knob::paint(g);
-
-        char stringValue[20];
-        if (!control.getValue(0).getFormatter().empty()) {
-            control.getValue(0).callFormatter(
-                getValue(), stringValue, sizeof(stringValue));
-        } else {
-            snprintf(
-                stringValue, sizeof(stringValue), formatString, getValue());
-        }
-        g.printText(0,
-                    getWidth() / 2 - 7,
-                    stringValue,
-                    TextStyle::mediumTransparent,
-                    getWidth(),
-                    TextAlign::center);
-
-        g.printText(0,
-                    getHeight() - 20,
-                    getName(),
-                    TextStyle::mediumWhiteOnBlack,
-                    getWidth(),
-                    TextAlign::center,
-                    2);
-    }
-
-private:
+    void paint(Graphics &g) override;
 };

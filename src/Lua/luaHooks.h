@@ -5,7 +5,7 @@ extern "C" {
 #include "lua.h"
 #include "lualib.h"
 }
-#include "luaLE.h"
+#include "luaIntegration.h"
 
 void runFormatter(const char *formatter,
                   const void *object,

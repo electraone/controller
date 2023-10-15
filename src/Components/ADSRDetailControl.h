@@ -1,3 +1,30 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file ADSRDetailControl.h
+ *
+ * @brief Implements a detailed version of the ADSR envelope Control.
+ */
+
 #pragma once
 
 #include "ADSRControl.h"
@@ -5,43 +32,12 @@
 class ADSRDetailControl : public ADSRControl
 {
 public:
-    ADSRDetailControl(const Control &control, MainDelegate &newDelegate)
-        : ADSRControl(control, newDelegate)
-    {
-    }
-
+    ADSRDetailControl(const Control &control, MainDelegate &newDelegate);
     virtual ~ADSRDetailControl() = default;
 
-    void onTouchUp(const TouchEvent &touchEvent) override
-    {
-        if (!delegate.isDetailLocked()) {
-            delegate.closeDetail();
-        }
-    }
+    void onTouchUp(const TouchEvent &touchEvent) override;
+    void onTouchLongHold(const TouchEvent &touchEvent) override;
+    void onPotTouchUp(const PotEvent &potEvent) override;
 
-    void onTouchLongHold(const TouchEvent &touchEvent) override
-    {
-    }
-
-    void onPotTouchUp(const PotEvent &potEvent) override
-    {
-        if (!delegate.isDetailLocked()) {
-            delegate.closeDetail();
-        }
-    }
-
-    virtual void paint(Graphics &g) override
-    {
-        Rectangle envBounds = getBounds();
-        envBounds.setHeight(envBounds.getHeight());
-        computePoints(envBounds);
-        g.fillAll(LookAndFeel::backgroundColour);
-        LookAndFeel::paintEnvelope(g,
-                                   envBounds,
-                                   control.getColour565(),
-                                   baselineY,
-                                   points,
-                                   activeSegment,
-                                   activeSegmentIsShown);
-    }
+    virtual void paint(Graphics &g) override;
 };

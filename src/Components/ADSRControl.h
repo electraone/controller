@@ -1,3 +1,30 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file ADSRControl.h
+ *
+ * @brief Implements an on-screen ADSR envelope Control.
+ */
+
 #pragma once
 
 #include "Control.h"
@@ -7,111 +34,26 @@
 class ADSRControl : public ControlComponent, public ADSR
 {
 public:
-    ADSRControl(const Control &control, MainDelegate &newDelegate)
-        : ControlComponent(control, newDelegate)
-    {
-        setValueRanges();
-        setActiveSegment(control.inputs[0].getValueId());
-        updateValueFromParameterMap();
-    }
-
+    ADSRControl(const Control &control, MainDelegate &newDelegate);
     virtual ~ADSRControl() = default;
 
-    void syncComponentProperties(void)
-    {
-        setValueRanges();
-        ControlComponent::syncComponentProperties();
-    }
+    void syncComponentProperties(void);
 
-    virtual void onTouchDown(const TouchEvent &touchEvent) override
-    {
-        previousScreenX = touchEvent.getScreenX();
-    }
-
-    virtual void onTouchMove(const TouchEvent &touchEvent) override
-    {
-        /* commented out on purpose
-        uint8_t activeHandle = getActiveSegment();
-        int16_t max = values[activeHandle].getMax();
-        int16_t min = values[activeHandle].getMin();
-        float step = getWidth() / (float)(max - min);
-        int16_t delta = touchEvent.getScreenX() - previousScreenX;
-        previousScreenX = touchEvent.getScreenX();
-
-        int16_t newDisplayValue = constrain(
-            ceil(getValue(activeHandle) + ((float)delta / step)), min, max);
-
-        emitValueChange(newDisplayValue, control.getValue(activeHandle));
-        */
-    }
-
-    virtual void onPotTouchDown(const PotEvent &potEvent) override
-    {
-        showActiveSegment(true);
-        ControlComponent::onPotTouchDown(potEvent);
-    }
-
-    virtual void onPotChange(const PotEvent &potEvent) override
-    {
-        if (int16_t delta = potEvent.getAcceleratedChange()) {
-            uint8_t activeHandle = getActiveSegment();
-            int16_t newDisplayValue = getValue(activeHandle) + delta;
-            emitValueChange(newDisplayValue, control.getValue(activeHandle));
-        }
-    }
-
-    virtual void onPotTouchUp(const PotEvent &potEvent) override
-    {
-        showActiveSegment(false);
-        ControlComponent::onPotTouchUp(potEvent);
-    }
+    virtual void onTouchDown(const TouchEvent &touchEvent) override;
+    virtual void
+        onTouchMove([[maybe_unused]] const TouchEvent &touchEvent) override;
+    virtual void onPotTouchDown(const PotEvent &potEvent) override;
+    virtual void onPotChange(const PotEvent &potEvent) override;
+    virtual void onPotTouchUp(const PotEvent &potEvent) override;
 
     virtual void onMidiValueChange(const ControlValue &value,
                                    int16_t midiValue,
-                                   uint8_t handle = 0) override
-    {
-        int16_t newDisplayValue = value.translateMidiValue(midiValue);
-        if (0 <= handle && handle <= 3) {
-            setValue(handle, newDisplayValue);
-        }
-    }
+                                   uint8_t handle = 0) override;
 
-    virtual void paint(Graphics &g) override
-    {
-        Rectangle envBounds = getBounds();
-        envBounds.setHeight(envBounds.getHeight() / 2);
-        computePoints(envBounds);
-        g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
-                                        : LookAndFeel::backgroundColour);
-        LookAndFeel::paintEnvelope(g,
-                                   envBounds,
-                                   control.getColour565(),
-                                   baselineY,
-                                   points,
-                                   activeSegment,
-                                   activeSegmentIsShown);
-        g.printText(0,
-                    getHeight() - 20,
-                    getName(),
-                    TextStyle::mediumWhiteOnBlack,
-                    getWidth(),
-                    TextAlign::center,
-                    2);
-        ControlComponent::paint(g);
-    }
+    virtual void paint(Graphics &g) override;
 
 private:
-    void setValueRanges(void)
-    {
-        setMin(ADSR::attack, control.values[0].getMin());
-        setMax(ADSR::attack, control.values[0].getMax());
-        setMin(ADSR::decay, control.values[1].getMin());
-        setMax(ADSR::decay, control.values[1].getMax());
-        setMin(ADSR::sustain, control.values[2].getMin());
-        setMax(ADSR::sustain, control.values[2].getMax());
-        setMin(ADSR::release, control.values[3].getMin());
-        setMax(ADSR::release, control.values[3].getMax());
-    }
+    void setValueRanges(void);
 
     uint16_t previousScreenX;
 };

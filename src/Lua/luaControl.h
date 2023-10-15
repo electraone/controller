@@ -1,6 +1,6 @@
 #pragma once
 
-#include "luaCommon.h"
+#include "luaIntegration.h"
 
 int control_create(lua_State *L);
 int control_delete(lua_State *L);

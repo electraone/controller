@@ -2,9 +2,7 @@
 #include "ControlComponent.h"
 #include "GroupControl.h"
 #include "Envelope.h"
-#include "luabridge.h"
-#include "luaPage.h"
-#include "luaEvents.h"
+#include "luaExtension.h"
 #include "System.h"
 #include "SubscribedEvents.h"
 
@@ -449,6 +447,28 @@ void MainWindow::setControlValueMax(uint16_t controlId,
         handleId = Control::constraintValueId(control.getType(), handleId);
         auto &controlValue = control.getValue(handleId);
         controlValue.setMax(newMax);
+        refreshControl(control);
+    }
+}
+
+void MainWindow::setControlValueRange(uint16_t controlId,
+                                      uint8_t handleId,
+                                      int16_t newMin,
+                                      int16_t newMax,
+                                      int16_t newDefault,
+                                      bool updateMesage)
+{
+    Control &control = preset.getControl(controlId);
+
+    if (control.isValid()) {
+        auto &controlValue = control.getValue(handleId);
+        controlValue.setMin(newMin);
+        controlValue.setMax(newMax);
+        controlValue.setDefault(newDefault);
+        if (updateMesage) {
+            controlValue.message.setMidiMin(newMin);
+            controlValue.message.setMidiMax(newMax);
+        }
         refreshControl(control);
     }
 }

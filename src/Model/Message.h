@@ -1,11 +1,40 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file Message.h
+ *
+ * @brief Implements a representation of Messages processed by the
+ * controller. Message is not limited to MIDI messages only.
+ */
+
 #pragma once
 
 #include "SignMode.h"
+#include "RelativeMode.h"
 #include "Macros.h"
-#include "Event.h"
-#include <cstdint>
-#include <cstring>
 #include "System.h"
+#include <cstdint>
+
+class ControlValue;
 
 #define MIDI_VALUE_DO_NOT_SEND 16537
 #define VARIABLE_DATA 128
@@ -37,285 +66,327 @@ public:
         none = 16
     };
 
-    Message()
-        : deviceId(0),
-          parameterNumber(0),
-          midiMin(0),
-          midiMax(NOT_SET),
-          value(NOT_SET)
-    {
-        type = (uint8_t)Type::none;
-        lsbFirst = false;
-        resetRpn = true;
-        signMode = (uint8_t)SignMode::noSign;
-        bitWidth = 7;
-    }
-
+    Message();
     Message(uint8_t newDeviceId,
             Type newType,
             uint16_t newParameterNumber,
-            int16_t newMidiMin,
-            int16_t newMidiMax,
-            int16_t newValue,
+            uint16_t newMidiMin,
+            uint16_t newMidiMax,
+            uint16_t newValue,
             std::vector<uint8_t> *newData,
             bool newLsbFirst,
             bool newResetRpn,
             SignMode newSignMode,
-            uint8_t newbitWidth)
-        : deviceId(newDeviceId),
-          parameterNumber(newParameterNumber),
-          midiMin(newMidiMin),
-          midiMax(newMidiMax),
-          value(newValue),
-          data(newData)
-    {
-        type = (uint8_t)newType;
-        lsbFirst = newLsbFirst;
-        resetRpn = newResetRpn;
-        signMode = (uint8_t)newSignMode;
-        bitWidth = newbitWidth;
-    }
-
+            uint8_t newBitWidth,
+            bool newRelative,
+            RelativeMode newRelativeMode,
+            bool newAccelerated);
     virtual ~Message() = default;
 
-    void setDeviceId(uint8_t newDeviceId)
-    {
-        deviceId = newDeviceId;
-    }
+    /**
+     * @brief  Sets the device id.
+     * 
+     * @param newDeviceId a new device id to be assigned.
+     */
+    void setDeviceId(uint8_t newDeviceId);
 
-    uint8_t getDeviceId(void) const
-    {
-        return (deviceId);
-    }
+    /**
+     * @brief  Returns the device id.
+     * 
+     * @return the device id.
+     */
+    uint8_t getDeviceId(void) const;
 
-    void setType(Type newType)
-    {
-        type = (uint8_t)newType;
-    }
+    /**
+     * @brief  Sets the message type.
+     * 
+     * @param newType a new message type to be assigned.
+     */
+    void setType(Type newType);
 
-    Type getType(void) const
-    {
-        return ((Type)type);
-    }
+    /**
+     * @brief  Returns the message type.
+     * 
+     * @return the message type.
+     */
+    Type getType(void) const;
 
-    void setMidiMin(int16_t newMin)
-    {
-        midiMin = newMin;
-    }
+    /**
+     * @brief  Sets the MIDI min value.
+     * 
+     * @param newMin a new MIDI min value to be assigned.
+     */
+    void setMidiMin(uint16_t newMin);
 
-    int16_t getMidiMin(void) const
-    {
-        return (midiMin);
-    }
+    /**
+     * @brief  Returns the MIDI min value.
+     * 
+     * @return the MIDI min value.
+     */
+    uint16_t getMidiMin(void) const;
 
-    int16_t getMidiMax(void) const
-    {
-        return (midiMax);
-    }
+    /**
+     * @brief  Sets the MIDI max value.
+     * 
+     * @param newMax a new MIDI max value to be assigned.
+     */
+    void setMidiMax(uint16_t newMax);
 
-    void setMidiMax(int16_t newMax)
-    {
-        midiMax = newMax;
-    }
+    /**
+     * @brief  Returns the MIDI max value.
+     * 
+     * @return the MIDI max value.
+     */
+    uint16_t getMidiMax(void) const;
 
-    void setParameterNumber(uint16_t newParameterNumber)
-    {
-        parameterNumber = newParameterNumber;
-    }
+    /**
+     * @brief  Sets the MIDI Off (for switches/pads) value.
+     * 
+     * @param newMin a new MIDI Off value to be assigned.
+     */
+    void setMidiOff(uint16_t newMin);
 
-    uint16_t getParameterNumber(void) const
-    {
-        return (parameterNumber);
-    }
+    /**
+     * @brief  Returns the MIDI Off (for switches/pads) value.
+     * 
+     * @return the MIDI Off value.
+     */
+    uint16_t getMidiOff(void) const;
 
-    void setValue(int16_t newValue)
-    {
-        value = newValue;
-    }
+    /**
+     * @brief  Sets the MIDI On (for switches/pads) value.
+     * 
+     * @param newMax a new MIDI On value to be assigned.
+     */
+    void setMidiOn(uint16_t newMax);
 
-    int16_t getValue(void) const
-    {
-        return (value);
-    }
+    /**
+     * @brief  Returns the MIDI On (for switches/pads) value.
+     * 
+     * @return the MIDI On value.
+     */
+    uint16_t getMidiOn(void) const;
 
-    void setSignMode(SignMode newSignMode)
-    {
-        signMode = (uint8_t)newSignMode;
-    }
+    /**
+     * @brief  Sets the parameter number.
+     * 
+     * @param newParameterNumber a new parameter number to be assigned.
+     */
+    void setParameterNumber(uint16_t newParameterNumber);
 
-    SignMode getSignMode(void) const
-    {
-        return ((SignMode)signMode);
-    }
+    /**
+     * @brief  Returns the parameter number.
+     * 
+     * @return the parameter number.
+     */
+    uint16_t getParameterNumber(void) const;
 
-    void setOffValue(int16_t newOffValue)
-    {
-        midiMin = newOffValue;
-    }
+    /**
+     * @brief  Sets the value.
+     * 
+     * @param newValue a new value to be assigned.
+     */
+    void setValue(uint16_t newValue);
 
-    int16_t getOffValue(void) const
-    {
-        return (midiMin);
-    }
+    /**
+     * @brief  Marks value as empty / unset.
+     */
+    void setEmptyValue(void);
 
-    void setOnValue(int16_t newOnValue)
-    {
-        midiMax = newOnValue;
-    }
+    /**
+     * @brief  Returns true if the value is empty / unset.
+     * 
+     * @return true if the value is empty / unset.
+     */
+    bool hasEmptyValue(void) const;
 
-    int16_t getOnValue(void) const
-    {
-        return (midiMax);
-    }
+    /**
+     * @brief  Returns true if the value is not empty / unset.
+     * 
+     * @return true if the value is not empty / unset.
+     */
+    bool hasValidValue(void) const;
 
-    void setLsbFirst(bool newLsbFirst)
-    {
-        lsbFirst = newLsbFirst;
-    }
+    /**
+     * @brief  Returns the value.
+     * 
+     * @return the value.
+     */
+    uint16_t getValue(void) const;
 
-    bool getLsbFirst(void) const
-    {
-        return (lsbFirst);
-    }
+    /**
+     * @brief  Sets the sign mode.
+     * 
+     * @param newSignMode a new sign mode to be assigned.
+     */
+    void setSignMode(SignMode newSignMode);
 
-    void setResetRpn(bool newResetRpn)
-    {
-        resetRpn = newResetRpn;
-    }
+    /**
+     * @brief  Returns the sign mode.
+     * 
+     * @return the sign mode.
+     */
+    SignMode getSignMode(void) const;
 
-    bool getResetRpn(void) const
-    {
-        return (resetRpn);
-    }
+    /**
+     * @brief  Sets the Off value for a Pad
+     * 
+     * @param newOffValue a new off value to be assigned.
+     */
+    void setOffValue(int16_t newOffValue);
 
-    void setBitWidth(uint8_t newBitWidth)
-    {
-        bitWidth = newBitWidth;
-    }
+    /**
+     * @brief  Returns the Off value for a Pad
+     * 
+     * @return the Off value for a Pad
+     */
+    int16_t getOffValue(void) const;
 
-    uint8_t getBitWidth(void) const
-    {
-        return (bitWidth);
-    }
+    /**
+     * @brief  Sets the On value for a Pad
+     * 
+     * @param newOnValue a new on value to be assigned.
+     */
+    void setOnValue(int16_t newOnValue);
 
-    void print(uint8_t logLevel = LOG_TRACE) const
-    {
-        System::logger.write(
-            logLevel,
-            "            --[Message]--------------------------------");
-        System::logger.write(logLevel, "            address: 0x%08x", this);
-        System::logger.write(
-            logLevel, "            deviceId: %d", getDeviceId());
-        System::logger.write(logLevel,
-                             "            type: %s (%d)",
-                             translateType(getType()),
-                             getType());
-        System::logger.write(
-            logLevel, "            parameterNumber: %d", getParameterNumber());
-        System::logger.write(logLevel, "            min: %d", getMidiMin());
-        System::logger.write(logLevel, "            max: %d", getMidiMax());
-        System::logger.write(logLevel, "            value: %d", getValue());
-        System::logger.write(
-            logLevel, "            signMode: %d", getSignMode());
-        System::logger.write(
-            logLevel, "            lsbFirst: %d", getLsbFirst());
-        System::logger.write(
-            logLevel, "            bitWidth: %d", getBitWidth());
-    }
+    /**
+     * @brief  Returns the On value for a Pad
+     * 
+     * @return the On value for a Pad
+     */
+    int16_t getOnValue(void) const;
 
-    static Type translateType(const char *typeText)
-    {
-        if (typeText) {
-            if (strcmp(typeText, "cc7") == 0) {
-                return (Type::cc7);
-            } else if (strcmp(typeText, "cc14") == 0) {
-                return (Type::cc14);
-            } else if (strcmp(typeText, "nrpn") == 0) {
-                return (Type::nrpn);
-            } else if (strcmp(typeText, "rpn") == 0) {
-                return (Type::rpn);
-            } else if (strcmp(typeText, "note") == 0) {
-                return (Type::note);
-            } else if (strcmp(typeText, "program") == 0) {
-                return (Type::program);
-            } else if (strcmp(typeText, "sysex") == 0) {
-                return (Type::sysex);
-            } else if (strcmp(typeText, "start") == 0) {
-                return (Type::start);
-            } else if (strcmp(typeText, "stop") == 0) {
-                return (Type::stop);
-            } else if (strcmp(typeText, "tune") == 0) {
-                return (Type::tune);
-            } else if (strcmp(typeText, "virtual") == 0) {
-                return (Type::virt);
-            } else if (strcmp(typeText, "atpoly") == 0) {
-                return (Type::atpoly);
-            } else if (strcmp(typeText, "atchannel") == 0) {
-                return (Type::atchannel);
-            } else if (strcmp(typeText, "pitchbend") == 0) {
-                return (Type::pitchbend);
-            } else if (strcmp(typeText, "spp") == 0) {
-                return (Type::spp);
-            } else if (strcmp(typeText, "relcc") == 0) {
-                return (Type::relcc);
-            } else if (strcmp(typeText, "none") == 0) {
-                return (Type::none);
-            }
-        } else {
-            // default - for rules that do not have type specified
-            return (Type::sysex);
-        }
-        return (Type::none);
-    }
+    /**
+     * @brief Sets the order of the bytes in the message.
+     * 
+     * @param newLsbFirst true for LSB first, false for MSB first.
+     */
+    void setLsbFirst(bool newLsbFirst);
 
-    static const char *translateType(Type messageType)
-    {
-        if (messageType == Type::cc7) {
-            return ("cc7");
-        } else if (messageType == Type::cc14) {
-            return ("cc14");
-        } else if (messageType == Type::nrpn) {
-            return ("nrpn");
-        } else if (messageType == Type::rpn) {
-            return ("rpn");
-        } else if (messageType == Type::note) {
-            return ("note");
-        } else if (messageType == Type::program) {
-            return ("program");
-        } else if (messageType == Type::sysex) {
-            return ("sysex");
-        } else if (messageType == Type::start) {
-            return ("start");
-        } else if (messageType == Type::stop) {
-            return ("stop");
-        } else if (messageType == Type::tune) {
-            return ("tune");
-        } else if (messageType == Type::virt) {
-            return ("virtual");
-        } else if (messageType == Type::atpoly) {
-            return ("atpoly");
-        } else if (messageType == Type::atchannel) {
-            return ("atchannel");
-        } else if (messageType == Type::pitchbend) {
-            return ("pitchbend");
-        } else if (messageType == Type::spp) {
-            return ("spp");
-        } else if (messageType == Type::relcc) {
-            return ("relcc");
-        } else if (messageType == Type::none) {
-            return ("none");
-        }
+    /**
+     * @brief Returns the order of the bytes in the message.
+     * 
+     * @return true for LSB first, false for MSB first.
+     */
+    bool getLsbFirst(void) const;
 
-        return ("invalid");
-    }
+    /**
+     * @brief Sets the flag that RPN should be reset before sending the message.
+     * 
+     * When RPN is reset, the controller sends RPN reset message after each
+     * RPN/NRPN message.
+     * 
+     * @param newResetRpn use true when RPN should be reset
+     */
+    void setResetRpn(bool newResetRpn);
+
+    /**
+     * @brief Returns the flag that RPN should be reset before sending the message.
+     * 
+     * @return true when RPN should be reset
+     */
+    bool getResetRpn(void) const;
+
+    /**
+     * @brief Sets the bit width of the message.
+     * 
+     * @param newBitWidth the bit width of the message
+     */
+    void setBitWidth(uint8_t newBitWidth);
+
+    /**
+     * @brief Returns the bit width of the message.
+     * 
+     * @return the bit width of the message
+     */
+    uint8_t getBitWidth(void) const;
+
+    /**
+     * @brief Forces to send relative CC messages.
+     * 
+     * @param shouldBeRelative true when the message should be sent as relative
+     */
+    void setRelative(uint8_t shouldBeRelative);
+
+    /**
+     * @brief Returns true when the message should be sent as relative.
+     * 
+     * @return true when the message should be sent as relative
+     */
+    uint8_t isRelative(void) const;
+
+    /**
+     * @brief Sets the relative mode of the message.
+     * 
+     * @param newRelativeMode the relative mode of the message
+     */
+    void setRelativeMode(RelativeMode newRelativeMode);
+
+    /**
+     * @brief Returns the relative mode of the message.
+     * 
+     * @return the relative mode of the message
+     */
+    RelativeMode getRelativeMode(void) const;
+
+    /**
+     * @brief Sets whether or not relative messages should
+     *  support acceleration.
+     * 
+     * @param shouldBeAccelerated true when the message should be sent as accelerated
+     */
+    void setAccelerated(uint8_t shouldBeAccelerated);
+
+    /**
+     * @brief Returns true when the message should be sent as accelerated.
+     * 
+     * @return true when the message should be sent as accelerated
+     */
+    uint8_t isAccelerated(void) const;
+
+    /**
+     * @brief Sets the ControlValue (parent) of the message.
+     * 
+     * @param newControlValue pointer to the ControlValue
+     */
+    void setControlValue(ControlValue *newControlValue);
+
+    /**
+     * @brief Returns the ControlValue (parent) of the message.
+     * 
+     * @return pointer to the ControlValue
+     */
+    ControlValue *getControlValue(void) const;
+
+    /**
+     * @brief  Prints the message to the logger output.
+     * 
+     * @param logLevel 
+     */
+    void print(uint8_t logLevel = LOG_TRACE) const;
+
+    /**
+     * @brief  Translate a text string to a message type.
+     * 
+     * @return message type or none if the text is not recognized.
+     */
+    static Type translateType(const char *typeText);
+
+    /**
+     * @brief  Translate a message type to a text string.
+     * 
+     * @return text string or "none" if the type is not recognized.
+     */
+    static const char *translateType(Type messageType);
 
     std::vector<uint8_t> *data;
 
 private:
     uint16_t parameterNumber;
-    int16_t value;
-    int16_t midiMin;
-    int16_t midiMax;
+    uint16_t value;
+    uint16_t midiMin;
+    uint16_t midiMax;
+    ControlValue *controlValue;
 
     struct {
         uint8_t deviceId : 6;
@@ -324,6 +395,9 @@ private:
         bool resetRpn : 1;
         uint8_t signMode : 3;
         uint8_t bitWidth : 4;
+        bool relative : 1;
+        uint8_t relativeMode : 2;
+        bool accelerated : 1;
     };
 };
 

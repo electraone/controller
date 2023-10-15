@@ -1,3 +1,30 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file SnapsButton.h
+ *
+ * @brief Implements an on-screen button representing a Snapshot.
+ */
+
 #pragma once
 
 #include "Components/Button.h"
@@ -5,88 +32,33 @@
 class SnapsButton : public Button
 {
 public:
-    SnapsButton() : used(false)
-    {
-    }
-
+    SnapsButton();
     virtual ~SnapsButton() = default;
 
-    void setUsed(bool shouldBeUsed)
-    {
-        used = shouldBeUsed;
-    }
-
-    bool isUsed(void)
-    {
-        return (used);
-    }
-
-    void setProgramInfo(const char *newProgramInfo)
-    {
-        copyString(programInfo, newProgramInfo, maxProgramInfoLength);
-    }
-
-    void setBankNumber(uint8_t newBankNumber)
-    {
-        bankNumber = newBankNumber;
-    }
-
-    void paint(Graphics &g)
-    {
-        if (used) {
-            uint16_t textOffsetY = (getHeight() / 2) - 2;
-            uint32_t colour = getColour();
-
-            if (isHighlighted()) {
-                colour = Colours565::lighter(colour, 0.1f);
-            }
-
-            g.setColour(colour);
-            g.fillRoundRect(0, 0, getWidth(), getHeight(), 4);
-            g.printText(0,
-                        textOffsetY,
-                        getLabel(),
-                        TextStyle::mediumTransparent,
-                        getWidth(),
-                        TextAlign::center);
-            g.printText(5,
-                        5,
-                        programInfo,
-                        TextStyle::smallTransparent,
-                        40,
-                        TextAlign::left);
-        } else {
-            g.setColour(Colours565::black);
-            g.fillRoundRect(0, 0, getWidth(), getHeight(), 4);
-
-            g.setColour(0x2104);
-            for (uint16_t i = 4; i < getWidth() - 4; i += 4) {
-                g.drawPixel(i, 0);
-                g.drawPixel(i, getHeight());
-            }
-            for (uint16_t i = 5; i < getHeight() - 4; i += 4) {
-                g.drawPixel(0, i);
-                g.drawPixel(getWidth(), i);
-            }
-            g.drawPixel(1, 1);
-            g.drawPixel(1, getHeight() - 2);
-            g.drawPixel(getWidth() - 2, 1);
-            g.drawPixel(getWidth() - 2, getHeight() - 2);
-
-            g.printText(5,
-                        5,
-                        programInfo,
-                        TextStyle::smallTransparent,
-                        40,
-                        TextAlign::left);
-            g.dim(5, 5, 40, 12, COLOR_BLACK);
-        }
-    }
+    void setUsed(bool shouldBeUsed);
+    bool isUsed();
+    void setProgramInfo(const char *newProgramInfo);
+    void setBankNumber(uint8_t newBankNumber);
+    void paint(Graphics &g) override;
 
     static const uint8_t maxLabelLength = Component::MaxNameLength;
     static const uint8_t maxProgramInfoLength = 7;
 
 private:
+    static void paintUsed(Graphics &g,
+                          uint16_t width,
+                          uint16_t height,
+                          uint32_t colour,
+                          const char *programInfo,
+                          const char *label,
+                          bool highlighted);
+    static void paintUnused(Graphics &g,
+                            uint16_t width,
+                            uint16_t height,
+                            const char *programInfo);
+    static void
+        printProgramInfo(Graphics &g, const char *programInfo, bool used);
+
     char programInfo[maxProgramInfoLength + 1];
 
     struct {

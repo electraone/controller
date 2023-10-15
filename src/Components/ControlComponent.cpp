@@ -1,12 +1,32 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
 #include "ControlComponent.h"
 #include "FaderControl.h"
-#include "DialControl.h"
 #include "ListControl.h"
 #include "ListButtonControl.h"
 #include "PadControl.h"
 #include "ADSRControl.h"
 #include "ADRControl.h"
-#include "DX7EnvControl.h"
+#include "Dx7EnvControl.h"
 #include "FaderDetailControl.h"
 #include "ListDetailControl.h"
 #include "ADSRDetailControl.h"
@@ -43,7 +63,8 @@ void ControlComponent::syncComponentProperties(void)
     setVisible(control.isVisible());
 }
 
-void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
+void ControlComponent::onTouchLongHold(
+    [[maybe_unused]] const TouchEvent &touchEvent)
 {
     if (MainWindow *window = dynamic_cast<MainWindow *>(getWindow())) {
         window->openDetail(getId());
@@ -51,13 +72,15 @@ void ControlComponent::onTouchLongHold(const TouchEvent &touchEvent)
     setActive(false);
 }
 
-void ControlComponent::onTouchDoubleClick(const TouchEvent &touchEvent)
+void ControlComponent::onTouchDoubleClick(
+    [[maybe_unused]] const TouchEvent &touchEvent)
 {
     uint8_t handle = 0;
 
     if (Envelope *en = dynamic_cast<Envelope *>(this)) {
         handle = en->getActiveSegment();
     }
+
     delegate.setDefaultValue(getId(), handle);
 }
 
@@ -92,32 +115,24 @@ void ControlComponent::emitValueChange(int16_t newDisplayValue,
 {
     uint16_t midiValue = 0;
 
-    if (cv.message.getType() == Message::Type::relcc) {
-        SignMode signMode = cv.message.getSignMode();
-        if (signMode == SignMode::signBit2) {
-            midiValue = (newDisplayValue > 0) ? 1 : 65;
-        } else if (signMode == SignMode::binOffset) {
-            midiValue = (newDisplayValue > 0) ? 65 : 63;
-        } else if (signMode == SignMode::twosComplement) {
-            midiValue = (newDisplayValue > 0) ? 1 : 127;
-        } else {
-            midiValue = (newDisplayValue > 0) ? 65 : 1;
-        }
+    Message::Type type = cv.message.getType();
+
+    if ((type == Message::Type::relcc) || cv.isRelative()) {
+        midiValue = calculateRelativeMidiValue(newDisplayValue, cv);
+        parameterMap.setRelative(cv.message.getDeviceId(),
+                                 type,
+                                 cv.message.getParameterNumber(),
+                                 midiValue,
+                                 Origin::internal);
     } else {
-        newDisplayValue = constrain(newDisplayValue, cv.getMin(), cv.getMax());
-        midiValue = translateValueToMidiValue(cv.message.getSignMode(),
-                                              cv.message.getBitWidth(),
-                                              newDisplayValue,
-                                              cv.getMin(),
-                                              cv.getMax(),
-                                              cv.message.getMidiMin(),
-                                              cv.message.getMidiMax());
+        midiValue = calculateAbsoluteMidiValue(newDisplayValue, cv);
+        parameterMap.setValue(cv.message.getDeviceId(),
+                              type,
+                              cv.message.getParameterNumber(),
+                              midiValue,
+                              Origin::internal);
     }
-    parameterMap.setValue(cv.message.getDeviceId(),
-                          cv.message.getType(),
-                          cv.message.getParameterNumber(),
-                          midiValue,
-                          Origin::internal);
+
     System::logger.write(LOG_TRACE,
                          "emitValueChange: display=%d, midi=%d",
                          newDisplayValue,
@@ -205,4 +220,42 @@ ControlComponent *
     }
 
     return (c);
+}
+
+uint16_t ControlComponent::calculateRelativeMidiValue(int16_t delta,
+                                                      const ControlValue &cv)
+{
+    uint16_t midiValue = 0;
+    RelativeMode relativeMode = cv.message.getRelativeMode();
+
+    if (relativeMode == RelativeMode::signBit2) {
+        // inc [01 - 63] dec [65 - 127]
+        midiValue = (delta > 0) ? delta : 64 + abs(delta);
+    } else if (relativeMode == RelativeMode::binOffset) {
+        // inc [65 - 127] dec [63 - 0]
+        midiValue = (delta > 0) ? 64 + delta : 64 + delta;
+    } else if (relativeMode == RelativeMode::twosComplement) {
+        // inc [1 - 64] dec [127 - 65]
+        midiValue = (delta > 0) ? delta : 128 + delta;
+    } else {
+        // RelativeMode::signBit (and anything else)
+        // inc [65 - 127] dec [1 - 63]
+        midiValue = (delta > 0) ? 64 + delta : abs(delta);
+    }
+    return (midiValue);
+}
+
+uint16_t ControlComponent::calculateAbsoluteMidiValue(int16_t newDisplayValue,
+                                                      const ControlValue &cv)
+{
+    uint16_t midiValue = 0;
+    newDisplayValue = constrain(newDisplayValue, cv.getMin(), cv.getMax());
+    midiValue = translateValueToMidiValue(cv.message.getSignMode(),
+                                          cv.message.getBitWidth(),
+                                          newDisplayValue,
+                                          cv.getMin(),
+                                          cv.getMax(),
+                                          cv.message.getMidiMin(),
+                                          cv.message.getMidiMax());
+    return (midiValue);
 }

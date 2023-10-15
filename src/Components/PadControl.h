@@ -1,3 +1,30 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
+/**
+ * @file PadControl.h
+ *
+ * @brief Implements a on-screen button for Controls.
+ */
+
 #pragma once
 
 #include "Control.h"
@@ -7,142 +34,28 @@
 class PadControl : public ControlComponent, public Pad
 {
 public:
-    PadControl(const Control &control, MainDelegate &newDelegate)
-        : ControlComponent(control, newDelegate)
-    {
-        updateValueFromParameterMap();
-    }
-
+    PadControl(const Control &control, MainDelegate &newDelegate);
     virtual ~PadControl() = default;
 
-    virtual void onTouchDown(const TouchEvent &touchEvent) override
-    {
-        const ControlValue cv = control.getValue(0);
-        uint16_t midiValue = cv.message.getOnValue();
-        bool stateToPass = false;
-
-        if (control.getMode() == Control::Mode::Toggle) {
-            midiValue = (state == false) ? cv.message.getOnValue()
-                                         : cv.message.getOffValue();
-            setState(!state);
-            stateToPass = state;
-        } else {
-            stateToPass = true;
-        }
-
-        parameterMap.setValue(cv.message.getDeviceId(),
-                              cv.message.getType(),
-                              cv.message.getParameterNumber(),
-                              midiValue,
-                              Origin::internal);
-    }
-
-    virtual void onTouchUp(const TouchEvent &touchEvent) override
-    {
-        if (control.getMode() == Control::Mode::Momentary) {
-            const ControlValue cv = control.getValue(0);
-
-            parameterMap.setValue(cv.message.getDeviceId(),
-                                  cv.message.getType(),
-                                  cv.message.getParameterNumber(),
-                                  cv.message.getOffValue(),
-                                  Origin::internal);
-        }
-    }
-
-    virtual void onPotTouchDown(const PotEvent &potEvent) override
-    {
-        ControlComponent::onPotTouchDown(potEvent);
-    }
-
-    virtual void onPotChange(const PotEvent &potEvent) override
-    {
-        int16_t delta = potEvent.getAcceleratedChange();
-        int8_t step = (delta < 0) - (delta > 0);
-        const ControlValue cv = control.getValue(0);
-
-        if (step < 0 && state != true) {
-            parameterMap.setValue(cv.message.getDeviceId(),
-                                  cv.message.getType(),
-                                  cv.message.getParameterNumber(),
-                                  cv.message.getOnValue(),
-                                  Origin::internal);
-        } else if (step > 0 && state != false) {
-            parameterMap.setValue(cv.message.getDeviceId(),
-                                  cv.message.getType(),
-                                  cv.message.getParameterNumber(),
-                                  cv.message.getOffValue(),
-                                  Origin::internal);
-        }
-    }
-
-    virtual void onPotTouchUp(const PotEvent &potEvent) override
-    {
-        if (control.getMode() == Control::Mode::Momentary) {
-            const ControlValue cv = control.getValue(0);
-
-            parameterMap.setValue(cv.message.getDeviceId(),
-                                  cv.message.getType(),
-                                  cv.message.getParameterNumber(),
-                                  cv.message.getOffValue(),
-                                  Origin::internal);
-        }
-        ControlComponent::onPotTouchUp(potEvent);
-    }
+    virtual void onTouchDown(const TouchEvent &touchEvent) override;
+    virtual void onTouchUp(const TouchEvent &touchEvent) override;
+    virtual void onPotTouchDown(const PotEvent &potEvent) override;
+    virtual void onPotChange(const PotEvent &potEvent) override;
+    virtual void onPotTouchUp(const PotEvent &potEvent) override;
+    void onTouchLongHold(const TouchEvent &touchEvent) override;
 
     virtual void onMidiValueChange(const ControlValue &value,
                                    int16_t midiValue,
-                                   uint8_t handle = 0) override
-    {
-        if (value.translateMidiValue(midiValue)) {
-            setState(true);
-        } else {
-            setState(false);
-        }
-    }
+                                   uint8_t handle = 0) override;
 
-    void paint(Graphics &g) override
-    {
-        g.fillAll(getUseAltBackground() ? LookAndFeel::altBackgroundColour
-                                        : LookAndFeel::backgroundColour);
-        auto bounds = getBounds();
-        auto isMomentary = (control.getMode() == Control::Mode::Momentary);
-        bounds.setX(0);
-        bounds.setY(3);
-        bounds.setWidth(getWidth());
-        bounds.setHeight(getHeight() - 6);
-        LookAndFeel::paintPad(
-            g, bounds, control.getColour565(), isMomentary, getState());
+    void paint(Graphics &g) override;
 
-        g.setColour(Colours565::white);
+    void emitValueChange(int16_t newDisplayValue,
+                         const ControlValue &cv) override;
 
-        char stringValue[20];
-        if (control.getValue(0).isLabelSet()) {
-            copyString(stringValue, control.getValue(0).getLabel(), 19);
-        } else if (!control.getValue(0).getFormatter().empty()) {
-            control.getValue(0).callFormatter(
-                getState(), stringValue, sizeof(stringValue));
-        } else {
-            snprintf(stringValue, sizeof(stringValue), "%s", getName());
-        }
+private:
+    bool getState(void) const;
+    void setState(bool newState);
 
-        g.print(0,
-                getHeight() / 2 - 10,
-                stringValue,
-                bounds.getWidth(),
-                TextAlign::center);
-
-        ControlComponent::paint(g);
-    }
-
-    void emitValueChange(int16_t newDisplayValue, const ControlValue &cv)
-    {
-        // left empty on pupose. The logic is handled in the Pad component
-    }
-
-    void onTouchLongHold(const TouchEvent &touchEvent)
-    {
-        // left empty on pupose. It overrides the long hold of ControlComponent
-        // which defaults to displaying the detail.
-    }
+    bool state;
 };
