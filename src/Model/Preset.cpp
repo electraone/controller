@@ -727,17 +727,19 @@ Page Preset::parsePage(JsonObject jPage)
     uint8_t id = constrainPageId(jPage["id"]);
     const char *name = jPage["name"] | "No name";
     uint8_t defaultControlSetId = jPage["defaultControlSetId"] | 0;
+    bool hidden = jPage["hidden"] | false;
 
 #ifdef DEBUG
     System::logger.write(
         LOG_ERROR,
-        "parsePage: page created: id=%d, name=%s, defaultControlSetId=%d",
+        "parsePage: page created: id=%d, name=%s, defaultControlSetId=%d, hidden=%d",
         id,
         name,
-        defaultControlSetId);
+        defaultControlSetId,
+        hidden);
 #endif /* DEBUG */
 
-    return (Page(id, name, defaultControlSetId));
+    return (Page(id, name, defaultControlSetId, hidden));
 }
 
 /*--------------------------------------------------------------------------*/

@@ -90,7 +90,7 @@ void MainWindow::reboot(void)
 
 bool MainWindow::switchPage(uint8_t pageId)
 {
-    if (preset.getPage(pageId).getHasObjects()) {
+    if (preset.getPage(pageId).isToBeDisplayed()) {
         uint8_t controlSet =
             setup.uiFeatures.resetActiveControlSet
                 ? preset.pages.at(pageId).getDefaultControlSetId()
@@ -127,7 +127,7 @@ bool MainWindow::switchPage(uint8_t pageId, uint8_t controlSetId)
 bool MainWindow::switchPageNext(void)
 {
     for (uint8_t i = (currentPageId + 1); i < 12; i++) {
-        if (preset.getPage(i).getHasObjects()) {
+        if (preset.getPage(i).isToBeDisplayed()) {
             switchPage(i);
             return (true);
         }
@@ -138,7 +138,7 @@ bool MainWindow::switchPageNext(void)
 bool MainWindow::switchPagePrev(void)
 {
     for (int8_t i = (currentPageId - 1); i > 0; i--) {
-        if (preset.getPage(i).getHasObjects()) {
+        if (preset.getPage(i).isToBeDisplayed()) {
             switchPage(i);
             return (true);
         }

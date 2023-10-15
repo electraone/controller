@@ -18,7 +18,7 @@ PageSelection::PageSelection(PageSelectionWindowDelegate &newDelegate,
         uint8_t pageId = i + 1;
 
         if (button[i]) {
-            if (pages[pageId].getHasObjects()) {
+            if (pages[pageId].isToBeDisplayed()) {
                 button[i]->setLabel(pages[pageId].getName());
                 button[i]->onClick = [this, i]() {
                     setActivePage(i);
