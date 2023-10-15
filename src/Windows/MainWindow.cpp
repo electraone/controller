@@ -387,6 +387,28 @@ void MainWindow::setControlSlot(uint16_t controlId, uint8_t newSlot)
     }
 }
 
+void MainWindow::setControlSlot(uint16_t controlId,
+                                uint8_t newPageId,
+                                uint8_t newSlot)
+{
+    Control &control = preset.getControl(controlId);
+    auto originalPageId = control.getPageId();
+
+    if (control.isValid()) {
+        preset.moveControlToSlot(controlId, newPageId, newSlot);
+
+        if (newPageId != originalPageId) {
+            if (newPageId == currentPageId) {
+                pageView->addControl(control);
+            } else {
+                pageView->removeControl(control);
+            }
+        } else {
+            pageView->moveControl(control);
+        }
+    }
+}
+
 void MainWindow::setControlValueLabel(uint16_t controlId,
                                       const char *valueId,
                                       const char *text)
@@ -1028,7 +1050,7 @@ void MainWindow::displayPage(void)
         delete pageView;
     }
 
-    pageView = new PageView(preset,
+    pageView = new PageView(&preset,
                             *this,
                             uiApi,
                             setup.uiFeatures,

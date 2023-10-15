@@ -45,6 +45,9 @@ public:
     virtual void setControlBounds(uint16_t controlId,
                                   const Rectangle &bounds) = 0;
     virtual void setControlSlot(uint16_t controlId, uint8_t newSlot) = 0;
+    virtual void setControlSlot(uint16_t controlId,
+                                uint8_t newPageId,
+                                uint8_t newSlot) = 0;
     virtual void setControlValueLabel(uint16_t controlId,
                                       const char *valueId,
                                       const char *text) = 0;

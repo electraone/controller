@@ -260,6 +260,31 @@ const Control &Preset::getControl(uint16_t controlId) const
     return (Preset::controlNotFound);
 }
 
+Control &Preset::moveControlToSlot(uint16_t controlId,
+                                   uint8_t newPageId,
+                                   uint8_t newSlot)
+{
+    Control &control = getControl(controlId);
+
+    if (control.isValid()) {
+        uint8_t newPotId = (newSlot - 1) % MaxNumPots;
+        uint8_t newControlSetId = (newSlot - 1) / MaxNumPots;
+        Rectangle bounds = controlSlotToBounds(newSlot);
+        // adjust position from parent group slot
+        bounds.setX(bounds.getX() + 6);
+        bounds.setY(bounds.getY() + 22);
+        bounds.setWidth(bounds.getWidth() - 12);
+
+        control.setBounds(bounds);
+        control.setVisible(true);
+        control.inputs[0].setPotId(newPotId);
+        control.setControlSetId(newControlSetId);
+        control.setPageId(newPageId);
+    }
+
+    return (control);
+}
+
 Device &Preset::addDevice(uint8_t deviceId,
                           const char *name,
                           uint8_t port,
@@ -273,6 +298,16 @@ Overlay &Preset::addOverlay(uint8_t id)
 {
     overlays[id] = Overlay(id);
     return (overlays[id]);
+}
+
+void Preset::resetComponents(void)
+{
+    for (auto &[id, control] : controls) {
+        control.resetComponent();
+    }
+    for (auto &[id, group] : groups) {
+        group.resetComponent();
+    }
 }
 
 /*--------------------------------------------------------------------------*/

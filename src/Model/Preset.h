@@ -45,12 +45,18 @@ public:
     uint8_t registerFunction(const char *functionName);
     void print(void) const;
 
+    Control &moveControlToSlot(uint16_t controlId,
+                               uint8_t newPageId,
+                               uint8_t slotId);
+
     Device &addDevice(uint8_t deviceId,
                       const char *name,
                       uint8_t port,
                       uint8_t channel);
 
     Overlay &addOverlay(uint8_t id);
+
+    void resetComponents(void);
 
 public:
     static constexpr uint8_t MaxNameLength = 20;

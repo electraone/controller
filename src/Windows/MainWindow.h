@@ -106,6 +106,9 @@ public:
      */
     void setControlSlot(uint16_t controlId, uint8_t newSlot) override;
 
+    virtual void setControlSlot(uint16_t controlId,
+                                uint8_t newPageId,
+                                uint8_t newSlot) override;
     /**
      * replace control value with fixed text string
      *

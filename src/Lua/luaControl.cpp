@@ -204,15 +204,21 @@ int control_getBounds(lua_State *L)
 
 int control_setSlot(lua_State *L)
 {
-    lua_settop(L, 2);
     Control *control = getControl(L, 1);
     int slot = luaL_checkinteger(L, 2);
 
     luaL_argcheck(
         L, 1 <= slot && slot <= 36, 2, "failed: slot must be between 1 and 36");
 
+    // Get the optional pageId parameter, or use a default value if not provided
+    int pageId = lua_isnoneornil(L, 3) ? 0 : luaL_checkinteger(L, 3);
+
     if (control) {
-        luaDelegate->setControlSlot(control->getId(), slot);
+        if (pageId) {
+            luaDelegate->setControlSlot(control->getId(), pageId, slot);
+        } else {
+            luaDelegate->setControlSlot(control->getId(), slot);
+        }
     } else {
         return (luaL_error(L, "failed: not a valid control"));
     }

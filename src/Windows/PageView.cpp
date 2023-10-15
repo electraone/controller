@@ -1,6 +1,27 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
 #include "PageView.h"
 
-PageView::PageView(const Preset &preset,
+PageView::PageView(Preset *preset,
                    MainDelegate &newDelegate,
                    UiApi &newUiApi,
                    const UiFeatures &newUiFeatures,
@@ -17,31 +38,28 @@ PageView::PageView(const Preset &preset,
                 false, false, false, false, false, false }
 {
     setName("PageView");
-    addGroups(model.groups);
-    addControls(model.controls);
-    addBottomBar(model.getName(), model.getPage(pageId).getName());
+    addGroups(model->groups);
+    addControls(model->controls);
+    addBottomBar(model->getName(), model->getPage(pageId).getName());
     setBounds(0, 0, 1024, 575);
     assignAllPots();
+    parameterMap.enable();
 }
 
 PageView::~PageView(void)
 {
-    for (const auto &[id, control] : model.controls) {
+    for (const auto &[id, control] : model->controls) {
         if (control.getPageId() == pageId) {
             delegate.removeComponentFromControl(control.getId());
         }
     }
-    for (const auto &[id, group] : model.groups) {
+    for (const auto &[id, group] : model->groups) {
         if (group.getPageId() == pageId) {
             delegate.removeComponentFromGroup(group.getId());
         }
     }
     getWindow()->resetActiveTouch();
     parameterMap.disable();
-    System::tasks.disableRepaintGraphics();
-    System::tasks.clearRepaintGraphics();
-    System::tasks.enableRepaintGraphics();
-    parameterMap.enable();
 }
 
 void PageView::setControlSet(uint8_t newControlSetId)
@@ -50,7 +68,7 @@ void PageView::setControlSet(uint8_t newControlSetId)
 
     resetUsedPots();
 
-    for (const auto &[id, control] : model.controls) {
+    for (const auto &[id, control] : model->controls) {
         if (control.getPageId() == pageId) {
             auto cc = dynamic_cast<ControlComponent *>(control.getComponent());
 
@@ -59,7 +77,7 @@ void PageView::setControlSet(uint8_t newControlSetId)
             }
         }
     }
-    for (const auto &[id, group] : model.groups) {
+    for (const auto &[id, group] : model->groups) {
         if (group.getPageId() == pageId) {
             if (auto g = dynamic_cast<GroupControl *>(group.getComponent())) {
                 configureGroup(g, group);
@@ -142,6 +160,38 @@ void PageView::setRamPercentage(uint8_t newPercentage)
     bottomBar->repaint();
 }
 
+void PageView::addControl(const Control &control)
+{
+    ControlComponent *cc =
+        ControlComponent::createControlComponent(control, delegate);
+
+    if (cc) {
+        configureControl(cc, control);
+        addChildComponent(cc);
+
+        delegate.assignComponentToControl(control.getId(), cc);
+    }
+}
+
+void PageView::moveControl(const Control &control)
+{
+    if (Component *component = control.getComponent()) {
+        component->clear();
+        component->setBounds(control.getBounds());
+        component->setVisible(true);
+        reassignComponent(control);
+    }
+}
+
+void PageView::removeControl(const Control &control)
+{
+    if (Component *component = control.getComponent()) {
+        component->clear();
+        delegate.removeComponentFromControl(control.getId());
+        deleteComponent(component);
+    }
+}
+
 void PageView::paint(Graphics &g)
 {
     g.fillAll(Colours565::black);
@@ -174,15 +224,7 @@ void PageView::addControls(const Controls &controls)
 {
     for (const auto &[id, control] : controls) {
         if (control.getPageId() == pageId) {
-            ControlComponent *cc =
-                ControlComponent::createControlComponent(control, delegate);
-
-            if (cc) {
-                configureControl(cc, control);
-                addChildComponent(cc);
-
-                delegate.assignComponentToControl(control.getId(), cc);
-            }
+            addControl(control);
         }
     }
 }
@@ -211,7 +253,8 @@ void PageView::addBottomBar(const char *presetName, const char *pageName)
     }
 }
 
-void PageView::configureGroup(GroupControl *g, const Group &group)
+void PageView::configureGroup(GroupControl *g,
+                              [[maybe_unused]] const Group &group)
 {
     uint16_t topY = controlSetId * 177 + 6;
     uint16_t bottomY = controlSetId * 177 + 177 + 6;

@@ -1,3 +1,24 @@
+/*
+* Electra One MIDI Controller Firmware
+* See COPYRIGHT file at the top of the source tree.
+*
+* This product includes software developed by the
+* Electra One Project (http://electra.one/).
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.
+*/
+
 #include "Control.h"
 #include "ParameterMap.h"
 
@@ -57,6 +78,11 @@ void Control::setId(uint16_t newId)
 uint16_t Control::getId(void) const
 {
     return (id);
+}
+
+void Control::setPageId(uint8_t newPageId)
+{
+    pageId = newPageId;
 }
 
 uint8_t Control::getPageId(void) const
@@ -319,6 +345,7 @@ void Control::addToParameterMap(ControlValue &value)
         value.getHandle(),
         &value);
 #endif
+    // @todo Use a function in parameter map. extra parameter for getOrCreate() ?
     LookupEntry *lookupEntry =
         parameterMap.getOrCreate(value.message.getDeviceId(),
                                  value.message.getType(),
@@ -335,48 +362,46 @@ void Control::removeFromParameterMap(ControlValue &value)
 
 void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
 {
-    if (value.message.getType() == Message::Type::start) {
-        parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-            ->addDestination(&value);
-    } else if (value.message.getType() == Message::Type::stop) {
-        parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-            ->addDestination(&value);
-    } else if (value.message.getType() == Message::Type::tune) {
-        parameterMap.getOrCreate(0xff, value.message.getType(), 0)
-            ->addDestination(&value);
+    int16_t midiValue = MIDI_VALUE_DO_NOT_SEND;
+    LookupEntry *lookupEntry = nullptr;
+
+    const Message::Type messageType = value.message.getType();
+    const uint8_t deviceId = value.message.getDeviceId();
+    const uint16_t parameterNumber = value.message.getParameterNumber();
+    const int16_t defaultValue = value.getDefault();
+
+    if (messageType == Message::Type::start
+        || messageType == Message::Type::stop
+        || messageType == Message::Type::tune) {
+        lookupEntry = parameterMap.getOrCreate(0xff, messageType, 0);
     } else {
-        LookupEntry *lookupEntry =
-            parameterMap.getOrCreate(value.message.getDeviceId(),
-                                     value.message.getType(),
-                                     value.message.getParameterNumber());
-        lookupEntry->addDestination(&value);
+        lookupEntry =
+            parameterMap.getOrCreate(deviceId, messageType, parameterNumber);
 
-        int16_t midiValue = 0;
-
-        if (value.getDefault() != MIDI_VALUE_DO_NOT_SEND) {
-            if (getType() == Control::Type::Pad) {
-                midiValue = value.getDefault();
-            } else if (getType() == Control::Type::List) {
-                midiValue = value.getDefault();
-            } else {
-                midiValue =
-                    translateValueToMidiValue(value.message.getSignMode(),
-                                              value.message.getBitWidth(),
-                                              value.getDefault(),
-                                              value.getMin(),
-                                              value.getMax(),
-                                              value.message.getMidiMin(),
-                                              value.message.getMidiMax());
-            }
-            value.callFunction(value.getDefault());
+        if (getType() == Control::Type::Pad) {
+            midiValue = (defaultValue == 1) ? value.message.getMidiOn()
+                                            : value.message.getMidiOff();
+        } else if (getType() == Control::Type::List) {
+            /* Backward compatibility: value.default should be the index
+               of the list item, not the MIDI value. */
+            midiValue = defaultValue;
+        } else {
+            midiValue = translateValueToMidiValue(value.message.getSignMode(),
+                                                  value.message.getBitWidth(),
+                                                  defaultValue,
+                                                  value.getMin(),
+                                                  value.getMax(),
+                                                  value.message.getMidiMin(),
+                                                  value.message.getMidiMax());
         }
-
-        parameterMap.setValue(value.message.getDeviceId(),
-                              value.message.getType(),
-                              value.message.getParameterNumber(),
+        parameterMap.setValue(lookupEntry,
                               midiValue,
                               sendMidiMessages ? Origin::internal
                                                : Origin::file);
+    }
+
+    if (lookupEntry) {
+        lookupEntry->addDestination(&value);
     }
 }
 
@@ -394,7 +419,7 @@ void Control::print(uint8_t logLevel) const
     System::logger.write(logLevel, "pageId: %d", getPageId());
     System::logger.write(logLevel, "colour: %06x", getColour());
     System::logger.write(logLevel, "controlSetId: %d", getControlSetId());
-    getBounds().print(logLevel);
+    //getBounds().print(logLevel);
     printInputs(logLevel);
     printValues(logLevel);
     System::logger.write(logLevel, "--");
@@ -468,13 +493,13 @@ uint8_t Control::constraintValueId(Control::Type controlType, uint8_t handleId)
             return (0);
 
         case Control::Type::Adsr:
-            return ((0 <= handleId) && (handleId < 4)) ? handleId : 0;
+            return ((handleId < 4) ? handleId : 0);
 
         case Control::Type::Adr:
-            return ((0 <= handleId) && (handleId < 3)) ? handleId : 0;
+            return ((handleId < 3) ? handleId : 0);
 
         case Control::Type::Dx7envelope:
-            return ((0 <= handleId) && (handleId < 8)) ? handleId : 0;
+            return ((handleId < 8) ? handleId : 0);
 
         default:
             break;
