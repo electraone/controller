@@ -45,7 +45,13 @@ public:
      * @return true when the stored MIDI value has changed
      */
     bool setMidiValue(uint16_t newMidiValue);
-    bool modulate(uint16_t newMidiValue);
+
+    /**
+     * @brief Sets the relative MIDI value for the entry
+     * 
+     * @param newDelta a MIDI value to be set
+     */
+    void setRelativeMidiValue(uint16_t newDelta);
 
     /**
      * @brief Applies a MIDI value fragment to the stored MIDI value

@@ -194,7 +194,7 @@ LookupEntry *ParameterMap::setRelative(uint8_t deviceId,
         getAndCache(calculateHash(deviceId, type, parameterNumber));
 
     if (entry) {
-        entry->setMidiValue(midiValue);
+        entry->setRelativeMidiValue(midiValue);
 
         if (onChange) {
             onChange(entry, origin);

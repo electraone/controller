@@ -35,10 +35,9 @@ bool LookupEntry::setMidiValue(uint16_t newMidiValue)
     return (false);
 }
 
-bool LookupEntry::modulate(uint16_t newMidiValue)
+void LookupEntry::setRelativeMidiValue(uint16_t newDelta)
 {
-    midiValue = newMidiValue;
-    return (false);
+    midiValue = newDelta;
 }
 
 void LookupEntry::applyToMidiValue(uint16_t midiValueFragment)
