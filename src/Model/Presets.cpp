@@ -309,3 +309,55 @@ const char *Presets::getPresetName(uint8_t slotId) const
 {
     return presetSlot[slotId].getPresetName();
 }
+
+bool Presets::updateSlot(uint8_t presetId, const char *newPresetPath)
+{
+    bool success = false;
+
+    char slotPresetFilename[MAX_FILENAME_LENGTH];
+    char slotLuaFilename[MAX_FILENAME_LENGTH];
+
+    // Format preset and Lua filenames based on the presetId
+    System::context.formatPresetFilename(
+        slotPresetFilename, MAX_FILENAME_LENGTH, presetId);
+    System::context.formatLuaFilename(
+        slotLuaFilename, MAX_FILENAME_LENGTH, presetId);
+
+    // Delete existing preset and Lua files if they exist
+    if (Hardware::sdcard.exists(slotPresetFilename)) {
+        Hardware::sdcard.deleteFile(slotPresetFilename);
+    }
+
+    if (Hardware::sdcard.exists(slotLuaFilename)) {
+        Hardware::sdcard.deleteFile(slotLuaFilename);
+    }
+
+    if (newPresetPath) {
+        char tmpFilename[MAX_FILENAME_LENGTH];
+
+        // Copy preset file
+        System::context.formatPreloadedFilename(
+            tmpFilename, MAX_FILENAME_LENGTH, newPresetPath, "epr");
+        if (Hardware::sdcard.exists(tmpFilename)) {
+            success =
+                Hardware::sdcard.copyFile(tmpFilename, slotPresetFilename);
+        }
+
+        // Copy Lua file
+        System::context.formatPreloadedFilename(
+            tmpFilename, MAX_FILENAME_LENGTH, newPresetPath, "lua");
+        if (success && Hardware::sdcard.exists(tmpFilename)) {
+            success = Hardware::sdcard.copyFile(tmpFilename, slotLuaFilename);
+        }
+    }
+
+    // Force preset reload, when the slot is used next time
+    presetSlot[presetId].setAlreadyLoaded(false);
+
+    return (success);
+}
+
+uint8_t Presets::convertToPresetId(uint8_t bankNumber, uint8_t slot)
+{
+    return (bankNumber * NumPresetsInBank) + slot;
+}

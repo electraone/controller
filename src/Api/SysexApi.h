@@ -37,6 +37,7 @@ private:
     void setSnapshotSlot(uint8_t port, MemoryBlock &sysexPayload);
     void setPresetSlot(uint8_t port, uint8_t bankNumber, uint8_t slot);
     void updateSnapshot(uint8_t port, MemoryBlock &sysexPayload);
+    void updatePresetSlot(uint8_t port, MemoryBlock &sysexPayload);
     void removeSnapshot(uint8_t port, MemoryBlock &sysexPayload);
     void swapSnapshots(uint8_t port, MemoryBlock &sysexPayload);
     void setCurrentSnapshotBank(uint8_t port, uint8_t bankNumber);

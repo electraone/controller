@@ -268,6 +268,9 @@ public:
                          uint8_t bankNumber,
                          uint8_t slot) override;
     void setPresetSlot(uint8_t bankNumber, uint8_t slot) override;
+    bool updatePresetSlot(uint8_t bankNumber,
+                          uint8_t slot,
+                          const char *presetPath) override;
     void loadSnapshot(const char *projectId,
                       uint8_t bankNumber,
                       uint8_t slot) override;

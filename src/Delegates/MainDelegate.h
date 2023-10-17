@@ -107,6 +107,9 @@ public:
                                  uint8_t bankNumber,
                                  uint8_t slot) = 0;
     virtual void setPresetSlot(uint8_t bankNumber, uint8_t slot) = 0;
+    virtual bool updatePresetSlot(uint8_t bankNumber,
+                                  uint8_t slot,
+                                  const char *presetPath) = 0;
     virtual void loadSnapshot(const char *projectId,
                               uint8_t bankNumber,
                               uint8_t slot) = 0;

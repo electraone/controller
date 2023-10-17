@@ -64,6 +64,8 @@ bool SysexApi::process(uint8_t port, const SysexBlock &sysexBlock)
     } else if (cmd.isUpdate()) {
         if (object == ElectraCommand::Object::SnapshotInfo) {
             updateSnapshot(port, sysexPayload);
+        } else if (object == ElectraCommand::Object::PresetSlot) {
+            updatePresetSlot(port, sysexPayload);
         }
     } else if (cmd.isRemove()) {
         if (object == ElectraCommand::Object::SnapshotInfo) {
@@ -368,6 +370,33 @@ void SysexApi::updateSnapshot(uint8_t port, MemoryBlock &sysexPayload)
 
     delegate.updateSnapshot(projectId, bankNumber, slot, name, colour);
     MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+}
+
+void SysexApi::updatePresetSlot(uint8_t port, MemoryBlock &sysexPayload)
+{
+    System::logger.write(LOG_ERROR, "SysexApi::updatePresetSlot");
+
+    const size_t capacity = JSON_OBJECT_SIZE(1) + 500;
+    StaticJsonDocument<capacity> doc;
+
+    DeserializationError err = deserializeJson(doc, sysexPayload);
+
+    if (err) {
+        System::logger.write(
+            LOG_ERROR, "updatePresetSlot: presetSlot info parsing failed");
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
+        return;
+    }
+
+    uint8_t bankNumber = doc["bankNumber"].as<uint8_t>();
+    uint8_t slot = doc["slot"].as<uint8_t>();
+    const char *preset = doc["preset"].as<char *>();
+
+    if (delegate.updatePresetSlot(bankNumber, slot, preset)) {
+        MidiOutput::sendAck(MidiInterface::Type::MidiUsbDev, port);
+    } else {
+        MidiOutput::sendNack(MidiInterface::Type::MidiUsbDev, port);
+    }
 }
 
 void SysexApi::removeSnapshot(uint8_t port, MemoryBlock &sysexPayload)

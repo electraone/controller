@@ -848,6 +848,23 @@ void MainWindow::updateSnapshot(const char *projectId,
     }
 }
 
+bool MainWindow::updatePresetSlot(uint8_t bankNumber,
+                                  uint8_t slot,
+                                  const char *presetPath)
+{
+    System::logger.write(
+        LOG_ERROR,
+        "updatePresetSlot: bankNumber=%d, slot=%d, presetPath=%s",
+        bankNumber,
+        slot,
+        presetPath);
+
+    uint8_t presetId = Presets::convertToPresetId(bankNumber, slot);
+    bool success = presets.updateSlot(presetId, presetPath);
+    switchPreset(bankNumber, slot);
+    return (success);
+}
+
 void MainWindow::removeSnapshot(const char *projectId,
                                 uint8_t bankNumber,
                                 uint8_t slot)

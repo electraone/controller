@@ -30,6 +30,9 @@ public:
     void setCurrentBankNumber(uint8_t newBankNumber);
     uint8_t getCurrentBankNumber(void) const;
     const char *getPresetName(uint8_t slotId) const;
+    bool updateSlot(uint8_t presetId, const char *newPresetPath);
+
+    static uint8_t convertToPresetId(uint8_t bankNumber, uint8_t slot);
 
     Preset preset;
 
