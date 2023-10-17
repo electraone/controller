@@ -24,6 +24,8 @@
 #include "ControlComponent.h"
 #include "JsonTools.h"
 
+#pragma GCC optimize("O0")
+
 // Global pointer to current ParameterMap instance. \todo get rid of that.
 ParameterMap parameterMap;
 
@@ -576,42 +578,7 @@ void ParameterMap::repaintParameterMap(void)
                 getType(hash),
                 getParameterNumber(hash),
                 mapEntry.getMidiValue());
-
-            if (mapEntry.hasValidMidiValue()) {
-                for (auto &messageDestination : mapEntry.getDestinations()) {
-                    if (messageDestination->isFunctionAssigned()) {
-                        messageDestination->callFunction(
-                            messageDestination->translateMidiValue(
-                                mapEntry.getMidiValue()));
-                    }
-
-                    for (const auto &window : windows) {
-                        Component *rc = window->getOwnedContent();
-                        Component *c = rc->findChildById(
-                            messageDestination->getControl()->getId());
-
-                        if (c) {
-                            System::logger.write(
-                                LOG_TRACE,
-                                "repaintParameterMap: repainting component: "
-                                "component: %s, controlId=%d, valueId=%s",
-                                c->getName(),
-                                messageDestination->getControl()->getId(),
-                                messageDestination->getId());
-                            ControlComponent *cc =
-                                dynamic_cast<ControlComponent *>(c);
-
-                            if (cc) {
-                                cc->onMidiValueChange(
-                                    *messageDestination,
-                                    mapEntry.getMidiValue(),
-                                    messageDestination->getHandle());
-                            }
-                        }
-                    }
-                }
-            }
-            mapEntry.markAsProcessed();
+            repaintLookupEntry(&mapEntry);
         }
     }
 }
