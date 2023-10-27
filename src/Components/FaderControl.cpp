@@ -22,10 +22,7 @@
 
 FaderControl::FaderControl(const Control &control, MainDelegate &newDelegate)
     : ControlComponent(control, newDelegate),
-      previousScreenX(0),
-      thresholdCrossed(false),
-      valueOnTheRight(false),
-      previousTextWidth(0)
+      thresholdCrossed(false)
 {
     const auto &controlValue = control.getValue(0);
 
@@ -283,28 +280,30 @@ void FaderControl::paintValueFloating(Graphics &g,
 
     uint16_t textWidth =
         TextBTE::getTextWidth(stringValue, TextStyle::mediumTransparent);
+    g.setColour(x > (bounds.getWidth() - textWidth) && isColorTooBright(colour, 0.7f) ? Colours565::black : Colours565::white);
+    g.print(0,
+            labelYPosition,
+            stringValue,
+            bounds.getWidth() - 10,
+            TextAlign::right);
+}
 
-    if (textWidth != previousTextWidth) {
-        if (std::abs((x + 5 + textWidth) - (getWidth() - 10))
-            > valueSwitchThreshold) {
-            if ((x + 5 + textWidth) < (getWidth() - 10)) {
-                valueOnTheRight = true;
-            } else {
-                valueOnTheRight = false;
-            }
-            previousTextWidth = textWidth;
-        }
-    }
+bool FaderControl::isColorTooBright(uint16_t color, float brightnessThreshold)
+{
+    uint16_t r = (color >> 11) & 0x1F;
+    uint16_t g = (color >> 5) & 0x3F;
+    uint16_t b = color & 0x1F;
 
-    if (valueOnTheRight) {
-        g.setColour(val >= 0 ? Colours565::white : Colours565::black);
-        g.print(x + 5, labelYPosition, stringValue, textWidth, TextAlign::left);
-    } else {
-        g.setColour(val >= 0 ? Colours565::black : Colours565::white);
-        g.print(x - 10 - textWidth,
-                labelYPosition,
-                stringValue,
-                textWidth,
-                TextAlign::right);
-    }
+    // Normalize the components to the [0, 1] range
+    float R = static_cast<float>(r) / 31.0f;
+    float G = static_cast<float>(g) / 63.0f;
+    float B = static_cast<float>(b) / 31.0f;
+
+    float maxColor = std::max({R, G, B});
+    float minColor = std::min({R, G, B});
+
+    // Calculate lightness in the HSL color space using float
+    float lightness = (maxColor + minColor) / 2.0f;
+
+    return (lightness > brightnessThreshold);
 }

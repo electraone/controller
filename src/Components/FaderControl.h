@@ -79,13 +79,10 @@ private:
                             const ListData *items,
                             Control::Mode mode,
                             Control::Variant variant);
+    bool isColorTooBright(uint16_t color, float brightnessThreshold);
 
     struct {
         uint16_t previousScreenX : 10;
         bool thresholdCrossed : 1;
-        bool valueOnTheRight : 1;
-        uint8_t previousTextWidth : 8;
     };
-
-    static constexpr uint8_t valueSwitchThreshold = 5;
 };
