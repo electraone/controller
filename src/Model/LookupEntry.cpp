@@ -49,7 +49,6 @@ void LookupEntry::applyToMidiValue(uint16_t midiValueFragment)
 void LookupEntry::resetMidiValue(void)
 {
     midiValue = MIDI_VALUE_DO_NOT_SEND;
-    dirty = true;
 }
 
 uint16_t LookupEntry::getMidiValue(void) const

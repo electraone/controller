@@ -201,6 +201,7 @@ LookupEntry *ParameterMap::setRelative(uint8_t deviceId,
         if (onChange) {
             onChange(entry, origin);
         }
+        entry->resetMidiValue();
     }
     return (entry);
 }
@@ -569,7 +570,7 @@ void ParameterMap::disable(void)
 void ParameterMap::repaintParameterMap(void)
 {
     for (auto &[hash, mapEntry] : entries) {
-        if (mapEntry.isDirty()) {
+        if (mapEntry.isDirty() && mapEntry.hasValidMidiValue()) {
             System::logger.write(
                 LOG_TRACE,
                 "repaintParameterMap: dirty entry found: device=%d, type=%d, "
