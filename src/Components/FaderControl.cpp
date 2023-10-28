@@ -284,7 +284,7 @@ void FaderControl::paintValueFloating(Graphics &g,
     g.print(0,
             labelYPosition,
             stringValue,
-            bounds.getWidth() - 10,
+            bounds.getWidth() - textPositionFromRight,
             TextAlign::right);
 }
 

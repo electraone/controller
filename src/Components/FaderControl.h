@@ -85,4 +85,6 @@ private:
         uint16_t previousScreenX : 10;
         bool thresholdCrossed : 1;
     };
+
+    static constexpr uint16_t textPositionFromRight = 0;
 };
