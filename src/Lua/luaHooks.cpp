@@ -8,8 +8,6 @@ void runFormatter(const char *formatter,
                   int maxLength)
 {
     int stackSize = lua_gettop(L);
-    buffer[0] = '\0';
-
     lua_getglobal(L, formatter);
 
     if (lua_isfunction(L, -1)) {
@@ -17,7 +15,7 @@ void runFormatter(const char *formatter,
         lua_pushnumber(L, value);
 
         if (lua_pcall(L, 2, LUA_MULTRET, 0) != 0) {
-            System::logger.write(LOG_ERROR,
+            System::logger.write(LOG_LUA,
                                  "error running function 'runFormatter': %s",
                                  lua_tostring(L, -1));
         }
@@ -26,11 +24,14 @@ void runFormatter(const char *formatter,
         int numReturnedValues = lua_gettop(L) - stackSize;
 
         if (numReturnedValues > 0) {
-            copyString(buffer, luaL_checkstring(L, -1), maxLength - 1);
+            const char *formattedValue = luaL_checkstring(L, -1);
+            if (strlen(formattedValue) > 0) {
+                copyString(buffer, luaL_checkstring(L, -1), maxLength - 1);
+            }
             lua_pop(L, 1);
         } else {
             System::logger.write(
-                LOG_ERROR, "function 'runFormatter' does not return value");
+                LOG_LUA, "function 'runFormatter' does not return value");
         }
     } else {
         // Remove entry inserted with the lua_getglobal
