@@ -21,8 +21,7 @@
 #include "FaderControl.h"
 
 FaderControl::FaderControl(const Control &control, MainDelegate &newDelegate)
-    : ControlComponent(control, newDelegate),
-      thresholdCrossed(false)
+    : ControlComponent(control, newDelegate), thresholdCrossed(false)
 {
     const auto &controlValue = control.getValue(0);
 
@@ -280,7 +279,10 @@ void FaderControl::paintValueFloating(Graphics &g,
 
     uint16_t textWidth =
         TextBTE::getTextWidth(stringValue, TextStyle::mediumTransparent);
-    g.setColour(x > (bounds.getWidth() - textWidth) && isColorTooBright(colour, 0.7f) ? Colours565::black : Colours565::white);
+    g.setColour(x > (bounds.getWidth() - textWidth)
+                        && isColorTooBright(colour, 0.7f)
+                    ? Colours565::black
+                    : Colours565::white);
     g.print(0,
             labelYPosition,
             stringValue,
@@ -299,8 +301,8 @@ bool FaderControl::isColorTooBright(uint16_t color, float brightnessThreshold)
     float G = static_cast<float>(g) / 63.0f;
     float B = static_cast<float>(b) / 31.0f;
 
-    float maxColor = std::max({R, G, B});
-    float minColor = std::min({R, G, B});
+    float maxColor = std::max({ R, G, B });
+    float minColor = std::min({ R, G, B });
 
     // Calculate lightness in the HSL color space using float
     float lightness = (maxColor + minColor) / 2.0f;

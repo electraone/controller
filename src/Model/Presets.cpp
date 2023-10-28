@@ -178,7 +178,7 @@ void Presets::reset(void)
 
     // Always disable the timer when loading a preset
     System::tasks.disableTimer();
-    
+
     // Reset Lua callbacks
     resetMidiCallbacks();
 
