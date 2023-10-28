@@ -1199,7 +1199,9 @@ std::vector<ControlValue> Preset::parseValues(File &file,
         do {
             size_t valueStartPosition = file.position();
             ControlValue value = parseValue(file, valueStartPosition, control);
-            values[value.getIndex()] = value;
+            ControlValue& currentValue = values[value.getIndex()];
+            currentValue = value;
+            currentValue.message.setControlValue(&currentValue);
         } while (file.findUntil(",", "]"));
     }
 
