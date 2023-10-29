@@ -109,8 +109,8 @@ LookupEntry *ParameterMap::setValue(LookupEntry *entry,
                     onChange(entry, origin);
                 }
             }
+            postEntry(entry);
         }
-        postEntry(entry);
     }
     return (entry);
 }
