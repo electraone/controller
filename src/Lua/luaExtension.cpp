@@ -46,8 +46,83 @@ void loadLuaLibs(void)
     message_register(L);
     overlay_register(L);
 
+    loadGlobalVariables(L);
+
     // Clear the stack
     lua_settop(L, 0);
+}
+
+void loadGlobalVariables(lua_State *L)
+{
+    // Colours
+    lua_pushnumber(L, 0xffffff);
+    lua_setglobal(L, "WHITE");
+    lua_pushnumber(L, 0xF45C51);
+    lua_setglobal(L, "RED");
+    lua_pushnumber(L, 0xF49500);
+    lua_setglobal(L, "ORANGE");
+    lua_pushnumber(L, 0x529DEC);
+    lua_setglobal(L, "BLUE");
+    lua_pushnumber(L, 0x03A598);
+    lua_setglobal(L, "GREEN");
+    lua_pushnumber(L, 0xC44795);
+    lua_setglobal(L, "PURPLE");
+
+    // Electra Parameter types
+    lua_pushnumber(L, 0);
+    lua_setglobal(L, "PT_VIRTUAL");
+    lua_pushnumber(L, 1);
+    lua_setglobal(L, "PT_CC7");
+    lua_pushnumber(L, 2);
+    lua_setglobal(L, "PT_CC14");
+    lua_pushnumber(L, 3);
+    lua_setglobal(L, "PT_NRPN");
+    lua_pushnumber(L, 4);
+    lua_setglobal(L, "PT_RPN");
+    lua_pushnumber(L, 5);
+    lua_setglobal(L, "PT_NOTE");
+    lua_pushnumber(L, 6);
+    lua_setglobal(L, "PT_PROGRAM");
+    lua_pushnumber(L, 7);
+    lua_setglobal(L, "PT_SYSEX");
+    lua_pushnumber(L, 8);
+    lua_setglobal(L, "PT_START");
+    lua_pushnumber(L, 9);
+    lua_setglobal(L, "PT_STOP");
+    lua_pushnumber(L, 10);
+    lua_setglobal(L, "PT_TUNE");
+    lua_pushnumber(L, 11);
+    lua_setglobal(L, "PT_ATPOLY");
+    lua_pushnumber(L, 12);
+    lua_setglobal(L, "PT_ATCHANNEL");
+    lua_pushnumber(L, 13);
+    lua_setglobal(L, "PT_PITCHBEND");
+    lua_pushnumber(L, 14);
+    lua_setglobal(L, "PT_SPP");
+    lua_pushnumber(L, 15);
+    lua_setglobal(L, "PT_RELCC");
+    lua_pushnumber(L, 16);
+    lua_setglobal(L, "PT_NONE");
+
+    // Control sets
+    lua_pushnumber(L, 1);
+    lua_setglobal(L, "CONTROL_SET_1");
+    lua_pushnumber(L, 2);
+    lua_setglobal(L, "CONTROL_SET_2");
+    lua_pushnumber(L, 3);
+    lua_setglobal(L, "CONTROL_SET_3");
+
+    // Events
+    lua_pushnumber(L, 1);
+    lua_setglobal(L, "PAGES");
+    lua_pushnumber(L, 2);
+    lua_setglobal(L, "CONTROL_SETS");
+
+    // Variants
+    lua_pushnumber(L, 0);
+    lua_setglobal(L, "VT_DEFAULT");
+    lua_pushnumber(L, 1);
+    lua_setglobal(L, "VT_HIGHLIGHTED");
 }
 
 /** @todo Get rid of this global variables */

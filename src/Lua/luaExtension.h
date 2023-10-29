@@ -52,3 +52,4 @@ extern Preset *luaPreset;
 extern MainDelegate *luaDelegate;
 
 void loadLuaLibs();
+void loadGlobalVariables(lua_State *L);
