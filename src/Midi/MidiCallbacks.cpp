@@ -122,7 +122,7 @@ void resetMidiCallbacks(void)
     MidiInputCallback::onMidiNoteOffCallback = nullptr;
     MidiInputCallback::onMidiAfterTouchPolyCallback = nullptr;
     MidiInputCallback::onMidiSysexCallback = nullptr;
-    //MidiInputCallback::onMidiMessageCallback = nullptr;
+    MidiInputCallback::onMidiMessageCallback = nullptr;
 }
 
 /*
@@ -268,7 +268,7 @@ void onMidiMessage(MidiInput &midiInput, MidiMessage &midiMessage)
     if (lua_isfunction(L, -1)) {
         if (midiMessage.isSysEx()) {
             SysexBlock sysexBlock = midiMessage.getSysExBlock();
-            MidiMessage::Type type = midiMessage.getType();
+            MidiMessage::Type type = MidiMessage::Type::SystemExclusive;
 
             lua_newtable(L);
             luaLE_pushTableInteger(
@@ -277,7 +277,7 @@ void onMidiMessage(MidiInput &midiInput, MidiMessage &midiMessage)
 
             lua_newtable(L);
             luaLE_pushTableInteger(L, "type", (uint8_t)type);
-            luaLE_pushTableObject(L, "SysexBlock", &sysexBlock);
+            luaLE_pushTableObject(L, "sysexBlock", "SysexBlock", &sysexBlock);
 
             if (lua_pcall(L, 2, 0, 0) != 0) {
                 System::logger.write(
