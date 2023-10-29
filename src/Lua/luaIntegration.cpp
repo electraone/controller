@@ -73,7 +73,7 @@ int luaLE_checkParameterType(lua_State *L, int idx)
 {
     int type = luaL_checkinteger(L, idx);
 
-    if ((type < 0) || (type > 11)) {
+    if ((type < 0) || (type > 16)) {
         return (luaL_error(L, "invalid parameter type: %d", type));
     }
     return (type);
