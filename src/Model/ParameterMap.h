@@ -291,6 +291,13 @@ public:
     void repaintParameterMap(void);
 
     /**
+     * @brief Schedule repaint of all entries with Lua
+     * functons and formatters
+     * 
+     */
+    void scheduleLuaProcessing(void);
+
+    /**
      * @brief Repaint a single LookupEntry
      * 
      * @param mapEntry 

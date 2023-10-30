@@ -123,8 +123,15 @@ public:
     Message &getMessage(void);
 
     /**
+     * @brief Marks the entry for processing
+     *  It marks the entry as dirty, it it will be
+     *  picked up for processing.
+     */
+    void markAsDirty(void);
+
+    /**
      * @brief Marks the entry as processed
-     *  The is not considered to be dirty any more. Meaning
+     *  It is not considered to be dirty any more. Meaning
      *  it was processed.
      */
     void markAsProcessed(void);

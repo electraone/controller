@@ -171,6 +171,11 @@ bool ControlValue::isFormatterAssigned(void) const
     return (false);
 }
 
+bool ControlValue::hasLua(void) const
+{
+    return (isFunctionAssigned() || isFormatterAssigned());
+}
+
 const char *ControlValue::ControlValue::getFunction(void) const
 {
     if (luaPreset) {
@@ -221,9 +226,13 @@ int16_t ControlValue::getValue(void) const
 
 void ControlValue::callFormatter(int16_t value)
 {
-    if ((L != nullptr) && luaPreset
-        && (formatter < luaPreset->luaFunctions.size())
-        && !luaPreset->luaFunctions[formatter].empty()) {
+    /* @todo this need some clean up */
+    if ((L != nullptr) // Lua is initialized
+        && luaPreset // preset is loaded
+        && (formatter
+            < luaPreset->luaFunctions.size()) // function Id is within the range
+        && !luaPreset->luaFunctions[formatter]
+                .empty()) { // function really exists
         runFormatter(luaPreset->luaFunctions[formatter].c_str(),
                      this,
                      value,
@@ -234,9 +243,15 @@ void ControlValue::callFormatter(int16_t value)
 
 void ControlValue::callFunction(int16_t value) const
 {
-    if ((L != nullptr) && luaPreset && (value != MIDI_VALUE_DO_NOT_SEND)
-        && (function < luaPreset->luaFunctions.size())
-        && !luaPreset->luaFunctions[function].empty()) {
+    /* @todo this need some clean up */
+    if ((L != nullptr) // Lua is initialized
+        && luaPreset // preset is loaded
+        && (value != MIDI_VALUE_DO_NOT_SEND) // MIDI value is valid
+        && (function
+            < luaPreset->luaFunctions.size()) // function Id is within the range
+        && !luaPreset->luaFunctions[function].empty() // function really exists
+        && (message.getType()
+            != Message::Type::none)) { // Is not bound to None message type
         runFunction(luaPreset->luaFunctions[function].c_str(), this, value);
     }
 }

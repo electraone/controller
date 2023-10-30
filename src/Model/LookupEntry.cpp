@@ -107,6 +107,11 @@ Message &LookupEntry::getMessage(void)
     return (messageDestination[0]->message);
 }
 
+void LookupEntry::markAsDirty(void)
+{
+    dirty = true;
+}
+
 void LookupEntry::markAsProcessed(void)
 {
     dirty = false;

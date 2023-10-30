@@ -93,7 +93,7 @@ int luaLE_checkMidiValue(lua_State *L, int idx)
 {
     int midiValue = luaL_checkinteger(L, idx);
 
-    if ((midiValue < 0) || (midiValue > 16383)) {
+    if ((midiValue < 0) || (midiValue > 16538)) {
         return (luaL_error(L, "invalid midiValue: %d", midiValue));
     }
     return (midiValue);

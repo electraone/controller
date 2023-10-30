@@ -567,6 +567,17 @@ void ParameterMap::disable(void)
     System::tasks.enableRepaintGraphics();
 }
 
+void ParameterMap::scheduleLuaProcessing(void)
+{
+    for (auto &[hash, mapEntry] : entries) {
+        for (auto &messageDestination : mapEntry.getDestinations()) {
+            if (messageDestination->hasLua()) {
+                mapEntry.markAsDirty();
+            }
+        }
+    }
+}
+
 void ParameterMap::repaintParameterMap(void)
 {
     for (auto &[hash, mapEntry] : entries) {

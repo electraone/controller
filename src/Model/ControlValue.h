@@ -76,6 +76,7 @@ public:
     uint16_t getNumSteps(void) const;
     bool isFunctionAssigned(void) const;
     bool isFormatterAssigned(void) const;
+    bool hasLua(void) const;
     const char *getFunction(void) const;
     const std::string getFormatter(void) const;
     void setLabel(const char *newLabel);
