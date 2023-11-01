@@ -21,7 +21,8 @@
 
 #include "LookupEntry.h"
 
-LookupEntry::LookupEntry() : midiValue(MIDI_VALUE_DO_NOT_SEND), dirty(false)
+LookupEntry::LookupEntry()
+    : midiValue(MIDI_VALUE_DO_NOT_SEND), dirty(false), callFunction(false)
 {
 }
 
@@ -30,6 +31,7 @@ bool LookupEntry::setMidiValue(uint16_t newMidiValue)
     if (midiValue != newMidiValue) {
         midiValue = newMidiValue;
         dirty = true;
+        callFunction = true;
         return (true);
     }
     return (false);
@@ -44,6 +46,7 @@ void LookupEntry::applyToMidiValue(uint16_t midiValueFragment)
 {
     midiValue |= midiValueFragment;
     dirty = true;
+    callFunction = true;
 }
 
 void LookupEntry::resetMidiValue(void)
@@ -103,21 +106,38 @@ std::vector<ControlValue *> &LookupEntry::getDestinations(void)
 
 Message &LookupEntry::getMessage(void)
 {
-    // @todo this will fail for empty destinations
     return (messageDestination[0]->message);
 }
 
-void LookupEntry::markAsDirty(void)
+void LookupEntry::markForRepaintWithoutFunction(void)
 {
     dirty = true;
+    callFunction = false;
+}
+
+void LookupEntry::markForFullRepaint(void)
+{
+    dirty = true;
+    callFunction = true;
 }
 
 void LookupEntry::markAsProcessed(void)
 {
     dirty = false;
+    callFunction = false;
 }
 
 bool LookupEntry::isDirty(void) const
 {
     return (dirty);
+}
+
+bool LookupEntry::isForFullRepaint(void) const
+{
+    return (dirty && callFunction);
+}
+
+bool LookupEntry::isForRepaintWithoutFunction(void) const
+{
+    return (dirty && !callFunction);
 }

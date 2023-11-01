@@ -275,7 +275,6 @@ bool MainWindow::loadLua(LocalFile &file)
     if (isLuaValid(System::context.getCurrentLuaFile())) {
         if (preset.isValid()) {
             presets.runPresetLuaScript();
-            parameterMap.scheduleLuaProcessing();
             closeAllWindows();
             switchPage(1, preset.getPage(1).getDefaultControlSetId());
             return (true);

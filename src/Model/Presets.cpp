@@ -254,11 +254,14 @@ void Presets::runPresetLuaScript(void)
 
         executeElectraLua(System::context.getCurrentLuaFile());
 
-        // assign Lua callbacks
+        // Assign Lua callbacks
         assignLuaCallbacks();
 
-        // trigger Lua onLoad function
+        // Trigger Lua onLoad function
         preset_onLoad();
+
+        // Mark map entries with Lua for processing
+        parameterMap.scheduleLuaProcessing();
     }
 }
 

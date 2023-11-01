@@ -124,14 +124,23 @@ public:
 
     /**
      * @brief Marks the entry for processing
-     *  It marks the entry as dirty, it it will be
+     *  It marks the entry as dirty without
+     *  calling the Lua Function. The entry will be
      *  picked up for processing.
      */
-    void markAsDirty(void);
+    void markForRepaintWithoutFunction(void);
+
+    /**
+     * @brief Marks the entry for processing
+     *  It marks the entry as dirty and schedules
+     *  the Lua Function call. The entry will be
+     *  picked up for processing.
+     */
+    void markForFullRepaint(void);
 
     /**
      * @brief Marks the entry as processed
-     *  It is not considered to be dirty any more. Meaning
+     *  The is not considered to be dirty any more. Meaning
      *  it was processed.
      */
     void markAsProcessed(void);
@@ -144,8 +153,29 @@ public:
      */
     bool isDirty(void) const;
 
+    /**
+     * @brief Returns true when the entry is dirty
+     *  and full repaint including Lua FUnction call is required
+     * 
+     * @return true when the entry is dirty
+     */
+    bool isForFullRepaint(void) const;
+
+    /**
+     * @brief Returns true when the entry is dirty
+     *  and Lua Function call is not to be called.
+     *  This is used to not to trigger Lua function
+     *  for Message::Type:none
+     * 
+     * @return true when the entry is dirty
+     */
+    bool isForRepaintWithoutFunction(void) const;
+
 private:
     uint16_t midiValue;
-    bool dirty;
+    struct {
+        bool dirty : 1;
+        bool callFunction : 1;
+    };
     std::vector<ControlValue *> messageDestination;
 };

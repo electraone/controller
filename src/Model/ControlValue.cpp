@@ -249,9 +249,8 @@ void ControlValue::callFunction(int16_t value) const
         && (value != MIDI_VALUE_DO_NOT_SEND) // MIDI value is valid
         && (function
             < luaPreset->luaFunctions.size()) // function Id is within the range
-        && !luaPreset->luaFunctions[function].empty() // function really exists
-        && (message.getType()
-            != Message::Type::none)) { // Is not bound to None message type
+        && !luaPreset->luaFunctions[function]
+                .empty()) { // function really exists
         runFunction(luaPreset->luaFunctions[function].c_str(), this, value);
     }
 }

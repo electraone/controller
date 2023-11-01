@@ -555,7 +555,7 @@ void ParameterMap::enable(void)
         static_cast<TaskCallback>(InstanceCallback<void(void)>::callback);
 
     System::tasks.addTask(repaintParameterMapTask);
-    repaintParameterMapTask.set(40000, TASK_FOREVER, repaintTaskCallback);
+    repaintParameterMapTask.set(25000, TASK_FOREVER, repaintTaskCallback);
     repaintParameterMapTask.enable();
 }
 
@@ -572,7 +572,12 @@ void ParameterMap::scheduleLuaProcessing(void)
     for (auto &[hash, mapEntry] : entries) {
         for (auto &messageDestination : mapEntry.getDestinations()) {
             if (messageDestination->hasLua()) {
-                mapEntry.markAsDirty();
+                if (messageDestination->message.getType()
+                    == Message::Type::none) {
+                    mapEntry.markForRepaintWithoutFunction();
+                } else {
+                    mapEntry.markForFullRepaint();
+                }
             }
         }
     }
@@ -600,7 +605,8 @@ void ParameterMap::repaintLookupEntry(LookupEntry *mapEntry)
     for (auto &messageDestination : mapEntry->getDestinations()) {
         if (mapEntry->hasValidMidiValue()) {
             // Process User Lua callbacks assigned to the ControlValue
-            if (messageDestination->isFunctionAssigned()) {
+            if (mapEntry->isForFullRepaint()
+                && messageDestination->isFunctionAssigned()) {
                 messageDestination->callFunction(
                     messageDestination->translateMidiValue(
                         mapEntry->getMidiValue()));
