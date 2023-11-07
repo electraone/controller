@@ -308,7 +308,7 @@ public:
      * @brief  Enable parameter map repainting
      * 
      */
-    void enable(void);
+    void enable(bool newPresetLoaded = false);
 
     /**
      * @brief Disable parameter map repainting
@@ -468,6 +468,7 @@ private:
     LookupEntry *lastRead;
     uint32_t lastReadHash;
     bool enabled;
+    bool onReadyPending;
     char projectId[20 + 1];
     char appSandbox[20 + 1];
 

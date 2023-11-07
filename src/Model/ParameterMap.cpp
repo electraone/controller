@@ -23,6 +23,7 @@
 #include "ParameterMapWindow.h"
 #include "ControlComponent.h"
 #include "JsonTools.h"
+#include "luaExtension.h"
 
 #pragma GCC optimize("O0")
 
@@ -30,7 +31,7 @@
 ParameterMap parameterMap;
 
 ParameterMap::ParameterMap()
-    : lastRead(nullptr), lastReadHash(0), enabled(false)
+    : lastRead(nullptr), lastReadHash(0), enabled(false), onReadyPending(false)
 {
     memset(projectId, 0x00, sizeof(projectId));
 }
@@ -547,8 +548,11 @@ void ParameterMap::listWindows(void)
     }
 }
 
-void ParameterMap::enable(void)
+void ParameterMap::enable(bool newPresetLoaded)
 {
+    if (newPresetLoaded) {
+        onReadyPending = true;
+    }
     InstanceCallback<void(void)>::callbackFunction =
         std::bind(&ParameterMap::repaintParameterMap, this);
     TaskCallback repaintTaskCallback =
@@ -597,6 +601,13 @@ void ParameterMap::repaintParameterMap(void)
                 mapEntry.getMidiValue());
             repaintLookupEntry(&mapEntry);
         }
+    }
+
+    if (onReadyPending) {
+        if (L) {
+            preset_onReady();
+        }
+        onReadyPending = false;
     }
 }
 

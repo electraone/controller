@@ -106,6 +106,9 @@ std::vector<ControlValue *> &LookupEntry::getDestinations(void)
 
 Message &LookupEntry::getMessage(void)
 {
+    if (messageDestination.empty()) {
+        return (emptyMessage);
+    }
     return (messageDestination[0]->message);
 }
 
@@ -141,3 +144,5 @@ bool LookupEntry::isForRepaintWithoutFunction(void) const
 {
     return (dirty && !callFunction);
 }
+
+Message LookupEntry::emptyMessage;

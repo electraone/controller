@@ -44,6 +44,23 @@ void preset_onLoad(void)
     luaLE_postFunctionCleanUp(L);
 }
 
+void preset_onReady(void)
+{
+    const char *function = "onReady";
+
+    luaLE_getModuleFunction("preset", function);
+
+    if (lua_isfunction(L, -1)) {
+        if (lua_pcall(L, 0, 0, 0) != 0) {
+            System::logger.write(LOG_LUA,
+                                 "error running function '%s': %s",
+                                 function,
+                                 lua_tostring(L, -1));
+        }
+    }
+    luaLE_postFunctionCleanUp(L);
+}
+
 void preset_onExit(void)
 {
     const char *function = "onExit";

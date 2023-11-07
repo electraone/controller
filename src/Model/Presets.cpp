@@ -3,6 +3,8 @@
 #include "MidiCallbacks.h"
 #include "luaExtension.h"
 
+#pragma GCC optimize("O0")
+
 Presets::Presets(const char *newAppSandbox,
                  const bool &shouldKeepPresetState,
                  const bool &shouldLoadPresetStateOnStartup)
@@ -103,11 +105,6 @@ bool Presets::loadPreset(LocalFile file)
 {
     const char *presetFile = file.getFilepath();
 
-    // clear all entries in the frame buffer
-    parameterMap.disable();
-    System::tasks.disableRepaintGraphics();
-    System::tasks.clearRepaintGraphics();
-
     // Free current preset
     reset();
 
@@ -127,7 +124,7 @@ bool Presets::loadPreset(LocalFile file)
             }
 
             parameterMap.setProjectId(preset.getProjectId());
-            parameterMap.enable();
+
             uint8_t presetId =
                 (currentBankNumber * NumPresetsInBank) + currentSlot;
 
@@ -148,7 +145,7 @@ bool Presets::loadPreset(LocalFile file)
             preset.reset();
         }
     }
-    System::tasks.enableRepaintGraphics();
+
     return (true);
 }
 
@@ -171,7 +168,7 @@ void Presets::reset(void)
         parameterMap.keep();
     }
 
-    // trigger Lua onLoad function
+    // trigger Lua onExit function
     if (L) {
         preset_onExit();
     }
@@ -210,6 +207,11 @@ bool Presets::loadPresetById(uint8_t presetId)
         readyForPresetSwitch = false;
     }
 
+    // clear all entries in the frame buffer
+    parameterMap.disable();
+    System::tasks.disableRepaintGraphics();
+    System::tasks.clearRepaintGraphics();
+
     if (presetId > 71) {
         presetId = 0;
     }
@@ -234,9 +236,27 @@ bool Presets::loadPresetById(uint8_t presetId)
                              presetId);
     }
 
+    // Enable the ParameterMap sync
+    parameterMap.enable(true);
+    System::tasks.enableRepaintGraphics();
+
     readyForPresetSwitch = true;
 
     return (true);
+}
+
+void Presets::runUploadedLuaScript(void)
+{
+    // clear all entries in the frame buffer
+    parameterMap.disable();
+    System::tasks.disableRepaintGraphics();
+    System::tasks.clearRepaintGraphics();
+
+    runPresetLuaScript();
+
+    // Enable the ParameterMap sync
+    parameterMap.enable(true);
+    System::tasks.enableRepaintGraphics();
 }
 
 /** Run lua script

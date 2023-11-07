@@ -241,40 +241,20 @@ void MainWindow::refreshControl(const Control &control)
     }
 }
 
-// 'todo Deduplicate loadPreset and switchPreset functions'
 bool MainWindow::loadPreset(LocalFile &file)
 {
-    uint8_t attempt = 0;
     System::tasks.enableSpinner();
-
-    do {
-        if (presets.loadPreset(file)) {
-            System::logger.write(
-                LOG_ERROR,
-                "handleCtrlFileReceived: preset loaded: name=%s",
-                preset.getName());
-        }
-    } while (!preset.isValid() && (attempt++ < 4));
-
+    switchPreset(presets.getCurrentBankNumber(), presets.getCurrentSlot());
     System::tasks.disableSpinner();
 
-    closeAllWindows();
-    switchPage(1, preset.getPage(1).getDefaultControlSetId());
-    setInfoText("");
-
-    if (!preset.isValid()) {
-        System::logger.write(LOG_ERROR,
-                             "handleCtrlFileReceived: preset upload failed");
-        return (false);
-    }
-    return (true);
+    return (preset.isValid());
 }
 
 bool MainWindow::loadLua(LocalFile &file)
 {
     if (isLuaValid(System::context.getCurrentLuaFile())) {
         if (preset.isValid()) {
-            presets.runPresetLuaScript();
+            presets.runUploadedLuaScript();
             closeAllWindows();
             switchPage(1, preset.getPage(1).getDefaultControlSetId());
             return (true);
@@ -739,6 +719,7 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
             LOG_ERROR,
             "MainWindow::switchPreset: cannot initialize snapshot storage");
     }
+    closeAllWindows();
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
     setInfoText("");
 }

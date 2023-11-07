@@ -178,4 +178,6 @@ private:
         bool callFunction : 1;
     };
     std::vector<ControlValue *> messageDestination;
+
+    static Message emptyMessage;
 };

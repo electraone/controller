@@ -17,6 +17,7 @@ public:
     void sendList(uint8_t port);
 
     bool loadPresetById(uint8_t presetId);
+    void runUploadedLuaScript(void);
     bool loadPreset(LocalFile file);
     void removePreset(uint8_t presetId);
     void reset(void);
