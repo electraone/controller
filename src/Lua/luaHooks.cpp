@@ -50,7 +50,7 @@ void runFunction(const char *function, const void *object, int16_t value)
         lua_pushnumber(L, value);
 
         if (lua_pcall(L, 2, 0, 0) != 0) {
-            System::logger.write(LOG_ERROR,
+            System::logger.write(LOG_LUA,
                                  "error running function 'runFunction': %s",
                                  lua_tostring(L, -1));
         }
@@ -76,7 +76,7 @@ uint8_t
 
         if (lua_pcall(L, 2, LUA_MULTRET, 0) != 0) {
             System::logger.write(
-                LOG_ERROR,
+                LOG_LUA,
                 "error running function 'runTemplateFunction': %s",
                 lua_tostring(L, -1));
         }
