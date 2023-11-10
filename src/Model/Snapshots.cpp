@@ -105,11 +105,22 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
     bool firstRecord = true;
     char buf[256]; // \todo fix buffer overflow issue
 
-    snapshotJsonFile.print("{");
-    snapshotJsonFile.print("\"version\":1,");
-    snapshotJsonFile.print("\"projectId\":\"");
-    snapshotJsonFile.print(projectId);
-    snapshotJsonFile.print("\",\"snapshots\":[");
+    buf[0] = 0xf0;
+    buf[1] = 0x00;
+    buf[2] = 0x21;
+    buf[3] = 0x45;
+    buf[4] = 0x01;
+    buf[5] = (char)ElectraCommand::Object::SnapshotList;
+
+    sprintf(buf + 6,
+            "{\"version\":1,\"projectId\":\"%s\",\"snapshots\":[",
+            projectId);
+
+    MidiOutput::sendSysExPartial(MidiInterface::Type::MidiUsbDev,
+                                 port,
+                                 (uint8_t *)buf,
+                                 strlen(buf + 6) + 6,
+                                 false);
 
     for (uint16_t i = 0; i < dbSnapshot.getNumRecords(); i++) {
         if (dbSnapshot.select(i, DB_RECORD snapRec)) {
@@ -121,26 +132,21 @@ void Snapshots::sendList(uint8_t port, const char *projectId)
                 snapRec.bankNumber,
                 snapRec.name,
                 snapRec.colour & 0xffffff);
-            snapshotJsonFile.write(buf, strlen(buf));
             firstRecord = false;
-            System::logger.write(LOG_ERROR, "buff: %s", buf);
+            MidiOutput::sendSysExPartial(MidiInterface::Type::MidiUsbDev,
+                                         port,
+                                         (uint8_t *)buf,
+                                         strlen(buf),
+                                         false);
         }
     }
 
-    snapshotJsonFile.print("]}");
+    sprintf(buf, "]}");
+    buf[2] = 0xf7;
 
-    snapshotJsonFile.close();
-    dbSnapshot.close();
+    MidiOutput::sendSysExPartial(
+        MidiInterface::Type::MidiUsbDev, port, (uint8_t *)buf, 3, false);
 
-    MidiOutput::sendSysExFile(
-        port, tempSnapshotFilename, ElectraCommand::Object::SnapshotList);
-
-    if (!Hardware::sdcard.deleteFile(tempSnapshotFilename)) {
-        System::logger.write(
-            LOG_ERROR,
-            "Snapshots::sendList: cannot remove temporary file: %s",
-            tempSnapshotFilename);
-    }
     System::sysExBusy = false;
 }
 

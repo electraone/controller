@@ -43,30 +43,23 @@ void Presets::assignPresetNames(void)
 
 void Presets::sendList(uint8_t port)
 {
-    char filenameList[MAX_FILENAME_LENGTH + 1];
-    snprintf(filenameList,
-             MAX_FILENAME_LENGTH,
-             "%s/%08ld.tmp",
-             appSandbox,
-             millis());
-
-    System::sysExBusy = true;
-
-    File presetListFile = Hardware::sdcard.createOutputStream(
-        filenameList, FILE_WRITE | O_CREAT | O_TRUNC);
-
-    if (!presetListFile) {
-        System::logger.write(LOG_ERROR,
-                             "Presets::sendList: cannot open transfer file: %s",
-                             filenameList);
-        System::sysExBusy = false;
-        return;
-    }
-
     bool firstRecord = true;
     char buf[256]; // TODO: fix buffer overflow issue
 
-    presetListFile.print("{\"version\":1,\"presets\":[");
+    buf[0] = 0xf0;
+    buf[1] = 0x00;
+    buf[2] = 0x21;
+    buf[3] = 0x45;
+    buf[4] = 0x01;
+    buf[5] = (char)ElectraCommand::Object::PresetList;
+
+    sprintf(buf + 6, "{\"version\":1,\"presets\":[");
+
+    MidiOutput::sendSysExPartial(MidiInterface::Type::MidiUsbDev,
+                                 port,
+                                 (uint8_t *)buf,
+                                 strlen(buf + 6) + 6,
+                                 false);
 
     for (uint8_t i = 0; i < 72; i++) {
         if (strlen(presetSlot[i].getPresetName()) > 0) {
@@ -78,23 +71,20 @@ void Presets::sendList(uint8_t port)
                 i / 12,
                 presetSlot[i].getPresetName(),
                 presetSlot[i].getProjectId());
-            presetListFile.write(buf, strlen(buf));
             firstRecord = false;
+            MidiOutput::sendSysExPartial(MidiInterface::Type::MidiUsbDev,
+                                         port,
+                                         (uint8_t *)buf,
+                                         strlen(buf),
+                                         false);
         }
     }
+    sprintf(buf, "]}");
+    buf[2] = 0xf7;
 
-    presetListFile.print("]}");
-    presetListFile.close();
+    MidiOutput::sendSysExPartial(
+        MidiInterface::Type::MidiUsbDev, port, (uint8_t *)buf, 3, false);
 
-    MidiOutput::sendSysExFile(
-        port, filenameList, ElectraCommand::Object::PresetList);
-
-    if (!Hardware::sdcard.deleteFile(filenameList)) {
-        System::logger.write(
-            LOG_ERROR,
-            "Presets::sendList: cannot remove temporary file: %s",
-            filenameList);
-    }
     System::sysExBusy = false;
 }
 
@@ -123,26 +113,36 @@ bool Presets::loadPreset(LocalFile file)
                 }
             }
 
-            parameterMap.setProjectId(preset.getProjectId());
+            if (Hardware::ram.adj_free() > 68000) {
+                parameterMap.setProjectId(preset.getProjectId());
 
-            uint8_t presetId =
-                (currentBankNumber * NumPresetsInBank) + currentSlot;
+                uint8_t presetId =
+                    (currentBankNumber * NumPresetsInBank) + currentSlot;
 
-            if (!loadPresetStateOnStartup
-                && !presetSlot[presetId].hasBeenAlreadyLoaded()) {
-                parameterMap.forget();
+                if (!loadPresetStateOnStartup
+                    && !presetSlot[presetId].hasBeenAlreadyLoaded()) {
+                    parameterMap.forget();
+                }
+                if (keepPresetState) {
+                    parameterMap.recall();
+                }
+
+                // mark reset as loaded in this session
+                presetSlot[presetId].setAlreadyLoaded(true);
+            } else {
+                System::logger.write(
+                    LOG_ERROR,
+                    "Presets::loadPreset: Preset is too large: file=%s",
+                    presetFile);
+                preset.reset();
+                return (false);
             }
-            if (keepPresetState) {
-                parameterMap.recall();
-            }
-
-            // mark reset as loaded in this session
-            presetSlot[presetId].setAlreadyLoaded(true);
         } else {
             System::logger.write(LOG_ERROR,
                                  "Presets::loadPreset: Invalid preset: file=%s",
                                  presetFile);
             preset.reset();
+            return (false);
         }
     }
 
@@ -223,6 +223,8 @@ bool Presets::loadPresetById(uint8_t presetId)
     System::runtimeInfo.setLastActivePreset(presetId);
 
     // Try to load the preset
+    bool status = false;
+
     if (loadPreset(file)) {
         System::logger.write(LOG_INFO,
                              "loadPresetById: preset loaded: name='%s'",
@@ -230,19 +232,22 @@ bool Presets::loadPresetById(uint8_t presetId)
 
         // Re-set Lua state and execute
         runPresetLuaScript();
+
+        // Enable the ParameterMap sync
+        parameterMap.enable(true);
+
+        status = true;
     } else {
+        reset();
         System::logger.write(LOG_ERROR,
                              "loadPresetById: preset loading failed: id=%d",
                              presetId);
     }
 
-    // Enable the ParameterMap sync
-    parameterMap.enable(true);
     System::tasks.enableRepaintGraphics();
-
     readyForPresetSwitch = true;
 
-    return (true);
+    return (status);
 }
 
 void Presets::runUploadedLuaScript(void)
