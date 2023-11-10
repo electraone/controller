@@ -713,15 +713,25 @@ void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
                          bankNumber,
                          slot,
                          bankNumber * Preset::MaxNumPots + slot);
-    presets.loadPresetById(bankNumber * Preset::MaxNumPots + slot);
-    if (!snapshots.initialise(preset.getProjectId())) {
-        System::logger.write(
-            LOG_ERROR,
-            "MainWindow::switchPreset: cannot initialize snapshot storage");
+
+    // Free the memory used by the active page
+    if (pageView) {
+        delete pageView;
+        pageView = nullptr;
+    }
+
+    if (!presets.loadPresetById(bankNumber * Preset::MaxNumPots + slot)) {
+        setInfoText("out of memory!");
+    } else {
+        setInfoText("");
+        if (!snapshots.initialise(preset.getProjectId())) {
+            System::logger.write(
+                LOG_ERROR,
+                "MainWindow::switchPreset: cannot initialize snapshot storage");
+        }
     }
     closeAllWindows();
     switchPage(1, preset.getPage(1).getDefaultControlSetId());
-    setInfoText("");
 }
 
 void MainWindow::switchPresetNext(void)
