@@ -126,9 +126,9 @@ public:
     static uint8_t constraintValueId(Control::Type controlType,
                                      uint8_t handleId);
 
-private:
     static const int MaxNameLength = 15;
 
+private:
     struct {
         uint16_t id : 10;
         uint8_t pageId : 4;

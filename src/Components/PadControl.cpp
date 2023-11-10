@@ -142,13 +142,13 @@ void PadControl::paint(Graphics &g)
         g, bounds, control.getColour565(), isMomentary, getState());
 
     g.setColour(Colours565::white);
-    char stringValue[ControlValue::MaxLabelLength + 1];
+    char stringValue[Control::MaxNameLength + 1];
     if (control.getValue(0).isLabelSet()) {
         copyString(stringValue,
                    control.getValue(0).getLabel(),
-                   ControlValue::MaxLabelLength);
+                   Control::MaxNameLength);
     } else {
-        snprintf(stringValue, ControlValue::MaxLabelLength, "%s", getName());
+        snprintf(stringValue, Control::MaxNameLength, "%s", getName());
     }
 
     g.print(0,
