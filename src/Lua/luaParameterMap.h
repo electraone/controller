@@ -37,6 +37,7 @@ int parameterMap_resetDevice(lua_State *L);
 int parameterMap_set(lua_State *L);
 int parameterMap_apply(lua_State *L);
 int parameterMap_modulate(lua_State *L);
+int parameterMap_send(lua_State *L);
 int parameterMap_get(lua_State *L);
 int parameterMap_getValues(lua_State *L);
 int parameterMap_map(lua_State *L);
@@ -53,6 +54,7 @@ static const luaL_Reg parameterMap_functions[] = {
     { "set", parameterMap_set },
     { "apply", parameterMap_apply },
     { "modulate", parameterMap_modulate },
+    { "send", parameterMap_send },
     { "get", parameterMap_get },
     { "getValues", parameterMap_getValues },
     { "map", parameterMap_map },

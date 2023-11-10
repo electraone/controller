@@ -85,6 +85,17 @@ int parameterMap_modulate(lua_State *L)
     return (0);
 }
 
+int parameterMap_send(lua_State *L)
+{
+    lua_settop(L, 3);
+    int deviceId = luaLE_checkDeviceId(L, -3);
+    int type = luaLE_checkParameterType(L, -2);
+    uint16_t parameterNumber = luaLE_checkParameterNumber(L, -1);
+
+    System::logger.write(LOG_LUA, "parameterMap_send is deprecated");
+    return (0);
+}
+
 int parameterMap_get(lua_State *L)
 {
     lua_settop(L, 3);
