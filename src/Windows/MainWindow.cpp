@@ -706,6 +706,11 @@ void MainWindow::disableMidiLearn(void)
     System::context.setMidiLearn(false);
 }
 
+void MainWindow::scheduleSwitchPreset(uint8_t bankNumber, uint8_t slot)
+{
+    presets.setPendingBankNumberAndSlot(bankNumber, slot);
+}
+
 void MainWindow::switchPreset(uint8_t bankNumber, uint8_t slot)
 {
     System::logger.write(LOG_ERROR,

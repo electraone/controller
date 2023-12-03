@@ -11,6 +11,9 @@ Presets::Presets(const char *newAppSandbox,
     : appSandbox(newAppSandbox),
       currentSlot(0),
       currentBankNumber(0),
+      pendingSlot(0),
+      pendingBankNumber(0),
+      presetChangePending(false),
       readyForPresetSwitch(true),
       keepPresetState(shouldKeepPresetState),
       loadPresetStateOnStartup(shouldLoadPresetStateOnStartup)
@@ -113,7 +116,7 @@ bool Presets::loadPreset(LocalFile file)
                 }
             }
 
-            if (Hardware::ram.adj_free() > 68000) {
+            if (Hardware::ram.adj_free() > 58000) {
                 parameterMap.setProjectId(preset.getProjectId());
 
                 uint8_t presetId =
@@ -294,6 +297,7 @@ void Presets::setBankNumberAndSlot(uint8_t presetId)
 {
     currentBankNumber = presetId / NumPresetsInBank;
     currentSlot = presetId % NumPresetsInBank;
+    presetChangePending = false;
     setDefaultFiles(currentBankNumber, currentSlot);
 }
 
@@ -301,7 +305,16 @@ void Presets::setBankNumberAndSlot(uint8_t newBankNumber, uint8_t newSlot)
 {
     currentBankNumber = newBankNumber;
     currentSlot = newSlot;
+    presetChangePending = false;
     setDefaultFiles(currentBankNumber, currentSlot);
+}
+
+void Presets::setPendingBankNumberAndSlot(uint8_t newBankNumber,
+                                          uint8_t newSlot)
+{
+    pendingBankNumber = newBankNumber;
+    pendingSlot = newSlot;
+    presetChangePending = true;
 }
 
 uint8_t Presets::getPresetId(void) const
@@ -312,6 +325,7 @@ uint8_t Presets::getPresetId(void) const
 void Presets::setCurrentSlot(uint8_t newSlot)
 {
     currentSlot = newSlot;
+    presetChangePending = false;
     setDefaultFiles(currentBankNumber, currentSlot);
 }
 
@@ -323,12 +337,28 @@ uint8_t Presets::getCurrentSlot(void) const
 void Presets::setCurrentBankNumber(uint8_t newBankNumber)
 {
     currentBankNumber = newBankNumber;
+    presetChangePending = false;
     setDefaultFiles(currentBankNumber, currentSlot);
 }
 
 uint8_t Presets::getCurrentBankNumber(void) const
 {
     return (currentBankNumber);
+}
+
+uint8_t Presets::getPendingSlot(void) const
+{
+    return (pendingSlot);
+}
+
+uint8_t Presets::getPendingBankNumber(void) const
+{
+    return (pendingBankNumber);
+}
+
+bool Presets::isPresetChangePending(void) const
+{
+    return (presetChangePending);
 }
 
 void Presets::setDefaultFiles(uint8_t newBankNumber, uint8_t newSlot)

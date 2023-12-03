@@ -710,10 +710,6 @@ void Midi::requestAllPatches(void)
             runOnRequest(device);
         }
     }
-
-    if (!patchRequests.isEmpty()) {
-        System::tasks.enableUserTask();
-    }
 }
 
 void Midi::sendControlChange(uint8_t port,

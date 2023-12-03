@@ -174,8 +174,11 @@ void Controller::runUserTask(void)
         if (device.isValid()) {
             midi.sendTemplatedSysex(device, 0, request.data);
         }
-    } else {
-        System::tasks.disableUserTask();
+    }
+
+    if (model.presets.isPresetChangePending() == true) {
+        delegate.switchPreset(model.presets.getPendingBankNumber(),
+                              model.presets.getPendingSlot());
     }
 }
 

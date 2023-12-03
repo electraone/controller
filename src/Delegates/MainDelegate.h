@@ -99,6 +99,7 @@ public:
     virtual void sendPresetList(uint8_t port) = 0;
     virtual void enableMidiLearn(void) = 0;
     virtual void disableMidiLearn(void) = 0;
+    virtual void scheduleSwitchPreset(uint8_t bankNumber, uint8_t slot) = 0;
     virtual void switchPreset(uint8_t bankNumber, uint8_t slot) = 0;
     virtual void switchPresetNext(void) = 0;
     virtual void switchPresetPrev(void) = 0;

@@ -260,6 +260,7 @@ public:
     void sendPresetList(uint8_t port) override;
     void enableMidiLearn(void) override;
     void disableMidiLearn(void) override;
+    void scheduleSwitchPreset(uint8_t bankNumber, uint8_t slot) override;
     void switchPreset(uint8_t bankNumber, uint8_t slot) override;
     void switchPresetNext(void) override;
     void switchPresetPrev(void) override;

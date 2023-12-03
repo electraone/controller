@@ -25,9 +25,13 @@ public:
 
     void setBankNumberAndSlot(uint8_t presetId);
     void setBankNumberAndSlot(uint8_t newBankNumber, uint8_t newSlot);
+    void setPendingBankNumberAndSlot(uint8_t newBankNumber, uint8_t newSlot);
     uint8_t getPresetId(void) const;
     void setCurrentSlot(uint8_t newSlot);
     uint8_t getCurrentSlot(void) const;
+    uint8_t getPendingSlot(void) const;
+    uint8_t getPendingBankNumber(void) const;
+    bool isPresetChangePending(void) const;
     void setCurrentBankNumber(uint8_t newBankNumber);
     uint8_t getCurrentBankNumber(void) const;
     const char *getPresetName(uint8_t slotId) const;
@@ -48,6 +52,9 @@ private:
 
     uint8_t currentBankNumber;
     uint8_t currentSlot;
+    uint8_t pendingBankNumber;
+    uint8_t pendingSlot;
+    bool presetChangePending;
     PresetSlot presetSlot[NumSlots];
 
     bool readyForPresetSwitch;

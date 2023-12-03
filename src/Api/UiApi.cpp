@@ -18,7 +18,7 @@ void UiApi::reboot(void)
 
 void UiApi::switchPreset(uint8_t bankNumber, uint8_t slot)
 {
-    delegate.switchPreset(bankNumber, slot);
+    delegate.scheduleSwitchPreset(bankNumber, slot);
     delegate.closePresetSelection();
     MidiOutput::sendPresetSwitched(MidiInterface::Type::MidiUsbDev,
                                    delegate.getControlPort(),
