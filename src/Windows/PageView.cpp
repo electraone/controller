@@ -257,7 +257,7 @@ void PageView::configureGroup(GroupControl *g,
                               [[maybe_unused]] const Group &group)
 {
     uint16_t topY = controlSetId * 177 + 0;
-    uint16_t bottomY = controlSetId * 177 + 177 + 0z;
+    uint16_t bottomY = controlSetId * 177 + 177 + 0;
     uint16_t groupBottomY = g->getY() + g->getHeight();
 
     if (uiFeatures.activeControlSetType == ActiveControlSetType::dim) {
