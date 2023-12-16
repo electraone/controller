@@ -20,6 +20,7 @@
 */
 
 #include "GroupControl.h"
+#include "LookAndFeel.h"
 
 GroupControl::GroupControl(const Group &groupToAssign)
     : group(groupToAssign), useAltBackground(false)
@@ -34,6 +35,24 @@ GroupControl::GroupControl(const Group &groupToAssign)
     setVisible(group.isVisible());
 }
 
+void GroupControl::setColour(uint32_t newColour)
+{
+    colour = newColour;
+    repaint();
+}
+
+void GroupControl::setLabel(const char *newLabel)
+{
+    label = newLabel;
+    repaint();
+}
+
+void GroupControl::setHighlighted(bool shouldBeHighlighted)
+{
+    isHighligted = shouldBeHighlighted;
+    repaint();
+}
+
 void GroupControl::setUseAltBackground(bool shouldUseAltBackground)
 {
     useAltBackground = shouldUseAltBackground;
@@ -46,5 +65,53 @@ bool GroupControl::getUseAltBackground(void) const
 
 void GroupControl::paint(Graphics &g)
 {
-    Set::paint(g);
+    Rectangle bounds = getBounds();
+    uint16_t width = bounds.getWidth();
+    uint16_t height = bounds.getHeight();
+
+    if (isHighligted) {
+        paintHighligted(g, width, height, colour);
+    } else {
+        paintDefault(g, width, height, colour);
+        g.paintTextPlaceHolder(0,
+                               2,
+                               label,
+                               TextStyle::smallTransparent,
+                               width,
+                               TextAlign::center,
+                               getUseAltBackground()
+                                   ? LookAndFeel::altBackgroundColour
+                                   : LookAndFeel::backgroundColour);
+    }
+
+    if (strlen(label) > 0) {
+        g.printText(
+            0, 2, label, TextStyle::smallTransparent, width, TextAlign::center);
+    }
+}
+
+void GroupControl::paintHighligted(Graphics &g,
+                                   uint16_t width,
+                                   uint16_t height,
+                                   uint32_t colour)
+{
+    if (height > 20) {
+        g.setColour(Colours565::darker(colour, 0.2));
+        g.drawRoundRect(0, 7, width, height - 7, 2);
+    }
+    g.setColour(Colours565::darker(colour, 0.25));
+    g.fillRoundRect(0, 0, width, 15, 2);
+}
+
+void GroupControl::paintDefault(Graphics &g,
+                                uint16_t width,
+                                uint16_t height,
+                                uint32_t colour)
+{
+    g.setColour(Colours565::darker(colour, 0.2));
+    if (height < 20) {
+        g.drawLine(0, 7, width, 7);
+    } else {
+        g.drawRoundRect(0, 7, width, height - 7, 2);
+    }
 }

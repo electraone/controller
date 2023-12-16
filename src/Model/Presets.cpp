@@ -116,7 +116,7 @@ bool Presets::loadPreset(LocalFile file)
                 }
             }
 
-            if (Hardware::ram.adj_free() > 58000) {
+            if (Hardware::ram.adj_free() > 62000) {
                 parameterMap.setProjectId(preset.getProjectId());
 
                 uint8_t presetId =

@@ -28,20 +28,35 @@
 #pragma once
 
 #include "Group.h"
-#include "Set.h"
+#include "Component.h"
 
-class GroupControl : public Set
+class GroupControl : public Component
 {
 public:
     explicit GroupControl(const Group &groupToAssign);
     virtual ~GroupControl() = default;
 
+    void setColour(uint32_t newColour);
+    void setLabel(const char *newLabel);
+    void setHighlighted(bool shouldBeHighlighted);
     void setUseAltBackground(bool shouldUseAltBackground);
     bool getUseAltBackground(void) const;
 
     void paint(Graphics &g) override;
 
-private:
+    static void paintHighligted(Graphics &g,
+                                uint16_t width,
+                                uint16_t height,
+                                uint32_t colour);
+    static void paintDefault(Graphics &g,
+                             uint16_t width,
+                             uint16_t height,
+                             uint32_t colour);
+
+    static constexpr uint8_t MaxSetLabelLength = 40;
+    uint32_t colour;
+    const char *label;
+    bool isHighligted;
     const Group &group;
     bool useAltBackground;
 };
