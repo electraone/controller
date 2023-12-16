@@ -41,7 +41,7 @@ class Control;
 class ControlValue
 {
 public:
-    static constexpr int MaxLabelLength = 9;
+    static constexpr int MaxLabelLength = 15;
 
     ControlValue();
     ControlValue(Control *newControl,
