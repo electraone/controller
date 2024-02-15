@@ -36,8 +36,9 @@ DetailADSR::DetailADSR(const Control &control, MainDelegate &newDelegate)
     attack.setColour(control.getColour565());
     attack.setValues(attackValues);
     attackValues[0].setControl(&attack);
-    attack.addToParameterMap(attackValues[0]);
     attackKnob = ControlComponent::createControlComponent(attack, delegate);
+    attack.setComponent(attackKnob);
+    attack.addToParameterMap(attackValues[0]);
     attackKnob->updateValueFromParameterMap();
     attackKnob->assignPot(1, attack.values[0].getNumSteps());
     addAndMakeVisible(attackKnob);
@@ -49,8 +50,9 @@ DetailADSR::DetailADSR(const Control &control, MainDelegate &newDelegate)
     decay.setColour(control.getColour565());
     decay.setValues(decayValues);
     decayValues[0].setControl(&decay);
-    decay.addToParameterMap(decayValues[0]);
     decayKnob = ControlComponent::createControlComponent(decay, delegate);
+    decay.setComponent(decayKnob);
+    decay.addToParameterMap(decayValues[0]);
     decayKnob->updateValueFromParameterMap();
     decayKnob->assignPot(2, decay.values[0].getNumSteps());
     addAndMakeVisible(decayKnob);
@@ -62,8 +64,9 @@ DetailADSR::DetailADSR(const Control &control, MainDelegate &newDelegate)
     sustain.setColour(control.getColour565());
     sustain.setValues(sustainValues);
     sustainValues[0].setControl(&sustain);
-    sustain.addToParameterMap(sustainValues[0]);
     sustainKnob = ControlComponent::createControlComponent(sustain, delegate);
+    sustain.setComponent(sustainKnob);
+    sustain.addToParameterMap(sustainValues[0]);
     sustainKnob->updateValueFromParameterMap();
     sustainKnob->assignPot(3, sustain.values[0].getNumSteps());
     addAndMakeVisible(sustainKnob);
@@ -75,8 +78,9 @@ DetailADSR::DetailADSR(const Control &control, MainDelegate &newDelegate)
     release.setColour(control.getColour565());
     release.setValues(releaseValues);
     releaseValues[0].setControl(&release);
-    release.addToParameterMap(releaseValues[0]);
     releaseKnob = ControlComponent::createControlComponent(release, delegate);
+    release.addToParameterMap(releaseValues[0]);
+    release.setComponent(releaseKnob);
     releaseKnob->updateValueFromParameterMap();
     releaseKnob->assignPot(4, release.values[0].getNumSteps());
     addAndMakeVisible(releaseKnob);

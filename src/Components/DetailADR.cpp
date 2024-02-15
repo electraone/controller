@@ -35,8 +35,9 @@ DetailADR::DetailADR(const Control &control, MainDelegate &newDelegate)
     attack.setColour(control.getColour565());
     attack.setValues(attackValues);
     attackValues[0].setControl(&attack);
-    attack.addToParameterMap(attackValues[0]);
     attackKnob = ControlComponent::createControlComponent(attack, delegate);
+    attack.setComponent(attackKnob);
+    attack.addToParameterMap(attackValues[0]);
     attackKnob->updateValueFromParameterMap();
     attackKnob->assignPot(1, attack.values[0].getNumSteps());
     addAndMakeVisible(attackKnob);
@@ -48,8 +49,9 @@ DetailADR::DetailADR(const Control &control, MainDelegate &newDelegate)
     decay.setColour(control.getColour565());
     decay.setValues(decayValues);
     decayValues[0].setControl(&decay);
-    decay.addToParameterMap(decayValues[0]);
     decayKnob = ControlComponent::createControlComponent(decay, delegate);
+    decay.setComponent(decayKnob);
+    decay.addToParameterMap(decayValues[0]);
     decayKnob->updateValueFromParameterMap();
     decayKnob->assignPot(2, decay.values[0].getNumSteps());
     addAndMakeVisible(decayKnob);
@@ -61,8 +63,9 @@ DetailADR::DetailADR(const Control &control, MainDelegate &newDelegate)
     release.setColour(control.getColour565());
     release.setValues(releaseValues);
     releaseValues[0].setControl(&release);
-    release.addToParameterMap(releaseValues[0]);
     releaseKnob = ControlComponent::createControlComponent(release, delegate);
+    release.setComponent(releaseKnob);
+    release.addToParameterMap(releaseValues[0]);
     releaseKnob->updateValueFromParameterMap();
     releaseKnob->assignPot(3, release.values[0].getNumSteps());
     addAndMakeVisible(releaseKnob);

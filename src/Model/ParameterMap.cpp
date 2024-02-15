@@ -286,6 +286,19 @@ bool ParameterMap::removeDestination(Message *message)
     return (removed);
 }
 
+bool ParameterMap::removeDestination(ControlValue *value)
+{
+    bool removed = false;
+    Message *message = &value->message;
+    LookupEntry *entry = get(message->getDeviceId(),
+                             message->getType(),
+                             message->getParameterNumber());
+    if (entry) {
+        removed = entry->removeDestination(value);
+    }
+    return (removed);
+}
+
 void ParameterMap::resetDeviceValues(uint8_t deviceId)
 {
     for (auto &[hash, lookupEntry] : entries) {

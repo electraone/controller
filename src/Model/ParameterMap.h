@@ -230,6 +230,15 @@ public:
     bool removeDestination(Message *message);
 
     /**
+      * @brief  Remove ControlValue destination from the LookupEntry.
+      * 
+      * @param value ControlValue used to find the LookupEntry
+      * 
+      * @return true when the destination was removed
+      */
+    bool removeDestination(ControlValue *value);
+
+    /**
      * @brief Reset all LookupEntry values for a given device
      * 
      * Resetting means setting the MIDI value to 0.

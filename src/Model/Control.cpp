@@ -357,7 +357,7 @@ void Control::addToParameterMap(ControlValue &value)
 
 void Control::removeFromParameterMap(ControlValue &value)
 {
-    parameterMap.removeDestination(&value.message);
+    parameterMap.removeDestination(&value);
 }
 
 void Control::setDefaultValue(ControlValue &value, bool sendMidiMessages)
