@@ -616,13 +616,13 @@ bool Midi::processResponse(const Response &response,
             "Midi::processSysex: matched response: responseId=%d",
             response.getId());
 
+        resetRulesValues(device, response.rules);
+        applyRulesValues(device, response.rules, sysexBlock, headerLength);
+
         // Run Lua onResponse function
         if (L) {
             runOnResponse(device, response.getId(), sysexBlock);
         }
-
-        resetRulesValues(device, response.rules);
-        applyRulesValues(device, response.rules, sysexBlock, headerLength);
         return (true);
     }
     return (false);

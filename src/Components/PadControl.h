@@ -35,7 +35,7 @@ class PadControl : public ControlComponent, public Pad
 {
 public:
     PadControl(const Control &control, MainDelegate &newDelegate);
-    virtual ~PadControl() = default;
+    virtual ~PadControl() override;
 
     virtual void onTouchDown(const TouchEvent &touchEvent) override;
     virtual void onTouchUp(const TouchEvent &touchEvent) override;
@@ -56,6 +56,7 @@ public:
 private:
     bool getState(void) const;
     void setState(bool newState);
+    void emitOffValue(void);
 
     bool state;
 };

@@ -22,9 +22,21 @@
 #include "PadControl.h"
 
 PadControl::PadControl(const Control &control, MainDelegate &newDelegate)
-    : ControlComponent(control, newDelegate)
+    : ControlComponent(control, newDelegate), state(false)
 {
     updateValueFromParameterMap();
+}
+
+PadControl::~PadControl()
+{
+    if ((control.getMode() == Control::Mode::Momentary)) {
+        const ControlValue cv = control.getValue(0);
+
+        parameterMap.setValueSimple(cv.message.getDeviceId(),
+                                    cv.message.getType(),
+                                    cv.message.getParameterNumber(),
+                                    cv.message.getOffValue());
+    }
 }
 
 void PadControl::onTouchDown([[maybe_unused]] const TouchEvent &touchEvent)
@@ -59,13 +71,7 @@ void PadControl::onTouchDown([[maybe_unused]] const TouchEvent &touchEvent)
 void PadControl::onTouchUp([[maybe_unused]] const TouchEvent &touchEvent)
 {
     if (control.getMode() == Control::Mode::Momentary) {
-        const ControlValue cv = control.getValue(0);
-
-        parameterMap.setValue(cv.message.getDeviceId(),
-                              cv.message.getType(),
-                              cv.message.getParameterNumber(),
-                              cv.message.getOffValue(),
-                              Origin::internal);
+        emitOffValue();
     }
 }
 
@@ -106,13 +112,7 @@ void PadControl::onPotChange(const PotEvent &potEvent)
 void PadControl::onPotTouchUp(const PotEvent &potEvent)
 {
     if (control.getMode() == Control::Mode::Momentary) {
-        const ControlValue cv = control.getValue(0);
-
-        parameterMap.setValue(cv.message.getDeviceId(),
-                              cv.message.getType(),
-                              cv.message.getParameterNumber(),
-                              cv.message.getOffValue(),
-                              Origin::internal);
+        emitOffValue();
     }
     ControlComponent::onPotTouchUp(potEvent);
 }
@@ -142,13 +142,13 @@ void PadControl::paint(Graphics &g)
         g, bounds, control.getColour565(), isMomentary, getState());
 
     g.setColour(Colours565::white);
-    char stringValue[Control::MaxNameLength + 1];
+    char stringValue[ControlValue::MaxLabelLength + 1];
     if (control.getValue(0).isLabelSet()) {
         copyString(stringValue,
                    control.getValue(0).getLabel(),
-                   Control::MaxNameLength);
+                   ControlValue::MaxLabelLength);
     } else {
-        snprintf(stringValue, Control::MaxNameLength, "%s", getName());
+        snprintf(stringValue, ControlValue::MaxLabelLength, "%s", getName());
     }
 
     g.print(0,
@@ -178,6 +178,19 @@ bool PadControl::getState() const
 }
 void PadControl::setState(bool newState)
 {
-    state = newState;
-    repaint();
+    if (state != newState) {
+        state = newState;
+        repaint();
+    }
+}
+
+void PadControl::emitOffValue(void)
+{
+    const ControlValue cv = control.getValue(0);
+
+    parameterMap.setValue(cv.message.getDeviceId(),
+                          cv.message.getType(),
+                          cv.message.getParameterNumber(),
+                          cv.message.getOffValue(),
+                          Origin::internal);
 }

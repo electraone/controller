@@ -149,6 +149,38 @@ LookupEntry *ParameterMap::setValue(uint8_t deviceId,
     return (entry);
 }
 
+LookupEntry *ParameterMap::setValueSimple(uint8_t deviceId,
+                                          Message::Type type,
+                                          uint16_t parameterNumber,
+                                          uint16_t midiValue)
+{
+#ifdef DEBUG
+    System::logger.write(
+        LOG_TRACE,
+        "ParameterMap::setValue: deviceId=%d, type=%d, parameterNumber=%d, "
+        "midiValue=%d, origin=%d",
+        deviceId,
+        type,
+        parameterNumber,
+        midiValue,
+        origin);
+#endif
+
+    // These messages are not device specific
+    if (type == Message::Type::start || type == Message::Type::stop
+        || type == Message::Type::tune) {
+        deviceId = 0xff;
+    }
+
+    LookupEntry *entry =
+        getAndCache(calculateHash(deviceId, type, parameterNumber));
+
+    if (entry) {
+        entry->setMidiValue(midiValue);
+    }
+    return (entry);
+}
+
 LookupEntry *ParameterMap::modulateValue(uint8_t deviceId,
                                          Message::Type type,
                                          uint16_t parameterNumber,

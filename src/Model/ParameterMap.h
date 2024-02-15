@@ -123,8 +123,10 @@ public:
      */
     LookupEntry *
         setValue(LookupEntry *entry, uint16_t midiValue, Origin origin);
+
     /**
-     * @brief Set MIDI value stored in the LookupEntry
+     * @brief Set MIDI value stored in the LookupEntry. All linked
+     *  follow-up actions will be triggered.
      * 
      * @param deviceId an Id of the Device
      * @param type type of the Message (Paramater type)
@@ -140,6 +142,35 @@ public:
                           uint16_t midiValue,
                           Origin origin);
 
+    /**
+     * @brief Set MIDI value stored in the LookupEntry, without triggering
+     *  any follow-up actions.
+     * 
+     * @param deviceId an Id of the Device
+     * @param type type of the Message (Paramater type)
+     * @param parameterNumber an identifier of the parameter
+     * @param midiValue MIDI value to be stored
+     * 
+     * @return LookupEntry* pointer to the modified LookupEntry if any
+     */
+    LookupEntry *setValueSimple(uint8_t deviceId,
+                                Message::Type type,
+                                uint16_t parameterNumber,
+                                uint16_t midiValue);
+
+    /**
+     * @brief Modulates MIDI value stored in the LookupEntry. The stored
+     *  MIDI value will not be changed, calculated modulated MIDI value
+     *  will be sent out.
+     * 
+     * @param deviceId an Id of the Device
+     * @param type type of the Message (Paramater type)
+     * @param parameterNumber an identifier of the parameter
+     * @param modilationValue MIDI value to be stored
+     * @param depth depth of the modulation
+     * 
+     * @return LookupEntry* pointer to the modified LookupEntry if any
+     */
     LookupEntry *modulateValue(uint8_t deviceId,
                                Message::Type type,
                                uint16_t parameterNumber,
